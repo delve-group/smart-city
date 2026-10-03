@@ -46,10 +46,11 @@ Domain services never read cookies, headers or model output for authority. The H
 type ActorContext = { correlation_id: string } & (
   | { kind: "session"; actor: Actor }                       // resident, official or institution session
   | { kind: "system"; principal: "triage" | "decision_maker" | "executor" | "indexer" }
+  | { kind: "anonymous" }                                   // public read without a session
 );
 ```
 
-`Actor` is the [foundation type](api-contract.md#backend-foundation-implemented). `system` principals exist only inside the server (worker, MCP adapter with a scoped server credential). `decision_maker` may read scoped context, suggest triage and create proposals; `executor` may only execute an approved proposal; neither can call an official or institution command. An institution MCP credential maps server-side to one institution and is passed as a `session`-kind institution actor.
+`Actor` is the [foundation type](api-contract.md#backend-foundation-implemented). `anonymous` sees public projections only and can perform no write. `system` principals exist only inside the server (worker, MCP adapter with a scoped server credential). `decision_maker` may read scoped context, suggest triage and create proposals; `executor` may only execute an approved proposal; neither can call an official or institution command. An institution MCP credential maps server-side to one institution and is passed as a `session`-kind institution actor.
 
 ## 2. Shared shapes
 
@@ -246,7 +247,9 @@ POST /api/incidents/inc_0142/contributions
 (resolved case) 409 { "code": "incident_closed", "message": "This incident is finished. Create a new report if the problem is back.", … }
 ```
 
-A support change may move `suspected` ↔ `corroborated` only. It increments the incident version (and so supersedes an unexecuted proposal) only when the support count actually changes.
+A support change may move `suspected` ↔ `corroborated` only (two distinct identities is the demo threshold) and never alters `verified` or `disputed`. A new membership or a newly linked report increments the incident version (and so supersedes an unexecuted proposal); a repeat changes nothing. A resident who is already a member is answered `200` even on a finished incident.
+
+Automatic triage (`triage` work, or `triageReport` called by the decision-maker) applies the grouping policy of spec §5 from the primary store alone: the policy version, limits and outcome are stored on the report (`triage_policy`), a caller's suggested incident is recorded but never widens eligibility, and a report whose version changed since the work was queued is left untouched. Urgent, unit-only, non-outage, unknown-time/scope/street and ambiguous reports go to review with a reason and candidate list; they never create a public incident.
 
 ## 5. Official commands
 
@@ -352,6 +355,8 @@ function registerWorkHandler(kind: WorkKind, handler: (work: WorkItem) => Promis
 | `index` | `report` / `incident` / `service_ticket` at its version | `index:{type}:{id}:v{version}` | Every source mutation (#23, #25, #27, #31) | Workstream 3 (#32), reading [section 9](#9-search-source-projections). |
 | `execute` | `action_proposal` at its version | `execute:proposal:{id}` | Approval (#27) | Workstream 2, `server/actions` (#27). |
 
+Workstream 2 exports `registerDomainWorkHandlers()` from `server/work-handlers.ts`; the worker calls it once at startup. It registers `triage` now and `execute` with #27.
+
 Rules: payloads never hold credentials, narratives or personal data — handlers re-read the source. Handlers open their own transactions and make provider calls outside them. The worker runs one item per source at a time, leases and reclaims after restart, and parks a kind with no registered handler without consuming attempts. A handler result of `failed` or exhausted `retry` is surfaced through the domain's `processing` field, not hidden. An `enqueueWork` failure fails the domain transaction; an unavailable worker, LLM or Qdrant never does.
 
 ## 9. Search source projections
@@ -385,7 +390,7 @@ function hydrateSearchHit(ctx: ActorContext, ref: SourceRef): Promise<
 | `incident` | `public_summary`, public location label, category/issue — only when a `PublicIncident` exists. | Title, linked report summaries, evidence labels. | None. |
 | `service_ticket` | None. | Reference, payload, status, result note. | Same, for the assigned institution only. |
 
-Point identity is `(record_type, record_id, audience)`. An index entry older than the source `version`, or whose `hydrateSearchHit` returns `null`, must not be returned.
+`hydrateSearchHit` with an `anonymous` context (or any non-official caller) returns only the public incident projection; reports and tickets return `null` for it. Point identity is `(record_type, record_id, audience)`. An index entry older than the source `version`, or whose `hydrateSearchHit` returns `null`, must not be returned.
 
 ## 10. Migration stages
 

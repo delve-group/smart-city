@@ -2,9 +2,9 @@ import "server-only";
 
 import type { NextRequest } from "next/server";
 import type { z } from "zod";
-import { sessionContext, type ActorContext } from "@/server/actor-context";
+import { anonymousContext, sessionContext, type ActorContext } from "@/server/actor-context";
 import { readSessionToken } from "@/server/auth/cookies";
-import { requireSession } from "@/server/auth/sessions";
+import { findSession, requireSession } from "@/server/auth/sessions";
 import type { ActorRole } from "@/server/auth/types";
 import { ApiError } from "./api";
 import { readJson } from "./request";
@@ -17,6 +17,12 @@ export async function requireActorContext(
 ): Promise<ActorContext> {
   const session = await requireSession(readSessionToken(request), role);
   return sessionContext(session.actor, correlationId);
+}
+
+/** Public reads: the session, when there is one, only personalises the answer. */
+export async function optionalActorContext(request: NextRequest, correlationId: string): Promise<ActorContext> {
+  const session = await findSession(readSessionToken(request));
+  return session ? sessionContext(session.actor, correlationId) : anonymousContext(correlationId);
 }
 
 /** Strict schemas reject unknown properties, so injected authority fields fail here with no effect. */
