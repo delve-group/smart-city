@@ -5,6 +5,7 @@ Ta baza przechowuje kontekst i decyzje projektu, nie jest bazą danych aplikacji
 | Potrzeba | Źródło |
 | --- | --- |
 | Cel, ograniczenia, status i niewiadome | [Kontekst projektu](project.md) |
+| Zasady konkursu, etapy oceny i kryteria | [Ocena konkursu Smart City](hackathon-evaluation.md) |
 | Dlaczego wybraliśmy dane rozwiązanie | [Decyzje](decisions.md) |
 | Źródła map, WMS/WFS, budynki, działki i 3D | [Dane przestrzenne i Geoportal](geospatial-data.md) |
 | Granice modułów, przepływ danych i skalowanie | [Architektura](../architecture.md) |
