@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useI18n } from "@/shared/i18n/locale";
 
 /** The app's primary action: report a problem at a place on the map. */
-export function ReportFab({ active, busy = false, onClick, onVoice, onResume }: { active: boolean; busy?: boolean; onClick: () => void; onVoice?: () => void; onResume?: () => void }) {
+export function ReportFab({ active, busy = false, onClick, onVoice }: { active: boolean; busy?: boolean; onClick: () => void; onVoice?: () => void }) {
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const button = (
@@ -31,7 +31,6 @@ export function ReportFab({ active, busy = false, onClick, onVoice, onResume }: 
       <div className="mt-3 flex flex-col gap-2">
         <Button size="lg" onClick={() => { setOpen(false); onVoice(); }}>{t("voice.title")}</Button>
         <Button variant="outline" size="lg" onClick={() => { setOpen(false); onClick(); }}>{t("voice.useForm")}</Button>
-        {onResume && <Button variant="ghost" size="lg" onClick={() => { setOpen(false); onResume(); }}>{t("voice.resume")}</Button>}
       </div>
     </PopoverContent>
   </Popover>;

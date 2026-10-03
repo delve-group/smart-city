@@ -19,14 +19,12 @@ import { useI18n } from "@/shared/i18n/locale";
 import type { Category } from "@/api/categories/types";
 import type { PublicIncident } from "@/api/incidents/types";
 import type { Place } from "@/api/photon/types";
-import type { SearchMode } from "@/api/search/types";
 import { USE_MOCKS } from "@/api/mocks/use-mocks";
 import { usePlaceSearch } from "../../hooks/use-place-search";
 import { useIncidentSearch } from "../../hooks/use-incident-search";
 import { searchIncidents, topIncidents } from "../../utils/search-incidents";
 import { SearchPlaceOption } from "../search-place-option/search-place-option";
 import { SearchIncidentOption } from "../search-incident-option/search-incident-option";
-import { SearchModeSelect } from "../search-mode-select/search-mode-select";
 
 export type SearchOption =
   | { kind: "incident"; id: string; label: string; incident: PublicIncident }
@@ -48,9 +46,8 @@ const toPlaceOption = (place: Place): SearchOption => ({ kind: "place", id: plac
 export function MapSearch({ incidents, categoryIds, categoriesById, onPick }: MapSearchProps) {
   const { t } = useI18n();
   const [query, setQuery] = useState("");
-  const [mode, setMode] = useState<SearchMode>("hybrid");
   const places = usePlaceSearch(query);
-  const search = useIncidentSearch(query, mode, categoryIds);
+  const search = useIncidentSearch(query, "hybrid", categoryIds);
   const typed = query.trim().length > 0;
   const incidentsById = new Map(incidents.map((incident) => [incident.id, incident]));
   // Preserve server ordering; details always come from the map's strict public DTO.
@@ -101,9 +98,6 @@ export function MapSearch({ incidents, categoryIds, categoriesById, onPick }: Ma
         endSlot={searching ? <Spinner className="size-4 text-foreground-muted" aria-label={t("search.searching")} /> : null}
       />
       <ComboboxContent className="w-[min(32rem,calc(100vw-1.5rem))] min-w-0">
-        <div className="flex items-center justify-between gap-3 border-b border-border-muted px-3 py-2 text-xs text-foreground-muted">
-          <span>{t("search.modeLabel")}</span><SearchModeSelect mode={mode} onChange={setMode} />
-        </div>
         {typed && (searching || search.status === "error" || outdated || places.status === "error" || USE_MOCKS) && <div role="status" className="flex flex-col gap-2 border-b border-border-muted px-3 py-2 text-xs text-foreground-muted">
           {searching && <span>{t("search.searching")}</span>}
           {(search.status === "error" || outdated) && <div className="flex items-center justify-between gap-2">

@@ -198,7 +198,6 @@ export function InstitutionInbox({ onSessionLost, onSignOut }: InstitutionInboxP
                     counts={counts}
                     selected={shownCategoryIds ?? categoryIds}
                     onChange={(ids) => setShownCategoryIds(ids.length === categoryIds.length ? null : ids)}
-                    hint={t("filter.hintList")}
                   />
                 )}
               </div>

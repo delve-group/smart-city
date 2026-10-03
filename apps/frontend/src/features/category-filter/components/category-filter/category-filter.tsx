@@ -4,7 +4,7 @@ import { Filter } from "@appica/icons-react";
 import { Button } from "@appica/ui-react/button";
 import { Checkbox } from "@appica/ui-react/checkbox";
 import { CheckboxGroup } from "@appica/ui-react/checkbox-group";
-import { Popover, PopoverContent, PopoverDescription, PopoverTitle, PopoverTrigger } from "@appica/ui-react/popover";
+import { Popover, PopoverContent, PopoverTitle, PopoverTrigger } from "@appica/ui-react/popover";
 import type { Category } from "@/api/categories/types";
 import { CategoryTile } from "@/shared/components/category-tile/category-tile";
 import { categoryText, useI18n } from "@/shared/i18n/locale";
@@ -17,12 +17,10 @@ type CategoryFilterProps = {
   /** Category ids currently shown on the map and in search. */
   selected: readonly string[];
   onChange: (selected: string[]) => void;
-  /** What hiding a category does on this screen; defaults to the resident map's wording. */
-  hint?: string;
 };
 
 /** Square button next to the search field; opens a category checklist. */
-export function CategoryFilter({ categories, counts, selected, onChange, hint }: CategoryFilterProps) {
+export function CategoryFilter({ categories, counts, selected, onChange }: CategoryFilterProps) {
   const { t } = useI18n();
   const allIds = categories.map((category) => category.id);
   const filtered = selected.length < allIds.length;
@@ -53,10 +51,7 @@ export function CategoryFilter({ categories, counts, selected, onChange, hint }:
         )}
       </PopoverTrigger>
       <PopoverContent align="end" sideOffset={8} className="w-80">
-        <div className="flex flex-col gap-1">
-          <PopoverTitle>{t("filter.title")}</PopoverTitle>
-          <PopoverDescription>{hint ?? t("filter.hint")}</PopoverDescription>
-        </div>
+        <PopoverTitle>{t("filter.title")}</PopoverTitle>
         <CheckboxGroup
           aria-labelledby="category-filter-all"
           allValues={allIds}

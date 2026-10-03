@@ -180,13 +180,6 @@ export function CityMapView() {
     setMode({ kind: "voice" });
   }
 
-  async function resumeReport() {
-    const draft = await intake.start(false, "voice");
-    if (!draft) return;
-    setSelectedId(null); setHover(null);
-    setMode({ kind: draft.submission ? "form" : "voice" });
-  }
-
   async function handleContribution() {
     if (!selected) return;
     try {
@@ -250,8 +243,7 @@ export function CityMapView() {
           />
         )}
         {ready && !selected && (
-          <ReportFab active={mode.kind !== "browse"} busy={intake.busy} onClick={() => mode.kind === "browse" && void startReport(true)} onVoice={() => void startVoiceReport()}
-            onResume={intake.draft && !intake.draft.submission && !intake.report ? () => void resumeReport() : undefined} />
+          <ReportFab active={mode.kind !== "browse"} busy={intake.busy} onClick={() => mode.kind === "browse" && void startReport(true)} onVoice={() => void startVoiceReport()} />
         )}
       </div>
 

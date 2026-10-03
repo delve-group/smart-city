@@ -101,7 +101,6 @@ export function OperationsSidebar({
               counts={categoryCounts}
               selected={shownCategoryIds}
               onChange={onShownCategoriesChange}
-              hint={t("filter.hintList")}
             />
           )}
         </div>

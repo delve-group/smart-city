@@ -54,10 +54,10 @@ export function IncidentTooltip({ incident, category, now, x, y, bounds }: Incid
           <dd>{t("report.reportedAgo", { when: formatAgo(incident.created_at, now, locale) })}</dd>
         </div>
         <div className="flex items-start gap-2">
-          <dt className="sr-only">{t("incidentMap.supportersLabel")}</dt>
+          <dt className="sr-only">{t("common.confirmations")}</dt>
           <Users size={16} aria-hidden className="mt-0.5 shrink-0 text-foreground-subtle" />
           <dd>
-            {tCount(t, locale, "incidentMap.supporters", incident.support_count)}
+            {tCount(t, locale, "residents", incident.support_count)}
           </dd>
         </div>
       </dl>

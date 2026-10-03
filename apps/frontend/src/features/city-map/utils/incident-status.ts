@@ -1,14 +1,16 @@
 import type { PublicIncident } from "@/api/incidents/types";
 
-export const ASSESSMENT_LABEL: Record<PublicIncident["assessment"], string> = {
-  suspected: "Suspected", corroborated: "Corroborated", verified: "Officially verified", disputed: "Disputed",
+/** The four steps a resident follows; the API's response states fold into them. */
+export const STATUS_STEPS = ["reported", "confirmed", "in_progress", "resolved"] as const;
+export type ResidentStatus = (typeof STATUS_STEPS)[number];
+
+const STEP_OF: Record<PublicIncident["response_status"], ResidentStatus> = {
+  new: "reported",
+  triaged: "confirmed",
+  assigned: "confirmed",
+  in_progress: "in_progress",
+  resolved: "resolved",
+  closed: "resolved",
 };
-export const RESPONSE_LABEL: Record<PublicIncident["response_status"], string> = {
-  new: "Awaiting triage", triaged: "Triaged", assigned: "Assigned", in_progress: "Work in progress", resolved: "Resolved", closed: "Closed",
-};
-export const ASSESSMENT_HINT: Record<PublicIncident["assessment"], string> = {
-  suspected: "Reported observations need assessment.",
-  corroborated: "Several distinct identities support this incident. This does not mean official verification.",
-  verified: "A city official has verified this incident.",
-  disputed: "The current evidence is disputed; follow the response updates separately.",
-};
+
+export const residentStatus = (incident: Pick<PublicIncident, "response_status">): ResidentStatus => STEP_OF[incident.response_status];
