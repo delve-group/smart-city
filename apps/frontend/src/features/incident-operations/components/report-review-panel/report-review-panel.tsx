@@ -1,4 +1,4 @@
-import { Clock, Lock, Ruler } from "@appica/icons-react";
+import { Clock, Id, Lock, Ruler, Users } from "@appica/icons-react";
 import { Button } from "@appica/ui-react/button";
 import { Field, FieldError, FieldLabel } from "@appica/ui-react/field";
 import { Radio } from "@appica/ui-react/radio";
@@ -14,6 +14,7 @@ import { InfoHint } from "@/shared/components/info-hint/info-hint";
 import { formatAgo } from "@/shared/utils/format-time";
 import { RESPONSE } from "../../utils/labels";
 import { reportsOf } from "../../utils/queue";
+import { Fact, FACTS } from "../fact/fact";
 import { PanelHeader } from "../panel-header/panel-header";
 import { ReviewNotice } from "../review-notice/review-notice";
 
@@ -93,11 +94,13 @@ export function ReportReviewPanel({ report, workspace, category, now, onClose, o
                   {report.summary}
                 </h2>
                 <p className="text-sm text-foreground-muted">{report.address}</p>
-                <p className="flex items-center gap-1 text-xs text-foreground-muted">
-                  <span>
-                    <span className="font-mono">{report.reference}</span> · {report.channel === "voice" ? "Voice" : "Form"} report ·{" "}
+                <p className={FACTS}>
+                  <Fact icon={Id} label="Reference">
+                    <span className="font-mono">{report.reference}</span>
+                  </Fact>
+                  <Fact icon={Clock} label="Reported">
                     {formatAgo(report.submittedAt, now)}
-                  </span>
+                  </Fact>
                   <InfoHint label="Private report" icon={Lock}>
                     Only staff see this report{report.unit ? `, including “${report.unit}”` : ""}. Nothing about it reaches the public
                     map until it joins an incident.
@@ -134,20 +137,16 @@ export function ReportReviewPanel({ report, workspace, category, now, onClose, o
                           </span>
                           <span className="shrink-0 text-xs text-foreground-muted">{RESPONSE[incident.responseStatus].label}</span>
                         </span>
-                        <span className="flex items-center gap-3 text-xs text-foreground-muted tabular-nums">
-                          <span className="inline-flex items-center gap-1">
-                            <Ruler size={14} aria-hidden />
-                            <span className="sr-only">Distance: </span>
+                        <span className={FACTS}>
+                          <Fact icon={Ruler} label="Distance">
                             {distanceM} m
-                          </span>
-                          <span className="inline-flex items-center gap-1">
-                            <Clock size={14} aria-hidden />
-                            <span className="sr-only">Started </span>
+                          </Fact>
+                          <Fact icon={Clock} label="Started">
                             {minutesApart} min earlier
-                          </span>
-                          <span>
+                          </Fact>
+                          <Fact icon={Users} label="Reports">
                             {reports} {reports === 1 ? "report" : "reports"}
-                          </span>
+                          </Fact>
                         </span>
                       </span>
                     </label>

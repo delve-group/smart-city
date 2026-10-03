@@ -41,7 +41,7 @@ export function NearbyReports({ report, reports, category, now, onSelect }: Near
               <button
                 type="button"
                 onClick={() => onSelect(other)}
-                className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-start transition-colors duration-150 hover:bg-background-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                className="flex w-full cursor-pointer items-center gap-3 rounded-md px-2 py-2 text-start transition-colors duration-150 hover:bg-background-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
                 <CategoryTile categoryId={other.categoryId} />
                 <span className="flex min-w-0 flex-1 flex-col">
