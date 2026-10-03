@@ -36,7 +36,7 @@ The newer [root specification](../../spec.md) describes a broader institutional 
 - Its production rollout and automated-testing proposals are future context. The current PoC rules remain in `AGENTS.md`; do not infer approval for Kubernetes, full SSO, finance workflows or automated tests.
 - Named institutions, contact details, legal statements and SLA examples in that document are not verified integration contracts in this research.
 
-A parallel knowledge-base change records the user's selection of Qdrant for ticket/incident search, including uncategorized records. Preserve that choice when implementing retrieval; Qdrant is a derived search index, not the authoritative report/incident store. Use the maintained Qdrant search note once integrated rather than duplicating model or hosting settings here. Candidate retrieval must not automatically merge incidents, and a search result may lack a category even though submitted map reports currently require one. Until the index is implemented, distinguish unavailable search from an empty result.
+The [Qdrant search guide](../knowledge-base/qdrant-search.md) (D029) records the user's selection of Qdrant for ticket/incident search, including uncategorized records. Preserve that choice when implementing retrieval; Qdrant is a derived search index, not the authoritative report/incident store. Use that guide for model and hosting settings. Candidate retrieval must not automatically merge incidents, and a search result may lack a category even though submitted map reports currently require one. Until the index is implemented, distinguish unavailable search from an empty result.
 
 ## Three implementation approaches
 
@@ -117,7 +117,7 @@ Start with one MCP server only if the chosen voice/agent integration benefits fr
 | Browser conversation | **GPT-Live over WebRTC**, with a backend handling domain work | Account access, Polish address recognition, interruptions, backend tool completion and session cost. This is a recommendation, not a selected provider. |
 | Alternative voice platform | **ElevenLabs Agents + `@elevenlabs/react`** | Same voice scenarios and account limits; use Appica for controls, retaining the provider SDK underneath. |
 | OpenAI alternative | Realtime API with function tools or remote MCP | Choose if its session/tool model or available account access fits better. Do not mix Live and Realtime event formats. |
-| Related-record retrieval | Qdrant, as selected in the parallel search decision | Integration, Polish retrieval quality, scoped access and index freshness; keep source records in the primary database. |
+| Related-record retrieval | Qdrant, as selected in D029 | Integration, Polish retrieval quality, scoped access and index freshness; keep source records in the primary database. |
 | Reasoning | One backend LLM with structured outputs and a bounded tool workflow | Model quality on the actual triage cases. Use ordinary TypeScript for permission checks and state transitions. |
 | Map and geocoding | Existing MapLibre/OpenFreeMap and Photon adapters | Voice address confirmation and service failure fallback. No map replacement needed. |
 | Storage | One PostgreSQL database for the shared demo | Existing team hosting/access. SQLite is an alternative only for a deliberately single-server demo with durable disk. |
