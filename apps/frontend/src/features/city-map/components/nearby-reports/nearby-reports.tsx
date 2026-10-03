@@ -2,9 +2,9 @@ import { InfoCircle } from "@appica/icons-react";
 import type { Category } from "@/api/categories/types";
 import type { CityReport } from "@/api/reports/types";
 import { CategoryTile } from "@/shared/components/category-tile/category-tile";
-import { formatAgo } from "../../utils/format-time";
+import { formatAgo } from "@/shared/utils/format-time";
 import { formatDistance, nearbyReports } from "../../utils/nearby-reports";
-import { PanelAccordionItem } from "../panel-accordion-item/panel-accordion-item";
+import { PanelAccordionItem } from "@/shared/components/panel-accordion-item/panel-accordion-item";
 
 type NearbyReportsProps = {
   report: CityReport;

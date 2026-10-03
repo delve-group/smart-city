@@ -1,8 +1,8 @@
 import { Check } from "@appica/icons-react";
 import type { CityReport } from "@/api/reports/types";
-import { formatDateTime } from "../../utils/format-time";
+import { formatDateTime } from "@/shared/utils/format-time";
 import { STATUS_HINT, STATUS_LABEL, STATUS_STEPS } from "../../utils/report-status";
-import { PanelAccordionItem } from "../panel-accordion-item/panel-accordion-item";
+import { PanelAccordionItem } from "@/shared/components/panel-accordion-item/panel-accordion-item";
 
 export function ReportProgress({ report, now }: { report: CityReport; now: number }) {
   const current = STATUS_STEPS.indexOf(report.status);

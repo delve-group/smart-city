@@ -6,13 +6,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { MapPinFilled } from "@appica/icons-react";
 import Map, { AttributionControl, Layer, Marker, Source, type MapLayerMouseEvent, type MapRef, type ViewStateChangeEvent } from "react-map-gl/maplibre";
 import type { Feature, FeatureCollection, LineString, Polygon } from "geojson";
-import type { CityReport } from "@/api/reports/types";
 import { useColorScheme } from "../../hooks/use-color-scheme";
 import { useMapStyle } from "../../hooks/use-map-style";
 import { useReportIcons } from "../../hooks/use-report-icons";
 import { MARKER_PIXEL_RATIO, MARKER_SIZE } from "../../utils/report-icon-svg";
 import { readMapColors } from "../../utils/read-map-colors";
-import { toFeatureCollection } from "../../utils/to-feature-collection";
+import { toAreaCollection, toFeatureCollection } from "../../utils/to-feature-collection";
+import { INITIAL_VIEW, type MapArea, type MapFocus, type MapHover, type MapPoint, type MapView } from "./map-types";
 import { useReportPlaces } from "./use-report-places";
 
 // The only file that knows the map library. A Google Maps version implements the same props.
@@ -24,8 +24,6 @@ const MAP_STYLE = {
   light: "https://tiles.openfreemap.org/styles/positron",
   dark: "https://tiles.openfreemap.org/styles/dark",
 };
-/** Where the map opens. */
-export const INITIAL_VIEW = { longitude: 19.945, latitude: 50.0617, zoom: 12.3 };
 /** Invisible, larger circles that catch the pointer, so small points are easy to hit. */
 const HIT_LAYER = "report-hit-area";
 /** Camera for the 3D view. */
@@ -33,21 +31,12 @@ const TILT = { pitch: 55, minZoom: 15.5 };
 /** Zoom band where the heatmap hands over to individual points. */
 const HANDOVER = { start: 12.5, end: 14 };
 
-export type MapFocus = {
-  /** Changes on every request, so focusing the same place twice still moves the map. */
-  key: number;
-  lng: number;
-  lat: number;
-  zoom?: number;
-};
-
-export type MapHover = { id: string; x: number; y: number };
-
 export type CityMapCanvasProps = {
-  reports: readonly CityReport[];
+  points: readonly MapPoint[];
   /** API-defined category ids, in display order; colours come from theme tokens. */
   categoryIds: readonly string[];
-  selectedId: string | null;
+  /** Points drawn with a selection halo. */
+  selectedIds: readonly string[];
   hoveredId: string | null;
   focus: MapFocus | null;
   /** Screen space covered by floating UI, so fly-to centres in the visible area. */
@@ -65,12 +54,19 @@ export type CityMapCanvasProps = {
   attribution?: string;
   /** Tilted view that shows buildings in 3D. */
   tilted?: boolean;
+  /** Circles under the markers, e.g. an incident's matching radius. */
+  areas?: readonly MapArea[];
+  /** Density heatmap at city zoom; off for screens with only a handful of points. */
+  heatmap?: boolean;
+  initialView?: MapView;
 };
 
+const NO_AREAS: readonly MapArea[] = [];
+
 export default function CityMapCanvas({
-  reports,
+  points,
   categoryIds,
-  selectedId,
+  selectedIds,
   hoveredId,
   focus,
   insets,
@@ -81,6 +77,9 @@ export default function CityMapCanvas({
   onCenterChange,
   attribution,
   tilted = false,
+  areas = NO_AREAS,
+  heatmap = true,
+  initialView = INITIAL_VIEW,
 }: CityMapCanvasProps) {
   const mapRef = useRef<MapRef>(null);
   /** True while the camera moves (drag, zoom, fly-to); hover is meaningless then. */
@@ -88,27 +87,30 @@ export default function CityMapCanvas({
   const scheme = useColorScheme();
   // Re-read tokens when the theme changes; `scheme` is the cache key.
   const colors = useMemo(() => ({ scheme, ...readMapColors(categoryIds) }), [scheme, categoryIds]);
-  const data = useMemo(() => toFeatureCollection(reports), [reports]);
+  const data = useMemo(() => toFeatureCollection(points), [points]);
+  const areaData = useMemo(() => toAreaCollection(areas), [areas]);
   const mapStyle = useMapStyle(MAP_STYLE, colors.scheme, colors.baseMap);
   /** Set once the map has loaded; until then the instance behind mapRef may not exist yet. */
   const [loaded, setLoaded] = useState(false);
-  const places = useReportPlaces(mapRef, reports, loaded);
+  const places = useReportPlaces(mapRef, points, loaded);
   // Shapes on the base map that carry a report: its building, or a stretch of its road.
   const { buildings, roadSegments } = useMemo(() => {
     const buildingFeatures: Feature<Polygon>[] = [];
     const roadFeatures: Feature<LineString>[] = [];
-    for (const report of reports) {
-      const place = places.get(report.id);
+    for (const point of points) {
+      // A private or unreviewed report does not claim a building or street.
+      if (point.muted) continue;
+      const place = places.get(point.id);
       if (place?.kind === "building") {
         buildingFeatures.push({
           type: "Feature",
-          properties: { category: report.categoryId, height: place.height, base: place.base },
+          properties: { category: point.categoryId, height: place.height, base: place.base },
           geometry: { type: "Polygon", coordinates: place.footprint },
         });
       } else if (place?.kind === "road" && place.line.length > 1) {
         roadFeatures.push({
           type: "Feature",
-          properties: { category: report.categoryId },
+          properties: { category: point.categoryId },
           geometry: { type: "LineString", coordinates: place.line },
         });
       }
@@ -117,7 +119,7 @@ export default function CityMapCanvas({
       buildings: { type: "FeatureCollection", features: buildingFeatures } satisfies FeatureCollection<Polygon>,
       roadSegments: { type: "FeatureCollection", features: roadFeatures } satisfies FeatureCollection<LineString>,
     };
-  }, [reports, places]);
+  }, [points, places]);
   const icons = useReportIcons(
     categoryIds,
     { category: colors.category, fallback: colors.fallback, ring: colors.surface, icon: colors.onCategory },
@@ -129,7 +131,8 @@ export default function CityMapCanvas({
   function registerIcons() {
     const map = mapRef.current?.getMap();
     const current = iconsRef.current;
-    if (!map || !current) return;
+    // No style yet (first load, or effects re-run after navigating back): onLoad registers them.
+    if (!map?.style || !current) return;
     for (const [id, image] of current.images) {
       if (!map.hasImage(id)) map.addImage(id, image, { pixelRatio: MARKER_PIXEL_RATIO });
     }
@@ -179,6 +182,8 @@ export default function CityMapCanvas({
         ]
   ) as unknown as ExpressionSpecification;
   const isHovered: ExpressionSpecification = ["==", ["get", "id"], hoveredId ?? ""];
+  const isMuted: ExpressionSpecification = ["==", ["get", "muted"], true];
+  const isFilled: ExpressionSpecification = ["!=", ["get", "muted"], true];
   /** Marker scale at street zoom and at close zoom; heavier reports are bigger. */
   const scale = (zoomed: boolean): ExpressionSpecification =>
     zoomed ? ["+", 1, ["*", ["get", "weight"], 0.4]] : ["+", 0.7, ["*", ["get", "weight"], 0.25]];
@@ -236,7 +241,7 @@ export default function CityMapCanvas({
   return (
     <Map
       ref={mapRef}
-      initialViewState={INITIAL_VIEW}
+      initialViewState={initialView}
       maxPitch={70}
       mapStyle={mapStyle}
       style={{ width: "100%", height: "100%" }}
@@ -257,6 +262,14 @@ export default function CityMapCanvas({
           <MapPinFilled size={40} aria-hidden className="text-foreground-intense drop-shadow-sm" />
         </Marker>
       )}
+      <Source id="map-areas" type="geojson" data={areaData}>
+        <Layer id="map-area-fill" type="fill" paint={{ "fill-color": categoryColor, "fill-opacity": 0.06 }} />
+        <Layer
+          id="map-area-outline"
+          type="line"
+          paint={{ "line-color": categoryColor, "line-width": 1.5, "line-dasharray": [3, 2], "line-opacity": 0.8 }}
+        />
+      </Source>
       {/* Before the reports source, so buildings and stretches draw under the markers. */}
       <Source id="report-buildings" type="geojson" data={buildings}>
         <Layer
@@ -286,6 +299,7 @@ export default function CityMapCanvas({
         />
       </Source>
       <Source id="reports" type="geojson" data={data}>
+        {heatmap && (
         <Layer
           id="report-heat"
           type="heatmap"
@@ -307,10 +321,11 @@ export default function CityMapCanvas({
             ],
           }}
         />
+        )}
         <Layer
           id="report-selected-halo"
           type="circle"
-          filter={["==", ["get", "id"], selectedId ?? ""]}
+          filter={["in", ["get", "id"], ["literal", selectedIds]]}
           paint={{
             "circle-radius": byScale((s) => ["+", 5, markerRadius(s)]),
             "circle-color": categoryColor,
@@ -325,6 +340,7 @@ export default function CityMapCanvas({
             key="report-icons"
             id="report-points"
             type="symbol"
+            filter={isFilled}
             minzoom={HANDOVER.start}
             layout={{
               "icon-image": ["concat", icons.prefix, ["get", "category"]],
@@ -346,6 +362,7 @@ export default function CityMapCanvas({
             key="report-dots"
             id="report-points"
             type="circle"
+            filter={isFilled}
             minzoom={HANDOVER.start}
             paint={{
               "circle-radius": byScale(markerRadius),
@@ -357,6 +374,20 @@ export default function CityMapCanvas({
             }}
           />
         )}
+        <Layer
+          id="report-muted-points"
+          type="circle"
+          filter={isMuted}
+          minzoom={HANDOVER.start}
+          paint={{
+            "circle-radius": byScale((s) => ["*", 0.75, markerRadius(s)]),
+            "circle-color": colors.surface,
+            "circle-opacity": 0.9,
+            "circle-stroke-color": categoryColor,
+            "circle-stroke-width": 2,
+            "circle-stroke-opacity": 0.75,
+          }}
+        />
         <Layer
           id={HIT_LAYER}
           type="circle"

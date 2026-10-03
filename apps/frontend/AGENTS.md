@@ -53,6 +53,7 @@ Component index (fetch a component's `.md` page before using it for the first ti
 ## Map
 
 - Map: MapLibre GL (`react-map-gl/maplibre`) with free OpenFreeMap tiles, no API key. Only the `features/city-map/components/city-map-canvas/` folder (the canvas and its colocated hooks) imports the map library; switching to Google Maps means a new implementation of that component with the same props.
+- The canvas draws generic `MapPoint`s and `MapArea`s (`city-map-canvas/map-types.ts`); each screen maps its own records to them. `muted` points (private or unreviewed reports) are hollow rings and never claim a building or road. Screens that are not the resident map (e.g. `incident-operations`) may use the canvas and `map-settings` as top-level city-map components.
 - MapLibre 6 loads its worker as a separate module. `scripts/copy-maplibre-worker.mjs` copies it to `public/maplibre/` before `dev` and `build`; do not commit those files.
 - Mount heatmap layers conditionally instead of hiding them with `visibility: "none"` — a heatmap layer added while hidden does not draw once shown.
 - Use `offset`, not `padding`, in `flyTo`: MapLibre keeps padding for all later camera moves and tile loading, which leaves an empty strip after the panel closes.
@@ -60,6 +61,7 @@ Component index (fetch a component's `.md` page before using it for the first ti
 - Report places: `city-map-canvas/use-report-places.ts` matches each report in view (street zoom) to the building it is in or the road within 30 m, from rendered tile features. Tiles merge neighbouring buildings into one feature with one id, so never colour buildings by id or feature state — copy the single footprint (`utils/building-footprint.ts`) into the report-buildings source instead.
 - Place search and reverse geocoding use the public Photon instance (fair use, no key). Replace it with a self-hosted or commercial geocoder before real traffic.
 - Categories are API data. Style known ids in `shared/utils/category-appearance.ts` and the `--category-*` tokens; unknown ids fall back to a neutral style, never break.
+- Official workspace (`/operations`, `features/incident-operations`): one feature, mock data from `app/api/operations/` (in-memory, demo-labelled, no session check yet). Every command sends the version the official saw; a `409` refreshes the view instead of retrying. Approve sends exactly the shown payload; nothing reaches an institution without it.
 - The category/report routes remain an in-memory demo; validate report input with `src/api/reports/types.ts`. Persistent auth/health routes are thin adapters to `src/server/`. Before adding persistent API operations, read [the API contract](../../docs/api-contract.md); reuse its session, origin, permission and response boundaries. Add database changes as new numbered SQL migrations in `db/migrations/`.
 
 <!-- BEGIN:nextjs-agent-rules -->

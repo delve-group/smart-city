@@ -7,7 +7,7 @@ Smart City hackathon project: residents report city problems and follow the resp
 - [Voice and incident feature specification](specs/001-voice-incident-response/spec.md) and [ElevenLabs implementation plan](specs/001-voice-incident-response/plan.md)
 - [System architecture](docs/architecture.md) — includes the [libraries used](docs/architecture.md#libraries)
 - [Design system](docs/design-system.md)
-- [Frontend](apps/frontend) and its [agent rules](apps/frontend/AGENTS.md)
+- [Frontend](apps/frontend) and its [agent rules](apps/frontend/AGENTS.md) — resident map at `/`, official workspace (demo data, no sign-in yet) at `/operations`
 - [App tokens](apps/frontend/src/shared/styles/appica-theme.css)
 
 ## Running

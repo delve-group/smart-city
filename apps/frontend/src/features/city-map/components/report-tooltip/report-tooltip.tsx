@@ -2,7 +2,7 @@ import { Clock, MapPin, Users } from "@appica/icons-react";
 import type { Category } from "@/api/categories/types";
 import type { CityReport } from "@/api/reports/types";
 import { CategoryLabel } from "@/shared/components/category-label/category-label";
-import { formatAgo } from "../../utils/format-time";
+import { formatAgo } from "@/shared/utils/format-time";
 import { ReportStatusBadge } from "../report-status-badge/report-status-badge";
 
 const OFFSET = 16;

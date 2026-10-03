@@ -82,4 +82,13 @@ App: [apps/frontend](../apps/frontend). As of 2026-10-03, `@appica/ui-react` 1.2
 - **I'm affected too:** an outline button under the impact numbers; after use it becomes a quiet "You are counted as affected" note. Hidden on resolved reports.
 - **Pin placement:** a fixed centre pin over the moving map, with a bottom card showing the live address, "Use my location", Cancel and Confirm.
 
+## Official workspace patterns (`/operations`)
+
+- **Queue beside the map.** A 24 rem sidebar (full screen on phones) with the brand, an "Operations" badge, one search for incidents, reports and tickets, and line tabs: Needs review, Active, Done, each with its count. Review sorts urgent first, then longest waiting. Rows: category (or a red "Urgent"), waiting time, title, reference and address, and one line saying what the official has to do. A lock marks private reports.
+- **Same map, staff layers.** The resident canvas without the heatmap, opening at street level. Linked reports are icon markers with their building or road; private and unreviewed reports are hollow rings. The selected incident's reports get a halo and its 300 m matching radius is a dashed circle; a report under review shows its candidate incidents' circles.
+- **Same panel.** The floating panel and accordion sections from the resident map. Header: category, mono reference, show-on-map, close. Under the title: three separate badges for assessment, response and unverified support. A review notice (error for danger, warning for an institution rejection) explains why it waits.
+- **One next step.** Below the summary, exactly one of: the proposal card (destination, exact payload in a mono box labelled "Sent exactly as shown", explanation, one primary "Approve and send", outline "Reject" that opens an inline reason), the responsibility picker (radio cards; only an obvious mapped institution is preselected), or the institution's ticket timeline. Reports open by default; Evidence (with stale/missing states), History and Decisions (verify, dispute, close, reopen, each with a reason) are collapsed.
+- **Freshness.** The sidebar footer says "Live · updated N s ago"; after a failed refresh it turns into a warning with the data's age and Retry. A footer line says it is a demo workspace with fictional institutions.
+- **Conflicts.** A stale write shows a warning toast and refreshes; typed reasons stay in the form after a failure.
+
 Map layers need literal colours, so the heatmap reads `--heat-low`, `--heat-mid` and `--heat-high` from the active mode at runtime. MapLibre's attribution box is restyled in `globals.css` to match the mode. Charts need labels or patterns; a palette alone does not guarantee readable data. A chart palette has not been added yet — add it with the first chart.

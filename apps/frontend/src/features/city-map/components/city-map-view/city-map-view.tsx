@@ -16,9 +16,10 @@ import { ReportForm } from "@/features/report-issue/components/report-form/repor
 import { useReverseGeocode } from "@/features/report-issue/hooks/use-reverse-geocode";
 import { AppBrand } from "@/shared/components/app-brand/app-brand";
 import { useAffectedReports } from "../../hooks/use-affected-reports";
+import { heatWeight } from "../../utils/heat-weight";
 import { useCityData } from "../../hooks/use-city-data";
-import { useNow } from "../../hooks/use-now";
-import { INITIAL_VIEW, type MapFocus, type MapHover } from "../city-map-canvas/city-map-canvas";
+import { useNow } from "@/shared/hooks/use-now";
+import { INITIAL_VIEW, type MapFocus, type MapHover, type MapPoint } from "../city-map-canvas/map-types";
 import { DataStatus } from "../data-status/data-status";
 import { MapSearch, type SearchOption } from "../map-search/map-search";
 import { MapSettings } from "../map-settings/map-settings";
@@ -69,6 +70,12 @@ export function CityMapView() {
   const shownIds = shownCategoryIds ?? categoryIds;
   // Filtered-out reports are neither drawn nor searchable nor listed as nearby.
   const reports = allReports.filter((report) => shownIds.includes(report.categoryId));
+  const points: MapPoint[] = reports.map((report) => ({
+    id: report.id,
+    categoryId: report.categoryId,
+    location: report.location,
+    weight: heatWeight(report),
+  }));
   const counts = new Map(categoryIds.map((id) => [id, allReports.filter((report) => report.categoryId === id).length]));
 
   const selected = reports.find((report) => report.id === selectedId);
@@ -161,9 +168,9 @@ export function CityMapView() {
   return (
     <div ref={containerRef} className="relative size-full overflow-hidden">
       <CityMapCanvas
-        reports={reports}
+        points={points}
         categoryIds={categoryIds}
-        selectedId={selectedId}
+        selectedIds={selectedId ? [selectedId] : []}
         hoveredId={hover?.id ?? null}
         focus={focus}
         insets={{

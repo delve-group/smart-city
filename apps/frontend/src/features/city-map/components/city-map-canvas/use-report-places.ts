@@ -1,7 +1,7 @@
 import type { Map as MapLibreMap, MapGeoJSONFeature } from "maplibre-gl";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
-import type { CityReport } from "@/api/reports/types";
+import type { MapPoint } from "./map-types";
 import { nearestOnLine, roadSegmentAround, type LngLat } from "../../utils/road-segment";
 import { footprintAt, type Rings } from "../../utils/building-footprint";
 import { BUILDING_LAYER_IDS, ROAD_LAYER_IDS } from "../../utils/style-base-map";
@@ -65,9 +65,8 @@ function findRoad(map: MapLibreMap, point: { x: number; y: number }, location: L
 /**
  * Matches reports to the building they are in or the road they are on, from what the map has
  * rendered. Runs whenever the map settles at street zoom; results are kept per report.
- * Buildings are coloured through feature state, so the base style must use BUILDING_STATE_KEY.
  */
-export function useReportPlaces(mapRef: RefObject<MapRef | null>, reports: readonly CityReport[], mapReady: boolean) {
+export function useReportPlaces(mapRef: RefObject<MapRef | null>, reports: readonly MapPoint[], mapReady: boolean) {
   const [places, setPlaces] = useState<ReadonlyMap<string, ReportPlace>>(new Map());
   const reportsRef = useRef(reports);
 

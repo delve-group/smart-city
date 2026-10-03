@@ -69,8 +69,9 @@ Features in `apps/frontend/src/features/`:
 - `city-map` — the map screen: data loading, map canvas, search, tooltip and report detail panel. Its view composes the other features through their top-level components.
 - `category-filter` — the filter button and category checklist.
 - `report-issue` — the report button, pin placement and report form.
+- `incident-operations` — the official workspace at `/operations`: review queue, incident and report-review panels, proposal approval, responsibility, verification and reopening. It reuses the city-map canvas (points, areas, muted private markers) and map settings. Demo: served by an in-memory store with the spec's version and ticket rules; no staff session check yet.
 
-Shared building blocks (category label/tile/appearance, floating panel shell, severity labels) live in `src/shared/`. The map's mock backend still uses an **in-memory store**: submitted reports live until the app restarts. Its migration to persistent incidents changes the route contracts and `src/api/*` clients together, as defined by the feature plan.
+Shared building blocks (category label/tile/appearance, floating panel shell, accordion section, severity labels, time formatting) live in `src/shared/`. The map's mock backend still uses an **in-memory store**: submitted reports live until the app restarts. Its migration to persistent incidents changes the route contracts and `src/api/*` clients together, as defined by the feature plan.
 
 Form state stays local. Search and filter parameters go into the URL when a view must be shareable. Add shared fetching and caching only when there is a real need. The theme belongs to the app shell; it does not change data or permissions.
 

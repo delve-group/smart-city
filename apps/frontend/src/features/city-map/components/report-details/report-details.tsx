@@ -1,6 +1,6 @@
 import type { CityReport } from "@/api/reports/types";
-import { formatDateTime } from "../../utils/format-time";
-import { PanelAccordionItem } from "../panel-accordion-item/panel-accordion-item";
+import { formatDateTime } from "@/shared/utils/format-time";
+import { PanelAccordionItem } from "@/shared/components/panel-accordion-item/panel-accordion-item";
 
 export function ReportDetails({ report, now }: { report: CityReport; now: number }) {
   const facts = [
