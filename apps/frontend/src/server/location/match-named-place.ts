@@ -9,7 +9,7 @@ export function locationQuery(address: string): string {
 }
 
 function placeName(value: string): string {
-  return normalizeText(locationQuery(value)).replace(/\bkrak(?:ow|owie)\b/g, "")
+  return normalizeText(locationQuery(value).toLowerCase()).replace(/\bkrak(?:ow|owie)\b/g, "")
     .replace(/^(?:w|na)\s+/, "").replace(/[^a-z0-9]+/g, " ").trim();
 }
 
@@ -22,6 +22,8 @@ export function matchNamedPlace(features: readonly unknown[], address: string): 
     const parsed = photonFeatureSchema.safeParse(feature);
     if (!parsed.success) continue;
     const { properties: p, geometry: { coordinates: [lng, lat] } } = parsed.data;
+    // A uniquely returned road segment does not turn an incomplete street address into a venue.
+    if (p.osm_key === "highway" && p.osm_value !== "bus_stop") continue;
     if (!p.name || placeName(p.name) !== query || !insideKrakow({ lat, lng }) || !/^krak[oó]w$/i.test(p.city ?? "")) continue;
     const candidate_id = `photon:${p.osm_type}:${p.osm_id}`;
     const bounds = p.extent ? locationBoundsSchema.safeParse({ west: p.extent[0], north: p.extent[1], east: p.extent[2], south: p.extent[3] }) : null;
