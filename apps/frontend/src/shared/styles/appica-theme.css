@@ -116,6 +116,8 @@
   --map-road-motorway: #F6EAD2;
   --map-road-motorway-casing: #C9B188;
   --map-building-3d: #E2E2E2;
+  /* "You are here" dot: the one blue on the map, by convention. */
+  --map-user-location: #2F6FEB;
 
   /* Heatmap: one rose hue, from a faint wash to a deep core. */
   --heat-low: rgba(244, 114, 142, 0.35);
@@ -234,6 +236,7 @@
   --map-road-motorway: #463E31;
   --map-road-motorway-casing: #574C3A;
   --map-building-3d: #262626;
+  --map-user-location: #5B93F5;
 
   --heat-low: rgba(251, 113, 133, 0.3);
   --heat-mid: rgba(244, 63, 94, 0.7);

@@ -58,7 +58,7 @@ function resolveSelection(workspace: Workspace | undefined, key: string | null):
 }
 
 /** Official workspace: review queue beside the map, details in the same floating panel as the resident map. */
-export function OperationsWorkspace({ onSessionLost, onSignOut }: { onSessionLost: () => void; onSignOut: () => void }) {
+export function OperationsWorkspace({ onSessionLost, onSignOut }: { onSessionLost: () => void; onSignOut?: () => void }) {
   const { state, retry, refresh, apply, updatedAt, refreshFailed } = useOperationsData(onSessionLost);
   const toast = useToastManager();
   const now = useNow();

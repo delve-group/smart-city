@@ -8,6 +8,7 @@ x-application-environment: &application-environment
   PGDATABASE: smart_city
   PGPASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
   NEXT_TELEMETRY_DISABLED: "1"
+  DEMO_MODE: ${DEMO_MODE:-false}
   DECISION_PROVIDER: ${DECISION_PROVIDER:-disabled}
 
 x-search-environment: &search-environment

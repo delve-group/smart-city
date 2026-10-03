@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
+import { isDemoMode } from "@/server/config";
 import { InstitutionGate } from "@/features/institution-inbox/components/institution-gate/institution-gate";
 
 export const metadata: Metadata = {
@@ -6,11 +8,13 @@ export const metadata: Metadata = {
   description: "Tickets assigned to your institution and their progress. Demo accounts and fictional data.",
 };
 
-export default function InstitutionPage() {
+export default async function InstitutionPage() {
+  // Read DEMO_MODE per request, not at build time.
+  await connection();
   return (
     <main className="h-dvh w-full">
       <h1 className="sr-only">Institution inbox</h1>
-      <InstitutionGate />
+      <InstitutionGate demoMode={isDemoMode()} />
     </main>
   );
 }

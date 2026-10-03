@@ -43,6 +43,8 @@ export type CityMapCanvasProps = {
   insets: { right: number; bottom: number };
   /** Location of a report being written, marked so the user keeps their bearings. */
   draftPin?: { lat: number; lng: number };
+  /** The resident's own position, when the browser shares it. */
+  userLocation?: { lat: number; lng: number } | null;
   /** False while the user is placing a pin: no hover or selection. */
   interactive: boolean;
   onHover: (hover: MapHover | null) => void;
@@ -71,6 +73,7 @@ export default function CityMapCanvas({
   focus,
   insets,
   draftPin,
+  userLocation,
   interactive,
   onHover,
   onSelect,
@@ -257,6 +260,14 @@ export default function CityMapCanvas({
     >
       {/* Bottom-left: the detail panel owns the right edge, and attribution must stay visible. */}
       <AttributionControl position="bottom-left" compact customAttribution={attribution} />
+      {userLocation && (
+        <Marker longitude={userLocation.lng} latitude={userLocation.lat} anchor="center" style={{ pointerEvents: "none" }}>
+          <span role="img" aria-label="Your location" className="relative flex size-10 items-center justify-center">
+            <span className="absolute inset-0 rounded-full bg-(--map-user-location)/15" />
+            <span className="relative size-4 rounded-full border-2 border-background bg-(--map-user-location) shadow-sm" />
+          </span>
+        </Marker>
+      )}
       {draftPin && (
         <Marker longitude={draftPin.lng} latitude={draftPin.lat} anchor="bottom">
           <MapPinFilled size={40} aria-hidden className="text-foreground-intense drop-shadow-sm" />

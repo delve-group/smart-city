@@ -117,3 +117,11 @@ export function getDemoPasswords() {
   }
   return result.data;
 }
+
+/**
+ * DEMO_MODE=true turns staff sign-in off: requests without a staff session act as the seeded
+ * demo accounts. For demos with fictional data only.
+ */
+export function isDemoMode(): boolean {
+  return process.env.DEMO_MODE === "true";
+}
