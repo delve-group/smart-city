@@ -56,7 +56,7 @@ App: [apps/frontend](../apps/frontend). As of 2026-10-03, `@appica/ui-react` 1.2
 
 1. `src/app/globals.css` imports, in order: `tailwindcss`, `@appica/ui-react/styles.css` (library base tokens), `src/shared/styles/appica-theme.css` (our values). Same selectors and a later source mean our values win.
 2. `@source` points to `node_modules/@appica/ui-react/dist` with a relative path; without it component classes are not generated.
-3. `ThemeProvider` (`src/app/providers.tsx`) uses Appica's default `light` / `dark` classes on `<html>`, follows the OS (`defaultTheme="system"`) and stores a manual choice in `localStorage` (`smart-city-mode`). The toggle sits next to search (`shared/components/theme-toggle`).
+3. `ThemeProvider` (`src/app/providers.tsx`) uses Appica's default `light` / `dark` classes on `<html>`, follows the OS (`defaultTheme="system"`) and stores a manual choice in `localStorage` (`smart-city-mode`). The switch lives in the map settings popover (`features/city-map/components/map-settings`).
 4. Appica's token model is role-based: `foreground-*`, `background-*`, `border-*` and the accent scales `primary`, `secondary`, `error`, `success`, `warning`, `info` (`subtle`, `soft`, `muted`, base, `strong`, `emphasis`, `intense`, `foreground`). `info` is set to neutral grey so library components do not reintroduce blue.
 5. `background` is the card surface; the layout's `body` uses `background-subtle`.
 6. `*-foreground` is the text colour on both the base and the `*-muted` fill, e.g. in Badge: in light mode `muted` is a dark solid with white text, in dark mode a light pastel with dark text.
@@ -64,10 +64,11 @@ App: [apps/frontend](../apps/frontend). As of 2026-10-03, `@appica/ui-react` 1.2
 
 ## Map screen patterns
 
-- **Floating chrome over a full-bleed map.** Search (top left) with the filter and light/dark buttons beside it; the "3D" toggle and "Report an issue" bottom right, at the same 12 px inset as the search; attribution bottom left. No toolbars or frames around the map.
+- **Floating chrome over a full-bleed map.** Search (top left) with the filter button beside it; the settings button and "Create a report" bottom right, at the same 12 px inset as the search; attribution bottom left. No toolbars or frames around the map.
 - **Detail and form panel:** one non-modal shell (`shared/components/floating-panel`), inset from the right edge on desktop and a bottom sheet on phones. The header stays visible; when the title scrolls away it repeats in the header.
 - **Category colour:** eight `--category-*` tokens per theme (power, water, roads, transit, waste, accessibility, greenery, air), all ≥ 4.5:1 as text on their surfaces. Colour is always paired with the category icon and label; unknown API categories get a neutral style.
-- **3D view:** a "3D" button above "Report an issue" tilts the map to 55° and zooms to at least 15.5, where OpenMapTiles building heights extrude; "2D" resets pitch and bearing.
+- **Map settings:** a gear button above "Create a report" opens a popover with switches for 3D buildings (tilts to 55°, zooms to at least 15.5, where OpenMapTiles building heights extrude) and dark mode.
+- **Report markers:** from street zoom, each report is a round marker in its category colour with the category icon (symbol layer; images built from the Appica icons at runtime, `hooks/use-report-icons.ts`). Size grows with weight; markers face the viewer in 3D.
 - **Panel sections:** Impact is always visible; Progress, Details and Nearby are collapsible (Appica `Accordion`, same separators and headings as before). Progress opens by default; Nearby shows its count while closed.
 - **Panel header:** category label and actions only; status lives in the progress timeline (the hover tooltip keeps a status badge).
 - **Report status:** Reported (outline), Confirmed (soft), In progress (warning, pulsing dot), Resolved (success). The panel shows the full progress timeline.

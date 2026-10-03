@@ -1,13 +1,15 @@
 "use client";
 
 import "maplibre-gl/dist/maplibre-gl.css";
-import { setWorkerUrl, type ExpressionSpecification } from "maplibre-gl";
+import { setWorkerUrl, type ExpressionSpecification, type MapStyleImageMissingEvent } from "maplibre-gl";
 import { useEffect, useMemo, useRef } from "react";
 import { MapPinFilled } from "@appica/icons-react";
 import Map, { AttributionControl, Layer, Marker, Source, type MapLayerMouseEvent, type MapRef, type ViewStateChangeEvent } from "react-map-gl/maplibre";
 import type { CityReport } from "@/api/reports/types";
 import { useColorScheme } from "../../hooks/use-color-scheme";
 import { useMapStyle } from "../../hooks/use-map-style";
+import { useReportIcons } from "../../hooks/use-report-icons";
+import { MARKER_PIXEL_RATIO, MARKER_SIZE } from "../../utils/report-icon-svg";
 import { readMapColors } from "../../utils/read-map-colors";
 import { toFeatureCollection } from "../../utils/to-feature-collection";
 
@@ -86,6 +88,27 @@ export default function CityMapCanvas({
   const colors = useMemo(() => ({ scheme, ...readMapColors(categoryIds) }), [scheme, categoryIds]);
   const data = useMemo(() => toFeatureCollection(reports), [reports]);
   const mapStyle = useMapStyle(MAP_STYLE, colors.scheme, colors.baseMap);
+  const icons = useReportIcons(
+    categoryIds,
+    { category: colors.category, fallback: colors.fallback, ring: colors.surface, icon: colors.onCategory },
+    colors.scheme,
+  );
+  const iconsRef = useRef(icons);
+
+  /** Adds the current marker images the map does not have yet; MapLibre then redraws the affected tiles. */
+  function registerIcons() {
+    const map = mapRef.current?.getMap();
+    const current = iconsRef.current;
+    if (!map || !current) return;
+    for (const [id, image] of current.images) {
+      if (!map.hasImage(id)) map.addImage(id, image, { pixelRatio: MARKER_PIXEL_RATIO });
+    }
+  }
+
+  useEffect(() => {
+    iconsRef.current = icons;
+    registerIcons();
+  }, [icons]);
 
   useEffect(() => {
     if (!focus) return;
@@ -125,16 +148,30 @@ export default function CityMapCanvas({
           colors.fallback,
         ]
   ) as unknown as ExpressionSpecification;
-  const radius = (base: number): ExpressionSpecification => [
+  const isHovered: ExpressionSpecification = ["==", ["get", "id"], hoveredId ?? ""];
+  /** Marker scale at street zoom and at close zoom; heavier reports are bigger. */
+  const scale = (zoomed: boolean): ExpressionSpecification =>
+    zoomed ? ["+", 1, ["*", ["get", "weight"], 0.4]] : ["+", 0.7, ["*", ["get", "weight"], 0.25]];
+  /** Builds a zoom-interpolated value from the marker scale at both ends of the range. */
+  const byScale = (fn: (scale: ExpressionSpecification) => ExpressionSpecification): ExpressionSpecification => [
     "interpolate",
     ["linear"],
     ["zoom"],
-    HANDOVER.start, ["+", base, ["*", ["get", "weight"], 4]],
-    17, ["+", base * 2, ["*", ["get", "weight"], 12]],
+    HANDOVER.start, fn(scale(false)),
+    17, fn(scale(true)),
   ];
+  const markerRadius = (s: ExpressionSpecification): ExpressionSpecification => ["*", MARKER_SIZE / 2, s];
 
-  /** On narrow screens the expanded attribution runs under the bottom-right controls; start it collapsed. */
   function handleLoad() {
+    const map = mapRef.current?.getMap();
+    // A style reload (theme switch) drops images; add them back when a layer asks.
+    map?.on("styleimagemissing", (event: MapStyleImageMissingEvent) => {
+      const image = iconsRef.current?.images.get(event.id);
+      if (image && !map.hasImage(event.id)) map.addImage(event.id, image, { pixelRatio: MARKER_PIXEL_RATIO });
+    });
+    registerIcons();
+
+    // On narrow screens the expanded attribution runs under the bottom-right controls; start it collapsed.
     const container = mapRef.current?.getContainer();
     if (container && container.clientWidth < 768) {
       container.querySelector(".maplibregl-ctrl-attrib")?.classList.remove("maplibregl-compact-show");
@@ -216,31 +253,56 @@ export default function CityMapCanvas({
           type="circle"
           filter={["==", ["get", "id"], selectedId ?? ""]}
           paint={{
-            "circle-radius": radius(9),
+            "circle-radius": byScale((s) => ["+", 5, markerRadius(s)]),
             "circle-color": categoryColor,
             "circle-opacity": 0.22,
             "circle-stroke-color": categoryColor,
             "circle-stroke-width": 1.5,
           }}
         />
-        <Layer
-          id="report-points"
-          type="circle"
-          minzoom={HANDOVER.start}
-          paint={{
-            "circle-radius": radius(4),
-            "circle-color": categoryColor,
-            "circle-stroke-color": colors.surface,
-            "circle-stroke-width": ["case", ["==", ["get", "id"], hoveredId ?? ""], 3, 1.5],
-            "circle-opacity": ["interpolate", ["linear"], ["zoom"], HANDOVER.start, 0, HANDOVER.end, 1],
-            "circle-stroke-opacity": ["interpolate", ["linear"], ["zoom"], HANDOVER.start, 0, HANDOVER.end, 1],
-          }}
-        />
+        {icons ? (
+          // Different keys: switching layer type needs a fresh layer, not an update.
+          <Layer
+            key="report-icons"
+            id="report-points"
+            type="symbol"
+            minzoom={HANDOVER.start}
+            layout={{
+              "icon-image": ["concat", icons.prefix, ["get", "category"]],
+              "icon-size": byScale((s) => ["*", ["case", isHovered, 1.2, 1], s]),
+              "icon-allow-overlap": true,
+              "icon-ignore-placement": true,
+              // Markers face the viewer in the tilted 3D view too.
+              "icon-pitch-alignment": "viewport",
+              "icon-rotation-alignment": "viewport",
+              // Heavier reports draw on top.
+              "symbol-sort-key": ["get", "weight"],
+            }}
+            paint={{
+              "icon-opacity": ["interpolate", ["linear"], ["zoom"], HANDOVER.start, 0, HANDOVER.end, 1],
+            }}
+          />
+        ) : (
+          <Layer
+            key="report-dots"
+            id="report-points"
+            type="circle"
+            minzoom={HANDOVER.start}
+            paint={{
+              "circle-radius": byScale(markerRadius),
+              "circle-color": categoryColor,
+              "circle-stroke-color": colors.surface,
+              "circle-stroke-width": 1.5,
+              "circle-opacity": ["interpolate", ["linear"], ["zoom"], HANDOVER.start, 0, HANDOVER.end, 1],
+              "circle-stroke-opacity": ["interpolate", ["linear"], ["zoom"], HANDOVER.start, 0, HANDOVER.end, 1],
+            }}
+          />
+        )}
         <Layer
           id={HIT_LAYER}
           type="circle"
           minzoom={HANDOVER.start}
-          paint={{ "circle-radius": 14, "circle-opacity": 0 }}
+          paint={{ "circle-radius": byScale((s) => ["max", 12, markerRadius(s)]), "circle-opacity": 0 }}
         />
       </Source>
     </Map>

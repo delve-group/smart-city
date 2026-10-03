@@ -6,7 +6,7 @@ export function ReportFab({ onClick }: { onClick: () => void }) {
   return (
     <Button variant="outline" size="lg" onClick={onClick} className="border-border-strong/50 bg-background pe-5 shadow-xs">
       <MessageReport data-icon="start" />
-      Report an issue
+      Create a report
     </Button>
   );
 }

@@ -77,7 +77,7 @@ export function ReportForm({ categories, location, address, onChangeLocation, on
       labelledBy="report-form-title"
       header={
         <div className="flex items-center justify-between gap-3">
-          <h2 id="report-form-title" className="text-lg font-semibold text-foreground-intense">Report an issue</h2>
+          <h2 id="report-form-title" className="text-lg font-semibold text-foreground-intense">Create a report</h2>
           <Button variant="ghost" size="icon-md" aria-label="Cancel report" onClick={onCancel}>
             <X />
           </Button>

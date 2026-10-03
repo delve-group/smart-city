@@ -14,16 +14,15 @@ import { LocationPicker } from "@/features/report-issue/components/location-pick
 import { ReportFab } from "@/features/report-issue/components/report-fab/report-fab";
 import { ReportForm } from "@/features/report-issue/components/report-form/report-form";
 import { useReverseGeocode } from "@/features/report-issue/hooks/use-reverse-geocode";
-import { ThemeToggle } from "@/shared/components/theme-toggle/theme-toggle";
 import { useAffectedReports } from "../../hooks/use-affected-reports";
 import { useCityData } from "../../hooks/use-city-data";
 import { useNow } from "../../hooks/use-now";
 import { INITIAL_VIEW, type MapFocus, type MapHover } from "../city-map-canvas/city-map-canvas";
 import { DataStatus } from "../data-status/data-status";
 import { MapSearch, type SearchOption } from "../map-search/map-search";
+import { MapSettings } from "../map-settings/map-settings";
 import { ReportPanel } from "../report-panel/report-panel";
 import { ReportTooltip } from "../report-tooltip/report-tooltip";
-import { TiltToggle } from "../tilt-toggle/tilt-toggle";
 
 // MapLibre needs the browser (WebGL, window), so the map is client-only.
 const CityMapCanvas = dynamic(() => import("../city-map-canvas/city-map-canvas"), { ssr: false });
@@ -191,7 +190,6 @@ export function CityMapView() {
             onChange={(ids) => setShownCategoryIds(ids.length === categoryIds.length ? null : ids)}
           />
         )}
-        <ThemeToggle className="shrink-0 border-border-strong/50 bg-background shadow-xs" />
       </div>
 
       {state.status !== "ready" && (
@@ -230,7 +228,7 @@ export function CityMapView() {
 
       {mode.kind === "browse" && !selected && ready && (
         <div className="absolute right-3 bottom-3 z-20 flex flex-col items-end gap-2">
-          <TiltToggle tilted={tilted} onChange={setTilted} />
+          <MapSettings tilted={tilted} onTiltedChange={setTilted} />
           <ReportFab onClick={startReport} />
         </div>
       )}

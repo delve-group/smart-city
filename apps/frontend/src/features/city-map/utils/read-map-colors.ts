@@ -9,6 +9,8 @@ export function readMapColors(categoryIds: readonly string[]) {
     category: Object.fromEntries(categoryIds.map((id) => [id, token(categoryAppearance(id).token)])),
     fallback: token("--foreground-muted"),
     surface: token("--background"),
+    /** Icon colour on a category-coloured marker. */
+    onCategory: token("--foreground-inverse"),
     baseMap: {
       land: token("--map-land"),
       residential: token("--map-residential"),

@@ -27,7 +27,7 @@ Proof of concept: **residents report problems in Kraków** — power outages, br
 
 - Search reports and places (top left), filter by category and switch light/dark mode (buttons next to search).
 - "I'm affected too" on a report adds your weight instead of a duplicate report; three residents move a report to Confirmed.
-- "Report an issue" (bottom right): place the pin, pick a category, describe the problem, send.
+- "Create a report" (bottom right): place the pin, pick a category, describe the problem, send.
 - Data comes from `/api/categories` and `/api/reports`, a demo backend with clearly labelled mock data and an in-memory store (new reports disappear when the dev server restarts).
 
 One neutral theme in light and dark mode; it follows the OS setting until toggled.
