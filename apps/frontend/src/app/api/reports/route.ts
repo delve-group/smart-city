@@ -1,12 +1,11 @@
 import type { NextRequest } from "next/server";
-import { createReportInputSchema, type ReportsResponseDto } from "@/api/reports/types";
-import { handleApi, success } from "@/server/http/api";
-import { readBody, requireActorContext } from "@/server/http/context";
-import { requireAppOrigin } from "@/server/http/request";
+import { type ReportsResponseDto } from "@/api/reports/types";
+import { ApiError, handleApi, success } from "@/server/http/api";
+import { requireActorContext } from "@/server/http/context";
+import { readJson, requireAppOrigin } from "@/server/http/request";
 import { submitReportSchema } from "@/server/reports/contracts";
 import { submitDraft } from "@/server/reports/submission";
-import { CATEGORIES } from "../categories/categories";
-import { addReport, listReports } from "./report-store";
+import { listReports } from "./report-store";
 
 export const runtime = "nodejs";
 
@@ -16,29 +15,20 @@ export function GET() {
 }
 
 /**
- * Two contracts share this path until the citizen cutover (docs/workflow-contracts.md §10):
- * a body with `draft_id` is the durable, authenticated submission of a confirmed draft;
- * anything else is the legacy raw-create request and stays on the in-memory demo store.
+ * Citizen cutover: only an owned, confirmed draft creates a report.
+ * Legacy public reads/contributions remain until the complete map cutover.
  */
 export async function POST(request: NextRequest) {
-  const peek: unknown = await request.clone().json().catch(() => null);
-  if (peek && typeof peek === "object" && "draft_id" in peek) return submitConfirmedDraft(request);
-
-  const parsed = createReportInputSchema.safeParse(peek);
-  if (!parsed.success) {
-    return Response.json({ error: parsed.error.issues[0]?.message ?? "Invalid report." }, { status: 400 });
-  }
-  if (!CATEGORIES.some((category) => category.id === parsed.data.category_id)) {
-    return Response.json({ error: "Unknown category." }, { status: 400 });
-  }
-  return Response.json(addReport(parsed.data), { status: 201 });
-}
-
-function submitConfirmedDraft(request: NextRequest) {
   return handleApi(async (correlationId) => {
     requireAppOrigin(request);
+    const raw = await readJson(request);
+    if (raw && typeof raw === "object" && ("title" in raw || "category_id" in raw) && !("draft_id" in raw)) {
+      throw new ApiError(400, "legacy_contract_retired", "Create and confirm a report draft before submitting. Reload the application.");
+    }
     const ctx = await requireActorContext(request, correlationId, "resident");
-    const body = await readBody(request, submitReportSchema);
+    const parsed = submitReportSchema.safeParse(raw);
+    if (!parsed.success) throw new ApiError(400, "invalid_request", "Submit a draft ID and its confirmed revision.");
+    const body = parsed.data;
     const { report, replayed } = await submitDraft(ctx, body);
     return success(report, correlationId, replayed ? 200 : 201, report.version);
   });

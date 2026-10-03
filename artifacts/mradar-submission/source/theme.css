@@ -1,0 +1,107 @@
+/* mRadar keynote theme: the app's Geist type, rose heat accent and category colours on a black stage. */
+@font-face{font-family:"Geist";src:url("assets/Geist-Variable.woff2") format("woff2");font-weight:100 900}
+@font-face{font-family:"Geist Mono";src:url("assets/GeistMono-Variable.woff2") format("woff2");font-weight:100 900}
+:root{--stage:#000;--ink:#f5f5f7;--mute:#86868b;--soft:#a1a1a6;--line:rgba(255,255,255,.1);--rose:#f43f5e;--rose-2:#fb7185;--accent:#fb7185;--font:"Geist",system-ui,sans-serif;--mono:"Geist Mono",ui-monospace,monospace}
+body{background:#000}
+.slide{background:var(--stage);color:var(--ink);font-family:var(--font);padding:0;-webkit-font-smoothing:antialiased}
+h1,h2,h3,p{margin:0}
+.slide strong{color:var(--ink);font-weight:600}
+
+/* Type */
+.eyebrow{font-size:30px;font-weight:600;letter-spacing:-.01em;color:var(--rose-2)}
+.display{font-size:132px;font-weight:700;letter-spacing:-.055em;line-height:.95}
+.title{font-size:96px;font-weight:700;letter-spacing:-.05em;line-height:1;margin-top:28px}
+.lead{font-size:36px;line-height:1.35;color:var(--soft);letter-spacing:-.015em;font-weight:450}
+.grad{background:linear-gradient(100deg,#fda4af 0%,#f43f5e 45%,#f5b83d 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.mono{font-family:var(--mono)}
+.num{position:absolute;right:120px;bottom:56px;font-size:20px;color:var(--mute);font-variant-numeric:tabular-nums}
+.foot{position:absolute;left:120px;bottom:56px;font-size:20px;color:var(--mute)}
+
+/* Surfaces */
+.bleed{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.abs{position:absolute}
+.shot{position:absolute;display:block;border-radius:26px;box-shadow:0 0 0 1.5px var(--line),0 50px 140px rgba(0,0,0,.75);object-fit:cover;object-position:top}
+.crop{position:absolute;overflow:hidden;border-radius:26px;box-shadow:0 0 0 1.5px var(--line),0 50px 140px rgba(0,0,0,.75)}
+.crop img{position:absolute;right:0;top:0;width:1240px;display:block}
+.glow{position:absolute;pointer-events:none;background:radial-gradient(closest-side,var(--c),transparent)}
+.phone{position:absolute;border-radius:74px;padding:16px;background:linear-gradient(160deg,#3a3a3c,#1c1c1e 40%,#2c2c2e);box-shadow:0 0 0 2px #48484a,0 60px 140px rgba(0,0,0,.8)}
+.phone .screen{width:100%;height:100%;border-radius:58px;overflow:hidden;background:#000;padding-top:64px}
+.phone img{display:block;width:100%;height:100%;object-fit:cover;object-position:top}
+.phone::after{content:"";position:absolute;top:34px;left:50%;width:120px;height:34px;margin-left:-60px;border-radius:20px;background:#000}
+
+/* 1 · Cover */
+#cover .bg{position:absolute;right:-470px;top:0;height:1080px;width:auto;opacity:.95}
+#cover .fade{position:absolute;inset:0;background:linear-gradient(90deg,#000 0%,#000 46%,rgba(0,0,0,.6) 60%,rgba(0,0,0,0) 80%),linear-gradient(0deg,#000 0%,rgba(0,0,0,0) 30%)}
+#cover .copy{position:absolute;left:120px;top:250px;width:900px}
+#cover .mark{width:132px;height:132px;display:block}
+#cover h1{font-size:220px;font-weight:700;letter-spacing:-.06em;line-height:.9;margin-top:36px}
+#cover .tagline{font-size:64px;font-weight:600;letter-spacing:-.035em;margin-top:28px}
+#cover .lead{margin-top:36px;max-width:760px}
+
+/* 2 · Problem */
+#problem .copy{position:absolute;left:160px;top:190px;width:1600px}
+#problem .display{margin-top:36px}
+#problem .display+.display{margin-top:12px}
+#problem .three{display:grid;grid-template-columns:repeat(3,1fr);gap:64px;margin-top:110px}
+
+/* 3 · Loop */
+#loop .copy{position:absolute;left:120px;top:150px}
+#loop .cards{position:absolute;left:120px;right:120px;top:430px;display:grid;grid-template-columns:repeat(3,1fr);gap:36px}
+.card{border-radius:36px;padding:56px 52px;background:linear-gradient(160deg,#1c1c1e,#111);box-shadow:inset 0 0 0 1.5px var(--line);height:560px;display:flex;flex-direction:column}
+.card.hot{background:linear-gradient(160deg,#2a0f17,#140a0d);box-shadow:inset 0 0 0 1.5px rgba(244,63,94,.35)}
+.card .route{font-family:var(--mono);font-size:24px;color:var(--mute)}
+.card.hot .route{color:var(--rose-2)}
+.card h3{font-size:64px;font-weight:700;letter-spacing:-.045em;margin-top:auto}
+.card .lead{margin-top:20px}
+
+/* Headline left, copy right, screenshot below */
+.split-head{position:absolute;left:120px;top:120px;width:820px}
+.split-lead{position:absolute;left:1040px;top:180px;width:760px}
+
+/* 5 · Reporting */
+#reporting .copy{position:absolute;left:120px;top:150px;width:860px}
+#reporting .steps{display:flex;flex-direction:column;gap:44px;margin-top:80px}
+#reporting .step{display:flex;gap:32px;align-items:baseline}
+#reporting .step .n{font-family:var(--mono);font-size:40px;font-weight:600}
+
+/* 7 · Review */
+#review .copy{position:absolute;left:1080px;top:150px;width:720px}
+#review .points{display:flex;flex-direction:column;gap:40px;margin-top:72px}
+
+/* 8 · Institutions */
+#handoff .copy{position:absolute;left:120px;top:120px}
+#handoff .caption{position:absolute;top:972px;font-size:26px;color:var(--soft)}
+
+/* 9 · Design */
+#design .copy{position:absolute;left:120px;top:120px;width:1240px}
+#design .compare{position:absolute;left:120px;top:440px;width:1240px;height:520px;border-radius:26px;overflow:hidden;box-shadow:0 0 0 1.5px var(--line),0 50px 140px rgba(0,0,0,.75)}
+#design .compare img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#design .compare .dark{clip-path:polygon(58% 0,100% 0,100% 100%,42% 100%)}
+.tag{position:absolute;bottom:24px;font-size:22px;font-weight:600;padding:8px 16px;border-radius:999px}
+.tag.light{left:28px;color:#111;background:rgba(255,255,255,.85)}
+.tag.night{right:28px;color:#fafafa;background:rgba(0,0,0,.6)}
+.legend{position:absolute;left:120px;top:1000px;display:flex;gap:28px;font-size:22px;color:var(--soft)}
+.legend span{display:flex;align-items:center;gap:10px}
+.legend span::before{content:"";width:18px;height:18px;border-radius:50%;background:var(--c)}
+
+/* 10 · Close */
+#close .head{position:absolute;left:0;right:0;top:150px;text-align:center}
+#close .pills{position:absolute;left:260px;right:260px;top:410px;display:flex;flex-wrap:wrap;gap:14px;justify-content:center}
+.pill{font-size:24px;font-weight:500;padding:12px 22px;border-radius:999px;border:1.5px solid var(--line);color:var(--ink);background:rgba(255,255,255,.04)}
+#close .try{position:absolute;left:0;right:0;top:590px;display:flex;flex-direction:column;align-items:center;gap:22px}
+#close .cmd{font-family:var(--mono);font-size:40px;padding:22px 40px;border-radius:20px;background:#111;box-shadow:inset 0 0 0 1.5px rgba(244,63,94,.35)}
+#close .repo{font-family:var(--mono);font-size:28px;color:var(--soft)}
+#close .sign{position:absolute;left:0;right:0;bottom:120px;display:flex;justify-content:center;align-items:center;gap:28px}
+#close .sign img{width:72px;height:72px}
+#close .sign span{font-size:72px;font-weight:700;letter-spacing:-.055em}
+#close .disclose{position:absolute;left:0;right:0;bottom:52px;text-align:center;font-size:19px;color:var(--mute)}
+
+/* PDF viewers render clipped gradient text as a solid block; print it in solid rose. */
+@media print{.grad{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--rose-2)}}
+
+/* Copy always sits above screenshots and their shadows. */
+.copy,.split-head,.split-lead,.head,.caption,.tag{z-index:2}
+.compare,.shot,.crop,.phone,.bleed{z-index:1}
+#cover .bleed{z-index:0}#cover .fade{z-index:1}
+.foot,.num{z-index:2}
+.legend{z-index:2}

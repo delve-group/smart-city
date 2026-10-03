@@ -2,18 +2,21 @@
 
 import { useMediaQuery } from "@appica/ui-react/hooks/use-media-query";
 import { useToastManager } from "@appica/ui-react/toast";
+import { Alert, AlertDescription } from "@appica/ui-react/alert";
+import { Button } from "@appica/ui-react/button";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import type { Category } from "@/api/categories/types";
-import type { ReverseAddress } from "@/api/photon/types";
+import type { LocationCandidate } from "@/api/locations/types";
 import { confirmReport } from "@/api/reports/confirm-report";
-import { KRAKOW_BOUNDS, type CityReport } from "@/api/reports/types";
+import { type CityReport } from "@/api/reports/types";
 import { CategoryFilter } from "@/features/category-filter/components/category-filter/category-filter";
 import { CenterPin } from "@/features/report-issue/components/center-pin/center-pin";
 import { LocationPicker } from "@/features/report-issue/components/location-picker/location-picker";
 import { ReportFab } from "@/features/report-issue/components/report-fab/report-fab";
 import { ReportForm } from "@/features/report-issue/components/report-form/report-form";
-import { useReverseGeocode } from "@/features/report-issue/hooks/use-reverse-geocode";
+import { useIntakeDraft } from "@/features/report-issue/hooks/use-intake-draft";
+import { insideKrakow } from "@/shared/utils/krakow";
 import { AppBrand } from "@/shared/components/app-brand/app-brand";
 import { useAffectedReports } from "../../hooks/use-affected-reports";
 import { heatWeight } from "../../utils/heat-weight";
@@ -39,14 +42,11 @@ const PANEL_INSET = 412;
 type LatLng = { lat: number; lng: number };
 
 /** Browsing the map, placing the pin for a new report, or filling in the report. */
-type Mode = { kind: "browse" } | { kind: "picking" } | { kind: "form"; location: LatLng; address: ReverseAddress };
-
-function insideKrakow({ lat, lng }: LatLng): boolean {
-  return lat >= KRAKOW_BOUNDS.south && lat <= KRAKOW_BOUNDS.north && lng >= KRAKOW_BOUNDS.west && lng <= KRAKOW_BOUNDS.east;
-}
+type Mode = { kind: "browse" } | { kind: "picking" } | { kind: "form" };
 
 export function CityMapView() {
-  const { state, retry, addReport, replaceReport } = useCityData();
+  const { state, retry, replaceReport } = useCityData();
+  const intake = useIntakeDraft();
   const { isAffected, markAffected } = useAffectedReports();
   const toast = useToastManager();
   const now = useNow();
@@ -59,7 +59,7 @@ export function CityMapView() {
   const [focus, setFocus] = useState<MapFocus | null>(null);
   const [mode, setMode] = useState<Mode>({ kind: "browse" });
   const [center, setCenter] = useState<LatLng>({ lat: INITIAL_VIEW.latitude, lng: INITIAL_VIEW.longitude });
-  const pinAddress = useReverseGeocode(mode.kind === "picking" ? center : null);
+  const [selectedLocation, setSelectedLocation] = useState<LocationCandidate | null>(null);
   /** Category ids to show; null means all (also covers categories the API adds later). */
   const [shownCategoryIds, setShownCategoryIds] = useState<string[] | null>(null);
   const [tilted, setTilted] = useState(false);
@@ -129,10 +129,13 @@ export function CityMapView() {
     else flyTo(option.kind === "report" ? option.report.location : option.place.location, 16.5);
   }
 
-  function startReport() {
+  async function startReport(newReport = false) {
+    const draft = await intake.start(newReport);
+    if (!draft) return;
     setSelectedId(null);
     setHover(null);
-    setMode({ kind: "picking" });
+    setSelectedLocation(null);
+    setMode({ kind: draft.fields.location || draft.submission ? "form" : "picking" });
   }
 
   async function handleConfirm(report: CityReport) {
@@ -147,21 +150,6 @@ export function CityMapView() {
         description: error instanceof Error ? error.message : "Try again in a moment.",
       });
     }
-  }
-
-  function handleSubmitted(report: CityReport) {
-    addReport(report);
-    markAffected(report.id);
-    // Make sure the new report is visible even if its category was filtered out.
-    if (shownCategoryIds && !shownCategoryIds.includes(report.categoryId)) {
-      setShownCategoryIds([...shownCategoryIds, report.categoryId]);
-    }
-    setMode({ kind: "browse" });
-    setSelectedId(report.id);
-    toast.add({
-      title: "Report sent — thank you",
-      description: `Reference ${report.reference}. Neighbours can now say they are affected too.`,
-    });
   }
 
   const selectedCategory = selected ? categoriesById.get(selected.categoryId) : undefined;
@@ -179,12 +167,13 @@ export function CityMapView() {
           right: selected && isDesktop ? PANEL_INSET : 0,
           bottom: selected && !isDesktop ? bounds.height * 0.72 : 0,
         }}
-        draftPin={mode.kind === "form" ? mode.location : undefined}
+        draftPin={mode.kind === "form" ? intake.fields.location ?? undefined : undefined}
         userLocation={userLocation}
         interactive={mode.kind === "browse"}
         onHover={setHover}
         onSelect={selectFromMap}
         onCenterChange={setCenter}
+        onUserMove={() => setSelectedLocation(null)}
         attribution={ready?.result.source === "demo" ? DEMO_NOTICE : undefined}
         tilted={tilted}
       />
@@ -206,9 +195,26 @@ export function CityMapView() {
           />
         )}
         {ready && !selected && (
-          <ReportFab active={mode.kind !== "browse"} onClick={() => mode.kind === "browse" && startReport()} />
+          <ReportFab active={mode.kind !== "browse"} busy={intake.busy} onClick={() => mode.kind === "browse" && void startReport()} />
         )}
       </div>
+
+      {mode.kind === "browse" && intake.draft && !intake.error && (
+        <div className="absolute top-30 left-3 z-20 md:top-18">
+          <Button variant="outline" disabled={intake.busy} onClick={() => void startReport()}>
+            {intake.report ? `View saved report ${intake.report.reference}` : "Resume your saved draft"}
+          </Button>
+        </div>
+      )}
+      {intake.error && mode.kind !== "form" && (
+        <div className="absolute inset-x-3 top-30 z-30 md:inset-x-auto md:left-3 md:w-96">
+          <Alert variant="error"><AlertDescription>{intake.error}</AlertDescription></Alert>
+          <div className="mt-2 flex gap-2">
+            <Button variant="outline" disabled={intake.busy} onClick={() => void startReport()}>Retry recovery</Button>
+            {!intake.draft && <Button variant="outline" disabled={intake.busy} onClick={() => void startReport(true)}>Start a new report</Button>}
+          </div>
+        </div>
+      )}
 
       {state.status !== "ready" && (
         <div className="absolute inset-x-3 top-30 z-20 flex justify-center md:top-3">
@@ -224,11 +230,14 @@ export function CityMapView() {
         <>
           <CenterPin />
           <LocationPicker
-            address={pinAddress}
+            pin={center}
+            selected={selectedLocation}
             insideCity={insideKrakow(center)}
-            onLocate={(location) => flyTo(location, 17)}
+            onLocate={(location) => { setSelectedLocation(null); flyTo(location, 17); }}
+            onSelect={(candidate) => { setSelectedLocation(candidate); flyTo(candidate, 17); }}
             onCancel={() => setMode({ kind: "browse" })}
-            onConfirm={(address) => setMode({ kind: "form", location: center, address })}
+            busy={intake.busy || intake.saving}
+            onConfirm={(candidate) => { void intake.chooseLocation(candidate).then((saved) => { if (saved) setMode({ kind: "form" }); }); }}
           />
         </>
       )}
@@ -236,11 +245,10 @@ export function CityMapView() {
       {mode.kind === "form" && (
         <ReportForm
           categories={categories}
-          location={mode.location}
-          address={mode.address}
+          intake={intake}
           onChangeLocation={() => setMode({ kind: "picking" })}
           onCancel={() => setMode({ kind: "browse" })}
-          onSubmitted={handleSubmitted}
+          onNew={() => void startReport(true)}
         />
       )}
 

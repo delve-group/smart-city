@@ -3,17 +3,8 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 
-export class ApiError extends Error {
-  constructor(
-    readonly status: number,
-    readonly code: string,
-    message: string,
-    readonly retryable = false,
-    readonly retryAfter?: number,
-  ) {
-    super(message);
-  }
-}
+import { ApiError } from "./errors";
+export { ApiError } from "./errors";
 
 export function success<T>(data: T, correlationId: string, status = 200, version?: number) {
   return NextResponse.json(

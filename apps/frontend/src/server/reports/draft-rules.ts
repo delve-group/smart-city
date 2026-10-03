@@ -1,4 +1,4 @@
-import { ApiError } from "@/server/http/api";
+import { ApiError } from "@/server/http/errors";
 import {
   REQUIRED_DRAFT_FIELDS,
   type DraftFields,
