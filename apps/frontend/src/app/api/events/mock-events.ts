@@ -19,11 +19,11 @@ const HOTSPOTS: Hotspot[] = [
 ];
 
 const TITLES: Record<EventCategory, string[]> = {
-  culture: ["Koncert plenerowy", "Wystawa", "Spektakl", "Festiwal filmowy", "Wieczór poezji"],
-  sport: ["Bieg miejski", "Mecz", "Rajd rowerowy", "Turniej siatkówki"],
-  community: ["Spotkanie mieszkańców", "Piknik sąsiedzki", "Konsultacje społeczne", "Targ lokalny"],
-  traffic: ["Zamknięcie ulicy", "Remont torowiska", "Objazd komunikacji"],
-  safety: ["Zgłoszenie awarii oświetlenia", "Zgłoszenie dzikiego wysypiska", "Uszkodzony chodnik"],
+  culture: ["Open-air concert", "Exhibition", "Theatre show", "Film festival", "Poetry evening"],
+  sport: ["City run", "Football match", "Bike ride", "Volleyball tournament"],
+  community: ["Residents meeting", "Neighbourhood picnic", "Public consultation", "Local market"],
+  traffic: ["Street closure", "Tram track works", "Public transport detour"],
+  safety: ["Street light outage report", "Illegal dumping report", "Damaged pavement report"],
 };
 
 const CATEGORIES = Object.keys(TITLES) as EventCategory[];

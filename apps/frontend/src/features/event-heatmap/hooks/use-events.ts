@@ -17,7 +17,7 @@ export function useEvents() {
       .then((result) => setState({ status: "ready", result }))
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
-        setState({ status: "error", message: error instanceof Error ? error.message : "Nieznany błąd." });
+        setState({ status: "error", message: error instanceof Error ? error.message : "Unknown error." });
       });
     return () => controller.abort();
   }, [attempt]);

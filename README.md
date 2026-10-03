@@ -1,18 +1,18 @@
 # Smart City
 
-Fundament projektu hackathonowego: baza wiedzy, zasady pracy i design system i szkielet aplikacji Next.js z komponentami [Appica UI](https://appica.dev/ui).
+Hackathon project: knowledge base, working rules, design system and a Next.js app built with [Appica UI](https://appica.dev/ui).
 
-- [Zasady agentów](AGENTS.md)
-- [Baza wiedzy](docs/knowledge-base/README.md)
-- [Architektura systemu](docs/architecture.md)
-- [Design system i oba motywy](docs/design-system.md)
-- [Podgląd motywów](design-system/preview.html) — otwórz plik w przeglądarce; działa bez instalacji.
-- [Frontend](apps/frontend) i jego [zasady dla agentów](apps/frontend/AGENTS.md)
-- [Tokeny aplikacji](apps/frontend/src/shared/styles/appica-theme.css) i [tokeny wzornika](design-system/themes.css)
+- [Agent rules](AGENTS.md)
+- [Knowledge base](docs/knowledge-base/README.md)
+- [System architecture](docs/architecture.md) — includes the [libraries used](docs/architecture.md#libraries)
+- [Design system and both themes](docs/design-system.md)
+- [Theme preview](design-system/preview.html) — open the file in a browser; no install needed.
+- [Frontend](apps/frontend) and its [agent rules](apps/frontend/AGENTS.md)
+- [App tokens](apps/frontend/src/shared/styles/appica-theme.css) and [preview tokens](design-system/themes.css)
 
-## Uruchomienie
+## Running
 
-Wymagany Node.js 22.12+.
+Requires Node.js 20.9+.
 
 ```bash
 cd apps/frontend
@@ -20,10 +20,10 @@ npm install
 npm run dev
 ```
 
-Aplikacja działa pod http://localhost:3000. Kontrole w `apps/frontend`: `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`.
+The app runs at http://localhost:3000. Checks in `apps/frontend`: `npm run lint`, `npm run typecheck`, `npm run build`.
 
-## Stan
+## Status
 
-Prototyp: pełnoekranowa mapa Krakowa (MapLibre + OpenFreeMap) z mapą cieplną zdarzeń. Zdarzenia pochodzą z endpointu `/api/events`, który na razie zwraca jawnie oznaczone dane demonstracyjne. Brak backendu i integracji z usługami miejskimi.
+Proof of concept: a full-screen map of Kraków (MapLibre + OpenFreeMap) with a heatmap of events. Events come from the `/api/events` endpoint, which currently returns clearly labelled demo data. No backend and no integration with city services yet.
 
-Motywy: **Civic** — jasny, urzędowy (domyślny); **Signal** — ciemny. Przełącznik motywu został usunięty z widoku; mechanizm motywów pozostaje w kodzie.
+Themes: **Civic** — light, official (default); **Signal** — dark. The theme switcher was removed from the view; the theme mechanism remains in the code.

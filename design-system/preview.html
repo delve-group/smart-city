@@ -1,18 +1,18 @@
 <!doctype html>
-<html lang="pl" data-theme="civic">
+<html lang="en" data-theme="civic">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Smart City — wzornik Signal / Civic</title>
+  <title>Smart City — Signal / Civic preview</title>
   <link rel="stylesheet" href="themes.css">
   <link rel="stylesheet" href="preview.css">
 </head>
 <body>
-  <a class="skip" href="#main">Przejdź do treści</a>
+  <a class="skip" href="#main">Skip to content</a>
   <header class="topbar">
     <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">S</span> Smart City <span class="edition">/ design system 01</span></a>
     <fieldset class="theme-picker">
-      <legend>Motyw interfejsu</legend>
+      <legend>Interface theme</legend>
       <label><input type="radio" name="theme" value="civic" checked> Civic</label>
       <label><input type="radio" name="theme" value="signal"> Signal</label>
     </fieldset>
@@ -21,10 +21,10 @@
     <section class="hero" aria-labelledby="headline">
       <div class="hero-copy">
         <p class="eyebrow">Smart City / system interfejsu</p>
-        <h1 id="headline">Twoje miasto.<br><span>Bliżej Ciebie.</span></h1>
-        <p class="lead">Czytelne informacje. Proste działania. Wspólny język usług miejskich w dwóch odsłonach.</p>
-        <div class="actions"><a class="button primary" href="#components">Zobacz komponenty <span aria-hidden="true">↗</span></a><a class="button secondary" href="#palette">Poznaj paletę</a></div>
-        <p class="theme-note" id="theme-note" aria-live="polite">Civic — jasny, spokojny, urzędowy.</p>
+        <h1 id="headline">Your city.<br><span>Closer to you.</span></h1>
+        <p class="lead">Clear information. Simple actions. One language for city services, in two looks.</p>
+        <div class="actions"><a class="button primary" href="#components">See components <span aria-hidden="true">↗</span></a><a class="button secondary" href="#palette">Explore the palette</a></div>
+        <p class="theme-note" id="theme-note" aria-live="polite">Civic — light, calm, official.</p>
       </div>
       <div class="visual" aria-hidden="true">
         <div class="visual-top"><span>SC / 01</span><span>CONNECTED CITY</span></div>
@@ -43,40 +43,40 @@
     </section>
 
     <section id="palette" class="palette-section" aria-labelledby="palette-title">
-      <div class="section-title"><div><p class="eyebrow">01 / Fundament</p><h2 id="palette-title">Paleta z konkretną rolą.</h2></div><p>Wspólne tokeny. Spójne decyzje.</p></div>
+      <div class="section-title"><div><p class="eyebrow">01 / Foundation</p><h2 id="palette-title">A palette where every colour has a role.</h2></div><p>Shared tokens. Consistent decisions.</p></div>
       <div class="palette" id="swatches"></div>
     </section>
 
     <section id="components" aria-labelledby="components-title">
-      <div class="section-title"><div><p class="eyebrow">02 / Komponenty</p><h2 id="components-title">Od informacji do działania.</h2></div><p>Przykładowe dane demonstracyjne</p></div>
+      <div class="section-title"><div><p class="eyebrow">02 / Components</p><h2 id="components-title">From information to action.</h2></div><p>Sample demo data</p></div>
       <div class="component-grid">
         <article class="panel">
           <div class="panel-heading"><span class="eyebrow">Karta / status / akcje</span><span class="badge success">● W realizacji</span></div>
-          <h3>Naprawa oświetlenia</h3><p class="muted">Przykładowa sprawa nr SC-0248</p>
-          <dl><div><dt>Kategoria</dt><dd>Infrastruktura</dd></div><div><dt>Lokalizacja</dt><dd>Park Miejski</dd></div><div><dt>Ostatnia aktualizacja</dt><dd>Dzisiaj, 09:42</dd></div></dl>
-          <div class="notice"><strong>Informacja dla mieszkańca</strong><p>Ekipa otrzymała zgłoszenie. O zmianie statusu poinformujemy w szczegółach sprawy.</p></div>
-          <div class="actions"><button class="button primary" id="details-button" type="button" aria-expanded="false" aria-controls="details">Szczegóły sprawy <span aria-hidden="true">↗</span></button><button class="button secondary" type="button" disabled>Powiadomienia wkrótce</button></div>
-          <p id="details" hidden>To wzornik interfejsu. Sprawa i jej status są fikcyjne; podgląd nie łączy się z systemem miejskim.</p>
+          <h3>Street light repair</h3><p class="muted">Sample case no. SC-0248</p>
+          <dl><div><dt>Category</dt><dd>Infrastruktura</dd></div><div><dt>Lokalizacja</dt><dd>Park Miejski</dd></div><div><dt>Ostatnia aktualizacja</dt><dd>Dzisiaj, 09:42</dd></div></dl>
+          <div class="notice"><strong>Information for residents</strong><p>The crew has received the report. We will post status changes in the case details.</p></div>
+          <div class="actions"><button class="button primary" id="details-button" type="button" aria-expanded="false" aria-controls="details">Case details <span aria-hidden="true">↗</span></button><button class="button secondary" type="button" disabled>Notifications coming soon</button></div>
+          <p id="details" hidden>This is an interface preview. The case and its status are fictional; the preview does not connect to any city system.</p>
         </article>
 
         <article class="panel">
-          <p class="eyebrow">Formularz / focus / walidacja</p><h3>Opisz miejską sprawę</h3><p class="muted">Podgląd formularza. Dane pozostają na tej stronie.</p>
+          <p class="eyebrow">Form / focus / validation</p><h3>Describe a city issue</h3><p class="muted">Form preview. Data stays on this page.</p>
           <form id="demo-form">
-            <label for="category">Kategoria</label><select id="category" name="category"><option>Infrastruktura</option><option>Zieleń miejska</option><option>Transport</option></select>
-            <label for="description">Co wymaga uwagi?</label><textarea id="description" name="description" rows="3" required minlength="10" aria-describedby="description-hint" placeholder="Np. niedziałająca latarnia przy wejściu do parku"></textarea>
-            <p id="description-hint" class="hint">Wpisz co najmniej 10 znaków. Użyj przykładowych danych.</p>
-            <button class="button primary" type="submit">Sprawdź formularz <span aria-hidden="true">→</span></button>
+            <label for="category">Category</label><select id="category" name="category"><option>Infrastructure</option><option>Urban greenery</option><option>Transport</option></select>
+            <label for="description">What needs attention?</label><textarea id="description" name="description" rows="3" required minlength="10" aria-describedby="description-hint" placeholder="E.g. a broken street light at the park entrance"></textarea>
+            <p id="description-hint" class="hint">Enter at least 10 characters. Use sample data.</p>
+            <button class="button primary" type="submit">Check form <span aria-hidden="true">→</span></button>
             <p id="form-result" class="hint" role="status"></p>
           </form>
         </article>
       </div>
-      <div class="status-row" aria-label="Przykładowe statusy"><span class="badge info">Informacja</span><span class="badge success">Zakończono</span><span class="badge warning">Wymaga uwagi</span><span class="badge destructive">Nie udało się zapisać</span><span class="muted">Status to kolor i zrozumiała etykieta.</span></div>
+      <div class="status-row" aria-label="Sample statuses"><span class="badge info">Info</span><span class="badge success">Completed</span><span class="badge warning">Needs attention</span><span class="badge destructive">Could not save</span><span class="muted">A status is a colour plus a clear label.</span></div>
     </section>
-    <footer><span>Smart City · Hackathon foundation</span><span>Wzornik HTML/CSS · aplikacja używa Appica UI</span></footer>
+    <footer><span>Smart City · Hackathon foundation</span><span>HTML/CSS preview · the app uses Appica UI</span></footer>
   </main>
   <script>
     const palette = document.getElementById('swatches');
-    const roles = [['background', 'Tło'], ['card', 'Powierzchnia'], ['foreground', 'Tekst'], ['primary', 'Główna akcja'], ['brand-accent', 'Akcent'], ['info', 'Informacja']];
+    const roles = [['background', 'Background'], ['card', 'Surface'], ['foreground', 'Text'], ['primary', 'Primary action'], ['brand-accent', 'Accent'], ['info', 'Info']];
     function renderPalette() {
       const styles = getComputedStyle(document.documentElement);
       palette.replaceChildren(...roles.map(([token, label]) => {
@@ -98,8 +98,8 @@
       input.addEventListener('change', () => {
         document.documentElement.dataset.theme = input.value;
         document.getElementById('theme-note').textContent = input.value === 'signal'
-          ? 'Signal — ciemny, geometryczny, futurystyczny.'
-          : 'Civic — jasny, spokojny, urzędowy.';
+          ? 'Signal — dark, geometric, futuristic.'
+          : 'Civic — light, calm, official.';
         renderPalette();
       });
     });
@@ -112,11 +112,11 @@
       event.preventDefault();
       const field = document.getElementById('description');
       if (field.value.trim().length < 10) {
-        field.setCustomValidity('Wpisz co najmniej 10 znaków treści.');
+        field.setCustomValidity('Enter at least 10 characters.');
         field.reportValidity();
         return;
       }
-      document.getElementById('form-result').textContent = 'Formularz poprawny. To demonstracja — niczego nie wysłano.';
+      document.getElementById('form-result').textContent = 'Form is valid. This is a demo — nothing was sent.';
     });
     document.getElementById('description').addEventListener('input', event => {
       event.target.setCustomValidity('');

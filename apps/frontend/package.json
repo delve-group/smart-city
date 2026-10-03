@@ -8,12 +8,10 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
-    "test": "vitest run",
     "predev": "node scripts/copy-maplibre-worker.mjs",
     "prebuild": "node scripts/copy-maplibre-worker.mjs"
   },
   "dependencies": {
-    "@appica/icons-react": "^1.1.0",
     "@appica/ui-react": "^1.2.0",
     "maplibre-gl": "^6.11.2",
     "next": "16.3.8",
@@ -25,17 +23,16 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/geojson": "^7946.0.16",
-    "@types/node": "^24.19.1",
+    "@types/node": "^20.19.43",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.3.8",
     "tailwindcss": "^4",
-    "typescript": "^5",
-    "vitest": "^5.0.3"
+    "typescript": "^5"
   },
   "engines": {
-    "node": ">=22.12"
+    "node": ">=20.9"
   }
 }

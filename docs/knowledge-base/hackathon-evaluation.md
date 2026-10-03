@@ -1,23 +1,23 @@
-# Ocena konkursu Smart City
+# Smart City competition judging
 
-Aktualizacja: 2026-10-03.
+Updated: 2026-10-03.
 
-## Źródło i zakres
+## Source and scope
 
-Podstawą jest dokument „Terms and conditions of the ‘SMART CITY’ Competition”, przekazany jako [regulamin konkursu w PDF](https://mudnibfuppwadjkynscc.supabase.co/storage/v1/object/public/task-files/6f0f5e2e-246f-4078-a3f7-1aad9152e9f0/files/da3aa4cf-87be-4277-8c37-3bb145646ec2.pdf). To załącznik do ogólnego regulaminu HackYeah. Szczegóły zadania mają być podane na początku konkursu, więc ta notatka opisuje wyłącznie zasady i kryteria widoczne w załączniku; nie zastępuje późniejszego opisu zadania ani regulaminu ogólnego.
+Based on the document "Terms and conditions of the 'SMART CITY' Competition", provided as the [competition rules PDF](https://mudnibfuppwadjkynscc.supabase.co/storage/v1/object/public/task-files/6f0f5e2e-246f-4078-a3f7-1aad9152e9f0/files/da3aa4cf-87be-4277-8c37-3bb145646ec2.pdf). It is an annex to the general HackYeah rules. Task details are announced at the start of the competition, so this note covers only the rules and criteria visible in the annex; it does not replace the later task description or the general rules.
 
-## Metoda oceniania
+## Judging method
 
-Ocena przebiega w dwóch etapach:
+Judging has two stages:
 
-1. **Ocena zgłoszeń na platformie HackTribe.** Projekty ocenia komisja powołana dla zadania, złożona z co najmniej trzech mentorów. Projekt musi uzyskać co najmniej 50% punktów w tym etapie, aby móc otrzymać nagrodę.
-2. **Prezentacje finalistów przed jury.** Do tego etapu przechodzą zespoły wybrane w pierwszym etapie. Jury ocenia prezentacje na żywo. Skład komisji pierwszego etapu i jury drugiego etapu może się pokrywać, ale nie musi.
+1. **Review of submissions on the HackTribe platform.** Projects are scored by a committee appointed for the task, made up of at least three mentors. A project must score at least 50% of the points in this stage to be eligible for a prize.
+2. **Finalist presentations to the jury.** Teams selected in the first stage advance. The jury scores live presentations. The first-stage committee and the second-stage jury may, but do not have to, overlap.
 
-Członkowie jury wybierają spośród siebie przewodniczącego. W razie równej liczby głosów w obu etapach rozstrzyga głos przewodniczącego. Decyzje jury i jego członków są ostateczne i nie podlegają odwołaniu.
+Jury members choose a chair among themselves. In case of a tie in either stage, the chair has the casting vote. Decisions of the jury and its members are final and not subject to appeal.
 
-## Kryteria i wagi
+## Criteria and weights
 
-| Kryterium (oryginalna nazwa) | Waga |
+| Criterion (original name) | Weight |
 | --- | ---: |
 | Idea & Innovation | 30% |
 | Relation to Category | 20% |
@@ -25,12 +25,12 @@ Członkowie jury wybierają spośród siebie przewodniczącego. W razie równej 
 | Design | 20% |
 | Completeness & Implementation Value | 10% |
 
-Regulamin podaje nazwy oraz wagi kryteriów, ale nie publikuje szczegółowej skali ani podkryteriów. Nie należy traktować roboczych interpretacji tych nazw jako oficjalnych zasad punktacji.
+The rules give criterion names and weights but publish no detailed scale or sub-criteria. Working interpretations of these names should not be treated as official scoring rules.
 
-## Wymogi zgłoszenia istotne dla oceny
+## Submission requirements relevant to judging
 
-- Zgłoszenie składa się na HackTribe po polsku lub angielsku.
-- Powinno zawierać tytuł projektu, nazwę zespołu, listę 1–6 członków zespołu oraz opis projektu.
-- Można dołączyć prezentację PDF liczącą maksymalnie 10 slajdów. Może ona zawierać m.in. zrzuty ekranu, repozytorium kodu, linki do demonstracji i materiały graficzne; szczegółowy opis zadania może wskazać dodatkowe materiały.
-- Rozwiązanie można rozpocząć najwcześniej o 23:00 3 października, a zgłoszenie do oceny należy przekazać najpóźniej o 23:00 4 października.
-- Zmiany dokonane po upływie terminu nie są brane pod uwagę przez jury.
+- Submissions are made on HackTribe in Polish or English.
+- A submission should include the project title, team name, a list of 1–6 team members and a project description.
+- A PDF presentation of up to 10 slides may be attached. It can include screenshots, a code repository, demo links and graphics; the detailed task description may list additional materials.
+- Work may start no earlier than 23:00 on 3 October, and the submission must be made by 23:00 on 4 October at the latest.
+- Changes made after the deadline are not considered by the jury.

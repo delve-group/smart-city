@@ -8,7 +8,7 @@ import { useEvents } from "../../hooks/use-events";
 // MapLibre needs the browser (WebGL, window), so the map is client-only.
 const HeatmapMap = dynamic(() => import("../heatmap-map/heatmap-map"), { ssr: false });
 
-const DEMO_NOTICE = "Zdarzenia: dane demonstracyjne";
+const DEMO_NOTICE = "Events: demo data";
 
 export function EventHeatmap() {
   const { state, retry } = useEvents();
@@ -22,11 +22,11 @@ export function EventHeatmap() {
       />
       {state.status === "error" && (
         <Alert variant="error" className="absolute inset-x-4 top-4 md:inset-x-auto md:start-4 md:max-w-sm">
-          <AlertTitle>Nie udało się wczytać zdarzeń</AlertTitle>
+          <AlertTitle>Could not load events</AlertTitle>
           <AlertDescription className="flex flex-col items-start gap-3">
             {state.message}
             <Button variant="outline" size="sm" onClick={retry}>
-              Spróbuj ponownie
+              Try again
             </Button>
           </AlertDescription>
         </Alert>
