@@ -34,8 +34,9 @@ export function LocationPicker({ pin, selected, insideCity, onLocate, onSelect, 
   return (
     <section
       aria-labelledby="location-picker-title"
-      className="absolute inset-x-3 bottom-3 z-30 flex max-h-[75dvh] flex-col gap-4 overflow-y-auto rounded-lg border border-border bg-background p-5 shadow-md md:inset-x-auto md:bottom-6 md:left-1/2 md:w-[32rem] md:-translate-x-1/2"
+      className="absolute inset-x-3 bottom-3 z-30 flex max-h-[calc(50dvh-2rem)] flex-col gap-4 overflow-hidden rounded-lg border border-border bg-background p-5 shadow-md md:inset-x-auto md:bottom-6 md:left-1/2 md:max-h-[75dvh] md:w-[32rem] md:-translate-x-1/2"
     >
+      <div className="flex min-h-0 flex-col gap-4 overflow-y-auto">
       <div className="flex flex-col gap-1">
         <h2 id="location-picker-title" className="text-lg font-semibold text-foreground-intense">
           Where is the problem?
@@ -51,14 +52,16 @@ export function LocationPicker({ pin, selected, insideCity, onLocate, onSelect, 
       </p>
 
       <p className="text-xs text-foreground-muted">
-        {chosen ? "Check this location before continuing." : `Exact pin: ${pin.lat.toFixed(5)}, ${pin.lng.toFixed(5)}. Street and building remain unknown.`}
+        {chosen ? `Selected address: ${chosen.lat.toFixed(5)}, ${chosen.lng.toFixed(5)}. Check it on the map.`
+          : `Exact pin: ${pin.lat.toFixed(5)}, ${pin.lng.toFixed(5)}. Street and building remain unknown.`}
       </p>
 
       {location.state.status === "error" && (
         <p role="alert" className="text-sm text-error-emphasis">{location.state.message}</p>
       )}
+      </div>
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex shrink-0 flex-wrap items-center gap-2">
         {location.supported && (
           <Button
             variant="ghost"

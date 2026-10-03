@@ -32,19 +32,21 @@ export function AddressSearch({ onSelect }: { onSelect: (candidate: LocationCand
   const unavailable = state.status === "error" || result?.status === "unavailable";
   return (
     <div className="flex flex-col gap-2">
-      <form onSubmit={search} className="flex items-end gap-2">
-        <Field className="min-w-0 flex-1">
+      <form onSubmit={search}>
+        <Field>
           <FieldLabel>Street or building in Kraków</FieldLabel>
-          <Input value={query} maxLength={200} placeholder="e.g. Długa 12" inputSize="lg" onChange={(event) => {
-            controller.current?.abort();
-            setQuery(event.target.value);
-            setState({ status: "idle" });
-          }} />
+          <div className="flex items-center gap-2">
+            <Input className="min-w-0 flex-1" value={query} maxLength={200} placeholder="e.g. Długa 12" inputSize="lg" onChange={(event) => {
+              controller.current?.abort();
+              setQuery(event.target.value);
+              setState({ status: "idle" });
+            }} />
+            <Button type="submit" size="lg" variant="outline" disabled={query.trim().length < 3 || state.status === "loading"}>
+              {state.status === "loading" ? "Searching…" : "Find"}
+            </Button>
+          </div>
           <FieldDescription>Choose an address, or keep the exact map pin.</FieldDescription>
         </Field>
-        <Button type="submit" size="lg" variant="outline" disabled={query.trim().length < 3 || state.status === "loading"}>
-          {state.status === "loading" ? "Searching…" : "Find"}
-        </Button>
       </form>
       <p aria-live="polite" className="text-sm text-foreground-muted">
         {unavailable ? "Address search is unavailable. Retry Find or use the map pin."
