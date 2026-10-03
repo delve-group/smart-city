@@ -1,16 +1,16 @@
-# Baza wiedzy
+# Knowledge base
 
-Ta baza przechowuje kontekst i decyzje projektu, nie jest bazą danych aplikacji ani systemem RAG.
+This base holds project context and decisions; it is not the app's database or a RAG system.
 
-| Potrzeba | Źródło |
+| Need | Source |
 | --- | --- |
-| Cel, ograniczenia, status i niewiadome | [Kontekst projektu](project.md) |
-| Zasady konkursu, etapy oceny i kryteria | [Ocena konkursu Smart City](hackathon-evaluation.md) |
-| Dlaczego wybraliśmy dane rozwiązanie | [Decyzje](decisions.md) |
-| Źródła map, WMS/WFS, budynki, działki i 3D | [Dane przestrzenne i Geoportal](geospatial-data.md) |
-| Granice modułów, przepływ danych i skalowanie | [Architektura](../architecture.md) |
-| Komponenty, kolory, typografia i dostępność | [Design system](../design-system.md) |
-| Uzgodniony zakres inicjalizacji | [Plan startowy](../plans/2026-10-03-foundation-design.md) |
-| Reguły kodowania i testowania | [AGENTS.md](../../AGENTS.md) |
+| Goal, constraints, status and unknowns | [Project context](project.md) |
+| Competition rules, judging stages and criteria | [Smart City competition judging](hackathon-evaluation.md) |
+| Why we chose a given solution | [Decisions](decisions.md) |
+| Map sources, WMS/WFS, buildings, parcels and 3D | [Geospatial data and Geoportal](geospatial-data.md) |
+| Module boundaries, data flow, libraries and scaling | [Architecture](../architecture.md) |
+| Components, colours, typography and accessibility | [Design system](../design-system.md) |
+| Agreed initial scope | [Foundation plan](../plans/2026-10-03-foundation-design.md) |
+| Coding and verification rules | [AGENTS.md](../../AGENTS.md), [frontend rules](../../apps/frontend/AGENTS.md) |
 
-Aktualizuj dokument najbliższy tematowi w tej samej zmianie co kod. Oddzielaj fakty, robocze założenia i pytania otwarte. Istotne decyzje zapisuj z datą, powodem i konsekwencją; zmienione oznaczaj jako zastąpione. Unikaj dzienników każdej czynności i kopii informacji dostępnych w konfiguracji.
+Update the document closest to the topic in the same change as the code. Separate facts, working assumptions and open questions. Record significant decisions with a date, reason and consequence; mark changed ones as superseded. Avoid logs of every action and copies of information already in configuration. Write in English.

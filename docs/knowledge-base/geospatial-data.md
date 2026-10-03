@@ -1,51 +1,53 @@
-# Dane przestrzenne i Geoportal
+# Geospatial data and Geoportal
 
-Aktualizacja: 2026-10-03. Stan rozpoznania przed implementacją mapy Krakowa.
+Updated: 2026-10-03. Research done before implementing a map of Kraków.
 
-## Cel pierwszej wersji
+## Goal of the first version
 
-Pierwszy widok ma pozwalać swobodnie przesuwać i przybliżać mapę Krakowa. Budynki i działki mają później działać jako obiekty wektorowe, które można kolorować, filtrować i wybierać. „Spacer po mieście” oznacza na tym etapie nawigację po mapie; widok uliczny ze zdjęć panoramicznych wymaga osobnego źródła.
+The first view should allow free panning and zooming of a map of Kraków. Buildings and parcels should later work as vector features that can be coloured, filtered and selected. "Walking around the city" at this stage means map navigation; street-level panoramic imagery would need a separate source.
 
-## Rekomendowane źródła
+## Recommended sources
 
-| Potrzeba | Źródło i standard | Zastosowanie |
+| Need | Source and standard | Use |
 | --- | --- | --- |
-| Czytelny podkład miasta | [BDOT10k + BDOO, WMTS](https://mapy.geoportal.gov.pl/wss/service/WMTS/guest/wmts/BDOT10k-BDOO) | Szybkie kafelki do podstawowej nawigacji po mieście. |
-| Widok lotniczy | [Ortofotomapa standardowa, WMTS](https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMTS/StandardResolution) | Opcjonalny podkład przełączany przez użytkownika. |
-| Budynki ewidencyjne | [MSIP Kraków, WFS](https://msip3.um.krakow.pl/server/services/Pobieranie/Budynki/MapServer/WFSServer) | Geometrie i atrybuty do własnego stylu, wyboru i filtrowania. |
-| Działki ewidencyjne | [MSIP Kraków, WFS](https://msip3.um.krakow.pl/server/services/Pobieranie/Dzialki/MapServer/WFSServer) | Granice i identyfikacja działek. |
-| Plany miejscowe i przeznaczenie terenu | [MSIP Kraków, WFS](https://msip3.um.krakow.pl/server/services/Pobieranie/BP_MPZP_POBIERANIE/MapServer/WFSServer) | Analiza zgodności inwestycji i funkcji terenu. |
-| Szybki obraz EGiB bez obsługi geometrii | [MSIP Kraków, WMS](https://msip.um.krakow.pl/uslugi/services/WMS/EGIB_WMS/MapServer/WMSServer) | Gotowy obraz działek i budynków, przydatny jako wariant awaryjny lub podgląd. |
+| Readable city base map | [BDOT10k + BDOO, WMTS](https://mapy.geoportal.gov.pl/wss/service/WMTS/guest/wmts/BDOT10k-BDOO) | Fast tiles for basic city navigation. |
+| Aerial view | [Standard orthophoto, WMTS](https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMTS/StandardResolution) | Optional base map the user can switch to. |
+| Registered buildings | [MSIP Kraków, WFS](https://msip3.um.krakow.pl/server/services/Pobieranie/Budynki/MapServer/WFSServer) | Geometry and attributes for custom styling, selection and filtering. |
+| Registered parcels | [MSIP Kraków, WFS](https://msip3.um.krakow.pl/server/services/Pobieranie/Dzialki/MapServer/WFSServer) | Parcel boundaries and identification. |
+| Local zoning plans and land use | [MSIP Kraków, WFS](https://msip3.um.krakow.pl/server/services/Pobieranie/BP_MPZP_POBIERANIE/MapServer/WFSServer) | Checking whether investments match land use. |
+| Quick land-registry image without geometry handling | [MSIP Kraków, WMS](https://msip.um.krakow.pl/uslugi/services/WMS/EGIB_WMS/MapServer/WMSServer) | Ready-made image of parcels and buildings, useful as a fallback or preview. |
 
-MSIP publikuje też warstwy adresów, dzielnic, BDOT500 i sieci uzbrojenia terenu. Pełny wykaz znajduje się w [katalogu danych MSIP](https://msip.krakow.pl/228340,artykul,katalog-danych.html). Geoportal krajowy udostępnia dodatkowo ortofotomapy, rzeźbę terenu, dane topograficzne i zbiorcze usługi EGiB w [wykazie usług GUGiK](https://www.geoportal.gov.pl/pl/usluga/wykaz-uslug/).
+MSIP also publishes layers for addresses, districts, BDOT500 and utility networks. The full list is in the [MSIP data catalogue](https://msip.krakow.pl/228340,artykul,katalog-danych.html). The national Geoportal additionally provides orthophotos, terrain, topographic data and aggregated land-registry services in the [GUGiK service list](https://www.geoportal.gov.pl/pl/usluga/wykaz-uslug/).
 
-Kraków publikuje również [model mesh miasta z 2023 roku](https://msip.krakow.pl/dataset/2861) jako pięć usług ArcGIS SceneServer. Może posłużyć do późniejszego widoku 3D z wolną kamerą. Nie zastępuje zdjęć panoramicznych Street View i zwiększa koszt integracji, dlatego nie należy do pierwszej wersji.
+Kraków also publishes a [2023 city mesh model](https://msip.krakow.pl/dataset/2861) as five ArcGIS SceneServer services. It could support a later 3D view with a free camera. It does not replace Street View panoramas and raises integration cost, so it is not part of the first version.
 
-## Dostęp i ograniczenia
+## Access and limits
 
-- Wymienione usługi są publicznie opublikowane. Ich katalogi nie opisują logowania, rejestracji ani klucza API; integrację zaczynamy bez sekretów.
-- Brak klucza nie oznacza gwarantowanego SLA ani nieograniczonego ruchu. Przed implementacją odczytaj `GetCapabilities` i ustal nazwy warstw, układ współrzędnych, format odpowiedzi oraz limity liczby obiektów.
-- Dla WFS pobieraj tylko obiekty z aktualnego obszaru mapy (`bbox`) i dopiero od użytecznej skali. Nie pobieraj całego Krakowa do przeglądarki.
-- Bezpośrednie żądania z frontendu zależą od CORS konkretnej usługi. Najpierw sprawdź je w przeglądarce; dodaj mały endpoint pośredniczący tylko wtedy, gdy CORS, format odpowiedzi lub stabilność tego wymagają.
-- Zachowaj informację o źródle danych i sprawdź warunki ponownego wykorzystania przed publicznym wdrożeniem. Dane demonstracyjne i lokalne kopie oznacz datą pozyskania.
+- The listed services are publicly published. Their catalogues do not mention login, registration or an API key; integration starts without secrets.
+- No key does not mean a guaranteed SLA or unlimited traffic. Before implementing, read `GetCapabilities` and confirm layer names, coordinate system, response format and feature limits.
+- For WFS, fetch only features in the current map extent (`bbox`) and only from a useful zoom level. Never load the whole city into the browser.
+- Direct requests from the frontend depend on each service's CORS. Check in the browser first; add a small proxy endpoint only if CORS, response format or stability require it.
+- Keep source attribution and check reuse terms before a public deployment. Label demo data and local copies with the date they were obtained.
 
-## Kierunek implementacji
+## Implementation direction
 
-Użyj OpenLayers, ponieważ w jednym kliencie obsługuje WMTS, WMS, WFS, reprojekcję i warstwy wektorowe. Zacznij od podkładu WMTS i centrum Krakowa. Następnie dołącz WFS budynków ładowany według `bbox`; działki i kolejne warstwy dodawaj dopiero dla zatwierdzonego scenariusza demonstracyjnego.
+The event heatmap runs on MapLibre GL with OpenFreeMap tiles (D013). The direction below applies to future official layers.
 
-Adapter danych mapy ma mapować odpowiedź WFS na mały typ domenowy i raportować osobno: ładowanie, brak danych, błąd usługi oraz przekroczenie limitu. UI mapy nie powinno zależeć od surowych nazw pól dostawcy.
+OpenLayers handles WMTS, WMS, WFS, reprojection and vector layers in one client. MapLibre can also display WMS/WMTS raster layers in Web Mercator and GeoJSON from WFS, so check whether a service offers EPSG:3857 before choosing a client. Start with buildings from WFS loaded by `bbox`; add parcels and other layers only for an approved demo scenario.
 
-## Otwarte sprawdzenia przed kodowaniem
+The map data adapter should map WFS responses to a small app type and report loading, no data, service error and limit exceeded separately. The map UI should not depend on raw provider field names.
 
-1. Czy WFS budynków działa bezpośrednio z docelowej domeny aplikacji i zwraca format wygodny dla OpenLayers.
-2. Jak nazywają się warstwy i pola budynków oraz czy zawierają atrybut potrzebny do planowanej klasyfikacji.
-3. Jakie są limity liczby obiektów, sensowna minimalna skala i zachowanie usługi przy dużym `bbox`.
-4. Jakie atrybucje i warunki wykorzystania trzeba pokazać przy mapie.
+## Open checks before coding
 
-## Źródła urzędowe
+1. Does the buildings WFS work directly from the app's domain and return a format convenient for the chosen map client?
+2. What are the layer and field names for buildings, and do they include the attribute needed for the planned classification?
+3. What are the feature limits, a sensible minimum zoom, and the service behaviour with a large `bbox`?
+4. Which attributions and terms of use must be shown next to the map?
 
-- [Katalog WFS budynków MSIP](https://msip.krakow.pl/dataset/3198)
-- [Katalog WFS działek MSIP](https://msip.krakow.pl/dataset/3189)
-- [Katalog WFS miejscowych planów MSIP](https://msip.krakow.pl/dataset/2646)
-- [Opis EGiB i usług WMS/WFS Geoportalu](https://www.geoportal.gov.pl/pl/dane/ewidencja-gruntow-i-budynkow-egib/)
-- [Opis ortofotomapy i adresy usług GUGiK](https://www.geoportal.gov.pl/pl/dane/ortofotomapa-orto/)
+## Official sources
+
+- [MSIP buildings WFS catalogue](https://msip.krakow.pl/dataset/3198)
+- [MSIP parcels WFS catalogue](https://msip.krakow.pl/dataset/3189)
+- [MSIP zoning plans WFS catalogue](https://msip.krakow.pl/dataset/2646)
+- [Geoportal land registry and WMS/WFS services](https://www.geoportal.gov.pl/pl/dane/ewidencja-gruntow-i-budynkow-egib/)
+- [Orthophoto description and GUGiK service addresses](https://www.geoportal.gov.pl/pl/dane/ortofotomapa-orto/)

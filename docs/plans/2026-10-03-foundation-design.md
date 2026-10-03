@@ -1,9 +1,11 @@
-# Fundament projektu — 2026-10-03
+# Project foundation — 2026-10-03
 
-Zakres wynikający z prośby użytkownika: lokalne repozytorium Git, baza wiedzy, instrukcje agentów i design system shadcn/ui z dwoma motywami. Funkcje aplikacji nie są jeszcze określone.
+Scope from the user's request: local Git repository, knowledge base, agent instructions and a shadcn/ui design system with two themes. App features were not defined yet.
 
-Wybrano specyfikację + tokeny CSS + lekki wzornik: zapewnia materiał do natychmiastowej oceny i późniejszej implementacji. Sama dokumentacja nie pozwala dobrze ocenić wyglądu. Dwie niezależne aplikacje utrudniłyby utrzymanie; wspólne komponenty z tokenami wystarczą.
+We chose a specification + CSS tokens + a lightweight preview: it gives material for immediate review and later implementation. Documentation alone does not allow judging the look. Two independent apps would be harder to maintain; shared components with tokens are enough.
 
-Szczegóły są utrzymywane w [architekturze](../architecture.md) i [design systemie](../design-system.md). Robocze decyzje i niewiadome pozostają jawne w [kontekście projektu](../knowledge-base/project.md).
+Details are maintained in the [architecture](../architecture.md) and the [design system](../design-system.md). Working decisions and unknowns stay explicit in the [project context](../knowledge-base/project.md).
 
-Kryteria ukończenia: Git rozpoznaje projekt; dokumenty są połączone indeksem; instrukcje oddają ograniczenia hackathonu; oba motywy mają komplet tokenów semantycznych, palety i podgląd; nie dodano testów prezentacji ani pozornej logiki biznesowej.
+Completion criteria: Git recognises the project; documents are linked from an index; instructions reflect hackathon constraints; both themes have a full set of semantic tokens, palettes and a preview; no presentation tests or pretend business logic were added.
+
+Note: shadcn/ui was later replaced by Appica UI (D010) and the app was built with Next.js (D011).

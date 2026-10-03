@@ -1,18 +1,17 @@
 # Smart City
 
-Fundament projektu hackathonowego: baza wiedzy, zasady pracy i design system i szkielet aplikacji Next.js z komponentami [Appica UI](https://appica.dev/ui).
+Hackathon project: knowledge base, working rules, design system and a Next.js app built with [Appica UI](https://appica.dev/ui).
 
-- [Zasady agentów](AGENTS.md)
-- [Baza wiedzy](docs/knowledge-base/README.md)
-- [Architektura systemu](docs/architecture.md)
-- [Design system i oba motywy](docs/design-system.md)
-- [Podgląd motywów](design-system/preview.html) — otwórz plik w przeglądarce; działa bez instalacji.
-- [Frontend](apps/frontend) i jego [zasady dla agentów](apps/frontend/AGENTS.md)
-- [Tokeny aplikacji](apps/frontend/src/styles/appica-theme.css) i [tokeny wzornika](design-system/themes.css)
+- [Agent rules](AGENTS.md)
+- [Knowledge base](docs/knowledge-base/README.md)
+- [System architecture](docs/architecture.md) — includes the [libraries used](docs/architecture.md#libraries)
+- [Design system](docs/design-system.md)
+- [Frontend](apps/frontend) and its [agent rules](apps/frontend/AGENTS.md)
+- [App tokens](apps/frontend/src/shared/styles/appica-theme.css)
 
-## Uruchomienie
+## Running
 
-Wymagany Node.js 20.9+.
+Requires Node.js 20.9+.
 
 ```bash
 cd apps/frontend
@@ -20,10 +19,15 @@ npm install
 npm run dev
 ```
 
-Aplikacja działa pod http://localhost:3000. Kontrole w `apps/frontend`: `npm run lint`, `npm run typecheck`, `npm run build`.
+The app runs at http://localhost:3000. Checks in `apps/frontend`: `npm run lint`, `npm run typecheck`, `npm run build`.
 
-## Stan
+## Status
 
-Szkielet Next.js (App Router, React 19, TypeScript, Tailwind CSS v4) z Appica UI i ekranem demonstracyjnym komponentów. Brak funkcji biznesowych, backendu i integracji z usługami miejskimi.
+Proof of concept: **residents report problems in Kraków** — power outages, broken street lights, burst pipes, potholes, broken lifts, illegal dumping, smoke from illegal burning — at a precise spot on the map. The map shows open reports by category and a heatmap of where problems cluster; the detail panel shows impact, progress, the responsible service and related reports nearby.
 
-Motywy: **Civic** — jasny, urzędowy (domyślny); **Signal** — ciemny, futurystyczny i geometryczny. Przełącznik jest w nagłówku aplikacji. Zakres produktu pozostaje do ustalenia przy pierwszej funkcji.
+- Search reports and places (top left), filter by category and switch light/dark mode (buttons next to search).
+- "I'm affected too" on a report adds your weight instead of a duplicate report; three residents move a report to Confirmed.
+- "Report an issue" (bottom right): place the pin, pick a category, describe the problem, send.
+- Data comes from `/api/categories` and `/api/reports`, a demo backend with clearly labelled mock data and an in-memory store (new reports disappear when the dev server restarts).
+
+One neutral theme in light and dark mode; it follows the OS setting until toggled.

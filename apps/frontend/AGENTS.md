@@ -1,22 +1,64 @@
-# Frontend — zasady dla agentów
+# Frontend — agent rules
 
-Obowiązują też [zasady z katalogu głównego](../../AGENTS.md). Polecenia uruchamiaj w tym katalogu: `npm run dev`, `npm run lint`, `npm run typecheck`, `npm run build`.
+The [root rules](../../AGENTS.md) apply too. Run commands in this directory: `npm run dev`, `npm run lint`, `npm run typecheck`, `npm run build`.
+
+## Code structure
+
+```text
+src/
+  app/                          # Next.js routing only: layouts, pages, route handlers, providers
+    api/<resource>/route.ts     # Next endpoints; helper files (e.g. mocks) next to route.ts
+  api/                          # clients for external services and our own API
+    <service>/
+      get-<resource>.ts         # one endpoint = one file
+      types.ts                  # DTOs, validation schemas and app model types
+      mappers.ts                # DTO → app model
+  features/
+    <feature>/
+      components/
+        <component>/<component>.tsx   # one component = one file, each in its own folder
+      hooks/                    # hooks used only by this feature
+      utils/                    # helpers used only by this feature
+  shared/                       # code used by more than one feature
+    components/<component>/     # shared components
+    hooks/, utils/, theme/, styles/
+```
+
+- Split code by business feature, not by file type. Do not dump everything into one folder.
+- Keep components small: one component per file. When a file grows, extract a subcomponent into its own folder in the same feature.
+- Order of preference for UI: 1) an Appica UI component, 2) an existing component from `shared/components`, 3) only then a new component. A new component that another feature could use goes straight into `shared/components`.
+- No global `utils/` folder. Code used by several features goes to `shared/`; code used by one feature goes to `features/<feature>/utils/`.
+- A feature does not import another feature's private files. A screen-level view may compose other features through their top-level components and hooks (e.g. `city-map-view` uses `category-filter` and `report-issue`). Move shared pieces to `shared/`.
+- Components and hooks never call `fetch` directly; they use functions from `src/api/`.
+- For everything else follow current Next.js recommendations (App Router, Server Components by default, `"use client"` only where interactivity or browser APIs are needed).
 
 ## Appica UI
 
-Indeks komponentów (pobierz stronę `.md` przed użyciem nowego komponentu): https://appica.dev/ui/react/llms.txt. Wersja reguł zgodna z zainstalowanym pakietem: `node_modules/@appica/ui-react/agent-rules.md`.
+Component index (fetch a component's `.md` page before using it for the first time): https://appica.dev/ui/react/llms.txt. Rules matching the installed version: `node_modules/@appica/ui-react/agent-rules.md`.
 
-- Tylko Tailwind CSS v4. Nie twórz `tailwind.config.js` — konfiguracja żyje w CSS (`@theme`).
-- `@source` w `src/app/globals.css` musi wskazywać `node_modules/@appica/ui-react/dist` ścieżką względną do tego pliku; bez tego komponenty renderują się bez stylów.
-- React 19: bez `forwardRef`, `ref` to zwykły prop.
-- Importuj z podścieżki, jeden komponent na import: `import { Button } from '@appica/ui-react/button'`.
-- Bez hexów, pikseli promieni i literałów czasu w komponentach. Używaj tokenów ról: `bg-background-muted`, `text-foreground-intense`, `border-border-strong`, `var(--radius-md)`. Lista: https://appica.dev/ui/docs/react/colors.md
-- Bez utility opartych o odcień (`bg-gray-100`, `text-slate-600`).
-- Preferuj warianty v4 (`*:`, `**:`, `data-*:`, `not-*:`) zamiast `[&_...]`.
-- Link wyglądający jak przycisk: `buttonVariants(...)` na `<a>`, nigdy `<Button render={<a/>}>`.
-- Nadpisania `className` umieszczaj na komponencie, nie na JSX przekazanym do `render`.
-- Nie pisz własnej wersji komponentu, który istnieje w bibliotece.
-- Motywy: Civic = klasa `light`, Signal = klasa `dark` na `<html>`, ustawiane przez `ThemeProvider` w `src/app/providers.tsx`. Wartości tokenów zmieniaj tylko w `src/styles/appica-theme.css`.
+- Tailwind CSS v4 only. Do not create `tailwind.config.js` — configuration lives in CSS (`@theme`).
+- `@source` in `src/app/globals.css` must point to `node_modules/@appica/ui-react/dist` with a path relative to that file; without it components render unstyled.
+- React 19: no `forwardRef`, `ref` is a plain prop.
+- Import from the subpath, one component per import: `import { Button } from '@appica/ui-react/button'`.
+- No hex colours, pixel radii or duration literals in components. Use role tokens: `bg-background-muted`, `text-foreground-intense`, `border-border-strong`, `var(--radius-md)`. Full list: https://appica.dev/ui/docs/react/colors.md
+- No hue-based utilities (`bg-gray-100`, `text-slate-600`).
+- Prefer v4 variants (`*:`, `**:`, `data-*:`, `not-*:`) over `[&_...]` selectors.
+- For a link styled as a button, use `buttonVariants(...)` on the `<a>`, never `<Button render={<a/>}>`.
+- Put `className` overrides on the component, not on the JSX passed to `render`.
+- Never hand-roll a component that exists in the library.
+- One neutral theme with light and dark mode: the `light` / `dark` class on `<html>`, set by `ThemeProvider` in `src/app/providers.tsx` (follows the OS until the user toggles). Change token values only in `src/shared/styles/appica-theme.css`.
+- Keep chrome quiet: small radii from the tokens, `shadow-xs`–`shadow-md` at most, no blue accents. Colour is for meaning only (categories, status, heatmap).
+
+## Map
+
+- Map: MapLibre GL (`react-map-gl/maplibre`) with free OpenFreeMap tiles, no API key. Only `features/city-map/components/city-map-canvas/city-map-canvas.tsx` imports the map library; switching to Google Maps means a new implementation of that component with the same props.
+- MapLibre 6 loads its worker as a separate module. `scripts/copy-maplibre-worker.mjs` copies it to `public/maplibre/` before `dev` and `build`; do not commit those files.
+- Mount heatmap layers conditionally instead of hiding them with `visibility: "none"` — a heatmap layer added while hidden does not draw once shown.
+- Use `offset`, not `padding`, in `flyTo`: MapLibre keeps padding for all later camera moves and tile loading, which leaves an empty strip after the panel closes.
+- Map layers need literal colours: read them from theme tokens at runtime (`utils/read-map-colors.ts`), never hard-code hex values.
+- Place search and reverse geocoding use the public Photon instance (fair use, no key). Replace it with a self-hosted or commercial geocoder before real traffic.
+- Categories are API data. Style known ids in `shared/utils/category-appearance.ts` and the `--category-*` tokens; unknown ids fall back to a neutral style, never break.
+- `src/app/api/*` is a demo backend with an in-memory store. Validate request bodies there with the same Zod schema the client uses (`src/api/reports/types.ts`).
 
 <!-- BEGIN:nextjs-agent-rules -->
 

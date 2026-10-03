@@ -1,0 +1,230 @@
+/*
+ * Canonical frontend tokens: one neutral theme, light and dark, mapped onto Appica UI roles.
+ * Import after '@appica/ui-react/styles.css'. Same selectors, later source wins.
+ * The mode is the `light` / `dark` class on <html> (see ThemeProvider in src/app/providers.tsx).
+ *
+ * Neutral greys with no hue carry the interface; colour is reserved for meaning:
+ * report categories, status and the heatmap.
+ */
+
+:root,
+.light {
+  --foreground: #3F3F3F;
+  --foreground-subtle: #9A9A9A;
+  --foreground-muted: #6B6B6B;
+  --foreground-strong: #2A2A2A;
+  --foreground-emphasis: #1A1A1A;
+  --foreground-intense: #111111;
+  --foreground-inverse: #FFFFFF;
+
+  /* `background` is the card surface; `background-subtle` the page. */
+  --background: #FFFFFF;
+  --background-subtle: #FAFAFA;
+  --background-muted: #F4F4F4;
+  --background-strong: #E8E8E8;
+  --background-inverse: #171717;
+
+  --border: #E4E4E4;
+  --border-muted: #EFEFEF;
+  --border-strong: #8C8C8C;
+  --border-emphasis: #6B6B6B;
+  --border-intense: #4D4D4D;
+  --border-inverse: #3F3F3F;
+  --border-overlay: #E4E4E4;
+
+  --primary: #171717;
+  --primary-subtle: rgb(0 0 0 / 4%);
+  --primary-soft: rgb(0 0 0 / 8%);
+  --primary-muted: #3F3F3F;
+  --primary-strong: #000000;
+  --primary-foreground: #FFFFFF;
+
+  --secondary: #F0F0F0;
+  --secondary-subtle: rgb(0 0 0 / 3%);
+  --secondary-soft: rgb(0 0 0 / 7%);
+  --secondary-muted: #F7F7F7;
+  --secondary-strong: #E4E4E4;
+  --secondary-emphasis: #4D4D4D;
+  --secondary-intense: #1A1A1A;
+  --secondary-foreground: #171717;
+
+  --error: #B42318;
+  --error-subtle: rgb(180 35 24 / 7%);
+  --error-soft: rgb(180 35 24 / 14%);
+  --error-muted: #C4320A;
+  --error-strong: #912018;
+  --error-emphasis: #B42318;
+  --error-intense: #7A271A;
+  --error-foreground: #FFFFFF;
+
+  --success: #067647;
+  --success-subtle: rgb(6 118 71 / 7%);
+  --success-soft: rgb(6 118 71 / 14%);
+  --success-muted: #08703F;
+  --success-strong: #085D3A;
+  --success-emphasis: #067647;
+  --success-intense: #074D31;
+  --success-foreground: #FFFFFF;
+
+  --warning: #A15C07;
+  --warning-subtle: rgb(161 92 7 / 8%);
+  --warning-soft: rgb(161 92 7 / 15%);
+  --warning-muted: #93500A;
+  --warning-strong: #854A0E;
+  --warning-emphasis: #A15C07;
+  --warning-intense: #7A2E0E;
+  --warning-foreground: #FFFFFF;
+
+  /* Kept for Appica components; the app itself avoids informational blue. */
+  --info: #525252;
+  --info-subtle: rgb(82 82 82 / 7%);
+  --info-soft: rgb(82 82 82 / 14%);
+  --info-muted: #525252;
+  --info-strong: #3F3F3F;
+  --info-emphasis: #525252;
+  --info-intense: #262626;
+  --info-foreground: #FFFFFF;
+
+  --focus-ring: rgb(17 17 17 / 28%);
+  --focus-ring-input: rgb(17 17 17 / 18%);
+  --focus-ring-primary: rgb(17 17 17 / 28%);
+  --focus-ring-secondary: rgb(17 17 17 / 18%);
+  --focus-ring-error: rgb(180 35 24 / 28%);
+  --focus-ring-success: rgb(6 118 71 / 28%);
+  --focus-ring-warning: rgb(161 92 7 / 28%);
+  --focus-ring-info: rgb(82 82 82 / 28%);
+
+  /* Report categories (ids come from the API). Always paired with an icon and a text label. */
+  --category-power: #A15C07;
+  --category-water: #2E6DB4;
+  --category-roads: #C2410C;
+  --category-transit: #0F766E;
+  --category-waste: #5F6B1A;
+  --category-accessibility: #7C4DBA;
+  --category-greenery: #2F7A3F;
+  --category-air: #7D5A4F;
+
+  /* Heatmap ramp, from a few reports to a dense cluster. */
+  --heat-low: #F5B83D;
+  --heat-mid: #EA6A1F;
+  --heat-high: #C0262D;
+
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --radius: 0.375rem;
+  --shadow-color: rgb(0 0 0 / 7%);
+  --selection-color: rgb(0 0 0 / 10%);
+}
+
+.dark {
+  --foreground: #CFCFCF;
+  --foreground-subtle: #6E6E6E;
+  --foreground-muted: #9C9C9C;
+  --foreground-strong: #E2E2E2;
+  --foreground-emphasis: #F0F0F0;
+  --foreground-intense: #FAFAFA;
+  --foreground-inverse: #111111;
+
+  --background: #171717;
+  --background-subtle: #1C1C1C;
+  --background-muted: #232323;
+  --background-strong: #2E2E2E;
+  --background-inverse: #FAFAFA;
+
+  --border: #2C2C2C;
+  --border-muted: #222222;
+  --border-strong: #6E6E6E;
+  --border-emphasis: #8A8A8A;
+  --border-intense: #A8A8A8;
+  --border-inverse: #E2E2E2;
+  --border-overlay: #333333;
+
+  --primary: #F2F2F2;
+  --primary-subtle: rgb(255 255 255 / 5%);
+  --primary-soft: rgb(255 255 255 / 10%);
+  --primary-muted: #D4D4D4;
+  --primary-strong: #FFFFFF;
+  --primary-foreground: #111111;
+
+  --secondary: #262626;
+  --secondary-subtle: rgb(255 255 255 / 4%);
+  --secondary-soft: rgb(255 255 255 / 8%);
+  --secondary-muted: #1F1F1F;
+  --secondary-strong: #333333;
+  --secondary-emphasis: #A8A8A8;
+  --secondary-intense: #E2E2E2;
+  --secondary-foreground: #F0F0F0;
+
+  --error: #F97066;
+  --error-subtle: rgb(249 112 102 / 9%);
+  --error-soft: rgb(249 112 102 / 18%);
+  --error-muted: #FDA29B;
+  --error-strong: #FDA29B;
+  --error-emphasis: #F97066;
+  --error-intense: #FECDCA;
+  --error-foreground: #2B0A07;
+
+  --success: #47CD89;
+  --success-subtle: rgb(71 205 137 / 9%);
+  --success-soft: rgb(71 205 137 / 18%);
+  --success-muted: #75E0A7;
+  --success-strong: #75E0A7;
+  --success-emphasis: #47CD89;
+  --success-intense: #ABEFC6;
+  --success-foreground: #04230F;
+
+  --warning: #F5B83D;
+  --warning-subtle: rgb(245 184 61 / 9%);
+  --warning-soft: rgb(245 184 61 / 18%);
+  --warning-muted: #F8CD6E;
+  --warning-strong: #F8CD6E;
+  --warning-emphasis: #F5B83D;
+  --warning-intense: #FBE2A8;
+  --warning-foreground: #2A1A00;
+
+  --info: #A8A8A8;
+  --info-subtle: rgb(255 255 255 / 5%);
+  --info-soft: rgb(255 255 255 / 10%);
+  --info-muted: #CFCFCF;
+  --info-strong: #CFCFCF;
+  --info-emphasis: #A8A8A8;
+  --info-intense: #E2E2E2;
+  --info-foreground: #111111;
+
+  --focus-ring: rgb(255 255 255 / 30%);
+  --focus-ring-input: rgb(255 255 255 / 18%);
+  --focus-ring-primary: rgb(255 255 255 / 30%);
+  --focus-ring-secondary: rgb(255 255 255 / 18%);
+  --focus-ring-error: rgb(249 112 102 / 40%);
+  --focus-ring-success: rgb(71 205 137 / 40%);
+  --focus-ring-warning: rgb(245 184 61 / 40%);
+  --focus-ring-info: rgb(255 255 255 / 25%);
+
+  --category-power: #F5B83D;
+  --category-water: #7AAEE8;
+  --category-roads: #F48A5A;
+  --category-transit: #4FC4B6;
+  --category-waste: #B8C46A;
+  --category-accessibility: #B49AE6;
+  --category-greenery: #6FCF86;
+  --category-air: #C9A497;
+
+  --heat-low: #F5B83D;
+  --heat-mid: #F07A35;
+  --heat-high: #E5484D;
+
+  --shadow-color: rgb(0 0 0 / 35%);
+  --selection-color: rgb(255 255 255 / 16%);
+}
+
+@theme inline {
+  --color-category-power: var(--category-power);
+  --color-category-water: var(--category-water);
+  --color-category-roads: var(--category-roads);
+  --color-category-transit: var(--category-transit);
+  --color-category-waste: var(--category-waste);
+  --color-category-accessibility: var(--category-accessibility);
+  --color-category-greenery: var(--category-greenery);
+  --color-category-air: var(--category-air);
+}
