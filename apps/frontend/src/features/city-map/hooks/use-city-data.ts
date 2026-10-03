@@ -42,5 +42,20 @@ export function useCityData() {
     );
   }
 
-  return { state, retry, addReport };
+  /** Swaps in a newer version of a report, e.g. after a confirmation. */
+  function replaceReport(report: CityReport) {
+    setState((current) =>
+      current.status === "ready"
+        ? {
+            ...current,
+            result: {
+              ...current.result,
+              reports: current.result.reports.map((candidate) => (candidate.id === report.id ? report : candidate)),
+            },
+          }
+        : current,
+    );
+  }
+
+  return { state, retry, addReport, replaceReport };
 }

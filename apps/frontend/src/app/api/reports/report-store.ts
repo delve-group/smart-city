@@ -35,3 +35,17 @@ export function addReport(input: CreateReportInput): ReportDto {
   listReports().unshift(report);
   return report;
 }
+
+/** Confirmations at which the city treats a resident report as confirmed. */
+const CONFIRMED_AT = 3;
+
+/** One more resident says the problem affects them. Undefined if the report does not exist. */
+export function confirmReport(id: string): ReportDto | "resolved" | undefined {
+  const report = listReports().find((candidate) => candidate.id === id);
+  if (!report) return undefined;
+  if (report.status === "resolved") return "resolved";
+  report.confirmations += 1;
+  report.updated_at = new Date().toISOString();
+  if (report.status === "reported" && report.confirmations >= CONFIRMED_AT) report.status = "confirmed";
+  return report;
+}

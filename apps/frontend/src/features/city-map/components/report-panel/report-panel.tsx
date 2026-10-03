@@ -21,9 +21,12 @@ type ReportPanelProps = {
   onClose: () => void;
   onCenter: (report: CityReport) => void;
   onSelect: (report: CityReport) => void;
+  /** This browser already said it is affected by the report. */
+  affected: boolean;
+  onConfirm: (report: CityReport) => Promise<void>;
 };
 
-export function ReportPanel({ report, category, reports, now, onClose, onCenter, onSelect }: ReportPanelProps) {
+export function ReportPanel({ report, category, reports, now, onClose, onCenter, onSelect, affected, onConfirm }: ReportPanelProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [titleHidden, setTitleHidden] = useState(false);
 
@@ -78,7 +81,7 @@ export function ReportPanel({ report, category, reports, now, onClose, onCenter,
           >
             {report.title}
           </h2>
-          <ReportImpact report={report} />
+          <ReportImpact report={report} affected={affected} onConfirm={() => onConfirm(report)} />
           <Separator />
           <ReportProgress report={report} now={now} />
           <Separator />

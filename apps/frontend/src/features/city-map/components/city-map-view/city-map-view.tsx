@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import type { Category } from "@/api/categories/types";
 import type { ReverseAddress } from "@/api/photon/types";
+import { confirmReport } from "@/api/reports/confirm-report";
 import { KRAKOW_BOUNDS, type CityReport } from "@/api/reports/types";
 import { CategoryFilter } from "@/features/category-filter/components/category-filter/category-filter";
 import { CenterPin } from "@/features/report-issue/components/center-pin/center-pin";
@@ -13,6 +14,8 @@ import { LocationPicker } from "@/features/report-issue/components/location-pick
 import { ReportFab } from "@/features/report-issue/components/report-fab/report-fab";
 import { ReportForm } from "@/features/report-issue/components/report-form/report-form";
 import { useReverseGeocode } from "@/features/report-issue/hooks/use-reverse-geocode";
+import { ThemeToggle } from "@/shared/components/theme-toggle/theme-toggle";
+import { useAffectedReports } from "../../hooks/use-affected-reports";
 import { useCityData } from "../../hooks/use-city-data";
 import { useNow } from "../../hooks/use-now";
 import { INITIAL_VIEW, type MapFocus, type MapHover } from "../city-map-canvas/city-map-canvas";
@@ -40,7 +43,8 @@ function insideKrakow({ lat, lng }: LatLng): boolean {
 }
 
 export function CityMapView() {
-  const { state, retry, addReport } = useCityData();
+  const { state, retry, addReport, replaceReport } = useCityData();
+  const { isAffected, markAffected } = useAffectedReports();
   const toast = useToastManager();
   const now = useNow();
   const isDesktop = useMediaQuery("(min-width: 768px)", { defaultValue: true });
@@ -91,7 +95,7 @@ export function CityMapView() {
   }, [selectedId, mode.kind]);
 
   function flyTo(location: { lat: number; lng: number }, zoom?: number) {
-    setFocus({ key: Date.now(), lng: location.lng, lat: location.lat, zoom });
+    setFocus((previous) => ({ key: (previous?.key ?? 0) + 1, lng: location.lng, lat: location.lat, zoom }));
   }
 
   function openReport(report: CityReport) {
@@ -120,8 +124,23 @@ export function CityMapView() {
     setMode({ kind: "picking" });
   }
 
+  async function handleConfirm(report: CityReport) {
+    try {
+      replaceReport(await confirmReport(report.id));
+      markAffected(report.id);
+      toast.add({ title: "Thanks — you are counted", description: "More affected residents move the report up the city's list." });
+    } catch (error) {
+      toast.add({
+        type: "error",
+        title: "Could not add you",
+        description: error instanceof Error ? error.message : "Try again in a moment.",
+      });
+    }
+  }
+
   function handleSubmitted(report: CityReport) {
     addReport(report);
+    markAffected(report.id);
     // Make sure the new report is visible even if its category was filtered out.
     if (shownCategoryIds && !shownCategoryIds.includes(report.categoryId)) {
       setShownCategoryIds([...shownCategoryIds, report.categoryId]);
@@ -130,7 +149,7 @@ export function CityMapView() {
     setSelectedId(report.id);
     toast.add({
       title: "Report sent — thank you",
-      description: `Reference ${report.reference}. Others nearby can now confirm it.`,
+      description: `Reference ${report.reference}. Neighbours can now say they are affected too.`,
     });
   }
 
@@ -169,6 +188,7 @@ export function CityMapView() {
             onChange={(ids) => setShownCategoryIds(ids.length === categoryIds.length ? null : ids)}
           />
         )}
+        <ThemeToggle className="shrink-0 bg-background shadow-xs" />
       </div>
 
       {state.status !== "ready" && (
@@ -232,6 +252,8 @@ export function CityMapView() {
           onClose={() => setSelectedId(null)}
           onCenter={(report) => flyTo(report.location)}
           onSelect={openReport}
+          affected={isAffected(selected.id)}
+          onConfirm={handleConfirm}
         />
       )}
     </div>

@@ -46,7 +46,8 @@ Component index (fetch a component's `.md` page before using it for the first ti
 - For a link styled as a button, use `buttonVariants(...)` on the `<a>`, never `<Button render={<a/>}>`.
 - Put `className` overrides on the component, not on the JSX passed to `render`.
 - Never hand-roll a component that exists in the library.
-- Themes: Civic = `light` class, Signal = `dark` class on `<html>`, set by `ThemeProvider` in `src/app/providers.tsx`. Change token values only in `src/shared/styles/appica-theme.css`.
+- One neutral theme with light and dark mode: the `light` / `dark` class on `<html>`, set by `ThemeProvider` in `src/app/providers.tsx` (follows the OS until the user toggles). Change token values only in `src/shared/styles/appica-theme.css`.
+- Keep chrome quiet: small radii from the tokens, `shadow-xs`–`shadow-md` at most, no blue accents. Colour is for meaning only (categories, status, heatmap).
 
 ## Map
 
