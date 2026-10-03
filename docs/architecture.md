@@ -1,6 +1,6 @@
 # System architecture
 
-Status: proof of concept, 2026-10-03. The local PostgreSQL/authentication foundation is implemented; the map still uses its mock report backend.
+Status: proof of concept, 2026-10-03. The PostgreSQL/authentication foundation, the durable worker and the incident-response server slices with their staff screens are implemented; the resident map and form still use the mock report backend until their cutover.
 
 The [voice and incident specification](../specs/001-voice-incident-response/spec.md) and [ElevenLabs technical plan](../specs/001-voice-incident-response/plan.md) define the next domain and data-flow changes. The baseline now includes durable identities/sessions and fictional institutions. Voice, persistent reports/incidents, actor workflows and approvals are not implemented yet.
 
