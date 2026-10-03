@@ -63,15 +63,18 @@ export function VoicePanelContent({ intake, categories, onLocate, onFallback }: 
   return (
     <div className="absolute bottom-12 left-1/2 z-30 -translate-x-1/2 md:bottom-6 transition-[opacity,translate] duration-200 ease-out starting:translate-y-2 starting:opacity-0 motion-reduce:transition-none">
       {(spoke || saved) && (
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={voice.phase === "stopping"}
-          onClick={() => void continueInForm()}
-          className="absolute top-1/2 left-full ml-4 -translate-y-1/2 border-border-strong/50 bg-background shadow-xs transition-opacity duration-200 starting:opacity-0 motion-reduce:transition-none"
-        >
-          {t("voice.continue")}
-        </Button>
+        // Centred by a flex wrapper, not a transform: the button's own press effect transforms it.
+        <div className="absolute inset-y-0 left-full ml-4 flex items-center transition-opacity duration-200 starting:opacity-0 motion-reduce:transition-none">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={voice.phase === "stopping"}
+            onClick={() => void continueInForm()}
+            className="border-border-strong/50 bg-background shadow-xs"
+          >
+            {t("voice.continue")}
+          </Button>
+        </div>
       )}
       <Tooltip open={!hovered} onOpenChange={() => undefined}>
         <TooltipTrigger
