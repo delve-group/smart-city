@@ -9,9 +9,9 @@ import type { Category } from "@/api/categories/types";
 import { CategoryTile } from "@/shared/components/category-tile/category-tile";
 
 type CategoryFilterProps = {
-  /** API-defined categories; every report belongs to exactly one. */
+  /** API-defined categories; every public incident belongs to exactly one. */
   categories: readonly Category[];
-  /** Open reports per category id. */
+  /** Public incidents per category id, including finished history. */
   counts: ReadonlyMap<string, number>;
   /** Category ids currently shown on the map and in search. */
   selected: readonly string[];

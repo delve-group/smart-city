@@ -1,4 +1,4 @@
-import { KRAKOW_BOUNDS } from "@/api/reports/types";
+import { KRAKOW_BOUNDS } from "@/shared/utils/krakow";
 
 /* Pure location helpers for matching. No geocoder, database or network. */
 

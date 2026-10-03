@@ -1,5 +1,5 @@
 import type { PublicIncident } from "@/api/incidents/types";
-import { distanceMeters, formatDistance } from "./nearby-reports";
+import { distanceMeters, formatDistance } from "./distance";
 export { formatDistance };
 
 export function nearbyIncidents(origin: PublicIncident, incidents: readonly PublicIncident[]) {

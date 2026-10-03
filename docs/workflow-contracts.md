@@ -123,7 +123,7 @@ type Report = {                     // owner and official only; never public
 };
 ```
 
-`GET /api/issue-types` (public, [#23](https://github.com/delve-group/smart-city/issues/23)) returns `{ "items": [{ "id", "category_id", "label" }] }`. IDs are server configuration; the contract fixes only `power_outage` (category `power`, the single auto-grouped type) and `other`, which every category accepts. The legacy `GET /api/categories` envelope is unchanged until MAP.
+`GET /api/issue-types` (public, [#23](https://github.com/delve-group/smart-city/issues/23)) returns `{ "items": [{ "id", "category_id", "label" }] }`. IDs are server configuration; the contract fixes only `power_outage` (category `power`, the single auto-grouped type) and `other`, which every category accepts. After MAP, `GET /api/categories` returns the catalogue array in the common `data` envelope; all callers migrate together.
 
 ### Public incident
 

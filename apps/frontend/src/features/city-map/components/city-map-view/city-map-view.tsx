@@ -8,8 +8,8 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import type { Category } from "@/api/categories/types";
 import type { LocationCandidate } from "@/api/locations/types";
-import { confirmReport } from "@/api/reports/confirm-report";
-import { type CityReport } from "@/api/reports/types";
+import { addContribution } from "@/api/incidents/add-contribution";
+import type { PublicIncident } from "@/api/incidents/types";
 import { CategoryFilter } from "@/features/category-filter/components/category-filter/category-filter";
 import { CenterPin } from "@/features/report-issue/components/center-pin/center-pin";
 import { LocationPicker } from "@/features/report-issue/components/location-picker/location-picker";
@@ -18,7 +18,6 @@ import { ReportForm } from "@/features/report-issue/components/report-form/repor
 import { useIntakeDraft } from "@/features/report-issue/hooks/use-intake-draft";
 import { insideKrakow } from "@/shared/utils/krakow";
 import { AppBrand } from "@/shared/components/app-brand/app-brand";
-import { useAffectedReports } from "../../hooks/use-affected-reports";
 import { heatWeight } from "../../utils/heat-weight";
 import { useCityData } from "../../hooks/use-city-data";
 import { useUserLocation } from "../../hooks/use-user-location";
@@ -27,14 +26,15 @@ import { INITIAL_VIEW, type MapFocus, type MapHover, type MapPoint } from "../ci
 import { DataStatus } from "../data-status/data-status";
 import { MapSearch, type SearchOption } from "../map-search/map-search";
 import { MapSettings } from "../map-settings/map-settings";
-import { ReportPanel } from "../report-panel/report-panel";
-import { ReportTooltip } from "../report-tooltip/report-tooltip";
+import { IncidentPanel } from "../incident-panel/incident-panel";
+import { IncidentTooltip } from "../incident-tooltip/incident-tooltip";
+import { FreshnessStatus } from "@/shared/components/freshness-status/freshness-status";
 
 // MapLibre needs the browser (WebGL, window), so the map is client-only.
 const CityMapCanvas = dynamic(() => import("../city-map-canvas/city-map-canvas"), { ssr: false });
 
-const DEMO_NOTICE = "Reports: demo data";
-const NO_REPORTS: CityReport[] = [];
+const DEMO_NOTICE = "Incidents: fictional demo data";
+const NO_INCIDENTS: PublicIncident[] = [];
 const NO_CATEGORIES: Category[] = [];
 /** Desktop panel width (25rem) plus its 0.75rem margin. */
 const PANEL_INSET = 412;
@@ -45,9 +45,8 @@ type LatLng = { lat: number; lng: number };
 type Mode = { kind: "browse" } | { kind: "picking" } | { kind: "form" };
 
 export function CityMapView() {
-  const { state, retry, replaceReport } = useCityData();
+  const { state, retry, refresh, applyContribution, updatedAt, refreshFailed } = useCityData();
   const intake = useIntakeDraft();
-  const { isAffected, markAffected } = useAffectedReports();
   const toast = useToastManager();
   const now = useNow();
   const userLocation = useUserLocation();
@@ -66,22 +65,20 @@ export function CityMapView() {
 
   const ready = state.status === "ready" ? state : undefined;
   const categories = ready?.categories ?? NO_CATEGORIES;
-  const allReports = ready?.result.reports ?? NO_REPORTS;
+  const allIncidents = ready?.incidents ?? NO_INCIDENTS;
   const categoriesById = new Map(categories.map((category) => [category.id, category]));
   const categoryIds = categories.map((category) => category.id);
   const shownIds = shownCategoryIds ?? categoryIds;
-  // Filtered-out reports are neither drawn nor searchable nor listed as nearby.
-  const reports = allReports.filter((report) => shownIds.includes(report.categoryId));
-  const points: MapPoint[] = reports.map((report) => ({
-    id: report.id,
-    categoryId: report.categoryId,
-    location: report.location,
-    weight: heatWeight(report),
+  // The category filter applies to markers, local search, counts and nearby lists.
+  const incidents = allIncidents.filter((incident) => shownIds.includes(incident.category_id));
+  const points: MapPoint[] = incidents.map((incident) => ({
+    id: incident.id, categoryId: incident.category_id, location: incident.public_location, weight: heatWeight(incident),
   }));
-  const counts = new Map(categoryIds.map((id) => [id, allReports.filter((report) => report.categoryId === id).length]));
-
-  const selected = reports.find((report) => report.id === selectedId);
-  const hovered = hover ? reports.find((report) => report.id === hover.id) : undefined;
+  const counts = new Map(categoryIds.map((id) => [id, allIncidents.filter((incident) => incident.category_id === id).length]));
+  const selected = incidents.find((incident) => incident.id === selectedId);
+  const hovered = hover ? incidents.find((incident) => incident.id === hover.id) : undefined;
+  const savedReportId = intake.report?.id;
+  useEffect(() => { if (savedReportId) refresh(); }, [savedReportId, refresh]);
 
   useEffect(() => {
     const element = containerRef.current;
@@ -109,24 +106,24 @@ export function CityMapView() {
     setFocus((previous) => ({ key: (previous?.key ?? 0) + 1, lng: location.lng, lat: location.lat, zoom }));
   }
 
-  function openReport(report: CityReport) {
-    setSelectedId(report.id);
-    flyTo(report.location, 15.5);
+  function openIncident(incident: PublicIncident) {
+    setSelectedId(incident.id);
+    flyTo(incident.public_location, 15.5);
   }
 
   /** Map click: open the report, and pan only if the panel would cover the point. */
   function selectFromMap(id: string | null, point?: { x: number; y: number }) {
     setSelectedId(id);
-    const report = id ? reports.find((candidate) => candidate.id === id) : undefined;
-    if (!report || !point) return;
+    const incident = id ? incidents.find((candidate) => candidate.id === id) : undefined;
+    if (!incident || !point) return;
     const covered = isDesktop ? point.x > bounds.width - PANEL_INSET - 24 : point.y > bounds.height * 0.28;
-    if (covered) flyTo(report.location);
+    if (covered) flyTo(incident.public_location);
   }
 
   function handlePick(option: SearchOption) {
     // While placing a pin, search only moves the map.
-    if (option.kind === "report" && mode.kind === "browse") openReport(option.report);
-    else flyTo(option.kind === "report" ? option.report.location : option.place.location, 16.5);
+    if (option.kind === "incident" && mode.kind === "browse") openIncident(option.incident);
+    else flyTo(option.kind === "incident" ? option.incident.public_location : option.place.location, 16.5);
   }
 
   async function startReport(newReport = false) {
@@ -138,22 +135,20 @@ export function CityMapView() {
     setMode({ kind: draft.fields.location || draft.submission ? "form" : "picking" });
   }
 
-  async function handleConfirm(report: CityReport) {
+  async function handleContribution() {
+    if (!selected) return;
     try {
-      replaceReport(await confirmReport(report.id));
-      markAffected(report.id);
-      toast.add({ title: "Thanks — you are counted", description: "More affected residents move the report up the city's list." });
+      const result = await addContribution(selected.id);
+      applyContribution(result);
+      toast.add({ title: "Your support is recorded", description: "Each resident identity counts once. Support does not mean official verification." });
     } catch (error) {
-      toast.add({
-        type: "error",
-        title: "Could not add you",
-        description: error instanceof Error ? error.message : "Try again in a moment.",
-      });
+      refresh();
+      throw error;
     }
   }
 
-  const selectedCategory = selected ? categoriesById.get(selected.categoryId) : undefined;
-  const hoveredCategory = hovered ? categoriesById.get(hovered.categoryId) : undefined;
+  const selectedCategory = selected ? categoriesById.get(selected.category_id) : undefined;
+  const hoveredCategory = hovered ? categoriesById.get(hovered.category_id) : undefined;
 
   return (
     <div ref={containerRef} className="relative size-full overflow-hidden">
@@ -174,7 +169,7 @@ export function CityMapView() {
         onSelect={selectFromMap}
         onCenterChange={setCenter}
         onUserMove={() => setSelectedLocation(null)}
-        attribution={ready?.result.source === "demo" ? DEMO_NOTICE : undefined}
+        attribution={ready?.incidents.some((incident) => incident.provenance === "demo") ? DEMO_NOTICE : undefined}
         tilted={tilted}
       />
 
@@ -184,7 +179,7 @@ export function CityMapView() {
 
       <div className="absolute top-16 right-3 left-3 z-20 flex items-start gap-2 md:top-3 md:right-auto md:w-140">
         <div className="min-w-0 flex-1">
-          <MapSearch reports={reports} categoriesById={categoriesById} onPick={handlePick} />
+          <MapSearch incidents={incidents} categoriesById={categoriesById} onPick={handlePick} />
         </div>
         {categories.length > 0 && (
           <CategoryFilter
@@ -213,6 +208,12 @@ export function CityMapView() {
             <Button variant="outline" disabled={intake.busy} onClick={() => void startReport()}>Retry recovery</Button>
             {!intake.draft && <Button variant="outline" disabled={intake.busy} onClick={() => void startReport(true)}>Start a new report</Button>}
           </div>
+        </div>
+      )}
+
+      {ready && refreshFailed && (
+        <div className={`absolute left-3 z-20 max-w-[calc(100%-1.5rem)] rounded-md border border-border bg-background px-3 py-2 shadow-sm md:bottom-3 md:max-w-sm ${selected || mode.kind === "form" ? "bottom-[calc(72dvh+0.75rem)]" : mode.kind === "picking" ? "bottom-[calc(50dvh+0.75rem)]" : "bottom-3"}`}>
+          <FreshnessStatus updatedAt={updatedAt} onRetry={retry} />
         </div>
       )}
 
@@ -260,9 +261,9 @@ export function CityMapView() {
       )}
 
       {mode.kind === "browse" && hovered && hoveredCategory && hover && hovered.id !== selectedId && isDesktop && (
-        <ReportTooltip
+        <IncidentTooltip
           key={hovered.id}
-          report={hovered}
+          incident={hovered}
           category={hoveredCategory}
           now={now}
           x={hover.x}
@@ -272,16 +273,16 @@ export function CityMapView() {
       )}
 
       {mode.kind === "browse" && selected && selectedCategory && (
-        <ReportPanel
-          report={selected}
+        <IncidentPanel
+          key={selected.id}
+          incident={selected}
           category={selectedCategory}
-          reports={reports}
+          incidents={incidents}
           now={now}
           onClose={() => setSelectedId(null)}
-          onCenter={(report) => flyTo(report.location)}
-          onSelect={openReport}
-          affected={isAffected(selected.id)}
-          onConfirm={handleConfirm}
+          onCenter={() => flyTo(selected.public_location)}
+          onSelect={openIncident}
+          onContribute={handleContribution}
         />
       )}
     </div>

@@ -1,22 +1,19 @@
 import type { NextRequest } from "next/server";
-import { type ReportsResponseDto } from "@/api/reports/types";
 import { ApiError, handleApi, success } from "@/server/http/api";
 import { requireActorContext } from "@/server/http/context";
 import { readJson, requireAppOrigin } from "@/server/http/request";
 import { submitReportSchema } from "@/server/reports/contracts";
 import { submitDraft } from "@/server/reports/submission";
-import { listReports } from "./report-store";
 
 export const runtime = "nodejs";
 
-/** Mock endpoint (demo data, in-memory). Durable reports are private and never appear here. */
+/** Stale public-map clients must reload; private reports are never a public incident feed. */
 export function GET() {
-  return Response.json({ source: "demo", reports: listReports() } satisfies ReportsResponseDto);
+  return handleApi(() => { throw new ApiError(410, "endpoint_retired", "Public reports were replaced by incidents. Reload the application."); });
 }
 
 /**
  * Citizen cutover: only an owned, confirmed draft creates a report.
- * Legacy public reads/contributions remain until the complete map cutover.
  */
 export async function POST(request: NextRequest) {
   return handleApi(async (correlationId) => {

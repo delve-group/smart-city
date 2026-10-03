@@ -69,7 +69,7 @@ The city administration UI manages these objects. Imports may create drafts, but
 
 ### Resident report: existing demo shape to migrate
 
-`GET /api/reports` currently returns `{ "source": "demo" | "live", "reports": LegacyReport[] }`. The current code accepts any string for `source` and emits `demo`. The legacy confirmation route returns one `LegacyReport` directly. The resident form now submits owned confirmed drafts through the common envelope; private persisted reports never enter the old public feed. The map fetches categories first and discards a legacy report whose category or required fields are invalid. The legacy read/contribution contracts remain a migration baseline until MAP.
+The former public raw report list and confirmation routes are retired with `410 endpoint_retired`. The resident map now consumes only `PublicIncident`, server supporter membership and the common category envelope. The table below documents the retired wire shape for migration context; it is not returned by a current public route. Private persisted reports remain accessible only to their owner or authorized staff.
 
 | Field | Required | Meaning and source |
 | --- | --- | --- |
@@ -87,7 +87,7 @@ The city administration UI manages these objects. Imports may create drafts, but
 
 The former raw-create `POST /api/reports` payload is retired with `400 legacy_contract_retired`. The canonical payload is `{ draft_id, revision }` through the shared authenticated submission service. The form preserves title (3–80) and original-observation (0–1000) limits. See [shared intake contracts](workflow-contracts.md#3-resident-intake) and [location/form behavior](location-resolution.md).
 
-Current-demo `POST /api/reports/{id}/confirmations` has no JSON body and returns the updated `LegacyReport` with `200`. It returns `404` if the report is absent and `409` if resolved. It increments the count on every accepted request and changes `reported` to `confirmed` at three confirmations. The browser's local storage suppresses repeat clicks only in that browser; it does not enforce one person/one confirmation. Confirmation alone is not proof of dispatch to a city service.
+`POST /api/reports/{id}/confirmations` returns `410 endpoint_retired`. Use authenticated incident contributions, which count each resident identity once. Support alone is not official verification or proof of dispatch.
 
 ### Specified PoC data shapes
 
@@ -176,8 +176,8 @@ The old map/report routes below remain public, in-memory demo endpoints. Authent
 
 | Operation | Request / success response | State |
 | --- | --- | --- |
-| `GET /api/categories` | Current `200 { categories: CategoryPublic[] }`; specified PoC moves the same list into the common `data` envelope while keeping API-defined IDs stable. | Implemented demo; response-envelope migration in PoC. |
-| `GET /api/reports` | `200 { source, reports: LegacyReport[] }`; public raw-report list for the current map only. | Implemented demo; retire after all map callers move to incidents. |
+| `GET /api/categories` | `200 { data: CategoryPublic[], correlation_id }`; API-defined IDs remain stable. | Implemented demo catalogue; all callers use the common envelope. |
+| `GET /api/reports` | `410 endpoint_retired`; reload and use public incidents. | Retired in MAP. |
 | `POST /api/reports` (former raw-create body) | `400 legacy_contract_retired`. | Retired in CITIZEN; reload and use a confirmed owned draft. |
 | `POST /api/reports/{id}/confirmations` | Empty body; increments raw count, `404` absent or `409` resolved. | Implemented demo; retire in favor of incident contributions. |
 | `POST /api/voice/sessions` | For the authenticated resident, return our session ID and a short-lived conversation credential for the server-configured private ElevenLabs dispatcher agent, never the API key. | Specified PoC. |

@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { KRAKOW_BOUNDS, REPORT_SEVERITIES } from "@/api/reports/types";
+import { KRAKOW_BOUNDS } from "@/shared/utils/krakow";
+import { REPORT_SEVERITIES } from "@/shared/utils/severity";
 
 /*
  * Wire shapes of resident intake, as agreed in docs/workflow-contracts.md §2–3.

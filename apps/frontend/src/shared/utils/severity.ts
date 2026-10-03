@@ -1,4 +1,5 @@
-import type { ReportSeverity } from "@/api/reports/types";
+export const REPORT_SEVERITIES = ["low", "medium", "high"] as const;
+export type ReportSeverity = (typeof REPORT_SEVERITIES)[number];
 
 export const SEVERITY_LABEL: Record<ReportSeverity, string> = {
   low: "Minor",

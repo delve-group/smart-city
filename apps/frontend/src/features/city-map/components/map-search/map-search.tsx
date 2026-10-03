@@ -15,40 +15,40 @@ import {
 import { Spinner } from "@appica/ui-react/spinner";
 import { useState } from "react";
 import type { Category } from "@/api/categories/types";
-import type { CityReport } from "@/api/reports/types";
+import type { PublicIncident } from "@/api/incidents/types";
 import type { Place } from "@/api/photon/types";
 import { usePlaceSearch } from "../../hooks/use-place-search";
-import { searchReports, topReports } from "../../utils/search-reports";
+import { searchIncidents, topIncidents } from "../../utils/search-incidents";
 import { SearchPlaceOption } from "../search-place-option/search-place-option";
-import { SearchReportOption } from "../search-report-option/search-report-option";
+import { SearchIncidentOption } from "../search-incident-option/search-incident-option";
 
 export type SearchOption =
-  | { kind: "report"; id: string; label: string; report: CityReport }
+  | { kind: "incident"; id: string; label: string; incident: PublicIncident }
   | { kind: "place"; id: string; label: string; place: Place };
 
 type OptionGroup = { value: string; items: SearchOption[] };
 
 type MapSearchProps = {
-  /** Only the reports visible under the current filter are searchable. */
-  reports: readonly CityReport[];
+  /** Only the incidents visible under the current filter are searchable. */
+  incidents: readonly PublicIncident[];
   categoriesById: ReadonlyMap<string, Category>;
   onPick: (option: SearchOption) => void;
 };
 
-const toReportOption = (report: CityReport): SearchOption => ({ kind: "report", id: report.id, label: report.title, report });
+const toIncidentOption = (incident: PublicIncident): SearchOption => ({ kind: "incident", id: incident.id, label: incident.public_summary, incident });
 const toPlaceOption = (place: Place): SearchOption => ({ kind: "place", id: place.id, label: place.name, place });
 
-export function MapSearch({ reports, categoriesById, onPick }: MapSearchProps) {
+export function MapSearch({ incidents, categoriesById, onPick }: MapSearchProps) {
   const [query, setQuery] = useState("");
   const places = usePlaceSearch(query);
   const typed = query.trim().length > 0;
 
   const groups: OptionGroup[] = typed
     ? [
-        { value: "Reports", items: searchReports(reports, categoriesById, query).map(toReportOption) },
+        { value: "Incidents", items: searchIncidents(incidents, categoriesById, query).map(toIncidentOption) },
         { value: "Places", items: places.places.map(toPlaceOption) },
       ].filter((group) => group.items.length > 0)
-    : [{ value: "Most affected", items: topReports(reports).map(toReportOption) }];
+    : [{ value: "Most affected", items: topIncidents(incidents).map(toIncidentOption) }];
 
   const searchingPlaces = places.status === "loading";
 
@@ -70,21 +70,21 @@ export function MapSearch({ reports, categoriesById, onPick }: MapSearchProps) {
       size="lg"
     >
       <ComboboxInput
-        aria-label="Search reports and places"
-        placeholder="Search reports, streets and places"
+        aria-label="Search incidents and places"
+        placeholder="Search incidents, streets and places"
         className="border-border-strong/50 bg-background shadow-xs"
         startSlot={<Search size={18} aria-hidden className="text-foreground-muted" />}
         endSlot={searchingPlaces ? <Spinner className="size-4 text-foreground-muted" aria-label="Searching places" /> : null}
       />
-      <ComboboxContent className="w-(--anchor-width) min-w-96 max-w-[calc(100vw-1.5rem)]">
+      <ComboboxContent className="w-(--anchor-width) min-w-0 max-w-[calc(100vw-1.5rem)]">
         <ComboboxEmpty>
           {searchingPlaces
             ? "Searching places…"
             : places.status === "error"
-              ? "Place search is unavailable right now. Report search still works."
+              ? "Place search is unavailable right now. Local incident search still works."
               : typed
-                ? `No reports or places match “${query.trim()}”.`
-                : "No open reports. Search for a street to move the map."}
+                ? `No incidents or places match “${query.trim()}”.`
+                : "No active incidents. Search for a street to move the map."}
         </ComboboxEmpty>
         <ComboboxList className="max-h-[min(28rem,60dvh)]">
           {(group: OptionGroup) => (
@@ -93,8 +93,8 @@ export function MapSearch({ reports, categoriesById, onPick }: MapSearchProps) {
               <ComboboxCollection>
                 {(option: SearchOption) => (
                   <ComboboxItem key={`${option.kind}-${option.id}`} value={option} className="*:min-w-0">
-                    {option.kind === "report" ? (
-                      <SearchReportOption report={option.report} category={categoriesById.get(option.report.categoryId)} />
+                    {option.kind === "incident" ? (
+                      <SearchIncidentOption incident={option.incident} category={categoriesById.get(option.incident.category_id)} />
                     ) : (
                       <SearchPlaceOption place={option.place} />
                     )}
