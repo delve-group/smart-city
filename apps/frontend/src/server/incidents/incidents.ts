@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { PoolClient } from "pg";
+import { afterIncidentChange } from "@/server/actions/proposal-lifecycle";
 import type { TimelineKind } from "./public-templates";
 
 type Queryable = Pick<PoolClient, "query">;
@@ -91,21 +92,16 @@ export async function refreshSupport(client: Queryable, incident: IncidentRow): 
   return true;
 }
 
-/** Hooks that must run whenever an incident materially changes (e.g. superseding unexecuted proposals). */
-type MaterialChangeHook = (client: PoolClient, incidentId: string, newVersion: number) => Promise<void>;
-const materialChangeHooks: MaterialChangeHook[] = [];
-export function onIncidentMaterialChange(hook: MaterialChangeHook): void {
-  materialChangeHooks.push(hook);
-}
-
 /**
  * One material change = one new version. With `expectedVersion` this is the atomic
  * expected-version write: null means the caller's view was stale and nothing was changed.
+ * Unexecuted proposals are superseded in the same transaction.
  */
 export async function bumpIncidentVersion(
   client: PoolClient,
   incidentId: string,
   expectedVersion?: number,
+  options: { propose: boolean } = { propose: true },
 ): Promise<number | null> {
   const result = await client.query<{ version: number }>(
     `UPDATE incidents SET version = version + 1, updated_at = now()
@@ -113,6 +109,6 @@ export async function bumpIncidentVersion(
     [incidentId, expectedVersion ?? null],
   );
   const version = result.rows[0]?.version ?? null;
-  if (version !== null) for (const hook of materialChangeHooks) await hook(client, incidentId, version);
+  if (version !== null) await afterIncidentChange(client, incidentId, options);
   return version;
 }

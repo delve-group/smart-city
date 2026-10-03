@@ -1,5 +1,6 @@
 import "server-only";
 
+import { handleExecuteWork } from "@/server/actions/execute-handler";
 import { registerWorkHandler } from "@/server/jobs";
 import { handleTriageWork } from "@/server/incidents/triage-handler";
 
@@ -9,4 +10,5 @@ import { handleTriageWork } from "@/server/incidents/triage-handler";
  */
 export function registerDomainWorkHandlers(): void {
   registerWorkHandler("triage", handleTriageWork);
+  registerWorkHandler("execute", handleExecuteWork);
 }
