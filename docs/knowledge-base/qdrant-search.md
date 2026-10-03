@@ -28,14 +28,15 @@ The server validates collection vector settings and a `mradar_index_revision` me
 
 Provider errors are safe and distinguish unavailable/busy/incompatible/stale from an empty result. The HTTP route maps invalid input to `400 invalid_request` and provider/configuration failures to safe `503 dependency_unavailable`; authorized stale results instead use the success payload's `index_stale` state. Setup retries transient provider failures up to five times; invalid configuration, incompatible revisions and permanent HTTP errors fail immediately.
 
-Suggested tool contract (not implemented):
+Scoped MCP tool contract (see the [module guide](../../apps/frontend/src/server/mcp/README.md) for credentials and current verification):
 
 ```ts
-search_tickets({ query, mode: "hybrid", limit: 10, filters })
-find_related_tickets({ record_type, record_id, limit: 10, filters })
+search_tickets({ q, mode: "hybrid", limit: 10, category_id: [], issue_type: [], record_type: [] })
+find_related_tickets({ related_type, related_id, limit: 10, category_id: [], issue_type: [], record_type: [] })
+get_search_record({ record_type, record_id })
 ```
 
-The original tool names are retained as planned interfaces; they search all three source kinds. Return structured records with `record_type`, `record_id`, title, a safe excerpt, available metadata, ranking score and index freshness. Validate arguments and bound result counts. Distinguish an empty result from an unavailable index. Scores are ranking signals, not probabilities; calibrate any relevance cutoff on representative reports. Related-record search should reuse the stored dense vector for the permitted projection and exclude every projection of the source record.
+The original search tool names are retained; they search all three source kinds. Return structured records with `record_type`, `record_id`, title, a safe excerpt, available metadata, ranking score and index freshness. Validate arguments and bound result counts. Distinguish an empty result from an unavailable index. Scores are ranking signals, not probabilities; calibrate any relevance cutoff on representative reports. Related-record search should reuse the stored dense vector for the permitted projection and exclude every projection of the source record.
 
 ## Model and language
 
