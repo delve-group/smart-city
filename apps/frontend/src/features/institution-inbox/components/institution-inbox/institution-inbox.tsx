@@ -1,7 +1,6 @@
 "use client";
 
 import { Alert, AlertDescription, AlertTitle } from "@appica/ui-react/alert";
-import { Badge } from "@appica/ui-react/badge";
 import { Button } from "@appica/ui-react/button";
 import { ScrollArea } from "@appica/ui-react/scroll-area";
 import { Spinner } from "@appica/ui-react/spinner";
@@ -87,10 +86,7 @@ export function InstitutionInbox({ onSessionLost, onSignOut }: InstitutionInboxP
             {onSignOut && <Button variant="ghost" size="sm" onClick={onSignOut}>Sign out</Button>}
           </div>
           {state.status === "ready" && (
-            <p className="flex flex-wrap items-center gap-2 text-sm text-foreground">
-              {state.profile.name}
-              {state.profile.isDemo && <Badge variant="outline" size="xs">Demo institution</Badge>}
-            </p>
+            <p className="text-sm text-foreground">{state.profile.name}</p>
           )}
         </header>
         <ScrollArea className="min-h-0 flex-1">

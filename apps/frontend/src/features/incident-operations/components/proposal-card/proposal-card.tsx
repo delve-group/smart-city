@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { Incident, Institution, ProposalDecision } from "@/api/operations/types";
 import { formatAgo } from "@/shared/utils/format-time";
 import { PROPOSAL } from "../../utils/labels";
-import { Fact, FACTS } from "../fact/fact";
+import { Fact, FACTS } from "@/shared/components/fact/fact";
 import { ReasonForm } from "../reason-form/reason-form";
 
 type ProposalCardProps = {

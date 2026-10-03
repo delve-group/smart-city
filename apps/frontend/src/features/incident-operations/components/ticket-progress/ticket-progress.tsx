@@ -2,7 +2,7 @@ import { Check, Ticket as TicketIcon, X } from "@appica/icons-react";
 import type { Ticket } from "@/api/operations/types";
 import { formatAgo, formatDateTime } from "@/shared/utils/format-time";
 import { TICKET, TICKET_STEPS } from "../../utils/labels";
-import { Fact } from "../fact/fact";
+import { Fact } from "@/shared/components/fact/fact";
 
 type TicketProgressProps = { ticket: Ticket; institutionName: string; now: number };
 

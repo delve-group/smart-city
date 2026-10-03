@@ -14,7 +14,7 @@ import { InfoHint } from "@/shared/components/info-hint/info-hint";
 import { formatAgo } from "@/shared/utils/format-time";
 import { RESPONSE } from "../../utils/labels";
 import { reportsOf } from "../../utils/queue";
-import { Fact, FACTS } from "../fact/fact";
+import { Fact, FACTS } from "@/shared/components/fact/fact";
 import { PanelHeader } from "../panel-header/panel-header";
 import { ReviewNotice } from "../review-notice/review-notice";
 
