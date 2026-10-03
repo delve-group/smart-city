@@ -6,6 +6,7 @@ Ta baza przechowuje kontekst i decyzje projektu, nie jest bazą danych aplikacji
 | --- | --- |
 | Cel, ograniczenia, status i niewiadome | [Kontekst projektu](project.md) |
 | Dlaczego wybraliśmy dane rozwiązanie | [Decyzje](decisions.md) |
+| Źródła map, WMS/WFS, budynki, działki i 3D | [Dane przestrzenne i Geoportal](geospatial-data.md) |
 | Granice modułów, przepływ danych i skalowanie | [Architektura](../architecture.md) |
 | Komponenty, kolory, typografia i dostępność | [Design system](../design-system.md) |
 | Uzgodniony zakres inicjalizacji | [Plan startowy](../plans/2026-10-03-foundation-design.md) |

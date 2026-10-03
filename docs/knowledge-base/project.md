@@ -8,6 +8,7 @@ Aktualizacja: 2026-10-03.
 - Szybkość dostarczania ma bardzo duże znaczenie. Kod ma pozostać modularny i łatwy do utrzymania oraz skalowania.
 - Baza UI: shadcn/ui. Dwa motywy: futurystyczny inspirowany agent.sh i stonowany, urzędowy inspirowany mObywatelem/gov.pl.
 - Zasady testowania definiuje wyłącznie [AGENTS.md](../../AGENTS.md).
+- Dla Krakowa są publicznie opublikowane urzędowe usługi mapowe MSIP i GUGiK. Rozpoznane źródła oraz kontrole przed integracją opisuje [notatka o danych przestrzennych](geospatial-data.md).
 
 ## Robocze założenia
 
@@ -19,7 +20,7 @@ Aktualizacja: 2026-10-03.
 ## Do ustalenia przy pierwszej funkcji
 
 - Główny użytkownik i jeden najważniejszy scenariusz demonstracyjny.
-- Źródła danych, dostępne API, model uprawnień i potrzeba logowania.
+- Dokładne warstwy i atrybuty WFS potrzebne w scenariuszu demonstracyjnym oraz ograniczenia CORS i limity usług.
 - Czy demonstracja wymaga trwałego zapisu, backendu, mapy lub aktualizacji na żywo.
 - Warunki wdrożenia i konkretne ograniczenia czasowe zespołu.
 
