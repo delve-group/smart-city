@@ -1,6 +1,7 @@
 import { getDemoPasswords } from "../src/server/config";
 import { hashPassword } from "../src/server/auth/password";
 import { createScriptPool, loadEnvironment, reportSetupFailure, SetupError } from "./db-common";
+import { seedDemoFixtures } from "./demo-fixtures";
 
 async function seed(): Promise<void> {
   loadEnvironment();
@@ -43,8 +44,18 @@ async function seed(): Promise<void> {
         );
         created += 1;
       }
+      // Demo configuration: which fictional institution answers for which category and issue.
+      await client.query(`
+        INSERT INTO responsibility_rules (id, category_id, issue_type, institution_id)
+        VALUES ('demo-rule-power', 'power', NULL, 'demo-electricity'),
+               ('demo-rule-water-outage', 'water', 'water_outage', 'demo-water'),
+               ('demo-rule-water-pipe', 'water', 'burst_pipe', 'demo-water')
+        ON CONFLICT (id) DO NOTHING
+      `);
+      const fixtures = await seedDemoFixtures(client);
       await client.query("COMMIT");
       console.info(`Demo seed complete: ${created} staff account(s) created. Existing passwords were preserved.`);
+      console.info(fixtures ? "Fictional demo incidents and reports were added." : "Demo incidents were already present.");
     } catch (error) {
       await client.query("ROLLBACK");
       throw error;
