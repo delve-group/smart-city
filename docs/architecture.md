@@ -74,7 +74,7 @@ The API layer maps external data to a small app model, validates the boundary an
 
 Planned ticket/incident retrieval for agents, MCP tools and shared user search follows the [Qdrant search decision and implementation guide](knowledge-base/qdrant-search.md) (D029). Read it before implementing those paths. This integration is not yet part of the data flow above; the authoritative ticket store remains undecided.
 
-The [frontend–backend contract](api-contract.md) records the current resident API and the target interfaces for the complete incident-management SPEC. It distinguishes resident reports from deduplicated staff incidents and marks unimplemented routes explicitly.
+The [frontend–backend contract](api-contract.md) separates today's resident-report routes, the specified ElevenLabs voice-to-incident PoC, and later interfaces from the platform SPEC. The feature specification and plan govern the next implementation slice; public incident projections, private reports, official commands and institution tickets must not be collapsed into one record or route.
 
 ## Errors and states
 

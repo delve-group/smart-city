@@ -1,34 +1,38 @@
 # Frontend–backend contract
 
-Status: target contract for the system in [spec.md](../spec.md), 2026-10-03. The resident endpoints marked **PoC** exist today as Next.js demo route handlers. Every other endpoint below is a proposed interface, not an implemented service or a city integration. Before implementing a slice, frontend and backend should update this file together if its wire format or behaviour changes.
+Status: shared frontend–backend contract, 2026-10-03. It reconciles three different states: **implemented demo** (the current Next.js report routes), **specified PoC** ([voice and incident response](../specs/001-voice-incident-response/spec.md) and its [technical plan](../specs/001-voice-incident-response/plan.md)), and **future platform** ([root SPEC](../spec.md)). Only the implemented-demo routes exist today. The feature specification is authoritative for the next slice wherever it differs from the root platform vision; future-platform tables below are not PoC requirements. Update this file with both teams whenever a slice changes its wire format or behavior.
 
-The later [voice and incident discovery draft](plans/2026-10-03-voice-incident-design.md) adds an accepted approval boundary before an agent contacts an institution or executes a ticket. The approval and search surfaces below reflect that direction and the [Qdrant search decision](knowledge-base/qdrant-search.md); they do not turn the draft's scenario, provider or hosting recommendations into approved implementation choices.
+ElevenLabs Agents is the selected browser-voice provider, and Qdrant is the selected derived search index ([D029 guide](knowledge-base/qdrant-search.md)). Neither integration has been implemented or verified. The older [discovery draft](plans/2026-10-03-voice-incident-design.md) is background research, not a competing feature specification.
 
 ## Scope and vocabulary
 
-This contract covers the resident map, municipal staff dashboard, contractor portal, city administration, external ingestion and public open data described in the SPEC. It defines the boundary between clients and the backend; it does not select a database, identity provider, queue or cloud vendor.
+The next PoC covers a resident map and voice/form intake, official review, one demo institution ticket per incident and public feedback. Electricity Operator and Water Services are visibly fictional demo institutions; only Electricity handles the reference outage. The [selected citizen use cases](knowledge-base/citizen-use-cases.md) supply four fictional intake/rehearsal inputs—broken lift (UC-005), pothole (UC-003), blocked drain (UC-002) and power outage (UC-001)—without expanding automatic grouping beyond the specified power-outage policy. The later platform extends this with contractors, finance, multi-city administration, external ingestion and open data. PostgreSQL and polling are planning defaults for the PoC, not provisioned resources.
 
 | Term | Meaning |
 | --- | --- |
 | City | Top-level data and configuration boundary. The PoC has one city, Kraków; the target platform can host more. |
 | Tenant | A city department, external contractor or city administration group within one city. A tenant's identity and access scope come from the authenticated actor, not a client-supplied filter. |
-| Report | One resident submission or verified city notice. Reports remain separate so their provenance and confirmation counts can be shown on the map. |
-| Incident | The operational case handled by staff. One incident can group several reports; it has one lifecycle, priority and lead owner, plus supporting tenants when needed. |
-| Work order | An assignment of incident work to a contractor under a known contract. It does not itself transfer ownership of the incident. |
-| Observation | A timestamped external signal, such as a water-level reading or transit feed event. It is evidence, not automatically a verified incident. |
+| Report | One resident observation, owned by its submitting identity and separate from the operational case. Detailed reports are private to their owner and authorized staff in the specified PoC. |
+| Incident | The operational case grouping related reports, with assessment separate from response progress. Public map, search and counts move from reports to an allowlisted incident projection. |
+| Service ticket | The approved request to one demo institution in the specified PoC; distinct from both report and incident. |
+| Work order | Future-platform assignment to a pre-contracted firm under a contract; not part of the first PoC. |
+| Evidence / observation | Timestamped resident, operator or fixture information with source, freshness and demo/live provenance. Missing data is not a zero reading or verification. |
 
-This report/incident split is a design decision needed to make the SPEC's deduplication and cross-unit workflows explicit. The existing frontend still consumes reports; staff views will consume incidents. A report may initially have no `incident_id` while triage runs. The SPEC's example `/api/incidents` routes refer to operational cases; the existing `/api/reports` routes remain the resident-facing API.
+The existing map still consumes public reports. The specified migration switches the map, nearby list, search, counts, heatmap and contribution action together to public incidents. A report can remain unlinked while triage or scope review runs. Do not equate the root SPEC's illustrative ticket/incident record with a resident report or with an institution service ticket.
 
 ## Common wire rules
 
 - JSON property names use `snake_case`. IDs are opaque nonempty strings; clients must not infer meaning from their format. Timestamps are ISO 8601 strings with a UTC offset; the backend emits UTC. Coordinates are WGS84 decimal `lat` and `lng`, with GeoJSON coordinates in `[lng, lat]` order.
-- Collection responses use `{ "items": [...], "next_cursor": string | null }` unless a route below preserves an existing PoC envelope. `limit` and `cursor` are optional query parameters. Map queries also accept `bbox=west,south,east,north`; the backend applies the actor's city and tenant scope before filtering.
-- Write responses return the created or updated resource. Writes that can be retried after a timeout accept `Idempotency-Key`; the same actor, route and key must return the original result without repeating the action. This is a target requirement; the PoC handlers do not implement it yet.
-- Errors use an HTTP status plus `{ "error": "Human-readable message", "code": "stable_machine_code", "details"?: object }`. Keeping `error` as a string preserves the current frontend error display. Use `400` for invalid input, `401` for missing authentication, `403` for forbidden scope, `404` for absent or hidden resources, `409` for invalid state or stale updates, `413` for oversized attachments and `429` for rate limits. The PoC currently returns only `{ "error": string }` for its handled errors.
-- Authenticated staff and contractor APIs require a bearer token from the configured SAML/OIDC identity provider or native authentication with MFA, or a scoped service credential for integrations. The backend derives `city_id`, tenant membership and roles from that credential. It must not accept a request body's `tenant_id`, `updated_by` or `city_id` as proof of authority. The city for anonymous public routes comes from trusted deployment/host configuration. Residents can read public data and submit reports without staff credentials in the PoC; abuse controls and resident identity are still open decisions.
-- Public responses exclude reporter contact details, private notes, internal audit payloads and contractor financial fields. Raw provider payloads stay server-side. Do not combine demo and real incidents in one response without an explicit provenance marker for each record.
+- The specified PoC returns success as `{ "data": ..., "version"?: number, "correlation_id": string }`. A collection places `{ "items": [...], "next_cursor": string | null }` inside `data`. Failure uses an HTTP status and `{ "code": string, "message": string, "retryable": boolean, "correlation_id": string }`; use 400/401/403/404/409/429/503 as appropriate. `version_conflict`, `not_confirmed`, `stale_approval`, `dependency_unavailable` and `execution_unknown` need distinct codes. The current demo instead has route-specific success envelopes and `{ "error": string }`; the client and handlers change together during migration.
+- A retryable write is idempotent for the same authenticated identity, operation and key; the same key with a different payload returns `409`. The specified report submission key belongs to the server-owned draft, not an arbitrary replacement supplied by an agent. Ticket execution uses the persisted proposal/execution key and reconciles an unknown outcome before retrying. Existing demo handlers do not enforce this.
+- The specified PoC issues a guest identity server-side or uses a clearly labelled fictional resident profile. Staff and institution sessions are separately provisioned server-side; a public role switch cannot grant them. The backend derives actor, city and institution scope from the session. Cookie-based writes need origin/CSRF checks. Provider keys and privileged service credentials never go to the browser. SAML/OIDC, native MFA and multi-tenant service credentials in the root SPEC are future-platform requirements, not PoC authentication claims.
+- Public incident projections exclude resident/session IDs, apartment details, original private narratives, raw/full voice transcript, restricted evidence, notes and financial data. Every demo institution or observation is explicitly labelled; do not mix demo and live records without provenance.
 
 ## Access roles
+
+For the specified PoC, a resident/dispatcher voice client can access only its own draft/report and public incidents. A decision-maker agent may read scoped evidence, suggest eligible triage and create proposals; it cannot approve or execute. An official can review, classify, correct links, verify, approve/reject and reopen through authenticated commands. An institution operator can read/update only tickets assigned to its institution. A trusted executor can execute an approved immutable proposal but cannot choose a new destination or payload. The same checks apply to direct HTTP, ElevenLabs client tools and the scoped MCP adapter; tool visibility or a model-generated role field grants nothing.
+
+The following role catalogue belongs to the **future platform** and does not imply that its administration, contractor or finance capabilities are part of the specified PoC:
 
 | Role | Read scope | Allowed actions |
 | --- | --- | --- |
@@ -43,13 +47,11 @@ This report/incident split is a design decision needed to make the SPEC's dedupl
 | `finance_officer` | Finance references for authorized city or tenant scope | Review costs, invoice references and reserve-budget reports; no payment execution. |
 | `auditor` | Authorized city or tenant scope | Read incidents, history and audit records; no operational writes. |
 
-Permissions are enforced per resource and action, including nested resources. A public report can be visible to residents while its linked incident contains private staff data. Cross-tenant visibility requires an explicit assignment, sharing relation or city-level role. Roles are illustrative identifiers for the contract; the identity provider and exact permission grants are configured per city.
-
-The voice draft's dispatcher and decision-maker are workflow actors, not automatic RBAC grants. Institution users are scoped to their own tenant, and an official approval is a distinct server-enforced permission. An agent tool list does not grant access on its own.
+Permissions are enforced per resource and action, including nested resources. Cross-tenant visibility requires an explicit assignment, sharing relation or city-level role. Future-platform role identifiers are illustrative; the identity provider and exact grants remain city configuration. The PoC's dispatcher agent is not the platform's staff `dispatcher` role.
 
 ## Shared data shapes
 
-### City configuration
+### City configuration (future platform, except public categories)
 
 | Object | Required response fields | Optional/configurable fields |
 | --- | --- | --- |
@@ -63,120 +65,141 @@ The voice draft's dispatcher and decision-maker are workflow actors, not automat
 
 The city administration UI manages these objects. Imports may create drafts, but changes become live only after validation and an explicit commit. Routing uses the category and the report's coordinates against active responsibilities; an authorized dispatcher can correct the result with an audited action.
 
-### Resident report: existing PoC shape
+### Resident report: existing demo shape to migrate
 
-`GET /api/reports` returns `{ "source": "demo" | "live", "reports": Report[] }`. The current code accepts any string for `source` and emits `demo`; `live` is the target marker for a fully real response. `POST /api/reports` and `POST /api/reports/{id}/confirmations` return one `Report` directly. The frontend fetches categories first and discards a report whose `category_id` is unknown or whose required fields fail validation.
+`GET /api/reports` currently returns `{ "source": "demo" | "live", "reports": LegacyReport[] }`. The current code accepts any string for `source` and emits `demo`. `POST /api/reports` and `POST /api/reports/{id}/confirmations` return one `LegacyReport` directly. The frontend fetches categories first and discards a report whose `category_id` is unknown or whose required fields fail validation. This is a migration baseline, **not** the specified PoC public-data contract.
 
 | Field | Required | Meaning and source |
 | --- | --- | --- |
 | `id`, `reference` | Yes | Backend-generated unique ID and human-facing reference. The exact reference format is not a client contract. |
 | `category_id`, `title`, `description` | Yes | Resident input or a verified city notice. `description` may be an empty string. Every report has exactly one category returned by the city API. |
 | `severity` | Yes | `low`, `medium` or `high`; currently resident-selected. It is not the staff incident priority. |
-| `status` | Yes | `reported`, `confirmed`, `in_progress` or `resolved`; public status semantics are below. |
-| `source` | Yes | `resident` or `city`. `city` requires an authenticated city publisher or trusted integration, not a self-selected form value. |
+| `status` | Yes | Current-demo `reported`, `confirmed`, `in_progress` or `resolved`; these are not the specified incident states. |
+| `source` | Yes | `resident` or `city`. `city` exists in demo fixtures; a live value would require a trusted city publisher, not a self-selected form value. |
 | `reported_at`, `updated_at` | Yes | Backend timestamps for creation and last accepted change. |
 | `lat`, `lng` | Yes | Map pin. The current create route restricts them to `49.96 <= lat <= 50.13` and `19.79 <= lng <= 20.22`; a multi-city backend must validate against the configured city boundary instead. |
 | `address` | Yes | Human-readable location. The current UI uses Photon reverse geocoding and falls back to `Pinned location (no street address)`; coordinates remain authoritative. |
 | `district` | No | Reverse geocoder result or official city zone lookup. Omit if unknown. |
-| `confirmations` | Yes | Nonnegative count, starting at one for the reporter in the PoC. It is an action count until the backend can identify distinct residents. |
+| `confirmations` | Yes | Nonnegative count, starting at one for the reporter in the current demo. It is an action count, not distinct-resident support. |
 | `responsible`, `expected_fix_at`, `affected` | No | Verified assignment, promised/estimated repair time and plain-language impact. Omit until a staff action or trusted source supplies them. Never manufacture them from category or geolocation. |
 
-`POST /api/reports` accepts `category_id`, `title` (3–80 trimmed characters), `description` (0–1000 trimmed characters), `severity`, `lat`, `lng`, `address` (1–200 trimmed characters) and optional `district` (at most 100 trimmed characters). The backend checks that the category exists. Success is `201` with a complete `Report`, `status: "reported"`, `source: "resident"`, `confirmations: 1` and backend timestamps. The PoC rejects invalid input or an unknown category with `400`.
+The current-demo `POST /api/reports` accepts `category_id`, `title` (3–80 trimmed characters), `description` (0–1000 trimmed characters), `severity`, `lat`, `lng`, `address` (1–200 trimmed characters) and optional `district` (at most 100 trimmed characters). The backend checks that the category exists. Success is `201` with a complete `LegacyReport`, `status: "reported"`, `source: "resident"`, `confirmations: 1` and backend timestamps. It rejects invalid input or an unknown category with `400`. Preserve the title/description limits during the feature migration unless actual input requires a change.
 
-`POST /api/reports/{id}/confirmations` has no JSON body and returns the updated `Report` with `200`. The PoC returns `404` if the report is absent and `409` if resolved. It increments the count on every accepted request and changes `reported` to `confirmed` at three confirmations. The browser's local storage suppresses repeat clicks only in that browser; it does not enforce one person/one confirmation. A real backend must add identity or abuse controls before presenting this as a verified resident count. Confirmation alone is not proof of dispatch to a city service.
+Current-demo `POST /api/reports/{id}/confirmations` has no JSON body and returns the updated `LegacyReport` with `200`. It returns `404` if the report is absent and `409` if resolved. It increments the count on every accepted request and changes `reported` to `confirmed` at three confirmations. The browser's local storage suppresses repeat clicks only in that browser; it does not enforce one person/one confirmation. Confirmation alone is not proof of dispatch to a city service.
 
-### Staff incident and linked objects: target shapes
+### Specified PoC data shapes
 
-The staff `Incident` response contains the following fields. Nullable or optional fields are omitted or `null` only where noted; clients should not infer a status from their absence.
+The API exposes separate projections of source records. Nullable values are explicit; an unknown observation time is `null` with `observed_time_state: "unknown"`, never silently replaced with submission time. The backend validates external and model-produced values.
 
-| Field group | Required fields | Optional fields |
-| --- | --- | --- |
-| Identity and location | `id`, `city_id`, `category_id`, `title`, `description`, `lat`, `lng`, `created_at`, `updated_at` | `address`, `zone_id`, `asset_id` (building, road or other matched city asset). |
-| Triage | `status`, `priority` (`low`, `medium`, `high`, `critical`), `priority_score` (nonnegative number, higher means more urgent), `priority_reasons[]`, `report_count`, `confirmation_count` | `triage_state` (`pending`, `complete`, `needs_review`), `assessment` (`suspected`, `corroborated`, `verified`, `disputed`), `emergency` flag. Priority is computed or explicitly overridden with actor and reason in history. |
-| Ownership | `lead_tenant_id` (nullable while unassigned), `supporting_tenant_ids[]`, `report_ids[]` | `assigned_user_id`, `related_incident_ids[]`, `contract_id`. A contractor work order does not grant access to unrelated reports. |
-| Time and cost | `version` (integer for concurrency control) | `due_at`, `expected_fix_at`, `resolved_at`, `closed_at`, `estimated_cost`, `actual_cost`, `currency`, `budget_line`, `reserve_budget` (boolean), `invoice_reference`, `invoice_submitted_at`, `payment_due_at`, `payment_status_reference`. Payment status is synchronized from finance, not set by this system as proof of payment. |
+| Object | Required fields / boundary |
+| --- | --- |
+| `ResidentSession` | Server-issued `resident_id`, `identity_kind` (`guest` or `demo_profile`) and expiry. A demo profile is fictional; resident identity never grants staff rights. |
+| `IntakeDraft` | `id`, owner, `revision`, stable `submission_key`, current location/category/issue/description/time/scope fields and `confirmed_revision`, `confirmation_channel`, `confirmed_at` when confirmed. Any edit invalidates confirmation. A committed draft is immutable and points to its report. |
+| `Report` (owner/official only) | `id`, `reference`, owner, `channel` (`voice` or `form`), API-defined `category_id`, `issue_type`, English operator summary, restricted original observation, confirmed location and source, `observed_at` plus `observed_time_state`, `submitted_at`, scope (`unit`, `building`, `street`, `unknown`), `triage_state`, nullable `incident_id`, demo provenance. It has at most one current incident link and is not a public map card. |
+| `Incident` (official detail) | `id`, `reference`, `category_id`, `issue_type`, fixed matching anchor, public location/summary, scope, `assessment`, `response_status`, `version`, assigned institution if any, linked report/evidence IDs, timestamps and provenance. A material change increments `version`. |
+| `PublicIncident` | Allowlisted `id`, `reference`, `category_id`, `issue_type`, `public_summary`, `assessment`, `response_status`, `support_count`, `public_location`, `created_at`, `updated_at`, `timeline[]` and `provenance` (`demo` or `live`). Excludes raw report text, identities, apartment details, transcripts and unreviewed generated text. A unit-only/unreviewed-private report has no public incident card. |
+| `Contribution` | Unique `(incident_id, resident_id)` membership with source. `support_count` is the union of linked report owners and explicit contributions, not a sum of clicks; demo guests are labelled unverified. |
+| `Evidence` | `id`, linked report/incident, kind, source reference, observation/retrieval times, validity/freshness, demo/live marker and access scope. Unknown or unavailable observation is explicit. |
+| `Institution` | `id`, fictional demo name, supported categories/issues, service area/asset rules, capabilities and permitted data scope. Responsibility, permission and capability are separate. |
+| `ActionProposal` | `id`, `incident_id`, `incident_version`, proposal `version`, institution, action type, immutable payload, evidence IDs, rationale, creator, status (`pending`, `approved`, `rejected`, `executing`, `executed`, `failed`, `unknown`, `superseded`) and decision metadata. Approval binds the exact versions/destination/payload. |
+| `ServiceTicket` | `id`, `reference`, incident/proposal/institution IDs, copied approved payload, `version`, status (`created`, `acknowledged`, `in_progress`, `resolved`, `rejected`), timestamps and result note. At most one nonterminal ticket per incident and one ticket per proposal. |
+| `AuditEvent` | Actor identity/role, operation, entity IDs, time, result, reason and correlation ID. Public history is a separate redacted projection; no secrets or raw audio. |
 
-`Report` is the immutable origin of a resident observation except for permitted corrections, confirmation count and public projection. Its target staff representation also includes `incident_id` (nullable until triage), reporter contact in a separately permissioned field, attachment IDs and provenance. `Incident` is the deduplicated operational case. A `DuplicateLink` records `report_id`, `incident_id`, match signals (category, distance, time, text), score, decision (`suggested`, `linked`, `rejected`) and reviewer; the algorithm can suggest links, while uncertain matches require review. No machine-learning result is promised for the first implementation.
+`Report.triage_state` is `pending`, `linked`, `needs_review`, `private_issue` or `out_of_scope`. A failed search/AI step leaves the persisted report pending or reviewable, not lost. Correcting a link preserves the original report and an audited reason. A candidate match score is ranking information, not a confidence probability or permission to merge.
 
-| Linked object | Required fields | Optional fields |
-| --- | --- | --- |
-| `StatusEvent` / `AuditEvent` | `id`, `entity_type`, `entity_id`, `action`, `actor_type`, `actor_id`, `occurred_at`; status events also have `from_status` and `to_status` | Before/after values, reason, source system and correlation ID. Public history is a separate redacted projection. |
-| `Note` | `id`, `incident_id`, `visibility` (`internal`, `public`), `text`, `author_id`, `created_at` | Attachment IDs. Contractor notes are internal unless approved for publication. |
-| `Task` | `id`, `incident_id`, `title`, `status` (`open`, `in_progress`, `done`, `cancelled`), `created_at` | Assignee, due date and completion date. |
-| `Attachment` | `id`, `owner_type`, `owner_id`, `mime_type`, `size_bytes`, `created_at` | Caption; download access is checked on every request. |
-| `WorkOrder` | `id`, `incident_id`, `contract_id`, `contractor_tenant_id`, `status` (`offered`, `accepted`, `scheduled`, `in_progress`, `completed`, `accepted_by_city`, `rejected`, `cancelled`), `created_at`, `updated_at`, `version` | Due date, schedule, completion note, evidence IDs, estimated/actual cost and acceptance actor/time. |
-| `ActionProposal` | `id`, `incident_id`, `incident_version`, `destination_tenant_id`, `action_type`, `payload`, `evidence_ids[]`, `rationale`, `status` (`pending`, `approved`, `rejected`, `superseded`), `version`, `created_at` | Approver, decision time and reason. Approval binds to the exact destination, action and payload version. |
-| `ServiceTicket` | `id`, `incident_id`, `approved_proposal_id`, `institution_tenant_id`, `status` (`submitted`, `acknowledged`, `in_progress`, `resolved`, `rejected`), `created_at`, `updated_at` | External reference, delivery result and public-safe timeline events. This is an institution request, distinct from a contracted work order. |
-| `Observation` | `id`, `source_system`, `external_id`, `kind`, `observed_at`, `lat`, `lng`, `values` | Linked incident ID and provenance metadata. Sensor thresholds are configured server-side. |
-| `Notification` | `id`, `recipient_user_id`, `kind`, `created_at`, `read_at` | Incident/work-order reference and message. |
+`PublicIncident.public_location` is `{ "lat": number, "lng": number, "label": string, "precision": "street" | "building" }` with no unit number; the backend may coarsen coordinates before publishing. Each `timeline[]` item is `{ "id": string, "kind": string, "occurred_at": string, "text": string }` after publication review. The public response supplies all fields needed for map pins, nearby distance, category counts, detail/timeline and status display; the frontend derives heat weight only from permitted incident assessment/support data and labels it reported impact. No client should reconstruct a private report from that projection.
+
+### Future-platform extensions
+
+The root SPEC later adds multi-tenant priority (`low`/`medium`/`high`/`critical`), priority score/reasons, lead/supporting tenants, staff assignees, SLAs, notes, tasks, attachments, emergency coordination, contractor work orders, estimates/actual costs, budget lines, invoice references, notifications and audit exports. These fields and objects must not become required in the specified PoC `Incident` or `ServiceTicket` DTOs. Payment execution stays in the city's ERP.
+
+| Future object | Minimum fields / boundary |
+| --- | --- |
+| `WorkOrder` | `id`, `incident_id`, `contract_id`, `contractor_tenant_id`, `status` (`offered`, `accepted`, `scheduled`, `in_progress`, `completed`, `accepted_by_city`, `rejected`, `cancelled`), `version`, timestamps, due/schedule, completion evidence and cost references. It never grants access to unrelated reports. |
+| `Task` / `Note` | Task: `id`, `incident_id`, title, assignee, status and dates. Note: `id`, `incident_id`, text, author, visibility (`internal` or explicitly approved `public`) and timestamp. |
+| `Attachment` / `Observation` | Attachment: owner, type, size and access-checked download. Observation: source system/external ID, kind, observed time, location, values, validity and provenance. |
+| `StatusEvent` / `Notification` | Audited from/to status and actor/time; user-scoped alert with kind, related case and read time. Public history remains a separate redacted projection. |
+
+Financial amounts, when implemented, use decimal strings and ISO currency codes; clients must not total them with binary floating-point values.
 
 ## Lifecycle and public projection
 
-| Staff incident state | Entry condition | Public report projection |
+| Event | Incident response | Institution ticket |
 | --- | --- | --- |
-| `new` | First report or trusted observation accepted. | `reported` unless the report already meets the resident confirmation threshold. |
-| `triaged` | Category, duplicate decision and priority recorded. | `reported` or `confirmed` according to confirmations. |
-| `assigned` | Lead tenant or dispatcher accepts responsibility. | `reported` or `confirmed`; assignment must be shown separately if public. |
-| `in_progress` | An authorized worker or dispatcher records work starting. | `in_progress`. |
-| `awaiting_acceptance` | Contractor or field team submitted completion evidence. | `in_progress` until verified. |
-| `resolved` | Authorized city worker verifies the fix. | `resolved`. |
-| `closed` | Administrative closure after resolution. | `resolved`. |
+| Case created / triaged | `new` → `triaged` | None. |
+| Proposal approved | No response-progress change. | None until execution succeeds. |
+| Approved proposal executed | `assigned` | `created`. |
+| Institution acknowledges | Remains `assigned`; timeline notes acknowledgement. | `acknowledged`. |
+| Institution starts work | `in_progress` | `in_progress`. |
+| Institution reports completion with note | `resolved` | `resolved`. |
+| Institution rejects before work | Back to `triaged` and official review. | `rejected`. |
+| Official closes or reopens | `resolved` → `closed`, or `resolved`/`closed` → `triaged` with reason and fresh action review. | Prior terminal ticket retained. |
 
-An incident can also be marked `emergency` with `priority: "critical"`; that is a flag and escalation path, not a parallel lifecycle. Reopen requires an audited state change. A contractor may update its own work order, but cannot set the incident to `resolved` or `closed`. SLA breaches and volume spikes produce alerts; thresholds and deadlines come from city/contract configuration, not hard-coded claims about Kraków. The current UI text for `confirmed` says the case was passed to a service, while the PoC only counts three confirmations; that copy must be corrected or an actual dispatch must be implemented before the workflow is presented as live.
+Incident assessment is independent: `suspected` ↔ `corroborated` can change automatically from distinct demo identities (two support identities is the demo threshold), but only an authorized official with evidence may set `verified` or `disputed`. A ticket acknowledgement is not work started; an institution's resolution report is a progress event, not automatic official verification. Repeated support from one identity counts once. Closed/resolved cases reject new contributions, and new reports are evaluated as possible recurrences rather than silently added to a terminal case.
 
-Corroboration by residents is not verification of an incident. The proposed voice/agent workflow records assessment (`suspected`, `corroborated`, `verified`, `disputed`) separately from response status. An agent can prepare an `ActionProposal`, but only an authorized official can approve it; the executor checks approval, proposal version, destination and idempotency before sending a `ServiceTicket` or contacting an institution. An ordinary staff work order is created only under that actor's separately enforced dispatch permission. Approval of a proposal never grants the agent a general write permission.
+Only `created` → `acknowledged` → `in_progress` → `resolved`, or `created`/`acknowledged` → `rejected`, are ordinary ticket transitions. Proposal transitions are `pending` → `approved`/`rejected`; then `approved` → `executing` → `executed`/`failed`/`unknown`. Material incident changes supersede unexecuted proposals. Repeated execution returns the existing ticket; an unknown result must be reconciled by key before resend. A rejected ticket returns the incident to review, not to another automatically selected institution.
+
+The current demo's `confirmed` report status is just three raw confirmation actions; it is neither distinct-person corroboration nor city dispatch. That behavior and its misleading copy are retired with the incident-map migration. The root SPEC's emergency, contractor acceptance, SLA and finance states belong to future platform extensions, not this PoC lifecycle. Reported immediate danger gets urgent human review and direction to emergency services, never a false claim of emergency dispatch.
 
 ## HTTP operations by surface
 
-The response object names below refer to the shared shapes above. Routes marked **PoC** are implemented in the Next app today; **target** routes are design interfaces to implement as slices. The backend may sit behind the Next route handlers, but the browser-visible contract must stay stable within a slice.
+Only routes marked **implemented demo** exist today. **Specified PoC** routes follow the feature specification and plan but have not been built. **Future platform** routes represent the root SPEC, not the next sprint. Namespaced official and institution routes prevent `/api/incidents` from meaning both a public card and private staff detail. The backend may sit behind Next route handlers; browser-visible contracts must change atomically with their callers.
 
 ### Resident and public data
 
 | Operation | Request / success response | State |
 | --- | --- | --- |
-| `GET /api/categories` | `200 { categories: CategoryPublic[] }`; at least one category in the current frontend. Target accepts optional `locale` and returns localized labels when configured. | PoC |
-| `GET /api/reports` | `200 { source, reports: Report[] }`. Target filters: `bbox`, `category_id`, `status`, `limit`, `cursor`; when pagination is enabled, add `next_cursor`. The map client must fetch every page needed for its view. | PoC without filters/pagination |
-| `GET /api/reports/{id}` | `200 Report`; public fields only, `404` when hidden or absent. | Target |
-| `POST /api/reports` | Create input above; `201 Report`. Reject unknown categories and invalid city coordinates. | PoC |
-| `POST /api/reports/{id}/confirmations` | Empty body; `200 Report`, `404` absent, `409` resolved/already confirmed under a future identity policy. | PoC without identity enforcement |
-| `POST /api/reports/{id}/attachments` | Multipart photo/document plus a reporter capability or authenticated identity; `201 Attachment` with public-safe metadata. The create response must issue a short-lived reporter capability separately from the public `Report` DTO before anonymous uploads are enabled. | Target |
-| `GET /api/open/incidents` | Paginated, anonymized `{ items: PublicIncident[], next_cursor }`; filters for district/category/date. `PublicIncident` contains `id`, `category_id`, `public_status`, `reported_at`, `updated_at`, `lat`, `lng` and optional `district`; locations may be coarsened by category policy. `Accept: text/csv` returns the same permitted columns as CSV. | Target |
-| `GET /api/open/metrics` | Aggregated counts by period, category and district; no reporter identity or staff notes. | Target |
+| `GET /api/categories` | Current `200 { categories: CategoryPublic[] }`; specified PoC moves the same list into the common `data` envelope while keeping API-defined IDs stable. | Implemented demo; response-envelope migration in PoC. |
+| `GET /api/reports` | `200 { source, reports: LegacyReport[] }`; public raw-report list for the current map only. | Implemented demo; retire after all map callers move to incidents. |
+| `POST /api/reports` | Current create fields above; `201 LegacyReport`. | Implemented demo; request/response changes to confirmed-draft submission in PoC. |
+| `POST /api/reports/{id}/confirmations` | Empty body; increments raw count, `404` absent or `409` resolved. | Implemented demo; retire in favor of incident contributions. |
+| `POST /api/voice/sessions` | For the authenticated resident, return our session ID and a short-lived conversation credential for the server-configured private ElevenLabs dispatcher agent, never the API key. | Specified PoC. |
+| `POST /api/report-drafts` / `PATCH /api/report-drafts/{id}` | Create/update an owned draft; update includes expected revision and returns new revision, missing fields and readback summary. | Specified PoC; voice and form share it. |
+| `GET /api/report-drafts/{id}` | Recover own draft, confirmation state and committed report reference, including after a lost submit response. | Specified PoC. |
+| `POST /api/report-drafts/{id}/confirmation` | Confirm the exact current revision by spoken agreement or button; return confirmation record. An edit invalidates it. | Specified PoC. |
+| `POST /api/reports` | `{ draft_id, revision }`; server checks owner, confirmed revision, required category/issue/description/location and draft submission key; `201` or replay of the same persisted `Report` ID/reference and triage state. Same key with changed payload is `409`. | Specified PoC migration of the existing path. |
+| `GET /api/reports/{id}` | Owner or authorized official receives its permitted private report projection, including triage state; others get `404`/`403` without disclosure. | Specified PoC, **not** a public report endpoint. |
+| `GET /api/incidents` / `GET /api/incidents/{id}` | Public, paginated `PublicIncident` cards and timeline; list filters include `bbox`, `category_id`, `assessment`, `response_status`, `limit` and `cursor`. Map/search/nearby/counts/heatmap use these records. | Specified PoC; private/unit-only reports are absent. |
+| `POST /api/incidents/{id}/contributions` | Add current resident's affected membership once; repeated request returns existing membership/count, no duplicate. Reject resolved/closed incidents. | Specified PoC. |
 
-The resident app also calls Photon for place search and reverse geocoding. That call is outside this backend contract. Map tiles and official GIS geometry are separate data providers; their outages do not turn a report into an invalid incident.
+ElevenLabs client tools call the same owned-draft/report/location/public-incident API as the form. The browser adapter uses `@elevenlabs/react` and a WebRTC conversation token from our backend, not a browser-visible provider key or WebSocket signed URL. The backend chooses the agent and validates every tool input; tools that depend on a result, especially submission, wait for the server response. No recording starts before user action and permission. Ending voice, switching to the form or disconnecting stops capture and preserves the draft/key. A success announcement requires a persisted report reference. Show a transient transcript and editable structured summary, but do not persist raw audio or the full transcript by default; provider-side retention must be checked separately. The reference demo's authored prompt and responses are English while accepting Polish observations and place names as input. The plan's closed-demo session limits are one active session per identity, five starts per ten minutes and five minutes per session; provider cleanup and account limits still require implementation verification.
 
-The frontend derives nearby reports from report coordinates and heatmap weight from severity plus confirmations; those values are not separate backend fields. A sparse live dataset may legitimately produce no nearby items or heat clusters.
+Photon remains an external place-search/reverse-geocoding dependency; a spoken address or pin must be confirmed and ambiguous lookup stays unresolved. The new public map highlights reported locations, not a measured outage boundary. Active screens aim for a five-second update target using the plan's three-second visible-tab polling; preserve last-known data with a stale indicator on failure and never clear an unsaved draft. This is a target, not measured performance.
 
-### Municipal staff and dashboards
-
-| Operation | Request / success response | Authorization and effect |
-| --- | --- | --- |
-| `GET /api/me` | `200 { user_id, city_id, memberships[], permissions[] }`. | Authenticated actor; UI uses this to show permitted actions, while the server rechecks every write. |
-| `GET /api/incidents` / `GET /api/incidents/{id}` | Paginated `Incident[]` / one `Incident`; filters: status, priority, category, zone, assignee, due date and `bbox`. | Only permitted city/tenant/assigned cases. |
-| `PATCH /api/incidents/{id}` | Explicit editable fields such as title, category, lead/supporting tenants, assignee, priority override and budget tags; include `expected_version`; `200 Incident`, `409` stale version. | Dispatcher/supervisor as permitted; every change is audited. This replaces the SPEC's illustrative unrestricted `PUT`. |
-| `POST /api/incidents/{id}/status-events` | `{ status, note?, expected_version }`; `201 StatusEvent` and updated incident reference. | Validate lifecycle and role. Contractor completion alone cannot resolve. |
-| `GET /api/incidents/{id}/duplicate-candidates` | Suggested report matches with score and reasons. | Staff in scope; suggestions are not automatic truth. |
-| `POST /api/incidents/{id}/report-links` / `DELETE /api/incidents/{id}/report-links/{report_id}` | Link or unlink a report with reason; return updated incident and recomputed counts/priority. | Authorized triage role; audit both actions. |
-| `GET/POST /api/incidents/{id}/notes` | List or create `Note`; request has `text`, `visibility`, optional attachment IDs. | Public notes require publication permission. |
-| `GET/POST /api/incidents/{id}/tasks` / `PATCH /api/incidents/{id}/tasks/{task_id}` | List, create or update `Task`. | Staff scoped to incident; contractors only through assigned work orders. |
-| `POST /api/incidents/{id}/related-incidents` / `DELETE /api/incidents/{id}/related-incidents/{related_id}` | Link or unlink operationally related cases; return incident relation and audit entry. | Authorized commander/dispatcher; sharing across tenants is explicit. |
-| `POST /api/incidents/{id}/observations` | `{ observation_id, reason }`; return linked incident and audit entry. | Authorized staff; telemetry remains evidence until reviewed. |
-| `POST /api/incidents/bulk-actions` | Array of `{ incident_id, action, expected_version }`; return a per-item success/error result. | Staff role checked for each incident; one invalid item does not silently update another. |
-| `GET /api/incidents/{id}/history` | Ordered, permission-filtered status and audit history. | Staff/auditor in scope. |
-| `GET /api/search/records` | `q`, optional filters and cursor; paginated scoped hits with `record_type`, `record_id`, excerpt, score, `category_id` (nullable for uncategorized indexed records) and index freshness. | Search is backed by the selected Qdrant index, not the source of truth. The backend applies each record's visibility rules and distinguishes unavailable/stale index from no results. |
-| `POST /api/attachments` / `GET /api/attachments/{id}` | Multipart upload with owner reference; `201 Attachment`. Download after access check. | Size/type limits configured server-side; private files are never exposed as public URLs. |
-| `GET /api/dashboard/summary` | Counts by status/priority/tenant, overdue SLAs and current escalation totals for the actor's scope. | Staff dashboard and inbox. |
-| `GET /api/notifications` / `POST /api/notifications/{id}/read` | Paginated user notifications; mark one as read. | Recipient only. Delivery by email/SMS is a backend side effect, not a browser promise. |
-
-### Contractors and finance references
+### Official, institution and agent surfaces (specified PoC)
 
 | Operation | Request / success response | Authorization and effect |
 | --- | --- | --- |
-| `POST /api/incidents/{id}/work-orders` | `{ contract_id, contractor_tenant_id, due_at?, scope, estimated_cost? }`; `201 WorkOrder`. | Supervisor/dispatcher with dispatch permission; contract must cover category, zone and date. |
-| `POST /api/incidents/{id}/action-proposals` / `GET /api/action-proposals/{id}` | Create a versioned destination, payload, evidence and rationale / fetch its decision state. | Scoped decision-maker may propose, but cannot approve or execute the proposal. |
-| `POST /api/action-proposals/{id}/decision` | `{ decision: "approved" | "rejected", reason?, expected_version }`; return updated proposal. | Authorized official only; stale or modified proposals require a new decision. |
-| `POST /api/action-proposals/{id}/execute` / `GET /api/service-tickets/{id}` | Execute an approved action idempotently / fetch delivery and work status. | Trusted server executor only; institution receives only its ticket and permitted evidence. |
-| `POST /api/service-tickets/{id}/updates` | Institution acknowledgement or work-status update; return updated ticket. | Assigned institution only; it cannot resolve the city's incident directly. |
+| `GET /api/operations/review` / `GET /api/operations/incidents/{id}` | Review queue / private incident detail with linked reports, evidence, proposals, history, current version and retryable processing state. | Separately provisioned official/staff session only. |
+| Official triage, classification, verification and reopen commands under `/api/operations/` | Explicit report/incident ID, expected version, decision, evidence IDs and reason; return updated record and audit reference. Exact subpaths can be finalized with the first implementation slice. | Human-authenticated commands only; no resident or dispatcher-agent tool can invoke them. |
+| `POST /api/action-proposals/{id}/decision` | `{ decision: "approved" | "rejected", reason?, expected_proposal_version, expected_incident_version }`; return durable proposal decision. | Authorized official only. Material incident/payload changes supersede pending approval; stale versions return `409`. Rejection creates no ticket. |
+| `GET /api/institution/tickets` / `PATCH /api/institution/tickets/{id}` | Scoped inbox / `{ status, note?, expected_version }`; return current ticket and version. | Institution session inferred server-side; only assigned tickets and legal transitions, including reasoned rejection. |
+| `GET /api/search/records` | Query or related source ID, `keyword`/`semantic`/`hybrid` mode, explicit filters and bounded cursor; scoped hits with `record_type`, source `record_id`, title, score, safe excerpt, nullable `category_id` and index freshness. | Qdrant ranks; primary store hydrates and rechecks current permissions/deletion/version. Unavailable/stale index is distinct from zero hits; scores do not authorize grouping. |
+| `POST /api/mcp` | Streamable HTTP tool surface for bounded decision-maker/institution tools. | Scoped server credentials; same domain validation as HTTP. No provider/MCP approval prompt substitutes for official approval. |
+
+The dispatcher client tools are `resolve_location`, `find_incidents`, `prepare_report`, `confirm_report_draft` and `submit_report`; they call same-origin resident APIs under the current session. The decision-maker's scoped tools are `search_tickets`, `find_related_tickets`, `get_incident_context`, `triage_report`, `resolve_responsibility`, `get_service_observations` and `propose_action`. The trusted executor alone runs `create_service_ticket` after official approval and version checks; `get_service_ticket`/`update_service_ticket` are scoped to the assigned institution. Actor context is injected by the authenticated adapter, never accepted from model-generated fields. The executor is a server-side operation, not a public `POST /execute` endpoint.
+
+Automatic linking in this demo applies only to `power`/`power_outage` with a confirmed building/street location, known observation time, one eligible active incident within 300 m of its fixed anchor and 60 minutes of its initial observation, the same configured service area and matching normalized street or known affected asset, and no contradictory evidence. Building-only reports require the same building asset; street reports require the same street. Limits are inclusive and configurable, never extended through a chain of nearby reports. Zero eligible candidates creates a new suspected case only with complete city-level facts and no unresolved plausible candidate; unit-only/unknown scope, multiple candidates and uncertain responsibility go to review. Qdrant retrieval does not replace recent candidates from the source store or the transaction/version check before writing. Reports persist even if search or AI is unavailable; one in-flight triage attempt per report and at most two transient retries are planning defaults before human review.
+
+### Municipal staff and dashboards (future platform)
+
+| Operation | Request / success response | Authorization and effect |
+| --- | --- | --- |
+| `GET /api/operations/me` | User, city, memberships and permissions. | Staff UI hints only; server rechecks every action. |
+| `GET /api/operations/incidents` / `GET /api/operations/incidents/{id}` | Paginated scoped incidents / private detail, with future priority, zone, due-date and assignee filters. | Authorized city/tenant/assigned cases only. |
+| `PATCH /api/operations/incidents/{id}` / `POST /api/operations/incidents/{id}/status-events` | Explicit editable fields or validated lifecycle transition with expected version and audit entry. | Dispatcher/supervisor per permission; never the root SPEC's illustrative unrestricted `PUT`. |
+| `GET /api/operations/incidents/{id}/duplicate-candidates` / `POST /api/operations/incidents/{id}/report-links` | Suggested matches; audited link/relink decisions. | Authorized triage; no automatic destructive merge. |
+| `GET/POST /api/operations/incidents/{id}/notes` / `GET/POST /api/operations/incidents/{id}/tasks` | Internal/public notes and assigned subtasks. | Staff scope; public notes require publication permission. |
+| `POST /api/operations/incidents/{id}/related-incidents` / `POST /api/operations/incidents/{id}/observations` | Link related cases or evidence with reason and audit entry. | Cross-tenant sharing explicit; telemetry remains evidence. |
+| `POST /api/operations/incidents/bulk-actions` / `GET /api/operations/incidents/{id}/history` | Per-item success/error for scoped bulk changes / permission-filtered history. | Check role and version per case. |
+| `POST /api/attachments` / `GET /api/attachments/{id}` | Controlled upload/download of evidence after owner and type/size validation. | No private file as a public URL. |
+| `GET /api/dashboard/summary` / `GET /api/notifications` | Scoped counts, SLAs, escalations and user notifications. | Staff scope; email/SMS delivery is a backend effect. |
+
+### Contractors and finance references (future platform)
+
+| Operation | Request / success response | Authorization and effect |
+| --- | --- | --- |
+| `POST /api/operations/incidents/{id}/work-orders` | `{ contract_id, contractor_tenant_id, due_at?, scope, estimated_cost? }`; return `WorkOrder`. | Supervisor/dispatcher with dispatch permission; contract must cover category, zone and date. Distinct from the PoC service ticket. |
 | `GET /api/work-orders` / `GET /api/work-orders/{id}` | Paginated assigned work orders / one work order with permitted incident summary. | Contractor sees only own assignments; city staff see cases in scope. |
 | `POST /api/work-orders/{id}/updates` | `{ status, note?, scheduled_at?, attachment_ids?, expected_version }`; `200 WorkOrder`. | Assigned contractor or city worker; allowed statuses include `accepted`, `scheduled`, `in_progress`, `completed`. |
 | `POST /api/work-orders/{id}/acceptance` | `{ decision: "accepted" | "rejected", note?, actual_cost?, invoice_reference?, expected_version }`; `200 WorkOrder`. | Authorized city inspector/supervisor. Invoice number and cost are references for finance; payment remains in the city's ERP. |
@@ -184,7 +207,15 @@ The frontend derives nearby reports from report coordinates and heatmap weight f
 
 Financial amounts in JSON are decimal strings plus ISO currency codes; clients must not use binary floating-point values for totals. SLA and invoice deadlines come from configured contracts and finance records, not a universal number of days.
 
-### City configuration and onboarding
+### Public open data (future platform)
+
+| Operation | Request / success response | Boundary |
+| --- | --- | --- |
+| `GET /api/open/incidents` | Paginated anonymized `PublicIncident` records by district/category/date; JSON or CSV of the same permitted columns. | Apply location coarsening and privacy policy; distinct from the PoC map feed. |
+| `GET /api/open/metrics` | Aggregated counts by period, category and district. | No resident identity or internal notes. |
+| `POST /api/reports/{id}/attachments` | Controlled photo/document upload by the report owner or authorized staff; return public-safe metadata. | Requires session ownership, size/type checks and separately permissioned download. |
+
+### City configuration and onboarding (future platform)
 
 | Operation | Request / success response | Authorization and effect |
 | --- | --- | --- |
@@ -202,7 +233,7 @@ Financial amounts in JSON are decimal strings plus ISO currency codes; clients m
 
 CSV import headers follow the SPEC's examples: units use `unit_code,unit_name,email,phone,parent_code`; contacts use `unit_code,contact_name,role,email,phone`. User imports require at least `email,tenant_code,role`; category imports require `category_id,label,description`. Zone imports accept a GeoJSON `FeatureCollection` with `tenant_code` and `area_name` properties; the importer resolves these to internal IDs and reports unresolved references. Historical records are never silently marked as live city data.
 
-### External systems, telemetry and webhooks
+### External systems, telemetry and webhooks (future platform)
 
 | Operation | Request / success response | Trust rule |
 | --- | --- | --- |
@@ -215,24 +246,22 @@ The first outbound event types are `report.created`, `incident.created`, `incide
 
 Operational health and performance endpoints are internal to deployment (`/health/live`, `/health/ready`, `/metrics`), separate from public open data. Monitoring must include API errors/latency, ingestion lag, queue backlog, open incidents, deduplication decisions and SLA breaches. Audit events are append-only and tamper-evident in the target system; retention, EU data residency, backup and export policies are deployment controls, not values the browser can assert. Pilot training, governance and offline field sync remain delivery work outside the HTTP contract.
 
-## SPEC coverage
+## Specification coverage and precedence
 
-| SPEC section | Contract surface |
+| Source | Contract surface |
 | --- | --- |
-| 1. Goals and scope | Resident reports, staff incidents, public status and dashboard. |
-| 2–3. Tenancy, roles and responsibilities | City/tenant/membership shapes, authorization and category/zone routing. |
-| 4–5. Data, duplicates and triage | Report, incident and linked-object shapes; duplicate candidate/link operations and priority fields. |
-| 6. Normal, emergency and contractor workflows | Lifecycle, escalation, work orders, acceptance, SLA and finance references. |
-| 7. Integration APIs | Report and observation ingestion, scoped contractor API and signed outbound webhooks. |
-| 8. City onboarding | Configuration CRUD, import preview and commit, CSV/GeoJSON requirements. |
-| 9. Operations and open data | Privacy, audit, monitoring, health and anonymized public JSON/CSV. |
-| 10. Staff and field UX | Inbox/dashboard, notifications, bulk actions and mobile-consumable JSON; accessibility and offline UI are client/delivery concerns. |
-| 11. Rollout and governance | Audit/export support is an API concern; pilot, training and operating agreements are delivery concerns. |
+| Feature FR-001–005, FR-020–025 | ElevenLabs browser session, owned/revisioned draft, explicit confirmation, idempotent shared form/voice submission, guest/demo identity, fallback and failure states. |
+| Feature FR-006–011 | Separate report/incident/evidence, triage states, Qdrant candidates plus source-store checks, deterministic grouping and responsibility review. |
+| Feature FR-012–014, FR-018–019 | Immutable proposal, official-only versioned approval, one-ticket execution, institution scope, transitions and audit. |
+| Feature FR-015–017 | Public incident map/timeline, distinct-identity support and allowlisted projection; no public raw reports. |
+| Root SPEC 1–5 | Future multi-tenancy, city/category/zone responsibility, priority and deduplication extensions; feature grouping rules take precedence for the PoC. |
+| Root SPEC 6–8 | Later emergency/contractor/finance workflows, integration/webhook APIs and city onboarding. These are deferred, not missing PoC endpoints. |
+| Root SPEC 9–11 | Later open data, operations, broader dashboard, audit/exports and governance; feature privacy and reliability rules apply now. |
 
-## Integration rules and open decisions
+## Integration and delivery rules
 
-1. **Keep the current resident slice working.** The frontend currently fetches categories before reports, expects the report DTO above and uses `source: "demo"` to label seed data. A backend replacement must return all required fields, including an empty `description` where appropriate. Unknown categories or invalid report DTOs are discarded by the client; an invalid categories envelope fails the whole view.
-2. **Do not imply city action from crowd activity.** `confirmed` currently means a threshold of resident actions. `in_progress`, `resolved`, `responsible`, `expected_fix_at` and `affected` require staff actions or a trusted integration. The UI copy and future public projection must match the actual evidence.
-3. **Decide before a live pilot:** persistent storage and deployment; resident identity/anti-abuse for confirmations; which city system can send incidents and status updates; public location granularity and retention; exact category and responsibility ownership; notification channels and SLA rules. These are dependencies of a truthful live rollout, not hidden defaults in this contract.
-4. **Integrate one vertical slice at a time.** Start with persisted resident reports and categories, then staff triage/assignment, status updates, contractor work orders, administration/imports, and finally external signals/open data. Each slice is complete only when the client consumes its real response, handles empty/error/forbidden states and the backend enforces access. The full SPEC is the target; this document does not claim those slices are already built.
-5. **Preserve the newer approval and search decisions.** Voice intake and agent-assisted triage may reuse these domain operations, but the agent cannot approve its own external action. The Qdrant index is derived from persisted records and may include uncategorized historical tickets; the required category on a newly submitted public map report does not imply that every search hit has one.
+1. **Migrate the existing map as one coherent slice.** The current frontend fetches categories before `GET /api/reports`, validates `LegacyReport`, uses `source: "demo"` and computes heat from severity plus raw confirmation actions. The specified map instead consumes `PublicIncident`; switch its data hook, GeoJSON/heat mapping, search, details, nearby list, category counts and affected action together. Existing demo report/confirmation routes must return an explicit migration error after every caller moves; do not silently expose raw reports as public incidents. Demo fixtures need explicit report-to-incident links and fictional identities, never invented identities from old counts.
+2. **Persist before announcing success.** Form and voice use the same confirmed draft and submission key. Save the report and pending-triage record transactionally; never hold a transaction open for ElevenLabs, an LLM or Qdrant. A lost response is recovered through the draft/reference, not a second report. Persist processing attempts and reclaim them after restart; do not rely on an unawaited request-handler promise.
+3. **Separate retrieval, judgment and authority.** Qdrant is a rebuildable index, not the source of truth. Search results can lack a category, but a new map report requires an API-defined one. Index staleness cannot hide recent source-store grouping candidates, and deleted/restricted records must not leak through search. An agent may propose; official approval binds current versions and exact payload; execution reconciles unknown outcomes before resending. Neither prompt text, MCP tool visibility nor a provider approval dialog supplies authorization.
+4. **Keep public claims truthful.** Publish only controlled incident summaries/locations; do not disclose private/unit-only reports, identities, transcripts or unreviewed generated updates. Label guests, demo institutions and observations. The selected lift/pothole/drain/outage narratives are unverified resident inputs: preserve reported impact, unknown water trend and uncertain outage scope without inventing injury, cause, ownership or additional supporting identities. Corroboration is not verification, ticket acknowledgement is not work started, a location highlight is not an outage footprint and an ordinary ticket is not emergency dispatch.
+5. **Deliver the specified PoC before platform breadth.** Follow the feature plan's slices: durable domain/form/incident projection; official approval and institution loop; ElevenLabs voice; Qdrant/agent/MCP retrieval; then demo identity polish and manual privacy/accessibility review. The root SPEC's multi-city, contractor, finance, production identity, telemetry and open-data features remain future work. Confirm setup inputs (ElevenLabs account/agent, hosting, database, Qdrant, retention and demo fixtures) before claiming those integrations work.
