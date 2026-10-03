@@ -1,6 +1,6 @@
 # Scaleway demo deployment
 
-Status: runtime preparation for [Issue #24](https://github.com/delve-group/smart-city/issues/24). The repository supplies a production Compose override, HTTPS proxy and deployment/recovery commands. This document does not establish a deployed URL, provider connectivity or measured user capacity. The worker is added when [#22](https://github.com/delve-group/smart-city/issues/22) lands; the deployment command includes it when the base Compose file defines it.
+Status: runtime preparation for [Issue #24](https://github.com/delve-group/smart-city/issues/24). The repository supplies a production Compose override, HTTPS proxy and deployment/recovery commands. This document does not establish a deployed URL, provider connectivity or measured user capacity. The [durable worker](../apps/frontend/src/server/jobs/README.md) is included with a revision-tagged image, bounded logs and database heartbeat health; domain handlers remain separate deliveries.
 
 ## Runtime and cost basis
 
@@ -38,11 +38,11 @@ Use one deployment operator at a time. `deploy:check` validates the existing req
 
 `deploy` requires a clean committed checkout and performs this sequence:
 
-1. Preserve each existing app/worker container's exact image under a unique timestamped rollback tag, recording its source revision label. Then build the app and setup images by the target Git revision while the old app keeps running. Validate the pinned Caddy configuration. A cold deployment has no previous writer to preserve.
-2. Start or reuse PostgreSQL without recreating an existing database container. Stop the application and, when present, worker for a short maintenance window.
+1. Preserve each existing app/worker container's exact image under a unique timestamped rollback tag, recording its source revision label. Then build the app, worker and setup images by the target Git revision while the old app keeps running. Validate the pinned Caddy configuration. A cold deployment has no previous writer to preserve.
+2. Start or reuse PostgreSQL without recreating an existing database container. Stop the application and worker for a short maintenance window.
 3. Save a PostgreSQL custom-format dump and a release JSON file outside the repository. A backup failure aborts before migrations.
 4. Run migration/seed using the newly built setup image. A migration failure leaves writers stopped for inspection rather than guessing a safe rollback.
-5. Start the new app, optional worker and Caddy; wait for container readiness and the public HTTPS readiness endpoint. Save the target revision, previous writer revisions/image IDs/rollback tags, new image IDs, applied migrations and readiness time beside the dump.
+5. Start the new app, worker and Caddy; wait for container readiness and the public HTTPS readiness endpoint. Save the target revision, previous writer revisions/image IDs/rollback tags, new image IDs, applied migrations and readiness time beside the dump.
 
 The proxy stores certificate state in named volumes and forwards to `app:3000` on the Compose network. It uses the official pinned Caddy image, automatic HTTP-to-HTTPS redirects and bounded container logs. A container's `localhost` would refer to that container, so it is not the proxy target. [Caddy Docker setup](https://caddyserver.com/docs/running#docker-compose)
 
@@ -56,10 +56,10 @@ npm run deploy:restore-check -- /var/backups/mradar/ACTUAL_BACKUP.dump
 These commands use the same project/Compose files/environment validation. `deploy:logs` follows the latest 100 log lines; stop it with Ctrl-C. Ordinary container restarts preserve the named volumes. To restart an existing app without replacing its image:
 
 ```bash
-docker compose -p mradar restart app
+docker compose -p mradar restart app worker
 ```
 
-Add `worker` after it is implemented, and use your configured project name if overridden. Check health and pending work after a restart; a process restart alone does not establish job recovery. Existing database containers are intentionally not replaced by `deploy`; plan database image maintenance separately, with a backup and a restore rehearsal first. Never run `down -v` or volume-pruning commands against the demo stack.
+Use your configured project name if overridden. Inspect the worker with `docker compose -p mradar exec worker npm run worker:status`; its JSON reports heartbeat health, registered handlers and queue counts. Check health and pending work after a restart; a process restart alone does not establish job recovery. Existing database containers are intentionally not replaced by `deploy`; plan database image maintenance separately, with a backup and a restore rehearsal first. Never run `down -v` or volume-pruning commands against the demo stack.
 
 ## Backup and recovery
 
@@ -82,7 +82,7 @@ MRADAR_REVISION=PREVIOUS_SOURCE_REVISION docker compose -p mradar \
   up -d --no-deps --no-build --wait app
 ```
 
-Once implemented, perform the same image-ID check and retag for the worker's recorded rollback image as `mradar-worker:PREVIOUS_SOURCE_REVISION`, and include `worker` in the start command. Do not prune rollback images before the release is accepted. Check public health and authentication again. Do not use `npm run deploy` for a schema-incompatible rollback: it runs the selected revision's setup. Prefer additive migrations during the hackathon. If old code cannot read the new schema, use the explicit backup recovery above or a forward fix; never automatically reverse applied SQL migrations.
+Perform the same image-ID check and retag for the worker's recorded rollback image as `mradar-worker:PREVIOUS_SOURCE_REVISION`, and include `worker` in the start command. Do not prune rollback images before the release is accepted. Check public health and authentication again. Do not use `npm run deploy` for a schema-incompatible rollback: it runs the selected revision's setup. Prefer additive migrations during the hackathon. If old code cannot read the new schema, use the explicit backup recovery above or a forward fix; never automatically reverse applied SQL migrations.
 
 ## Release checklist and remaining evidence
 

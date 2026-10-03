@@ -1,4 +1,4 @@
-import { Activity, Clock, Lock, Refresh, Server } from "@appica/icons-react";
+import { Activity, Clock, Id, Lock, Refresh, Server } from "@appica/icons-react";
 import { Badge } from "@appica/ui-react/badge";
 import type { Evidence, OperationsReport } from "@/api/operations/types";
 import { InfoHint } from "@/shared/components/info-hint/info-hint";
@@ -38,11 +38,13 @@ export function EvidenceList({ reports, observations, now, onLocate }: EvidenceL
             <button
               type="button"
               onClick={() => onLocate(report)}
-              className="-mx-2 flex min-w-0 flex-1 flex-col gap-1 rounded-md px-2 py-2 text-start transition-colors outline-none hover:bg-background-subtle focus-visible:ring-2 focus-visible:ring-focus-ring"
+              className="-mx-2 flex min-w-0 flex-1 cursor-pointer flex-col gap-1 rounded-md px-2 py-2 text-start transition-colors outline-none hover:bg-background-subtle focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               <span className="text-sm text-pretty text-foreground">{report.summary}</span>
               <span className={FACTS}>
-                <span className="font-mono">{report.reference}</span>
+                <Fact icon={Id} label="Reference">
+                  <span className="font-mono">{report.reference}</span>
+                </Fact>
                 <Fact icon={Clock} label="Reported">
                   {formatAgo(report.submittedAt, now)}
                 </Fact>
