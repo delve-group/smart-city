@@ -147,13 +147,13 @@ export function useIntakeDraft() {
     } finally { setBusy(false); }
   }
 
-  async function recover(preserveInput = true) {
+  async function recover(preserveInput = true, signal?: AbortSignal) {
     if (!draft || busy || saving) return;
     setBusy(true); setError(null);
     try {
-      const saved = await getDraft(draft.id);
+      const saved = await getDraft(draft.id, signal);
       accept(saved, preserveInput && !saved.submission);
-      if (saved.submission) setReport(await getReport(saved.submission.report_id));
+      if (saved.submission) setReport(await getReport(saved.submission.report_id, signal));
       else if (preserveInput) setDirty(JSON.stringify(fields) !== JSON.stringify(saved.fields));
       setNeedsRecovery(false);
       return saved;
@@ -170,7 +170,7 @@ export function useIntakeDraft() {
     accept(next);
     setError(null); setNeedsRecovery(false);
     if (!committed && next.submission) {
-      try { setReport(await getReport(next.submission.report_id)); }
+      try { setReport(await getReport(next.submission.report_id, AbortSignal.timeout(15_000))); }
       catch { /* The committed reference still exists on the draft. */ }
     }
     return true;

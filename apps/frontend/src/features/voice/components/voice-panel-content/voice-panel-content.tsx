@@ -26,7 +26,7 @@ export function VoicePanelContent({ intake, categories, onClose, onFallback }: P
 
   async function fallback() {
     await voice.stop();
-    const draft = await intake.recover(false);
+    const draft = await intake.recover(false, AbortSignal.timeout(15_000));
     onFallback(draft ?? null);
   }
 

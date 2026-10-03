@@ -27,7 +27,7 @@ export async function runDispatcherTool(
     if ("report" in result) {
       await receive(null, result.report);
       // Reconcile the same draft even when its submission response arrives after a disconnect.
-      try { await receive(await getDraft(draftId), result.report); }
+      try { await receive(await getDraft(draftId, AbortSignal.timeout(15_000)), result.report); }
       catch { /* The successful response already proves the committed reference. */ }
       return JSON.stringify({ reference: result.report.reference, replayed: result.replayed, triage_state: result.report.triage_state,
         message: "Saved. Assessment/response progress is separate; do not invent an institution or ETA." });
@@ -37,7 +37,7 @@ export async function runDispatcherTool(
     const error = failure instanceof IntakeError ? failure.code : "unavailable";
     if (["prepare_report", "confirm_report_draft", "submit_report"].includes(operation)) {
       try {
-        const saved = await getDraft(draftId);
+        const saved = await getDraft(draftId, AbortSignal.timeout(15_000));
         await receive(saved);
         return JSON.stringify({ error, current_draft: readback(saved),
           message: saved.submission ? "The report is already committed. Announce its actual reference; do not submit another report."

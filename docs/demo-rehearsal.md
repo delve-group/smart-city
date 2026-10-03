@@ -65,6 +65,10 @@ The phone review found a real keyboard defect, tracked with reproduction and DOM
 
 A real institution HTTPS command moved fictional `ELE-26-000422` from acknowledged to work started. Its active operator detail and queue updated without reload. The note was visible **4.889 s after mutation start / 4.766 s after the 123 ms response**, measured using the request and browser-observation timestamps on the deployment computer. Observation/tool overhead is included, so this is an upper bound for that one displayed transition. An earlier acknowledgement also appeared, but its first observation timed out before delivery and supplies no reliable refresh timing. The ticket remains in progress. Resident-screen timing, all reference-journey transitions and representative concurrent browser/voice demand remain unverified.
 
+## Current local integration
+
+The [local response-loop record](local-response-rehearsal.md) adds actual three-guest grouping, proposal rejection/approval/replay, one ticket, permission denials, private-text checks and acknowledgement/work/resolution displayed on the resident screen without reload. It is a local HTTP intake and real browser readback run with the labelled demo proposer/connector, not spoken intake or deployment. Two resident observations were below five seconds; resolution was first observed too late to establish the target. The [voice record](voice-sessions.md) separately covers real WebRTC greeting, speech recognition, mute/end and same-draft form fallback. Full scripted voice acceptance remains open.
+
 ## Specification acceptance matrix
 
 | Criterion | Evidence so far | Remaining before full acceptance |

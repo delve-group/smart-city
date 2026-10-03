@@ -5,5 +5,5 @@ export interface VoiceDraftController {
   draft: IntakeDraft | null;
   report: Report | null;
   receiveVoiceDraft: (draft: IntakeDraft | null, report?: Report) => Promise<boolean>;
-  recover: (preserveInput?: boolean) => Promise<IntakeDraft | null | undefined>;
+  recover: (preserveInput?: boolean, signal?: AbortSignal) => Promise<IntakeDraft | null | undefined>;
 }
