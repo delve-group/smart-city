@@ -22,7 +22,7 @@ npm run dev
 
 The app runs at http://localhost:3000. This command validates configuration, builds the containers, starts PostgreSQL, runs migrations and seeds fictional staff accounts, then starts the app with hot reload. It returns after readiness succeeds. Missing configuration is reported by variable name, without printing credentials. No ElevenLabs or Qdrant account is needed for this slice.
 
-**Frontend only** (no Docker or database): `cd apps/frontend && npm run dev:ui`. The resident map at `/` works on its in-memory demo data; `/operations`, `/institution`, sign-in and voice drafts need the database and will show errors.
+**Frontend only, all mocks** (no Docker, database or `.env`): `cd apps/frontend && npm run dev:ui`. Every view (`/`, `/operations`, `/institution`) runs on in-browser mock data and the app makes no backend request; staff pages open without sign-in. Mock state is kept in `localStorage`, so approving on `/operations` shows the ticket on `/institution` (signed in as the Electricity Operator). Clear site data to reset it. Map tiles and place search still load from their public services.
 
 ```bash
 npm run config:check

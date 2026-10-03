@@ -1,8 +1,11 @@
 import { mapCategoryDto } from "./mappers";
 import { categoriesResponseSchema, type Category } from "./types";
+import { fromMock, USE_MOCKS } from "../mocks/use-mocks";
+import { CATEGORIES } from "@/app/api/categories/categories";
 
 /** GET /api/categories */
 export async function getCategories(signal?: AbortSignal): Promise<Category[]> {
+  if (USE_MOCKS) return fromMock(() => CATEGORIES.map(mapCategoryDto));
   const response = await fetch("/api/categories", { signal });
   if (!response.ok) throw new Error(`Could not load categories (${response.status}).`);
 

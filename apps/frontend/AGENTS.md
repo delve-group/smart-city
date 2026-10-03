@@ -31,6 +31,7 @@ src/
 - No global `utils/` folder. Code used by several features goes to `shared/`; code used by one feature goes to `features/<feature>/utils/`.
 - A feature does not import another feature's private files. A screen-level view may compose other features through their top-level components and hooks (e.g. `city-map-view` uses `category-filter` and `report-issue`). Move shared pieces to `shared/`.
 - Components and hooks never call `fetch` directly; they use functions from `src/api/`.
+- `npm run dev:ui` is the mocks-only frontend: `next.config.ts` sets `MRADAR_MOCKS` from the npm script name, and every `src/api/` client returns data from `src/api/mocks/` instead of calling the backend. A new client function needs a mock branch too.
 - For everything else follow current Next.js recommendations (App Router, Server Components by default, `"use client"` only where interactivity or browser APIs are needed).
 
 ## Appica UI
