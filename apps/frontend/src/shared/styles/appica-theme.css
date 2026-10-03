@@ -1,217 +1,224 @@
 /*
- * Canonical frontend tokens: Civic and Signal mapped onto Appica UI roles.
+ * Canonical frontend tokens: one neutral theme, light and dark, mapped onto Appica UI roles.
  * Import after '@appica/ui-react/styles.css'. Same selectors, later source wins.
- * Civic = Appica `light` class, Signal = Appica `dark` class (see ThemeProvider in src/app/providers.tsx).
+ * The mode is the `light` / `dark` class on <html> (see ThemeProvider in src/app/providers.tsx).
+ *
+ * Neutral greys with no hue carry the interface; colour is reserved for meaning:
+ * report categories, status and the heatmap.
  */
 
 :root,
 .light {
-  --foreground: #2B3B55;
-  --foreground-subtle: #7B899C;
-  --foreground-muted: #526175;
-  --foreground-strong: #1F3150;
-  --foreground-emphasis: #172B4D;
-  --foreground-intense: #172B4D;
+  --foreground: #3F3F3F;
+  --foreground-subtle: #9A9A9A;
+  --foreground-muted: #6B6B6B;
+  --foreground-strong: #2A2A2A;
+  --foreground-emphasis: #1A1A1A;
+  --foreground-intense: #111111;
   --foreground-inverse: #FFFFFF;
 
-  /* `background` is the card surface; the page uses `background-subtle` (see layout). */
+  /* `background` is the card surface; `background-subtle` the page. */
   --background: #FFFFFF;
-  --background-subtle: #F5F7FA;
-  --background-muted: #EDF1F5;
-  --background-strong: #E1E7EF;
-  --background-inverse: #172B4D;
+  --background-subtle: #FAFAFA;
+  --background-muted: #F4F4F4;
+  --background-strong: #E8E8E8;
+  --background-inverse: #171717;
 
-  --border: #D2DAE5;
-  --border-muted: #E4E9F0;
-  --border-strong: #7B899C;
-  --border-emphasis: #5E6D82;
-  --border-intense: #526175;
-  --border-inverse: #2B3B55;
-  --border-overlay: #D2DAE5;
+  --border: #E4E4E4;
+  --border-muted: #EFEFEF;
+  --border-strong: #8C8C8C;
+  --border-emphasis: #6B6B6B;
+  --border-intense: #4D4D4D;
+  --border-inverse: #3F3F3F;
+  --border-overlay: #E4E4E4;
 
-  --primary: #123D75;
-  --primary-subtle: rgb(18 61 117 / 8%);
-  --primary-soft: rgb(18 61 117 / 18%);
-  --primary-muted: #3A6098;
-  --primary-strong: #0D2E59;
+  --primary: #171717;
+  --primary-subtle: rgb(0 0 0 / 4%);
+  --primary-soft: rgb(0 0 0 / 8%);
+  --primary-muted: #3F3F3F;
+  --primary-strong: #000000;
   --primary-foreground: #FFFFFF;
 
-  --secondary: #E1ECFA;
-  --secondary-subtle: rgb(23 94 168 / 8%);
-  --secondary-soft: rgb(23 94 168 / 18%);
-  --secondary-muted: #EEF4FC;
-  --secondary-strong: #CBDDF5;
-  --secondary-emphasis: #175EA8;
-  --secondary-intense: #123D75;
-  --secondary-foreground: #123D75;
+  --secondary: #F0F0F0;
+  --secondary-subtle: rgb(0 0 0 / 3%);
+  --secondary-soft: rgb(0 0 0 / 7%);
+  --secondary-muted: #F7F7F7;
+  --secondary-strong: #E4E4E4;
+  --secondary-emphasis: #4D4D4D;
+  --secondary-intense: #1A1A1A;
+  --secondary-foreground: #171717;
 
-  --error: #B42335;
-  --error-subtle: rgb(180 35 53 / 8%);
-  --error-soft: rgb(180 35 53 / 18%);
-  --error-muted: #C1384A;
-  --error-strong: #9A1E2E;
-  --error-emphasis: #B42335;
-  --error-intense: #8F1B2A;
+  --error: #B42318;
+  --error-subtle: rgb(180 35 24 / 7%);
+  --error-soft: rgb(180 35 24 / 14%);
+  --error-muted: #C4320A;
+  --error-strong: #912018;
+  --error-emphasis: #B42318;
+  --error-intense: #7A271A;
   --error-foreground: #FFFFFF;
 
-  --success: #176B45;
-  --success-subtle: rgb(23 107 69 / 8%);
-  --success-soft: rgb(23 107 69 / 18%);
-  --success-muted: #1E7A50;
-  --success-strong: #11553A;
-  --success-emphasis: #176B45;
-  --success-intense: #0F4A30;
+  --success: #067647;
+  --success-subtle: rgb(6 118 71 / 7%);
+  --success-soft: rgb(6 118 71 / 14%);
+  --success-muted: #08703F;
+  --success-strong: #085D3A;
+  --success-emphasis: #067647;
+  --success-intense: #074D31;
   --success-foreground: #FFFFFF;
 
-  --warning: #885400;
-  --warning-subtle: rgb(136 84 0 / 8%);
-  --warning-soft: rgb(136 84 0 / 18%);
-  --warning-muted: #8F5C0A;
-  --warning-strong: #6E4400;
-  --warning-emphasis: #885400;
-  --warning-intense: #5E3A00;
+  --warning: #A15C07;
+  --warning-subtle: rgb(161 92 7 / 8%);
+  --warning-soft: rgb(161 92 7 / 15%);
+  --warning-muted: #93500A;
+  --warning-strong: #854A0E;
+  --warning-emphasis: #A15C07;
+  --warning-intense: #7A2E0E;
   --warning-foreground: #FFFFFF;
 
-  --info: #175EA8;
-  --info-subtle: rgb(23 94 168 / 8%);
-  --info-soft: rgb(23 94 168 / 18%);
-  --info-muted: #2268B3;
-  --info-strong: #124C89;
-  --info-emphasis: #175EA8;
-  --info-intense: #0F3F72;
+  /* Kept for Appica components; the app itself avoids informational blue. */
+  --info: #525252;
+  --info-subtle: rgb(82 82 82 / 7%);
+  --info-soft: rgb(82 82 82 / 14%);
+  --info-muted: #525252;
+  --info-strong: #3F3F3F;
+  --info-emphasis: #525252;
+  --info-intense: #262626;
   --info-foreground: #FFFFFF;
 
-  --focus-ring: rgb(36 95 168 / 45%);
-  --focus-ring-input: rgb(36 95 168 / 45%);
-  --focus-ring-primary: rgb(36 95 168 / 45%);
-  --focus-ring-secondary: rgb(23 94 168 / 35%);
-  --focus-ring-error: rgb(180 35 53 / 35%);
-  --focus-ring-success: rgb(23 107 69 / 35%);
-  --focus-ring-warning: rgb(136 84 0 / 35%);
-  --focus-ring-info: rgb(23 94 168 / 35%);
+  --focus-ring: rgb(17 17 17 / 28%);
+  --focus-ring-input: rgb(17 17 17 / 18%);
+  --focus-ring-primary: rgb(17 17 17 / 28%);
+  --focus-ring-secondary: rgb(17 17 17 / 18%);
+  --focus-ring-error: rgb(180 35 24 / 28%);
+  --focus-ring-success: rgb(6 118 71 / 28%);
+  --focus-ring-warning: rgb(161 92 7 / 28%);
+  --focus-ring-info: rgb(82 82 82 / 28%);
 
   /* Report categories (ids come from the API). Always paired with an icon and a text label. */
-  --category-power: #9A6400;
-  --category-water: #1F63B0;
-  --category-roads: #B4461B;
-  --category-transit: #0E7383;
-  --category-waste: #5D6B12;
-  --category-accessibility: #6A46B8;
-  --category-greenery: #237A3B;
-  --category-air: #7A5244;
+  --category-power: #A15C07;
+  --category-water: #2E6DB4;
+  --category-roads: #C2410C;
+  --category-transit: #0F766E;
+  --category-waste: #5F6B1A;
+  --category-accessibility: #7C4DBA;
+  --category-greenery: #2F7A3F;
+  --category-air: #7D5A4F;
 
-  --brand-accent: #C62842;
+  /* Heatmap ramp, from a few reports to a dense cluster. */
+  --heat-low: #F5B83D;
+  --heat-mid: #EA6A1F;
+  --heat-high: #C0262D;
 
-  --font-sans: Arial, Helvetica, sans-serif;
-  --font-mono: "SFMono-Regular", Consolas, monospace;
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
 
-  --radius: 0.625rem;
-  --shadow-color: rgb(23 43 77 / 10%);
-  --selection-color: rgb(18 61 117 / 14%);
+  --radius: 0.375rem;
+  --shadow-color: rgb(0 0 0 / 7%);
+  --selection-color: rgb(0 0 0 / 10%);
 }
 
 .dark {
-  --foreground: #D9DCE8;
-  --foreground-subtle: #727D97;
-  --foreground-muted: #A6ADC2;
-  --foreground-strong: #E6E8F1;
-  --foreground-emphasis: #F3F4FA;
-  --foreground-intense: #F3F4FA;
-  --foreground-inverse: #090A0F;
+  --foreground: #CFCFCF;
+  --foreground-subtle: #6E6E6E;
+  --foreground-muted: #9C9C9C;
+  --foreground-strong: #E2E2E2;
+  --foreground-emphasis: #F0F0F0;
+  --foreground-intense: #FAFAFA;
+  --foreground-inverse: #111111;
 
-  --background: #090A0F;
-  --background-subtle: #13151E;
-  --background-muted: #191C28;
-  --background-strong: #242337;
-  --background-inverse: #F3F4FA;
+  --background: #171717;
+  --background-subtle: #1C1C1C;
+  --background-muted: #232323;
+  --background-strong: #2E2E2E;
+  --background-inverse: #FAFAFA;
 
-  --border: #34394C;
-  --border-muted: #232736;
-  --border-strong: #727D97;
-  --border-emphasis: #8A93AB;
-  --border-intense: #A6ADC2;
-  --border-inverse: #D9DCE8;
-  --border-overlay: #34394C;
+  --border: #2C2C2C;
+  --border-muted: #222222;
+  --border-strong: #6E6E6E;
+  --border-emphasis: #8A8A8A;
+  --border-intense: #A8A8A8;
+  --border-inverse: #E2E2E2;
+  --border-overlay: #333333;
 
-  --primary: #B79AFF;
-  --primary-subtle: rgb(183 154 255 / 10%);
-  --primary-soft: rgb(183 154 255 / 22%);
-  --primary-muted: #9C7BF0;
-  --primary-strong: #CBB6FF;
-  --primary-foreground: #140B2B;
+  --primary: #F2F2F2;
+  --primary-subtle: rgb(255 255 255 / 5%);
+  --primary-soft: rgb(255 255 255 / 10%);
+  --primary-muted: #D4D4D4;
+  --primary-strong: #FFFFFF;
+  --primary-foreground: #111111;
 
-  --secondary: #30234B;
-  --secondary-subtle: rgb(134 82 255 / 10%);
-  --secondary-soft: rgb(134 82 255 / 22%);
-  --secondary-muted: #242337;
-  --secondary-strong: #3B2C5C;
-  --secondary-emphasis: #B79AFF;
-  --secondary-intense: #E2D5FF;
-  --secondary-foreground: #E2D5FF;
+  --secondary: #262626;
+  --secondary-subtle: rgb(255 255 255 / 4%);
+  --secondary-soft: rgb(255 255 255 / 8%);
+  --secondary-muted: #1F1F1F;
+  --secondary-strong: #333333;
+  --secondary-emphasis: #A8A8A8;
+  --secondary-intense: #E2E2E2;
+  --secondary-foreground: #F0F0F0;
 
-  --error: #FF8995;
-  --error-subtle: rgb(255 137 149 / 10%);
-  --error-soft: rgb(255 137 149 / 22%);
-  --error-muted: #FFB8C0;
-  --error-strong: #FFA3AD;
-  --error-emphasis: #FF8995;
-  --error-intense: #FFB8C0;
-  --error-foreground: #300A12;
+  --error: #F97066;
+  --error-subtle: rgb(249 112 102 / 9%);
+  --error-soft: rgb(249 112 102 / 18%);
+  --error-muted: #FDA29B;
+  --error-strong: #FDA29B;
+  --error-emphasis: #F97066;
+  --error-intense: #FECDCA;
+  --error-foreground: #2B0A07;
 
-  --success: #64DDB1;
-  --success-subtle: rgb(100 221 177 / 10%);
-  --success-soft: rgb(100 221 177 / 22%);
-  --success-muted: #A3EDD2;
-  --success-strong: #82E5C1;
-  --success-emphasis: #64DDB1;
-  --success-intense: #A3EDD2;
-  --success-foreground: #072B1F;
+  --success: #47CD89;
+  --success-subtle: rgb(71 205 137 / 9%);
+  --success-soft: rgb(71 205 137 / 18%);
+  --success-muted: #75E0A7;
+  --success-strong: #75E0A7;
+  --success-emphasis: #47CD89;
+  --success-intense: #ABEFC6;
+  --success-foreground: #04230F;
 
-  --warning: #FFD176;
-  --warning-subtle: rgb(255 209 118 / 10%);
-  --warning-soft: rgb(255 209 118 / 22%);
-  --warning-muted: #FFE4B0;
-  --warning-strong: #FFDC96;
-  --warning-emphasis: #FFD176;
-  --warning-intense: #FFE4B0;
-  --warning-foreground: #302000;
+  --warning: #F5B83D;
+  --warning-subtle: rgb(245 184 61 / 9%);
+  --warning-soft: rgb(245 184 61 / 18%);
+  --warning-muted: #F8CD6E;
+  --warning-strong: #F8CD6E;
+  --warning-emphasis: #F5B83D;
+  --warning-intense: #FBE2A8;
+  --warning-foreground: #2A1A00;
 
-  --info: #78DBF0;
-  --info-subtle: rgb(120 219 240 / 10%);
-  --info-soft: rgb(120 219 240 / 22%);
-  --info-muted: #B0EBF7;
-  --info-strong: #96E3F4;
-  --info-emphasis: #78DBF0;
-  --info-intense: #B0EBF7;
-  --info-foreground: #092B33;
+  --info: #A8A8A8;
+  --info-subtle: rgb(255 255 255 / 5%);
+  --info-soft: rgb(255 255 255 / 10%);
+  --info-muted: #CFCFCF;
+  --info-strong: #CFCFCF;
+  --info-emphasis: #A8A8A8;
+  --info-intense: #E2E2E2;
+  --info-foreground: #111111;
 
-  --focus-ring: rgb(183 154 255 / 55%);
-  --focus-ring-input: rgb(183 154 255 / 55%);
-  --focus-ring-primary: rgb(183 154 255 / 55%);
-  --focus-ring-secondary: rgb(134 82 255 / 50%);
-  --focus-ring-error: rgb(255 137 149 / 50%);
-  --focus-ring-success: rgb(100 221 177 / 50%);
-  --focus-ring-warning: rgb(255 209 118 / 50%);
-  --focus-ring-info: rgb(120 219 240 / 50%);
+  --focus-ring: rgb(255 255 255 / 30%);
+  --focus-ring-input: rgb(255 255 255 / 18%);
+  --focus-ring-primary: rgb(255 255 255 / 30%);
+  --focus-ring-secondary: rgb(255 255 255 / 18%);
+  --focus-ring-error: rgb(249 112 102 / 40%);
+  --focus-ring-success: rgb(71 205 137 / 40%);
+  --focus-ring-warning: rgb(245 184 61 / 40%);
+  --focus-ring-info: rgb(255 255 255 / 25%);
 
-  --category-power: #F5C451;
-  --category-water: #6FB6FF;
-  --category-roads: #FF9466;
-  --category-transit: #5ED6E6;
-  --category-waste: #C3D66B;
-  --category-accessibility: #B9A1FF;
-  --category-greenery: #6FDC8C;
-  --category-air: #D9A68F;
+  --category-power: #F5B83D;
+  --category-water: #7AAEE8;
+  --category-roads: #F48A5A;
+  --category-transit: #4FC4B6;
+  --category-waste: #B8C46A;
+  --category-accessibility: #B49AE6;
+  --category-greenery: #6FCF86;
+  --category-air: #C9A497;
 
-  --brand-accent: #8652FF;
+  --heat-low: #F5B83D;
+  --heat-mid: #F07A35;
+  --heat-high: #E5484D;
 
-  --radius: 0.125rem;
-  --shadow-color: rgb(0 0 0 / 40%);
-  --selection-color: rgb(183 154 255 / 25%);
+  --shadow-color: rgb(0 0 0 / 35%);
+  --selection-color: rgb(255 255 255 / 16%);
 }
 
 @theme inline {
-  --color-brand-accent: var(--brand-accent);
   --color-category-power: var(--category-power);
   --color-category-water: var(--category-water);
   --color-category-roads: var(--category-roads);

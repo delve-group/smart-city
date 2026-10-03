@@ -48,7 +48,7 @@ export function MapSearch({ reports, categoriesById, onPick }: MapSearchProps) {
         { value: "Reports", items: searchReports(reports, categoriesById, query).map(toReportOption) },
         { value: "Places", items: places.places.map(toPlaceOption) },
       ].filter((group) => group.items.length > 0)
-    : [{ value: "Most confirmed", items: topReports(reports).map(toReportOption) }];
+    : [{ value: "Most affected", items: topReports(reports).map(toReportOption) }];
 
   const searchingPlaces = places.status === "loading";
 
@@ -72,7 +72,7 @@ export function MapSearch({ reports, categoriesById, onPick }: MapSearchProps) {
       <ComboboxInput
         aria-label="Search reports and places"
         placeholder="Search reports, streets and places"
-        className="bg-background shadow-lg"
+        className="bg-background shadow-xs"
         startSlot={<Search size={18} aria-hidden className="text-foreground-muted" />}
         endSlot={searchingPlaces ? <Spinner className="size-4 text-foreground-muted" aria-label="Searching places" /> : null}
       />

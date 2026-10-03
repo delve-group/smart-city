@@ -139,7 +139,7 @@ export default function CityMapCanvas({
       <AttributionControl position="bottom-left" compact customAttribution={attribution} />
       {draftPin && (
         <Marker longitude={draftPin.lng} latitude={draftPin.lat} anchor="bottom">
-          <MapPinFilled size={40} aria-hidden className="text-brand-accent drop-shadow-lg" />
+          <MapPinFilled size={40} aria-hidden className="text-foreground-intense drop-shadow-sm" />
         </Marker>
       )}
       <Source id="reports" type="geojson" data={data}>

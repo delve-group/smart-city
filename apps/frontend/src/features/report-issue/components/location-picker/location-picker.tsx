@@ -30,7 +30,7 @@ export function LocationPicker({ address, insideCity, onLocate, onCancel, onConf
   return (
     <section
       aria-labelledby="location-picker-title"
-      className="absolute inset-x-3 bottom-3 z-30 flex flex-col gap-4 rounded-xl border border-border bg-background p-5 shadow-xl transition-[opacity,translate] duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] starting:translate-y-6 starting:opacity-0 motion-reduce:transition-none md:inset-x-auto md:bottom-6 md:left-1/2 md:w-[28rem] md:-translate-x-1/2"
+      className="absolute inset-x-3 bottom-3 z-30 flex flex-col gap-4 rounded-lg border border-border bg-background p-5 shadow-md transition-[opacity,translate] duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] starting:translate-y-6 starting:opacity-0 motion-reduce:transition-none md:inset-x-auto md:bottom-6 md:left-1/2 md:w-[28rem] md:-translate-x-1/2"
     >
       <div className="flex flex-col gap-1">
         <h2 id="location-picker-title" className="text-lg font-semibold text-foreground-intense">

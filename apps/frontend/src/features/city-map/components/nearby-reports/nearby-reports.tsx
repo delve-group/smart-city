@@ -22,8 +22,8 @@ export function NearbyReports({ report, reports, category, now, onSelect }: Near
   return (
     <PanelSection title="Nearby">
       {sameCategory >= 2 && (
-        <div className="flex gap-3 rounded-md bg-info-subtle p-3 text-sm">
-          <InfoCircle size={18} aria-hidden className="mt-0.5 shrink-0 text-info-emphasis" />
+        <div className="flex gap-3 rounded-md bg-background-muted p-3 text-sm">
+          <InfoCircle size={18} aria-hidden className="mt-0.5 shrink-0 text-foreground-muted" />
           <p className="text-foreground">
             <span className="font-medium text-foreground-intense">
               {sameCategory} more {category.label.toLowerCase()} reports
@@ -47,7 +47,7 @@ export function NearbyReports({ report, reports, category, now, onSelect }: Near
                 <span className="flex min-w-0 flex-1 flex-col">
                   <span className="truncate text-sm font-medium text-foreground-intense">{other.title}</span>
                   <span className="truncate text-xs text-foreground-muted">
-                    {formatAgo(other.reportedAt, now)} · {other.confirmations} confirmed
+                    {formatAgo(other.reportedAt, now)} · {other.confirmations} affected
                   </span>
                 </span>
                 <span className="shrink-0 text-xs text-foreground-muted tabular-nums">{formatDistance(meters)}</span>

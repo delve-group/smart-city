@@ -26,7 +26,7 @@ export function ReportTooltip({ report, category, now, x, y, bounds }: ReportToo
   return (
     <div
       role="tooltip"
-      className="pointer-events-none absolute z-20 flex w-72 flex-col gap-2.5 rounded-lg border border-border bg-background p-3.5 shadow-lg transition-[opacity,scale] duration-150 ease-out starting:scale-95 starting:opacity-0 motion-reduce:transition-none"
+      className="pointer-events-none absolute z-20 flex w-72 flex-col gap-2.5 rounded-md border border-border bg-background p-3.5 shadow-md transition-[opacity,scale] duration-150 ease-out starting:scale-95 starting:opacity-0 motion-reduce:transition-none"
       style={{
         left: x,
         top: y,
@@ -55,7 +55,7 @@ export function ReportTooltip({ report, category, now, x, y, bounds }: ReportToo
           <dt className="sr-only">Confirmations</dt>
           <Users size={16} aria-hidden className="mt-0.5 shrink-0 text-foreground-subtle" />
           <dd>
-            {report.confirmations === 1 ? "1 resident reported this" : `${report.confirmations} residents confirmed`}
+            {report.confirmations === 1 ? "1 resident affected" : `${report.confirmations} residents affected`}
           </dd>
         </div>
       </dl>

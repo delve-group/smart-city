@@ -87,8 +87,8 @@ export function ReportForm({ categories, location, address, onChangeLocation, on
       <form noValidate onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
         <ScrollArea className="min-h-0 flex-1">
           <div className="flex flex-col gap-5 px-5 py-5">
-            <div className="flex items-start gap-3 rounded-lg bg-background-muted p-3">
-              <MapPin size={18} aria-hidden className="mt-0.5 shrink-0 text-brand-accent" />
+            <div className="flex items-start gap-3 rounded-md bg-background-muted p-3">
+              <MapPin size={18} aria-hidden className="mt-0.5 shrink-0 text-foreground-muted" />
               <div className="flex min-w-0 flex-1 flex-col">
                 <span className="text-sm font-medium text-foreground-intense">{address.address}</span>
                 {address.district && <span className="text-xs text-foreground-muted">{address.district}, Kraków</span>}

@@ -5,7 +5,7 @@ import { STATUS_LABEL } from "../../utils/report-status";
 const VARIANT = {
   reported: "outline",
   confirmed: "soft",
-  in_progress: "info",
+  in_progress: "warning",
   resolved: "success",
 } as const satisfies Record<ReportStatus, string>;
 

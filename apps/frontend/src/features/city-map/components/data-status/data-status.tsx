@@ -12,7 +12,7 @@ export function DataStatus(props: DataStatusProps) {
     return (
       <div
         role="status"
-        className="flex items-center gap-2 rounded-full border border-border bg-background px-3.5 py-2 text-sm text-foreground shadow-lg"
+        className="flex items-center gap-2 rounded-md border border-border bg-background px-3.5 py-2 text-sm text-foreground shadow-sm"
       >
         <Spinner className="size-4 text-foreground-muted" aria-hidden />
         Loading city reports…
@@ -21,7 +21,7 @@ export function DataStatus(props: DataStatusProps) {
   }
 
   return (
-    <Alert variant="error" className="max-w-sm shadow-lg">
+    <Alert variant="error" className="max-w-sm shadow-sm">
       <AlertTitle>Could not load city reports</AlertTitle>
       <AlertDescription className="flex flex-col items-start gap-3">
         {props.message}

@@ -4,3 +4,23 @@
 
 /* Path is relative to this file; without it Appica components render unstyled. */
 @source "../../node_modules/@appica/ui-react/dist";
+
+/* The page is a fixed full-screen map: no rubber-band scrolling or pull-to-refresh. */
+html,
+body {
+  overscroll-behavior: none;
+}
+
+/* MapLibre's attribution control ships with a fixed white box; match it to the theme. */
+/* `html` prefix: maplibre-gl.css loads after this file with the same selectors. */
+html .maplibregl-ctrl.maplibregl-ctrl-attrib,
+html .maplibregl-ctrl-attrib.maplibregl-compact {
+  background-color: color-mix(in srgb, var(--background) 85%, transparent);
+  color: var(--foreground-muted);
+}
+html .maplibregl-ctrl-attrib a {
+  color: inherit;
+}
+.dark .maplibregl-ctrl-attrib-button {
+  filter: invert(1);
+}

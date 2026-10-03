@@ -5,7 +5,7 @@ export function readMapColors(categoryIds: readonly string[]) {
   const style = getComputedStyle(document.documentElement);
   const token = (name: string) => style.getPropertyValue(name).trim();
   return {
-    heat: { low: token("--info"), mid: token("--warning"), high: token("--error") },
+    heat: { low: token("--heat-low"), mid: token("--heat-mid"), high: token("--heat-high") },
     category: Object.fromEntries(categoryIds.map((id) => [id, token(categoryAppearance(id).token)])),
     fallback: token("--foreground-muted"),
     surface: token("--background"),

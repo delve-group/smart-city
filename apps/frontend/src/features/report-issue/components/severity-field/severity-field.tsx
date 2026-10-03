@@ -13,7 +13,7 @@ export function SeverityField({ value, onChange }: SeverityFieldProps) {
         {REPORT_SEVERITIES.map((severity) => (
           <label
             key={severity}
-            className="flex cursor-pointer items-start gap-3 rounded-lg border border-border p-3 transition-colors duration-150 select-none hover:bg-background-subtle has-data-checked:border-primary has-data-checked:bg-primary-subtle"
+            className="flex cursor-pointer items-start gap-3 rounded-md border border-border p-3 transition-colors duration-150 select-none hover:bg-background-subtle has-data-checked:border-primary has-data-checked:bg-primary-subtle"
           >
             <Radio value={severity} aria-labelledby={`severity-${severity}`} className="mt-0.5" />
             <span className="flex flex-col gap-0.5">

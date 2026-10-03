@@ -2,18 +2,11 @@
 
 import { ThemeProvider } from "@appica/ui-react/providers/theme-provider";
 import { ToastProvider, Toaster } from "@appica/ui-react/toast";
-import { APP_THEMES, DEFAULT_THEME, THEME_CLASS } from "@/shared/theme/themes";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider
-      themes={[...APP_THEMES]}
-      value={THEME_CLASS}
-      defaultTheme={DEFAULT_THEME}
-      enableSystem={false}
-      storageKey="smart-city-theme"
-      disableTransitionOnChange
-    >
+    // One theme in light and dark mode; follows the OS until the user picks a mode.
+    <ThemeProvider defaultTheme="system" storageKey="smart-city-mode" disableTransitionOnChange>
       <ToastProvider>
         {children}
         <Toaster position="top-center" />

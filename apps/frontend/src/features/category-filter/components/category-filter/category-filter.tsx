@@ -34,7 +34,7 @@ export function CategoryFilter({ categories, counts, selected, onChange }: Categ
             variant={filtered ? "primary" : "outline"}
             size="icon-lg"
             aria-label={label}
-            className="relative shrink-0 shadow-lg"
+            className="relative shrink-0 shadow-xs"
           />
         }
       >
@@ -42,7 +42,7 @@ export function CategoryFilter({ categories, counts, selected, onChange }: Categ
         {filtered && (
           <span
             aria-hidden
-            className="absolute -top-1.5 -right-1.5 flex min-w-5 items-center justify-center rounded-full border-2 border-background bg-brand-accent px-1 text-xs leading-4 font-semibold text-foreground-inverse tabular-nums"
+            className="absolute -top-1.5 -right-1.5 flex min-w-5 items-center justify-center rounded-full bg-foreground-intense px-1 text-xs leading-4 font-semibold text-foreground-inverse ring-2 ring-background tabular-nums"
           >
             {selected.length}
           </span>
