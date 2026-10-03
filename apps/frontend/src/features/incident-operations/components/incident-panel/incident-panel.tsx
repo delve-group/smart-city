@@ -11,6 +11,7 @@ import { formatAgo } from "@/shared/utils/format-time";
 import { institutionName, reportsOf } from "../../utils/queue";
 import { ASSESSMENT } from "../../utils/labels";
 import { EvidenceList } from "../evidence-list/evidence-list";
+import { ExecutionStatus } from "../execution-status/execution-status";
 import { Fact, FACTS } from "../fact/fact";
 import { IncidentActions } from "../incident-actions/incident-actions";
 import { IncidentHistory } from "../incident-history/incident-history";
@@ -28,19 +29,22 @@ type IncidentPanelProps = {
   onClose: () => void;
   onLocate: (location: { lat: number; lng: number }) => void;
   onDecide: (incident: Incident, decision: ProposalDecision) => Promise<boolean>;
+  onReconcile: (incident: Incident, reason: string) => Promise<boolean>;
   onCommand: (incident: Incident, command: IncidentCommand) => Promise<boolean>;
 };
 
 /** Which response step the official sees first. */
-function nextStep(incident: Incident): "proposal" | "choose" | "ticket" | "none" {
+function nextStep(incident: Incident): "proposal" | "sending" | "choose" | "ticket" | "none" {
   if (incident.proposal?.state === "pending") return "proposal";
+  // Approved but not yet confirmed by the institution: never shown as sent, never offered for a second send.
+  if (incident.proposal && ["approved", "executing", "unknown"].includes(incident.proposal.state)) return "sending";
   const ticketActive = incident.ticket && incident.ticket.status !== "rejected";
   const open = ["new", "triaged"].includes(incident.responseStatus);
   if (open && !ticketActive) return "choose";
   return incident.ticket ? "ticket" : "none";
 }
 
-export function IncidentPanel({ incident, workspace, category, now, onClose, onLocate, onDecide, onCommand }: IncidentPanelProps) {
+export function IncidentPanel({ incident, workspace, category, now, onClose, onLocate, onDecide, onReconcile, onCommand }: IncidentPanelProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const reports: OperationsReport[] = reportsOf(incident, workspace.reports);
   const step = nextStep(incident);
@@ -106,6 +110,13 @@ export function IncidentPanel({ incident, workspace, category, now, onClose, onL
                     institution={workspace.institutions.find((institution) => institution.id === incident.proposal?.institutionId)}
                     now={now}
                     onDecide={(decision) => onDecide(incident, decision)}
+                  />
+                )}
+                {step === "sending" && incident.proposal && (
+                  <ExecutionStatus
+                    proposal={incident.proposal}
+                    institutionName={institutionName(workspace, incident.proposal.institutionId)}
+                    onReconcile={(reason) => onReconcile(incident, reason)}
                   />
                 )}
                 {step === "choose" && (

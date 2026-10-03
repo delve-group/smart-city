@@ -1,13 +1,12 @@
+import type { NextRequest } from "next/server";
 import { reportTriageSchema } from "@/api/operations/types";
-import { handleApi, success } from "@/server/http/api";
-import { triageReport } from "../../../operations-store";
-import { parseCommand } from "../../../parse-command";
+import { officialCommand } from "@/server/http/official";
+import { decideReportTriage } from "@/server/incidents/official";
 
-/** Demo endpoint: link a report under review, start an incident, or keep it private / out of scope. */
-export async function POST(request: Request, { params }: RouteContext<"/api/operations/reports/[id]/triage">) {
-  return handleApi(async (correlationId) => {
-    const { id } = await params;
-    const triage = await parseCommand(request, reportTriageSchema);
-    return success(triageReport(id, triage), correlationId);
-  });
+export const runtime = "nodejs";
+
+/** Link a report or correct its link, start an incident, or keep it private / out of scope. */
+export async function POST(request: NextRequest, { params }: RouteContext<"/api/operations/reports/[id]/triage">) {
+  const { id } = await params;
+  return officialCommand(request, reportTriageSchema, (ctx, command) => decideReportTriage(ctx, id, command));
 }

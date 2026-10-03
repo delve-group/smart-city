@@ -1,13 +1,12 @@
+import type { NextRequest } from "next/server";
 import { incidentCommandSchema } from "@/api/operations/types";
-import { handleApi, success } from "@/server/http/api";
-import { runIncidentCommand } from "../../../operations-store";
-import { parseCommand } from "../../../parse-command";
+import { officialCommand } from "@/server/http/official";
+import { runIncidentCommand } from "@/server/incidents/official";
 
-/** Demo endpoint: responsibility, verify, dispute, close and reopen, each against the expected version. */
-export async function POST(request: Request, { params }: RouteContext<"/api/operations/incidents/[id]/commands">) {
-  return handleApi(async (correlationId) => {
-    const { id } = await params;
-    const command = await parseCommand(request, incidentCommandSchema);
-    return success(runIncidentCommand(id, command), correlationId);
-  });
+export const runtime = "nodejs";
+
+/** Responsibility, verify, dispute, close and reopen, each against the version the official saw. */
+export async function POST(request: NextRequest, { params }: RouteContext<"/api/operations/incidents/[id]/commands">) {
+  const { id } = await params;
+  return officialCommand(request, incidentCommandSchema, (ctx, command) => runIncidentCommand(ctx, id, command));
 }
