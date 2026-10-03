@@ -11,11 +11,11 @@ import { useI18n } from "@/shared/i18n/locale";
 import type { VoiceDraftController } from "../../types";
 import { useBrowserVoice } from "../../hooks/use-browser-voice";
 
-type Props = { intake: VoiceDraftController; categories: readonly Category[]; onClose: () => void; onFallback: (draft: IntakeDraft | null) => void };
+type Props = { intake: VoiceDraftController; categories: readonly Category[]; onLocate?: (location: { lat: number; lng: number }) => void; onClose: () => void; onFallback: (draft: IntakeDraft | null) => void };
 
-export function VoicePanelContent({ intake, categories, onClose, onFallback }: Props) {
+export function VoicePanelContent({ intake, categories, onLocate, onClose, onFallback }: Props) {
   const { t } = useI18n();
-  const voice = useBrowserVoice(intake, categories);
+  const voice = useBrowserVoice(intake, categories, onLocate);
   const saved = intake.report ?? intake.draft?.submission;
   const active = voice.phase === "connected";
   const waiting = voice.phase === "starting" || voice.phase === "stopping";

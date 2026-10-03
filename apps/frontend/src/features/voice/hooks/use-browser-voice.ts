@@ -16,11 +16,14 @@ type Phase = "idle" | "starting" | "connected" | "stopping" | "ended";
 export type VoiceMessage = { role: "user" | "agent"; text: string };
 
 /** Owns connection, transient transcript and cleanup; structured writes stay in shared intake. */
-export function useBrowserVoice(intake: VoiceDraftController, categories: readonly Category[]) {
+export function useBrowserVoice(intake: VoiceDraftController, categories: readonly Category[], onLocate?: (location: { lat: number; lng: number }) => void) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [errorCode, setErrorCode] = useState<string | null>(null);
   const [messages, setMessages] = useState<VoiceMessage[]>([]);
   const owner = useRef(intake);
+  const locationPreview = useRef(onLocate);
+  const lastPreview = useRef<{ lat: number; lng: number } | null>(null);
+  useEffect(() => { locationPreview.current = onLocate; }, [onLocate]);
   const lease = useRef<VoiceSession | null>(null);
   const providerConversation = useRef<Conversation | null>(null);
   const pendingTools = useRef(new Set<Promise<string>>());
@@ -38,7 +41,12 @@ export function useBrowserVoice(intake: VoiceDraftController, categories: readon
     return (parameters: Record<string, unknown>) => {
       const active = lease.current;
       if (!active || stopRequested.current) return Promise.resolve(JSON.stringify({ error: "voice_session_ended", message: "Use the form to recover the same report." }));
-      const pending = runDispatcherTool(active.id, active.draft_id, name, parameters, (draft, report) => owner.current.receiveVoiceDraft(draft, report));
+      const pending = runDispatcherTool(active.id, active.draft_id, name, parameters, (draft, report) => owner.current.receiveVoiceDraft(draft, report), (location) => {
+        if (stopRequested.current || lease.current?.id !== active.id) return;
+        if (lastPreview.current?.lat === location.lat && lastPreview.current.lng === location.lng) return;
+        lastPreview.current = location;
+        locationPreview.current?.(location);
+      });
       pendingTools.current.add(pending);
       void pending.finally(() => pendingTools.current.delete(pending));
       return pending;
@@ -123,6 +131,7 @@ export function useBrowserVoice(intake: VoiceDraftController, categories: readon
     startPending.current = true;
     const generation = ++startGeneration.current;
     stopRequested.current = false;
+    lastPreview.current = null;
     setPhase("starting"); setErrorCode(null); setMessages([]);
     const abort = new AbortController();
     startAbort.current = abort;
