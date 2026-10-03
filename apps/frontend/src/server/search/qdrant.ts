@@ -262,7 +262,12 @@ export class SearchIndex {
         }
         return { record_type: payload.data.record_type, record_id: payload.data.record_id, version: payload.data.source_version };
       });
-      return { items, next_cursor: page.next_page_offset ?? null };
+      const nextCursor = z.union([z.string().min(1).max(200), z.number().int().nonnegative(), z.null()])
+        .safeParse(page.next_page_offset ?? null);
+      if (!nextCursor.success) {
+        throw new SearchError("index_incompatible", "The search index returned an unsupported reconciliation cursor.", false);
+      }
+      return { items, next_cursor: nextCursor.data };
     });
   }
 }
