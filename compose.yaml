@@ -86,6 +86,10 @@ services:
     environment:
       <<: [*application-environment, *search-environment]
       NODE_ENV: production
+      MCP_DECISION_TOKEN: ${MCP_DECISION_TOKEN:-}
+      MCP_ELECTRICITY_TOKEN: ${MCP_ELECTRICITY_TOKEN:-}
+      MCP_WATER_TOKEN: ${MCP_WATER_TOKEN:-}
+      MCP_TOKEN_EXPIRES_AT: ${MCP_TOKEN_EXPIRES_AT:-}
     volumes:
       - search-models:/home/node/.cache/mradar-models
     ports:
