@@ -242,7 +242,7 @@ export async function runIncidentCommand(ctx: ActorContext, incidentId: string, 
     if (command.type === "choose_institution") {
       await insertProposal(client, incident.id, {
         institution_id: command.institution_id,
-        created_by: "Official (demo account)",
+        created_by: "Official",
         explanation: `${reason} chosen by the official.`,
       });
     }

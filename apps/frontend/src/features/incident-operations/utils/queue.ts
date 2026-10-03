@@ -52,7 +52,7 @@ function matches(item: QueueItem, filter: QueueFilter, workspace: Workspace): bo
   return matchesQuery([...fields, filter.categoryLabel(categoryOf(item))], filter.query);
 }
 
-/** Queue rows per tab that pass the filter. Review: urgent first, then whoever has waited longest. Others: latest change first. */
+/** Queue rows per tab that pass the filter. Review: newest review first. Others: latest change first. */
 export function buildQueue(workspace: Workspace, filter: QueueFilter = NO_FILTER): Record<QueueTab, QueueItem[]> {
   const items: QueueItem[] = [
     ...workspace.incidents.map((incident) => ({
@@ -78,17 +78,17 @@ export function buildQueue(workspace: Workspace, filter: QueueFilter = NO_FILTER
   const tabs: Record<QueueTab, QueueItem[]> = { review: [], active: [], done: [] };
   for (const item of items) if (matches(item, filter, workspace)) tabs[tabOf(item)].push(item);
 
-  tabs.review.sort((a, b) => Number(b.urgent) - Number(a.urgent) || a.sortAt.localeCompare(b.sortAt));
+  tabs.review.sort((a, b) => b.sortAt.localeCompare(a.sortAt));
   tabs.active.sort((a, b) => b.sortAt.localeCompare(a.sortAt));
   tabs.done.sort((a, b) => b.sortAt.localeCompare(a.sortAt));
   return tabs;
 }
 
-/** Reports that belong to an incident, oldest first. */
+/** Reports that belong to an incident, newest first. */
 export function reportsOf(incident: Incident, reports: readonly OperationsReport[]): OperationsReport[] {
   return reports
     .filter((report) => report.incidentId === incident.id)
-    .sort((a, b) => a.submittedAt.localeCompare(b.submittedAt));
+    .sort((a, b) => b.submittedAt.localeCompare(a.submittedAt));
 }
 
 export function institutionName(workspace: Workspace, id: string): string {
