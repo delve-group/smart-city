@@ -24,6 +24,10 @@ The app runs at http://localhost:3000. Checks in `apps/frontend`: `npm run lint`
 
 ## Status
 
-Proof of concept: a full-screen map of Kraków (MapLibre + OpenFreeMap) with a heatmap of events. Search events and places (top left), zoom in to see individual events, hover for a preview and click for a detail panel with crowd, impact, details and nearby events. Events come from the `/api/events` endpoint, which currently returns clearly labelled demo data. No backend and no integration with city services yet.
+Proof of concept: **residents report problems in Kraków** — power outages, broken street lights, burst pipes, potholes, broken lifts, illegal dumping, smoke from illegal burning — at a precise spot on the map. The map shows open reports by category and a heatmap of where problems cluster; the detail panel shows impact, progress, the responsible service and related reports nearby.
+
+- Search reports and places (top left), filter by category (button next to search).
+- "Report an issue" (bottom right): place the pin, pick a category, describe the problem, send.
+- Data comes from `/api/categories` and `/api/reports`, a demo backend with clearly labelled mock data and an in-memory store (new reports disappear when the dev server restarts).
 
 Themes: **Civic** — light, official (default); **Signal** — dark. The theme switcher was removed from the view; the theme mechanism remains in the code.

@@ -28,7 +28,7 @@ src/
 - Keep components small: one component per file. When a file grows, extract a subcomponent into its own folder in the same feature.
 - Order of preference for UI: 1) an Appica UI component, 2) an existing component from `shared/components`, 3) only then a new component. A new component that another feature could use goes straight into `shared/components`.
 - No global `utils/` folder. Code used by several features goes to `shared/`; code used by one feature goes to `features/<feature>/utils/`.
-- A feature does not import another feature's private files. Move shared pieces to `shared/`.
+- A feature does not import another feature's private files. A screen-level view may compose other features through their top-level components and hooks (e.g. `city-map-view` uses `category-filter` and `report-issue`). Move shared pieces to `shared/`.
 - Components and hooks never call `fetch` directly; they use functions from `src/api/`.
 - For everything else follow current Next.js recommendations (App Router, Server Components by default, `"use client"` only where interactivity or browser APIs are needed).
 
@@ -55,7 +55,9 @@ Component index (fetch a component's `.md` page before using it for the first ti
 - Mount heatmap layers conditionally instead of hiding them with `visibility: "none"` — a heatmap layer added while hidden does not draw once shown.
 - Use `offset`, not `padding`, in `flyTo`: MapLibre keeps padding for all later camera moves and tile loading, which leaves an empty strip after the panel closes.
 - Map layers need literal colours: read them from theme tokens at runtime (`utils/read-map-colors.ts`), never hard-code hex values.
-- Place search uses the public Photon instance (fair use, no key). Replace it with a self-hosted or commercial geocoder before real traffic.
+- Place search and reverse geocoding use the public Photon instance (fair use, no key). Replace it with a self-hosted or commercial geocoder before real traffic.
+- Categories are API data. Style known ids in `shared/utils/category-appearance.ts` and the `--category-*` tokens; unknown ids fall back to a neutral style, never break.
+- `src/app/api/*` is a demo backend with an in-memory store. Validate request bodies there with the same Zod schema the client uses (`src/api/reports/types.ts`).
 
 <!-- BEGIN:nextjs-agent-rules -->
 

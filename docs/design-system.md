@@ -77,4 +77,12 @@ App: [apps/frontend](../apps/frontend). As of 2026-10-03, `@appica/ui-react` 1.2
 6. `*-foreground` is the text colour on both the base and the `*-muted` fill, e.g. in Badge. That is why in Civic `muted` is a dark solid shade with white text and in Signal a light pastel with dark text. Pairs were checked with the WCAG formula: all ≥ 5:1, field border ≥ 3:1.
 7. Semantic classes: `bg-background`, `text-foreground-intense`, `border-border-strong`, `bg-primary text-primary-foreground`, `bg-brand-accent`. No hex values in components.
 
+## Map screen patterns
+
+- **Floating chrome over a full-bleed map.** Search (top left) with the filter button beside it; the primary "Report an issue" button bottom right; attribution bottom left. No toolbars or frames around the map.
+- **Detail and form panel:** one non-modal shell (`shared/components/floating-panel`), inset from the right edge on desktop and a bottom sheet on phones. The header stays visible; when the title scrolls away it repeats in the header.
+- **Category colour:** eight `--category-*` tokens per theme (power, water, roads, transit, waste, accessibility, greenery, air), all ≥ 4.5:1 as text on their surfaces. Colour is always paired with the category icon and label; unknown API categories get a neutral style.
+- **Report status:** Reported (outline), Confirmed (soft), In progress (info, pulsing dot), Resolved (success). The panel shows the full progress timeline.
+- **Pin placement:** a fixed centre pin over the moving map, with a bottom card showing the live address, "Use my location", Cancel and Confirm.
+
 Map layers need literal colours, so the heatmap reads `--info`, `--warning` and `--error` from the active theme at runtime. Charts need labels or patterns; a palette alone does not guarantee readable data. A chart palette has not been added yet — add it with the first chart.

@@ -31,7 +31,7 @@ Each app in `apps/` is a standalone project with its own dependencies; a shared 
 | [MapLibre GL JS](https://maplibre.org) (`maplibre-gl`) | 6.11 | Open-source WebGL map renderer for vector tiles; native `heatmap` layer type. | Free, no API key, built-in GPU heatmap. Fork of Mapbox GL JS before its licence change. |
 | [react-map-gl](https://visgl.github.io/react-map-gl/) (`react-map-gl/maplibre`) | 8.1 | React components for MapLibre: `<Map>`, `<Source>`, `<Layer>`. Maintained by vis.gl (the deck.gl team). | Declarative map layers in React instead of imperative MapLibre calls. |
 | [OpenFreeMap](https://openfreemap.org) | service | Free hosted vector tiles and map styles (`positron` for Civic, `dark` for Signal) built from [OpenStreetMap](https://www.openstreetmap.org) data. | No key, no registration, no request limits, commercial use allowed; attribution is shown automatically by MapLibre. |
-| [Photon](https://photon.komoot.io) | service | Free geocoder over OpenStreetMap data, used for street and place search (`src/api/photon/`). | No key; CORS enabled; biased to Kraków. Public instance is fair-use only — self-host or swap for production. |
+| [Photon](https://photon.komoot.io) | service | Free geocoder over OpenStreetMap data: street and place search, and reverse geocoding for the report pin (`src/api/photon/`). | No key; CORS enabled; biased to Kraków. Public instance is fair-use only — self-host or swap for production. |
 | [Appica Icons](https://appica.dev/ui/icons) (`@appica/icons-react`) | 1.1 | Icon set matching Appica UI. | One consistent stroke style for category, time, place and action icons. |
 | [Zod](https://zod.dev) | 4 | Runtime schema validation. | Validates API responses at the boundary (`src/api/events/types.ts`) so bad records are dropped instead of breaking the map. |
 | `@types/geojson` | dev | TypeScript types for GeoJSON. | Types the feature collection passed to the heatmap source. |
@@ -43,15 +43,25 @@ Swapping the map for Google Maps later means replacing only `features/event-map/
 
 ```mermaid
 flowchart LR
-    M[Mock route /api/events] --> G[api/events/get-events]
-    G --> P[mappers: validate DTO → CityEvent]
-    P --> H[useEvents hook]
-    H --> F[toFeatureCollection + heatWeight]
-    F --> L[MapLibre heatmap + point layers]
-    S[Search box] --> X[searchEvents on loaded events]
-    S --> Y[api/photon/search-places]
-    L -- hover / click --> T[Tooltip / detail panel]
+    C[GET /api/categories] --> H[useCityData]
+    R[GET /api/reports] --> M[mappers: validate DTO, drop unknown categories]
+    M --> H
+    H --> F[Category filter]
+    F --> V[Visible reports]
+    V --> L[MapLibre heatmap + points]
+    V --> S[Search: reports + Photon places]
+    L -- hover / click --> P[Tooltip / detail panel]
+    N[Report flow: pin + Photon reverse + form] --> W[POST /api/reports]
+    W --> H
 ```
+
+Features in `apps/frontend/src/features/`:
+
+- `city-map` — the map screen: data loading, map canvas, search, tooltip and report detail panel. Its view composes the other features through their top-level components.
+- `category-filter` — the filter button and category checklist.
+- `report-issue` — the report button, pin placement and report form.
+
+Shared building blocks (category label/tile/appearance, floating panel shell, severity labels) live in `src/shared/`. The mock backend is a set of Next route handlers with an **in-memory store**: submitted reports live until the dev server restarts. Replacing `src/app/api/*` with a real backend and keeping the `src/api/*` contracts is the intended path.
 
 Form state stays local. Search and filter parameters go into the URL when a view must be shareable. Add shared fetching and caching only when there is a real need. The theme belongs to the app shell; it does not change data or permissions.
 
