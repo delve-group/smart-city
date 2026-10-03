@@ -1,6 +1,6 @@
 # Scoped MCP endpoint
 
-Partial delivery of [#34](https://github.com/delve-group/smart-city/issues/34). `POST /api/mcp` uses the pinned MCP TypeScript SDK's stateless Streamable HTTP transport with JSON responses. Every request creates and closes its own server and transport. No sessions, SSE subscriptions, resumability, browser-cookie authentication, OAuth discovery or dynamic client registration are implemented. Configure the endpoint and bearer manually in a trusted server-side client.
+Implemented and manually verified backend for [#34](https://github.com/delve-group/smart-city/issues/34). `POST /api/mcp` uses the pinned MCP TypeScript SDK's stateless Streamable HTTP transport with JSON responses. Every request creates and closes its own server and transport. No sessions, SSE subscriptions, resumability, browser-cookie authentication, OAuth discovery or dynamic client registration are implemented. Configure the endpoint and bearer manually in a trusted server-side client.
 
 ## Credentials and resource binding
 
@@ -51,6 +51,8 @@ Clients send both `application/json` and `text/event-stream` in `Accept`, and `a
 
 Manual cases for the integration run: missing/wrong/expired/duplicate token configuration; two institution credentials have separate inboxes and cannot read/update the other's ticket; decision-maker cannot list institution tools, approve or execute; malicious authority fields fail validation; stale ticket update changes nothing; deterministic triage preserves policy; invalid Origin/Host, oversized or slow body and batch fail; initialize, tool listing and domain calls survive repeated stateless requests; database errors remain safe. Do not print bearer values or cookies while recording results.
 
-Implementation alone does not verify a real client, deployed credentials, OAuth compatibility or the complete decision workflow. Verification results will be recorded after the isolated runtime check.
+On 2026-10-03 a real SDK `Client` with `StreamableHTTPClientTransport` initialized and listed tools under each of the three scopes against the normal local app. Decision context and an Electricity ticket were read successfully. Anonymous requests returned 401 and a foreign Origin returned 403. Water could neither read nor update the Electricity ticket or read a private report. Unknown role/institution fields and injected proposal payload/decision fields were rejected; approval was absent from the decision tool list and could not be called. These calls preserved the existing single ticket. Three short-lived random credentials were supplied only to the acceptance process/container; the app was then recreated with its original configuration. No credential was recorded in Git or evidence.
+
+This verifies the configured local transport and domain authorization. Production MCP credentials remain unset; deployed MCP access and OAuth compatibility are not claimed. Durable reasoning and stale/replay verification are recorded in the [assessment guide](../agents/README.md).
 
 References: [MCP Streamable HTTP transport](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports), [TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk).

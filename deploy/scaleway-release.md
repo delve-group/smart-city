@@ -35,7 +35,7 @@ Production passwords were generated independently of developer passwords. The pr
 
 Cloudflare has a DNS-only **A** record `mradar` pointing to `78.232.37.194` with automatic TTL. No AAAA record is configured. Public HTTPS succeeded with normal certificate validation on 2026-10-03.
 
-The running app and worker use revision `cb6ba50f6e835491aa28334c638727e2b6d5fe82`. Container image IDs at verification were `sha256:5c5b909444b3fefb27fe6edb76906d8ae07138314047659ef5d68cd76b182cd2` (app) and `sha256:4882ecb9df7365b6686ae96a19a30435be1112b618bdb1439e84a58d9a829903` (worker). PostgreSQL and Qdrant use separate persistent Compose volumes. Qdrant 1.19.1 and the pinned multilingual embedding model run on the VM; the model cache has its own persistent volume. The optional Scaleway decision provider and ElevenLabs credentials are not enabled in this release. `DEMO_MODE` is off, so staff sign-in remains required.
+The running app and worker use revision `4b8405ae13b16f38e7020e362736755e69890947`. Container image IDs at verification were `sha256:6deff4942a35eee827a2fb69270dba7bb8c1e6d1be2550071b0b9b4cef5a6fe1` (app) and `sha256:b7718d350783a4c8d9d62c4b111b3342e8d1a584b77893d93207412cf3e26c6a` (worker). PostgreSQL and Qdrant use separate persistent Compose volumes. Qdrant 1.19.1 and the pinned multilingual embedding model run on the VM; the model cache has its own persistent volume. The optional Scaleway decision provider and ElevenLabs credentials are not enabled in this release. `DEMO_MODE` is off, so staff sign-in remains required.
 
 ## Verification status
 
@@ -47,6 +47,7 @@ The running app and worker use revision `cb6ba50f6e835491aa28334c638727e2b6d5fe8
 - With the worker stopped, fictional report `R-26-001008` remained `pending`; after restart its queued triage completed as `needs_review`. Replaying submission returned the same report. The worker was healthy afterward with 14 completed jobs and no pending work.
 - Rerunning migration/seed setup applied no new migration, created no duplicate staff accounts and preserved all three stored staff password hashes. A database dump restored into a disposable database with all seven migrations and the expected actor/session tables. A fresh mode-0600 dump was copied to a private off-VM location; this is a recovery copy, not a full application restore rehearsal.
 - Removing a required value was checked before deployment: validation named `POSTGRES_PASSWORD` without printing its value. Sampled deployment output, authentication responses and worker diagnostics did not expose secrets. The production `.env` remains mode 0600.
+- The update to `4b8405a` rebuilt native x64 app/worker images, reran idempotent setup, reconciled ten sources and passed both public health endpoints. This release includes the persistent citizen form, explicit location lookup and draft recovery from #26.
 - The current map still has labelled demo/in-memory paths, and the live voice integration, optional decision model, full incident workflow rehearsal and 15–30-user capacity remain unverified. Those are not implied by HTTPS health.
 
 Use the [deployment runbook](README.md) for updates and recovery. The private release JSON alongside the deployment dump records the image and migration metadata without publishing credentials.
