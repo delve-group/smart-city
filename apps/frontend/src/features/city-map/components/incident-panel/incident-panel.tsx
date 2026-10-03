@@ -96,12 +96,12 @@ export function IncidentPanel({ incident, incidents, category, now, onClose, onC
                 </span>
               </div>
               <div className="flex flex-col gap-1 rounded-md bg-background-muted p-3">
-                <span className={`text-sm font-semibold ${incident.assessment === "disputed" ? "text-error-emphasis" : "text-foreground-intense"}`}>
-                  {t(`assessment.${incident.assessment}` as MessageKey)}
+                <span className={`text-sm font-semibold ${incident.severity === "high" ? "text-error-emphasis" : "text-foreground-intense"}`}>
+                  {incident.severity ? t(`severity.${incident.severity}` as MessageKey) : t("report.severityUnknown")}
                 </span>
                 <span className="flex items-center gap-1.5 text-xs text-foreground-muted">
                   <AlertTriangle size={14} aria-hidden />
-                  {t("report.assessment")}
+                  {t("report.severity")}
                 </span>
               </div>
             </div>

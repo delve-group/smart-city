@@ -24,6 +24,8 @@ export interface PublicIncident {
   assessment: IncidentRow["assessment"];
   response_status: IncidentRow["response_status"];
   support_count: number;
+  /** Highest severity residents gave in the incident's reports; null when none said. */
+  severity: "low" | "medium" | "high" | null;
   accepts_contributions: boolean;
   viewer_support: "reporter" | "contributor" | null;
   public_location: { lat: number; lng: number; label: string; precision: "street" | "building" };
@@ -52,6 +54,12 @@ async function project(client: Queryable, rows: IncidentRow[], ctx: ActorContext
     "SELECT id, incident_id, kind, occurred_at FROM incident_events WHERE incident_id = ANY($1::uuid[]) ORDER BY occurred_at, id",
     [ids],
   );
+  const severities = await client.query<{ incident_id: string; rank: number }>(
+    `SELECT incident_id, max(CASE severity WHEN 'high' THEN 3 WHEN 'medium' THEN 2 WHEN 'low' THEN 1 END) AS rank
+     FROM reports WHERE incident_id = ANY($1::uuid[]) AND severity IS NOT NULL GROUP BY incident_id`,
+    [ids],
+  );
+  const severityOf = new Map(severities.rows.map((row) => [row.incident_id, (["low", "medium", "high"] as const)[row.rank - 1] ?? null]));
   const viewer = viewerId(ctx);
   const support = new Map<string, "reporter" | "contributor">();
   if (viewer) {
@@ -74,6 +82,7 @@ async function project(client: Queryable, rows: IncidentRow[], ctx: ActorContext
     assessment: row.assessment,
     response_status: row.response_status,
     support_count: row.support_count,
+    severity: severityOf.get(row.id) ?? null,
     accepts_contributions: acceptsContributions(row),
     viewer_support: support.get(row.id) ?? null,
     public_location: { lat: row.anchor_lat, lng: row.anchor_lng, label: row.public_label, precision: row.public_precision },

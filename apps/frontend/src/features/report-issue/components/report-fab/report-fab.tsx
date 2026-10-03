@@ -2,7 +2,7 @@
 
 import { MessageReport } from "@appica/icons-react";
 import { Button } from "@appica/ui-react/button";
-import { Popover, PopoverContent, PopoverTitle, PopoverTrigger } from "@appica/ui-react/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@appica/ui-react/popover";
 import { useState } from "react";
 import { useI18n } from "@/shared/i18n/locale";
 
@@ -26,9 +26,8 @@ export function ReportFab({ active, busy = false, onClick, onVoice }: { active: 
   if (!onVoice || active) return button;
   return <Popover open={open} onOpenChange={setOpen}>
     <PopoverTrigger render={button} />
-    <PopoverContent align="end" sideOffset={8} className="w-64">
-      <PopoverTitle>{t("report.create")}</PopoverTitle>
-      <div className="mt-3 flex flex-col gap-2">
+    <PopoverContent align="end" sideOffset={8} aria-label={t("report.create")} className="w-64 p-3">
+      <div className="flex flex-col gap-2">
         <Button size="lg" onClick={() => { setOpen(false); onVoice(); }}>{t("voice.title")}</Button>
         <Button variant="outline" size="lg" onClick={() => { setOpen(false); onClick(); }}>{t("voice.useForm")}</Button>
       </div>

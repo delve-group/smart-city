@@ -25,7 +25,7 @@ export function mockPublicIncidents(): PublicIncident[] {
       id: incident.id, reference: incident.reference, category_id: incident.category_id, issue_type: incident.issue_type,
       public_summary: `${incident.category_id === "power" ? "Power outage" : "Reported service issue"} at ${incident.address}.`,
       scope: "street", assessment: incident.assessment, response_status: incident.response_status,
-      support_count: supporters.size + Number(membership), accepts_contributions: !["resolved", "closed"].includes(incident.response_status),
+      support_count: supporters.size + Number(membership), severity: incident.urgent ? "high" : "medium", accepts_contributions: !["resolved", "closed"].includes(incident.response_status),
       viewer_support: membership ? "contributor" : null,
       public_location: { lat: incident.lat, lng: incident.lng, label: incident.address, precision: "street" },
       created_at: incident.history[0]?.at ?? incident.updated_at, updated_at: incident.updated_at,

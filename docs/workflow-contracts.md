@@ -140,6 +140,7 @@ type PublicIncident = {
   assessment: "suspected" | "corroborated" | "verified" | "disputed";
   response_status: "new" | "triaged" | "assigned" | "in_progress" | "resolved" | "closed";
   support_count: number;            // distinct identities; demo, unverified
+  severity: "low" | "medium" | "high" | null; // highest severity residents chose in linked reports
   accepts_contributions: boolean;   // false once resolved or closed
   viewer_support: "reporter" | "contributor" | null;  // for the current session, else null
   public_location: { lat: number; lng: number; label: string; precision: "street" | "building" };

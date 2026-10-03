@@ -195,7 +195,7 @@ export function CityMapView() {
   const selectedCategory = selected ? categoriesById.get(selected.category_id) : undefined;
   const hoveredCategory = hovered ? categoriesById.get(hovered.category_id) : undefined;
 
-  const sheetCoversMap = (mode.kind === "browse" && Boolean(selected)) || mode.kind === "form" || mode.kind === "voice";
+  const sheetCoversMap = (mode.kind === "browse" && Boolean(selected)) || mode.kind === "form";
 
   return (
     <div ref={containerRef} className="resident-map relative size-full overflow-hidden">
@@ -226,7 +226,7 @@ export function CityMapView() {
       </div>
 
       <div
-        className={`pointer-events-none absolute left-3 z-20 flex h-12 items-center transition-[bottom] duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none md:hidden ${sheetCoversMap ? "bottom-[calc(72dvh+0.75rem)]" : "bottom-3"}`}
+        className={`pointer-events-none absolute left-3 z-20 h-12 items-center transition-[bottom] duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none md:hidden ${mode.kind === "voice" ? "hidden" : "flex"} ${sheetCoversMap ? "bottom-[calc(72dvh+0.75rem)]" : "bottom-3"}`}
         style={mode.kind === "picking" && pickerHeight > 0 ? { bottom: `calc(${pickerHeight}px + 1.5rem)` } : undefined}
       ><AppBrand variant="plain" /></div>
 
@@ -301,7 +301,7 @@ export function CityMapView() {
       {mode.kind === "voice" && <VoicePanel intake={intake} categories={categories} onLocate={(location) => flyTo(location, 17)} onClose={cancelReport}
         onFallback={(draft) => setMode({ kind: draft && !draft.submission && !draft.fields.location ? "picking" : "form" })} />}
 
-      {mode.kind === "browse" && ready && (
+      {(mode.kind === "browse" || mode.kind === "voice") && ready && (
         // Stays reachable: moves beside the panel on desktop, above the sheet on phones.
         <div className={`absolute right-3 bottom-3 z-20 transition-[right,bottom] duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${selected ? "bottom-[calc(72dvh+0.75rem)] md:right-[26.25rem] md:bottom-3" : ""}`}>
           <MapSettings tilted={tilted} onTiltedChange={setTilted} />

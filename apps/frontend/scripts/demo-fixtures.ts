@@ -22,7 +22,11 @@ interface FixtureReport {
   unit?: string;
   scope: "unit" | "building" | "street";
   channel: "form" | "voice";
+  /** Defaults by category: outages are urgent, everything else affects daily life. */
+  severity?: "low" | "medium" | "high";
 }
+
+const DEFAULT_SEVERITY: Record<string, "low" | "medium" | "high"> = { power: "high", water: "high" };
 
 const DIETLA: Omit<FixtureReport, "owner" | "minutesAgo" | "summary" | "original" | "lat" | "lng" | "number" | "channel"> = {
   category_id: "power", issue_type: "power_outage", street: "Józefa Dietla", scope: "street",
@@ -33,9 +37,10 @@ async function insertReport(client: PoolClient, owners: string[], report: Fixtur
 }): Promise<string> {
   const observedAt = new Date(Date.now() - (report.minutesAgo + 4) * 60_000);
   const label = `ul. ${report.street} ${report.number}`;
+  const severity = report.severity ?? DEFAULT_SEVERITY[report.category_id] ?? "medium";
   const fields = {
     category_id: report.category_id, issue_type: report.issue_type, title: report.summary, description: report.original,
-    severity: null, observed_at: observedAt.toISOString(), observed_time_state: "known", scope: report.scope, urgent: false,
+    severity, observed_at: observedAt.toISOString(), observed_time_state: "known", scope: report.scope, urgent: false,
     location: {
       candidate_id: null, lat: report.lat, lng: report.lng, label, street: report.street, building_number: report.number,
       district: "Stare Miasto", precision: "building", source: "map_pin", unit: report.unit ?? null,
@@ -48,11 +53,11 @@ async function insertReport(client: PoolClient, owners: string[], report: Fixtur
   );
   const inserted = await client.query<{ id: string }>(
     `INSERT INTO reports
-       (reference, owner_id, draft_id, submission_key, channel, category_id, issue_type, summary, original_observation,
+       (reference, owner_id, draft_id, submission_key, channel, category_id, issue_type, severity, summary, original_observation,
         lat, lng, location_label, street, building_number, unit, district, location_precision, location_source,
         observed_at, observed_time_state, scope, triage_state, review_reason, review_note, review_since, review_candidates,
         submitted_at)
-     VALUES ('R-26-' || lpad(nextval('report_reference_seq')::text, 6, '0'), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11,
+     VALUES ('R-26-' || lpad(nextval('report_reference_seq')::text, 6, '0'), $1, $2, $3, $4, $5, $6, $22, $7, $8, $9, $10, $11,
              $12, $13, $14, 'Stare Miasto', 'building', 'map_pin', $15, 'known', $16, $17, $18, $19,
              CASE WHEN $18::text IS NULL THEN NULL ELSE now() END, $20, now() - $21 * interval '1 minute')
      RETURNING id`,
@@ -60,7 +65,7 @@ async function insertReport(client: PoolClient, owners: string[], report: Fixtur
       owners[report.owner], draft.rows[0].id, draft.rows[0].submission_key, report.channel, report.category_id,
       report.issue_type, report.summary, report.original, report.lat, report.lng, label, report.street, report.number,
       report.unit ?? null, observedAt, report.scope, triage.state, triage.reason ?? null, triage.note ?? null,
-      JSON.stringify(triage.candidates ?? []), report.minutesAgo,
+      JSON.stringify(triage.candidates ?? []), report.minutesAgo, severity,
     ],
   );
   await client.query("UPDATE report_drafts SET report_id = $1, submitted_revision = 1 WHERE id = $2", [inserted.rows[0].id, draft.rows[0].id]);

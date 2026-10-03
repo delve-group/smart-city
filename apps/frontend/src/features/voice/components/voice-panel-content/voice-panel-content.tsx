@@ -1,72 +1,88 @@
 "use client";
 
+import { DeviceMicrophone, DeviceMicrophoneOff, X } from "@appica/icons-react";
 import { Button } from "@appica/ui-react/button";
-import { Alert, AlertDescription } from "@appica/ui-react/alert";
-import { ScrollArea } from "@appica/ui-react/scroll-area";
-import { X } from "@appica/icons-react";
+import { Spinner } from "@appica/ui-react/spinner";
 import type { Category } from "@/api/categories/types";
 import type { IntakeDraft } from "@/api/intake/types";
-import { FloatingPanel } from "@/shared/components/floating-panel/floating-panel";
 import { useI18n } from "@/shared/i18n/locale";
 import type { VoiceDraftController } from "../../types";
 import { useBrowserVoice } from "../../hooks/use-browser-voice";
 
 type Props = { intake: VoiceDraftController; categories: readonly Category[]; onLocate?: (location: { lat: number; lng: number }) => void; onClose: () => void; onFallback: (draft: IntakeDraft | null) => void };
 
+/** Siri-like voice card: one mic button, the app's latest line and the resident's latest line. */
 export function VoicePanelContent({ intake, categories, onLocate, onClose, onFallback }: Props) {
   const { t } = useI18n();
   const voice = useBrowserVoice(intake, categories, onLocate);
   const saved = intake.report ?? intake.draft?.submission;
-  const active = voice.phase === "connected";
+  const connected = voice.phase === "connected";
   const waiting = voice.phase === "starting" || voice.phase === "stopping";
+  const listening = connected && !voice.isMuted;
+  const lastAgent = voice.messages.findLast((message) => message.role === "agent")?.text;
+  const lastUser = voice.messages.findLast((message) => message.role === "user")?.text;
   const errorText = voice.errorCode === "microphone_denied" ? t("voice.microphoneDenied")
     : voice.errorCode === "voice_session_active" ? t("voice.sessionActive")
     : voice.errorCode === "voice_start_limit" ? t("voice.startLimit")
     : voice.errorCode === "connection_lost" ? t("voice.disconnected") : t("voice.unavailable");
 
-  async function fallback() {
+  // The app's line: an error or saved report first, then what it last said, then what to do next.
+  const appLine = voice.errorCode ? errorText
+    : saved ? t("voice.saved", { reference: saved.reference })
+    : voice.phase === "starting" ? t("voice.connecting")
+    : voice.phase === "stopping" ? t("voice.stopping")
+    : connected && lastAgent ? lastAgent
+    : listening ? t("voice.speakNow")
+    : t("voice.unmuteToSpeak");
+
+  function toggleMic() {
+    if (connected) voice.toggleMute();
+    else if (!waiting && !saved) void voice.start();
+  }
+
+  async function continueInForm() {
     await voice.stop();
     const draft = await intake.recover(false, AbortSignal.timeout(15_000));
     onFallback(draft ?? null);
   }
 
-  return <FloatingPanel labelledBy="voice-panel-title" header={
-    <div className="flex items-center justify-between gap-3">
-      <h2 id="voice-panel-title" className="text-lg font-semibold text-foreground-intense">{t("voice.title")}</h2>
-      <Button variant="ghost" size="icon-md" aria-label={t("report.closeAria")} disabled={voice.phase === "stopping"} onClick={() => void voice.stop().then(onClose)}><X /></Button>
-    </div>
-  }>
-    <ScrollArea className="min-h-0 flex-1">
-      <div className="flex flex-col gap-5 px-5 py-5">
-        <p className="text-sm text-foreground-muted">{t("voice.introduction")}</p>
-        <p role="status" className="text-sm font-medium text-foreground-intense">
-          {voice.phase === "starting" ? t("voice.connecting") : voice.phase === "stopping" ? t("voice.stopping")
-            : active ? voice.isMuted ? t("voice.muted") : voice.isSpeaking ? t("voice.speaking") : t("voice.listening")
-              : t("voice.ready")}
-        </p>
-        {saved && <Alert variant="success"><AlertDescription>{t("voice.saved", { reference: saved.reference })}</AlertDescription></Alert>}
-        {voice.errorCode && <Alert variant="warning"><AlertDescription>{errorText}</AlertDescription></Alert>}
-        {intake.draft && <section aria-labelledby="voice-summary-title" className="flex flex-col gap-2">
-          <h3 id="voice-summary-title" className="text-sm font-semibold text-foreground-intense">{t("voice.summary")}</h3>
-          <p className="text-sm text-foreground">{intake.draft.readback_summary}</p>
-          <p className="text-xs text-foreground-muted">{t("voice.editHint")}</p>
-        </section>}
-        {voice.messages.length > 0 && <section aria-labelledby="voice-transcript-title" className="flex flex-col gap-3">
-          <h3 id="voice-transcript-title" className="text-sm font-semibold text-foreground-intense">{t("voice.transcript")}</h3>
-          {voice.messages.map((message, index) => <p key={index} className="text-sm break-words text-foreground">
-            <span className="font-medium text-foreground-intense">{message.role === "user" ? t("voice.you") : "mRadar"}: </span>{message.text}
-          </p>)}
-        </section>}
+  return (
+    <section
+      aria-label={t("voice.title")}
+      className="absolute right-[4.25rem] bottom-3 left-3 z-30 flex items-center gap-3 rounded-2xl border border-border bg-background p-3 shadow-lg transition-[opacity,translate] duration-200 ease-out starting:translate-y-2 starting:opacity-0 motion-reduce:transition-none md:left-auto md:w-[26rem]"
+    >
+      <Button
+        variant={listening ? "primary" : "outline"}
+        aria-label={listening ? t("voice.mute") : t("voice.unmute")}
+        aria-pressed={listening}
+        aria-describedby="voice-privacy"
+        disabled={waiting || (Boolean(saved) && !connected)}
+        onClick={toggleMic}
+        className="size-14 shrink-0 rounded-full p-0"
+      >
+        {waiting ? <Spinner className="size-6" /> : listening ? <DeviceMicrophone className="size-6" /> : <DeviceMicrophoneOff className="size-6" />}
+      </Button>
+
+      <div role="status" aria-live="polite" className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <p title={appLine} className={`${lastUser ? "truncate" : "line-clamp-2"} text-sm font-medium ${voice.errorCode ? "text-warning-emphasis" : "text-foreground-intense"}`}>{appLine}</p>
+        {lastUser && <p title={lastUser} className="truncate text-sm text-foreground-muted">{lastUser}</p>}
       </div>
-    </ScrollArea>
-    <footer className="flex flex-col gap-2 border-t border-border-muted px-5 py-4">
-      <div className="flex gap-2">
-        {active ? <>
-          <Button variant="outline" className="flex-1" size="lg" onClick={voice.toggleMute}>{voice.isMuted ? t("voice.unmute") : t("voice.mute")}</Button>
-          <Button className="flex-1" size="lg" onClick={() => void voice.stop()}>{t("voice.end")}</Button>
-        </> : !saved && <Button className="flex-1" size="lg" disabled={waiting} onClick={() => void voice.start()}>{waiting ? t("report.working") : t("voice.start")}</Button>}
-      </div>
-      <Button variant="outline" size="lg" disabled={voice.phase === "stopping"} onClick={() => void fallback()}>{saved ? t("voice.viewSaved") : t("voice.useForm")}</Button>
-    </footer>
-  </FloatingPanel>;
+      <p id="voice-privacy" className="sr-only">{t("voice.introduction")}</p>
+
+      <Button variant="ghost" size="sm" className="shrink-0" disabled={voice.phase === "stopping"} onClick={() => void continueInForm()}>
+        {t("voice.continue")}
+      </Button>
+
+      <Button
+        variant="outline"
+        size="icon-sm"
+        aria-label={t("report.closeAria")}
+        disabled={voice.phase === "stopping"}
+        onClick={() => void voice.stop().then(onClose)}
+        className="absolute -top-2.5 -right-2.5 size-6 rounded-full bg-background shadow-sm"
+      >
+        <X className="size-3.5" />
+      </Button>
+    </section>
+  );
 }

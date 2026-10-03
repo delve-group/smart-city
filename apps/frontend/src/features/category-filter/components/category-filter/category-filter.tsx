@@ -4,7 +4,7 @@ import { Filter } from "@appica/icons-react";
 import { Button } from "@appica/ui-react/button";
 import { Checkbox } from "@appica/ui-react/checkbox";
 import { CheckboxGroup } from "@appica/ui-react/checkbox-group";
-import { Popover, PopoverContent, PopoverTitle, PopoverTrigger } from "@appica/ui-react/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@appica/ui-react/popover";
 import type { Category } from "@/api/categories/types";
 import { CategoryTile } from "@/shared/components/category-tile/category-tile";
 import { categoryText, useI18n } from "@/shared/i18n/locale";
@@ -50,14 +50,13 @@ export function CategoryFilter({ categories, counts, selected, onChange }: Categ
           </span>
         )}
       </PopoverTrigger>
-      <PopoverContent align="end" sideOffset={8} className="w-80">
-        <PopoverTitle>{t("filter.title")}</PopoverTitle>
+      <PopoverContent align="end" sideOffset={8} aria-label={t("filter.title")} className="w-80 p-2">
         <CheckboxGroup
           aria-labelledby="category-filter-all"
           allValues={allIds}
           value={[...selected]}
           onValueChange={(value: string[]) => onChange(value)}
-          className="mt-3 gap-0"
+          className="gap-0"
         >
           <label className="flex min-h-11 items-center gap-3 rounded-md px-2 text-sm font-medium select-none hover:bg-background-muted">
             {/* Base UI renders role="checkbox" on a span, so a wrapping label does not name it. */}

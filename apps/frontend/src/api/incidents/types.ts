@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { REPORT_SEVERITIES } from "@/shared/utils/severity";
 
 export const ASSESSMENTS = ["suspected", "corroborated", "verified", "disputed"] as const;
 export const RESPONSE_STATUSES = ["new", "triaged", "assigned", "in_progress", "resolved", "closed"] as const;
@@ -9,7 +10,7 @@ export const publicIncidentSchema = z.strictObject({
   id: z.string().min(1), reference: z.string().min(1), category_id: z.string(), issue_type: z.string(),
   public_summary: z.string(), scope: z.enum(["building", "street"]),
   assessment: z.enum(ASSESSMENTS), response_status: z.enum(RESPONSE_STATUSES),
-  support_count: z.number().int().nonnegative(), accepts_contributions: z.boolean(),
+  support_count: z.number().int().nonnegative(), severity: z.enum(REPORT_SEVERITIES).nullable(), accepts_contributions: z.boolean(),
   viewer_support: z.enum(["reporter", "contributor"]).nullable(),
   public_location: z.strictObject({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180), label: z.string(), precision: z.enum(["street", "building"]) }),
   created_at: timestamp, updated_at: timestamp,

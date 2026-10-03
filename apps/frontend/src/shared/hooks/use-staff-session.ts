@@ -25,8 +25,8 @@ export function useStaffSession(role: StaffRole) {
     getSession(controller.signal)
       .then((actor) => {
         if (actor?.role === role) setState({ status: "ready", actor });
-        // The resident map's guest session is not an account: only the other staff role earns a notice.
-        else setState({ status: "signed_out", notice: actor && actor.role !== "resident" ? "wrong_role" : null });
+        // Staff screens read only the staff cookie, so a mismatch here is always the other staff role.
+        else setState({ status: "signed_out", notice: actor ? "wrong_role" : null });
       })
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
