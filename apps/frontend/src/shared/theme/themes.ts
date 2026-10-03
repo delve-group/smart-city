@@ -9,8 +9,3 @@ export const THEME_CLASS: Record<AppTheme, string> = {
   civic: "light",
   signal: "dark",
 };
-
-export const THEME_LABEL: Record<AppTheme, string> = {
-  civic: "Civic",
-  signal: "Signal",
-};

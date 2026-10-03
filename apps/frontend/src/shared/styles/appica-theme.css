@@ -1,7 +1,7 @@
 /*
  * Canonical frontend tokens: Civic and Signal mapped onto Appica UI roles.
  * Import after '@appica/ui-react/styles.css'. Same selectors, later source wins.
- * Civic = Appica `light` class, Signal = Appica `dark` class (see ThemeProvider in ../app/providers.tsx).
+ * Civic = Appica `light` class, Signal = Appica `dark` class (see ThemeProvider in src/app/providers.tsx).
  */
 
 :root,

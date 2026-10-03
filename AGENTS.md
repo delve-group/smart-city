@@ -34,7 +34,7 @@ Budujemy Smart City na hackathon. Dostarczaj działające, małe fragmenty produ
 ## Baza wiedzy i realizacja
 
 1. Przy rozpoczęciu pracy przeczytaj [indeks wiedzy](docs/knowledge-base/README.md) i [kontekst projektu](docs/knowledge-base/project.md).
-2. Przed zmianą granic modułów, przepływu danych lub integracji przeczytaj [architekturę](docs/architecture.md). Przed pracą nad UI przeczytaj [design system](docs/design-system.md) i użyj [tokenów](apps/frontend/src/styles/appica-theme.css).
+2. Przed zmianą granic modułów, przepływu danych lub integracji przeczytaj [architekturę](docs/architecture.md). Przed pracą nad UI przeczytaj [design system](docs/design-system.md) i użyj [tokenów](apps/frontend/src/shared/styles/appica-theme.css).
 3. Zrealizuj najmniejszy kompletny zakres. Pytaj tylko o brakujące informacje wpływające istotnie na produkt; odwracalne decyzje podejmuj samodzielnie i oznaczaj założenia.
 4. Po istotnej decyzji lub odkryciu aktualizuj właściwy dokument, a decyzję z uzasadnieniem dopisz do [rejestru decyzji](docs/knowledge-base/decisions.md). Zachowuj jedno źródło prawdy.
 5. Zakończ krótkim opisem wyniku, weryfikacji i rzeczywistych ograniczeń. Nie deklaruj wdrożenia, integracji ani testów, których nie wykonano.

@@ -25,4 +25,4 @@ Aktualizacja: 2026-10-03.
 
 ## Stan wykonania
 
-Gotowe: instrukcje agentów, baza wiedzy, projekt architektury, specyfikacja design systemu, lokalny wzornik oraz szkielet Next.js z Appica UI, motywami Civic/Signal i ekranem demonstracyjnym komponentów. Brak kodu biznesowego, runnera testów jednostkowych (dodać z pierwszą regułą domenową) i integracji z usługami miejskimi.
+Gotowe: instrukcje agentów, baza wiedzy, architektura, design system, wzornik oraz prototyp Next.js: pełnoekranowa mapa cieplna zdarzeń w Krakowie (MapLibre + OpenFreeMap) zasilana mockowym endpointem `/api/events`. Brak backendu, prawdziwego API zdarzeń i integracji z usługami miejskimi.

@@ -8,19 +8,16 @@ Jeden frontend, moduły według funkcji i jeden backend, jeśli scenariusz rzecz
 
 ```text
 apps/
-  frontend/               # aplikacja Next.js (własny package.json i lockfile)
+  frontend/                 # aplikacja Next.js (własny package.json i lockfile)
     src/
-      app/                # routing Next.js, layout, providers.tsx, globals.css
-      styles/             # tokeny motywów Civic/Signal dla Appica UI
-      features/<feature>/
-        components/       # UI funkcji złożone z komponentów Appica UI
-        domain/           # czyste reguły, typy, ważne jednostki obok kodu
-        api/              # operacje danych i mapowanie odpowiedzi
-      lib/                # tylko faktycznie wspólne narzędzia
-  backend/                # tylko gdy scenariusz wymaga serwera (jeszcze nie istnieje)
+      app/                  # routing Next.js, layout, providers, route handlers (mocki obok route.ts)
+      api/<usługa>/         # jeden endpoint = jeden plik; types.ts i mappers.ts per usługa
+      features/<funkcja>/   # components/<komponent>/, hooks/, utils/ tylko tej funkcji
+      shared/               # kod wielu funkcji: components/, theme/, styles/
+  backend/                  # tylko gdy scenariusz wymaga serwera (jeszcze nie istnieje)
 ```
 
-Każda aplikacja w `apps/` jest samodzielnym projektem z własnymi zależnościami; wspólny workspace dodamy, gdy powstanie druga aplikacja i realna potrzeba współdzielenia kodu. To plan struktury: twórz katalogi dopiero wraz z kodem. Moduł udostępnia małe publiczne API; inne funkcje nie importują jego prywatnych plików. `domain` nie zależy od komponentów ani transportu. Komponenty bazowe pochodzą z pakietu `@appica/ui-react`; nie kopiujemy ich do repozytorium. Nie buduj generycznego repozytorium, kontenera DI ani biblioteki wewnętrznej na zapas.
+Każda aplikacja w `apps/` jest samodzielnym projektem z własnymi zależnościami; wspólny workspace dodamy, gdy powstanie druga aplikacja i realna potrzeba współdzielenia kodu. To plan struktury: twórz katalogi dopiero wraz z kodem. Szczegółowe zasady struktury frontendu są w [apps/frontend/AGENTS.md](../apps/frontend/AGENTS.md). Funkcje nie importują prywatnych plików innych funkcji; logika (mappery, obliczenia) nie zależy od Reacta. Komponenty bazowe pochodzą z pakietu `@appica/ui-react`; nie kopiujemy ich do repozytorium. Nie buduj generycznego repozytorium, kontenera DI ani biblioteki wewnętrznej na zapas.
 
 ## Przepływ danych
 

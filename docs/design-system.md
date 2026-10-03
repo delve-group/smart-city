@@ -1,6 +1,6 @@
 # Design system — Smart City
 
-Dwa motywy, wspólne komponenty [Appica UI](https://appica.dev/ui) (React, Base UI, Tailwind CSS v4). Źródłem wartości dla aplikacji jest [appica-theme.css](../apps/frontend/src/styles/appica-theme.css). [Wzornik](../design-system/preview.html) bez zależności korzysta z [themes.css](../design-system/themes.css) z tymi samymi kolorami bazowymi. To autorskie palety inspirowane referencjami, nie oficjalne identyfikacje wizualne tych serwisów.
+Dwa motywy, wspólne komponenty [Appica UI](https://appica.dev/ui) (React, Base UI, Tailwind CSS v4). Źródłem wartości dla aplikacji jest [appica-theme.css](../apps/frontend/src/shared/styles/appica-theme.css). [Wzornik](../design-system/preview.html) bez zależności korzysta z [themes.css](../design-system/themes.css) z tymi samymi kolorami bazowymi. To autorskie palety inspirowane referencjami, nie oficjalne identyfikacje wizualne tych serwisów.
 
 ## Signal — futurystyczny
 
@@ -69,7 +69,7 @@ Pełny katalog: [llms.txt](https://appica.dev/ui/react/llms.txt). Zanim napiszes
 
 Aplikacja: [apps/frontend](../apps/frontend). Stan na 2026-10-03, `@appica/ui-react` 1.2, według [instalacji](https://appica.dev/ui/docs/react/installation) i [motywów](https://appica.dev/ui/docs/react/theming).
 
-1. `src/app/globals.css` importuje kolejno: `tailwindcss`, `@appica/ui-react/styles.css` (bazowe tokeny biblioteki), `src/styles/appica-theme.css` (nasze wartości). Te same selektory i późniejsze źródło sprawiają, że nasze wartości wygrywają.
+1. `src/app/globals.css` importuje kolejno: `tailwindcss`, `@appica/ui-react/styles.css` (bazowe tokeny biblioteki), `src/shared/styles/appica-theme.css` (nasze wartości). Te same selektory i późniejsze źródło sprawiają, że nasze wartości wygrywają.
 2. `@source` wskazuje `node_modules/@appica/ui-react/dist` ścieżką względną; bez tego klasy komponentów się nie wygenerują.
 3. `ThemeProvider` (`src/app/providers.tsx`) ma motywy `civic` i `signal`, mapowane na klasy `light` i `dark` na `<html>`. Domyślny jest Civic, `enableSystem` jest wyłączone, więc systemowy tryb ciemny nie zmienia motywu. Wybór trafia do `localStorage` (`smart-city-theme`); skrypt providera ustawia klasę przed pierwszym renderem.
 4. Model tokenów Appica jest oparty na rolach: `foreground-*`, `background-*`, `border-*` oraz skale akcentów `primary`, `secondary`, `error`, `success`, `warning`, `info` (`subtle`, `soft`, `muted`, bazowy, `strong`, `emphasis`, `intense`, `foreground`). Wariant `dark:` oznacza Signal.

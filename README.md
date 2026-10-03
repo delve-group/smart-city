@@ -8,11 +8,11 @@ Fundament projektu hackathonowego: baza wiedzy, zasady pracy i design system i s
 - [Design system i oba motywy](docs/design-system.md)
 - [Podgląd motywów](design-system/preview.html) — otwórz plik w przeglądarce; działa bez instalacji.
 - [Frontend](apps/frontend) i jego [zasady dla agentów](apps/frontend/AGENTS.md)
-- [Tokeny aplikacji](apps/frontend/src/styles/appica-theme.css) i [tokeny wzornika](design-system/themes.css)
+- [Tokeny aplikacji](apps/frontend/src/shared/styles/appica-theme.css) i [tokeny wzornika](design-system/themes.css)
 
 ## Uruchomienie
 
-Wymagany Node.js 20.9+.
+Wymagany Node.js 22.12+.
 
 ```bash
 cd apps/frontend
@@ -20,10 +20,10 @@ npm install
 npm run dev
 ```
 
-Aplikacja działa pod http://localhost:3000. Kontrole w `apps/frontend`: `npm run lint`, `npm run typecheck`, `npm run build`.
+Aplikacja działa pod http://localhost:3000. Kontrole w `apps/frontend`: `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`.
 
 ## Stan
 
-Szkielet Next.js (App Router, React 19, TypeScript, Tailwind CSS v4) z Appica UI i ekranem demonstracyjnym komponentów. Brak funkcji biznesowych, backendu i integracji z usługami miejskimi.
+Prototyp: pełnoekranowa mapa Krakowa (MapLibre + OpenFreeMap) z mapą cieplną zdarzeń. Zdarzenia pochodzą z endpointu `/api/events`, który na razie zwraca jawnie oznaczone dane demonstracyjne. Brak backendu i integracji z usługami miejskimi.
 
-Motywy: **Civic** — jasny, urzędowy (domyślny); **Signal** — ciemny, futurystyczny i geometryczny. Przełącznik jest w nagłówku aplikacji. Zakres produktu pozostaje do ustalenia przy pierwszej funkcji.
+Motywy: **Civic** — jasny, urzędowy (domyślny); **Signal** — ciemny. Przełącznik motywu został usunięty z widoku; mechanizm motywów pozostaje w kodzie.

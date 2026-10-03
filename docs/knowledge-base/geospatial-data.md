@@ -31,6 +31,9 @@ Kraków publikuje również [model mesh miasta z 2023 roku](https://msip.krakow.
 
 ## Kierunek implementacji
 
+Mapa cieplna zdarzeń działa na MapLibre GL z kafelkami OpenFreeMap (D013). Poniższy kierunek dotyczy przyszłych warstw urzędowych.
+
+
 Użyj OpenLayers, ponieważ w jednym kliencie obsługuje WMTS, WMS, WFS, reprojekcję i warstwy wektorowe. Zacznij od podkładu WMTS i centrum Krakowa. Następnie dołącz WFS budynków ładowany według `bbox`; działki i kolejne warstwy dodawaj dopiero dla zatwierdzonego scenariusza demonstracyjnego.
 
 Adapter danych mapy ma mapować odpowiedź WFS na mały typ domenowy i raportować osobno: ładowanie, brak danych, błąd usługi oraz przekroczenie limitu. UI mapy nie powinno zależeć od surowych nazw pól dostawcy.
