@@ -13,7 +13,7 @@ node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-
 node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-check.ts
 ```
 
-Setup creates a **private, tool-free** agent, verifies its settings, and writes agent/immutable version IDs to the ignored root `.env` with owner-only permissions. Repeating setup reuses an exact matching agent; it refuses ambiguous names, mismatched settings or an existing different version pin rather than updating an agent silently. It starts no conversation and exposes no browser token. If creation has an unknown outcome, run setup again so its lookup can recover the existing agent.
+Setup creates a **private agent without client tools**, with the reviewed system `end_call`, verifies its settings, and writes agent/immutable version IDs to the ignored root `.env` with owner-only permissions. Repeating setup reuses an exact matching agent; it refuses ambiguous names, mismatched settings or an existing different version pin rather than updating an agent silently. It starts no conversation and exposes no browser token. If creation has an unknown outcome, run setup again so its lookup can recover the existing agent.
 
 For integrated reporting, attach the five reviewed client tools and explicitly repin, then check:
 
@@ -54,17 +54,46 @@ node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-
 node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-check.ts
 ```
 
-The model-only upgrade patches only `conversation_config.agent.prompt.llm`, preserves the five reviewed tools and saves the new immutable version in the ignored local `.env`. It rejects a different prompt, language, greeting, private configuration or predecessor model. Existing language/prompt upgrade flags also adopt the current model. Repeating setup on the current configuration does not create another version.
+The initial model-only upgrade patched only `conversation_config.agent.prompt.llm`, preserved the five reviewed tools and saved the new immutable version in the ignored local `.env`. It rejected a different prompt, language, greeting, private configuration or predecessor model. Current legacy upgrade flags also adopt the v4 ending configuration described below. Repeating setup on the current configuration does not create another version.
 
 Actual account catalog availability, upgrade, repeated setup and new pinned readback passed. After recreating only the local app, readiness returned 200, a fresh guest obtained a real provider credential (201) for an owned empty draft, and explicit end returned that same draft (200). Lint, typecheck, build and diff checks passed. No microphone/WebRTC connection was started. The previous immutable GPT-4.1 mini version remained unchanged and readable; the production application and its old version pin were not changed during the initial local upgrade. The user subsequently authorized deployment: production now runs the same verified GPT-6.1 Sol pin at `f61c63e`, with the running app checker and HTTPS credential issuance/end passing. See the [release record](../deploy/scaleway-release.md#gpt-61-sol-rollout--2026-10-04). Polish speech quality, response latency and the scope defect in #66 have not been re-evaluated with the new model. Earlier spoken-report evidence below refers to GPT-4.1 mini.
 
+## Ending on the resident's request — 2026-10-04
+
+V4 adds ElevenLabs' [system `end_call`](https://elevenlabs.io/docs/eleven-agents/customization/tools/system-tools/end-call), explicitly configured in `conversation_config.agent.prompt.built_in_tools`. API-created agents do not receive it automatically. The dispatcher gives one brief Polish farewell and calls the tool when the resident explicitly wants to stop, before or after saving. A successful save or a thank-you during intake alone does not end the conversation. An unfinished draft remains available in the form; ending never grants submission consent.
+
+Upgrade only the configured, pinned, exact reviewed GPT-6.1 Sol Polish v3:
+
+```sh
+node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-tools-setup.ts --update-end-call
+node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-check.ts
+```
+
+The guard rejects an altered predecessor prompt, model, language, greeting, enabled system tool or client-event set, as well as changed private settings/client tools. Legacy explicit v1/v2/model upgrade flags now adopt the current v4 configuration too. Setup saves a new immutable pin; recreate the local app to load it. Existing deployed applications keep using their prior immutable version until explicitly released with the new pin.
+
+Runtime verification requires the reviewed `end_call` definition, rejects any other enabled system tool and checks `agent_tool_response` delivery alongside the existing client events. The installed SDK handles the system event by tearing down WebRTC and stopping microphone tracks. The application recognizes `context.type: end_call` as a normal ending, releases the owned session, and reconciles pending saves before allowing another start. Unexpected transport loss still shows the recovery message.
+
+## Named venues and location preview — 2026-10-04
+
+V5 extends the reviewed v4 ending configuration with landmark-aware location instructions. Resolve the resident's place before asking address clarification; accept a unique `matched_place` by name, use the actual returned candidate ID, and ask useful observation details rather than unrelated street numbers. The browser's `map_preview` label anchors ambiguous-address questions; a correction triggers another lookup before discussing that address. Explicit confirmation of the final report revision remains required.
+
+Upgrade only the configured, pinned, exact reviewed v4:
+
+```sh
+node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-tools-setup.ts --update-prompt
+node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-check.ts
+```
+
+The guard checks the predecessor's prompt fingerprint, language, model, greeting, actual system `end_call`, client events, private settings and five reviewed client tools. It preserves the earlier ending behavior. The v4-to-v5 upgrade and fixed-version provider readback passed in the isolated local worktree; its review app loaded that pin and issued/ended actual owned voice reservations. Original development and production pins were not replaced by this review. Geography, draft authority and manual canvas evidence are in [voice sessions](voice-sessions.md#voice-location-map-preview--2026-10-04). No v5 microphone conversation or production rollout was performed.
+
 ## Prepared configuration
 
-`src/server/voice/dispatcher-config.ts` supplies the English prompt and a provider configuration builder. Actual provisioned settings were read back on 2026-10-03, with the model change read back on 2026-10-04:
+`src/server/voice/dispatcher-config.ts` supplies the English prompt and a provider configuration builder. Actual settings were read back on 2026-10-03; the model change, v4 ending configuration and v5 named-place instructions were read back on 2026-10-04:
 
 | Setting | Configured value | Verification |
 | --- | --- | --- |
-| Prompt/name | `mradar-dispatcher-v3` | Exact prompt and name read back from pinned version |
+| Prompt/name | `mradar-dispatcher-v5` | Exact prompt and name read back from pinned version |
+| Ending | System `end_call`, plus `agent_tool_response` client event | Reviewed definition and event set checked before issuing credentials |
 | Language/greeting | `pl`, Polish first message | Actual language and exact greeting are checked with the pinned prompt |
 | LLM | `gpt-6.1-sol` | New pinned configuration read back; spoken quality and latency unverified on this model |
 | Voice | `cjVigY5qzO86Huf0OWal` | Agent configuration read back; voice quality unverified |

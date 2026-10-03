@@ -14,11 +14,11 @@ Implemented for [#26](https://github.com/delve-group/smart-city/issues/26), work
 { "city": "Kraków", "pin": { "lat": 50.0617, "lng": 19.945 } }
 ```
 
-The canonical runtime schemas/types are in `apps/frontend/src/api/locations/types.ts`; the browser calls `resolveLocation` from `src/api/locations/resolve-location.ts`. The result contains `status`, up to five `candidates`, and a nullable `pin`, inside the common `data`/`correlation_id` envelope.
+The canonical runtime schemas/types are in `apps/frontend/src/api/locations/types.ts`; the browser calls `resolveLocation` from `src/api/locations/resolve-location.ts`. The result contains `status`, up to five `candidates`, a nullable `pin`, and optional nullable `matched_place`, inside the common `data`/`correlation_id` envelope. `matched_place` identifies a unique exact name match with its candidate ID, place name and optional validated geocoder bounds. It is display metadata, separate from `DraftLocation` and affected scope.
 
 | Status | Meaning and resident action |
 | --- | --- |
-| `candidates` | One address candidate; explicitly select and check it on the map. |
+| `candidates` | One address or named-place candidate; check it on the map and include it in the confirmed report readback. |
 | `ambiguous` | Several candidates; explicitly select the correct one or correct the query. |
 | `unresolved` | No usable address; correct the query or confirm the exact pin. |
 | `unavailable` | Provider request failed, timed out or returned an invalid envelope; retry or confirm the exact pin. This is not an empty successful search. |
@@ -27,6 +27,10 @@ The canonical runtime schemas/types are in `apps/frontend/src/api/locations/type
 A candidate follows the canonical `LocationResult` in [shared workflow contracts](workflow-contracts.md#location-result): `candidate_id`, `source` (`geocoder`, `map_pin`, `device`), `label`, `lat`, `lng`, nullable `street`/`building_number`/`district`, and `precision` (`building`, `street`, `point`). Photon identities use `photon:<osm_type>:<osm_id>`. Bare map pins have a null candidate ID and retain exact supplied coordinates. Missing building/street facts stay null; a name alone does not establish a building address. IDs identify geography results, not residents, known assets or institution service areas. The resolver emits `geocoder`/`map_pin`; `device` is accepted by the shared storage shape for confirmed device locations.
 
 ## Provider and confirmation behavior
+
+Named places retain their name before the address in `label`, for example `Tauron Arena Kraków — Stanisława Lema 7`. When exactly one actual place name matches the query (ignoring case, diacritics and the Kraków city qualifier), the resolver returns that place instead of mixing it with similarly named stops. Multiple records with the same exact name remain ambiguous; geocoder order alone never establishes identity. A small query normalization handles Polish forms such as `na Tauron Arenie`; it supplies no coordinates or guessed addresses. Live geography on 2026-10-04 returned the arena and its extent for those forms. [The venue's contact page](https://www.tauronarenakrakow.pl/kontakt/) separately confirms its postal address. Other landmarks depend on actual geocoder data and an exact name match.
+
+Voice previews the first returned candidate before handing the result to the agent, including during ambiguous-address clarification. The tool result identifies that provisional map target; the agent starts its question with the same label and resolves corrections immediately. A unique named venue is sufficient to continue; a floor, sector or toilet detail can refine the observation without demanding unrelated street numbers. The map marks the place under discussion and, when available, draws its approximate geocoder extent. This rectangle is not a surveyed footprint or an assertion that the whole venue is affected. Unresolved/unavailable lookups clear the preview; the owned draft changes only through `prepare_report` and still needs revision confirmation before submission. See [voice map preview](voice-sessions.md#voice-location-map-preview--2026-10-04).
 
 The existing public [Photon service](https://github.com/komoot/photon) supplies address suggestions. Search requests include the reporting bounding box and a Kraków bias; results are independently checked for the bounds and a Kraków city label. Polish place names are preserved. The reporting rectangle in `src/shared/utils/krakow.ts` is the existing PoC limit, not a municipal polygon. Requests have a five-second timeout and are cancelled when the pin changes. There are no automatic provider retries; pin lookup is debounced. Public Photon is fair-use infrastructure, not a production integration. The address-query input remains on the API; the resident picker does not search by street.
 

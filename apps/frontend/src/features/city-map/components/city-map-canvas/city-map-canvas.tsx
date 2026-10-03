@@ -16,6 +16,7 @@ import { INITIAL_VIEW, type MapArea, type MapFocus, type MapHover, type MapPoint
 import { useI18n } from "@/shared/i18n/locale";
 import { AttributionControl } from "./attribution-control";
 import { useReportPlaces } from "./use-report-places";
+import type { LocationPreview } from "@/api/locations/types";
 
 // The only file that knows the map library. A Google Maps version implements the same props.
 // Served from public/ by scripts/copy-maplibre-worker.mjs (runs before dev and build).
@@ -45,6 +46,8 @@ export type CityMapCanvasProps = {
   insets: { right: number; bottom: number };
   /** Location of a report being written, marked so the user keeps their bearings. */
   draftPin?: { lat: number; lng: number };
+  /** Geography currently discussed in voice, without draft or report authority. */
+  locationPreview?: LocationPreview | null;
   /** The resident's own position, when the browser shares it. */
   userLocation?: { lat: number; lng: number } | null;
   /** False while the user is placing a pin: clicks do not open a report. */
@@ -79,6 +82,7 @@ export default function CityMapCanvas({
   focus,
   insets,
   draftPin,
+  locationPreview,
   userLocation,
   interactive,
   hoverable,
@@ -102,6 +106,14 @@ export default function CityMapCanvas({
   const colors = useMemo(() => ({ scheme, ...readMapColors(categoryIds) }), [scheme, categoryIds]);
   const data = useMemo(() => toFeatureCollection(points), [points]);
   const areaData = useMemo(() => toAreaCollection(areas), [areas]);
+  const previewBounds = locationPreview?.bounds;
+  const previewArea: FeatureCollection<Polygon> = { type: "FeatureCollection", features: previewBounds ? [{
+    type: "Feature", properties: {}, geometry: { type: "Polygon", coordinates: [[
+      [previewBounds.west, previewBounds.south], [previewBounds.east, previewBounds.south],
+      [previewBounds.east, previewBounds.north], [previewBounds.west, previewBounds.north],
+      [previewBounds.west, previewBounds.south],
+    ]] },
+  }] : [] };
   const mapStyle = useMapStyle(MAP_STYLE, colors.scheme, colors.baseMap);
   /** Set once the map has loaded; until then the instance behind mapRef may not exist yet. */
   const [loaded, setLoaded] = useState(false);
@@ -158,13 +170,17 @@ export default function CityMapCanvas({
 
   useEffect(() => {
     if (!loaded || !focus) return;
+    const camera = focus.bounds ? mapRef.current?.cameraForBounds(
+      [[focus.bounds.west, focus.bounds.south], [focus.bounds.east, focus.bounds.north]],
+      { padding: 64, maxZoom: focus.zoom ?? 17 },
+    ) : null;
     mapRef.current?.flyTo({
-      center: [focus.lng, focus.lat],
-      zoom: Math.max(focus.zoom ?? 15, mapRef.current.getZoom()),
+      center: camera?.center ?? [focus.lng, focus.lat],
+      zoom: camera?.zoom ?? Math.max(focus.zoom ?? 15, mapRef.current.getZoom()),
       // Offset, not padding: MapLibre keeps padding for later camera moves and tile coverage.
       offset: [-insets.right / 2, -insets.bottom / 2],
       duration: 900,
-      essential: true,
+      essential: false,
     });
     // Only a new focus request should move the map, not inset changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -284,6 +300,21 @@ export default function CityMapCanvas({
           <MapPinFilled size={40} aria-hidden className="text-foreground-intense drop-shadow-sm" />
         </Marker>
       )}
+      {locationPreview && (
+        <Marker longitude={locationPreview.lng} latitude={locationPreview.lat} anchor="bottom" style={{ pointerEvents: "none" }}>
+          <div role="status" className="flex max-w-64 flex-col items-center gap-1">
+            <span className="rounded-md border border-dashed border-border-strong bg-background px-2 py-1 text-center text-xs text-foreground-intense shadow-sm">
+              <span className="block text-foreground-muted">{t("voice.locationPreview")}</span>
+              {locationPreview.label}
+            </span>
+            <MapPinFilled size={40} aria-hidden className="text-foreground-intense drop-shadow-sm" />
+          </div>
+        </Marker>
+      )}
+      <Source id="voice-location-area" type="geojson" data={previewArea}>
+        <Layer id="voice-location-fill" type="fill" paint={{ "fill-color": colors.fallback, "fill-opacity": 0.12 }} />
+        <Layer id="voice-location-outline" type="line" paint={{ "line-color": colors.fallback, "line-width": 2, "line-dasharray": [3, 2] }} />
+      </Source>
       <Source id="map-areas" type="geojson" data={areaData}>
         <Layer id="map-area-fill" type="fill" paint={{ "fill-color": categoryColor, "fill-opacity": 0.06 }} />
         <Layer

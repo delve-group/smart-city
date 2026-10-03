@@ -78,6 +78,8 @@ type DraftLocation = LocationResult & { unit: string | null };   // unit: privat
 
 `street`/`building_number` are facts from the geocoder or the resident, never invented; `null` means unknown and sends an otherwise eligible report to review (spec §5). Responsibility is never derived from these fields.
 
+Location resolution may additionally return nullable `matched_place: { candidate_id, name, bounds }` alongside the candidate list. A unique exact geocoder name match distinguishes a venue from nearby similarly named stops; its bounds are a validated `{ west, south, east, north }` extent or null. This is preview metadata only: the stored `LocationResult`/`DraftLocation` shape above stays unchanged. Venue names remain in `label`. The browser dispatcher result also supplies a provisional `map_preview` label/candidate ID so clarification and the visible map refer to the same first candidate; that preview grants no selection, confirmation or submission authority.
+
 ### Draft, report and catalogue
 
 ```ts
