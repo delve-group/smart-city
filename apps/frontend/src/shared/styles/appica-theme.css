@@ -90,12 +90,15 @@
   --focus-ring-warning: rgb(136 84 0 / 35%);
   --focus-ring-info: rgb(23 94 168 / 35%);
 
-  /* Event categories: map points, legends and labels. Always paired with a text label. */
-  --category-culture: #7445A0;
-  --category-sport: #176B45;
-  --category-community: #175EA8;
-  --category-traffic: #885400;
-  --category-safety: #B42335;
+  /* Report categories (ids come from the API). Always paired with an icon and a text label. */
+  --category-power: #9A6400;
+  --category-water: #1F63B0;
+  --category-roads: #B4461B;
+  --category-transit: #0E7383;
+  --category-waste: #5D6B12;
+  --category-accessibility: #6A46B8;
+  --category-greenery: #237A3B;
+  --category-air: #7A5244;
 
   --brand-accent: #C62842;
 
@@ -191,11 +194,14 @@
   --focus-ring-warning: rgb(255 209 118 / 50%);
   --focus-ring-info: rgb(120 219 240 / 50%);
 
-  --category-culture: #B79AFF;
-  --category-sport: #64DDB1;
-  --category-community: #78DBF0;
-  --category-traffic: #FFD176;
-  --category-safety: #FF8995;
+  --category-power: #F5C451;
+  --category-water: #6FB6FF;
+  --category-roads: #FF9466;
+  --category-transit: #5ED6E6;
+  --category-waste: #C3D66B;
+  --category-accessibility: #B9A1FF;
+  --category-greenery: #6FDC8C;
+  --category-air: #D9A68F;
 
   --brand-accent: #8652FF;
 
@@ -206,9 +212,12 @@
 
 @theme inline {
   --color-brand-accent: var(--brand-accent);
-  --color-category-culture: var(--category-culture);
-  --color-category-sport: var(--category-sport);
-  --color-category-community: var(--category-community);
-  --color-category-traffic: var(--category-traffic);
-  --color-category-safety: var(--category-safety);
+  --color-category-power: var(--category-power);
+  --color-category-water: var(--category-water);
+  --color-category-roads: var(--category-roads);
+  --color-category-transit: var(--category-transit);
+  --color-category-waste: var(--category-waste);
+  --color-category-accessibility: var(--category-accessibility);
+  --color-category-greenery: var(--category-greenery);
+  --color-category-air: var(--category-air);
 }

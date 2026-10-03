@@ -20,6 +20,9 @@ export type PhotonFeatureDto = z.infer<typeof photonFeatureSchema>;
 
 export const photonResponseSchema = z.object({ features: z.array(z.unknown()) });
 
+/** Result of a reverse lookup: the address under a map pin. */
+export type ReverseAddress = { address: string; district?: string };
+
 export type Place = {
   id: string;
   /** Primary line, e.g. "Sukiennice" or "Floriańska 12". */

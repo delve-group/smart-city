@@ -1,4 +1,4 @@
-import { photonFeatureSchema, type PhotonFeatureDto, type Place } from "./types";
+import { photonFeatureSchema, type PhotonFeatureDto, type Place, type ReverseAddress } from "./types";
 
 export function mapPhotonFeature(dto: PhotonFeatureDto): Place {
   const { properties: p, geometry } = dto;
@@ -29,4 +29,12 @@ export function mapPhotonFeatures(items: readonly unknown[]): Place[] {
     places.push(place);
   }
   return places;
+}
+
+/** Street and number when known, otherwise the place name. */
+export function mapReverseAddress(p: PhotonFeatureDto["properties"]): ReverseAddress | null {
+  const street = [p.street, p.housenumber].filter(Boolean).join(" ");
+  const address = street || p.name;
+  if (!address) return null;
+  return { address, district: p.district ?? p.locality };
 }
