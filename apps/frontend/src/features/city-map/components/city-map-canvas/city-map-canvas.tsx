@@ -3,7 +3,8 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 import { setWorkerUrl, type ExpressionSpecification } from "maplibre-gl";
 import { useEffect, useMemo, useRef } from "react";
-import Map, { AttributionControl, Layer, Source, type MapLayerMouseEvent, type MapRef, type ViewStateChangeEvent } from "react-map-gl/maplibre";
+import { MapPinFilled } from "@appica/icons-react";
+import Map, { AttributionControl, Layer, Marker, Source, type MapLayerMouseEvent, type MapRef, type ViewStateChangeEvent } from "react-map-gl/maplibre";
 import type { CityReport } from "@/api/reports/types";
 import { useColorScheme } from "../../hooks/use-color-scheme";
 import { readMapColors } from "../../utils/read-map-colors";
@@ -18,7 +19,8 @@ const MAP_STYLE = {
   light: "https://tiles.openfreemap.org/styles/positron",
   dark: "https://tiles.openfreemap.org/styles/dark",
 };
-const KRAKOW_VIEW = { longitude: 19.945, latitude: 50.0617, zoom: 12.3 };
+/** Where the map opens. */
+export const INITIAL_VIEW = { longitude: 19.945, latitude: 50.0617, zoom: 12.3 };
 /** Invisible, larger circles that catch the pointer, so small points are easy to hit. */
 const HIT_LAYER = "report-hit-area";
 /** Zoom band where the heatmap hands over to individual points. */
@@ -43,6 +45,8 @@ export type CityMapCanvasProps = {
   focus: MapFocus | null;
   /** Screen space covered by floating UI, so fly-to centres in the visible area. */
   insets: { right: number; bottom: number };
+  /** Location of a report being written, marked so the user keeps their bearings. */
+  draftPin?: { lat: number; lng: number };
   /** False while the user is placing a pin: no hover or selection. */
   interactive: boolean;
   onHover: (hover: MapHover | null) => void;
@@ -61,6 +65,7 @@ export default function CityMapCanvas({
   hoveredId,
   focus,
   insets,
+  draftPin,
   interactive,
   onHover,
   onSelect,
@@ -119,7 +124,7 @@ export default function CityMapCanvas({
   return (
     <Map
       ref={mapRef}
-      initialViewState={KRAKOW_VIEW}
+      initialViewState={INITIAL_VIEW}
       mapStyle={MAP_STYLE[colors.scheme]}
       style={{ width: "100%", height: "100%" }}
       attributionControl={false}
@@ -132,6 +137,11 @@ export default function CityMapCanvas({
     >
       {/* Bottom-left: the detail panel owns the right edge, and attribution must stay visible. */}
       <AttributionControl position="bottom-left" compact customAttribution={attribution} />
+      {draftPin && (
+        <Marker longitude={draftPin.lng} latitude={draftPin.lat} anchor="bottom">
+          <MapPinFilled size={40} aria-hidden className="text-brand-accent drop-shadow-lg" />
+        </Marker>
+      )}
       <Source id="reports" type="geojson" data={data}>
         <Layer
           id="report-heat"

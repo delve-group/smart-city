@@ -1,6 +1,6 @@
 import { AlertTriangle, Users } from "@appica/icons-react";
 import type { CityReport } from "@/api/reports/types";
-import { SEVERITY_LABEL } from "../../utils/report-status";
+import { SEVERITY_LABEL } from "@/shared/utils/severity";
 import { PanelSection } from "../panel-section/panel-section";
 
 const count = new Intl.NumberFormat("en-GB");

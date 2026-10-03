@@ -1,14 +1,21 @@
 "use client";
 
 import { useMediaQuery } from "@appica/ui-react/hooks/use-media-query";
+import { useToastManager } from "@appica/ui-react/toast";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import type { Category } from "@/api/categories/types";
-import type { CityReport } from "@/api/reports/types";
+import type { ReverseAddress } from "@/api/photon/types";
+import { KRAKOW_BOUNDS, type CityReport } from "@/api/reports/types";
 import { CategoryFilter } from "@/features/category-filter/components/category-filter/category-filter";
+import { CenterPin } from "@/features/report-issue/components/center-pin/center-pin";
+import { LocationPicker } from "@/features/report-issue/components/location-picker/location-picker";
+import { ReportFab } from "@/features/report-issue/components/report-fab/report-fab";
+import { ReportForm } from "@/features/report-issue/components/report-form/report-form";
+import { useReverseGeocode } from "@/features/report-issue/hooks/use-reverse-geocode";
 import { useCityData } from "../../hooks/use-city-data";
 import { useNow } from "../../hooks/use-now";
-import type { MapFocus, MapHover } from "../city-map-canvas/city-map-canvas";
+import { INITIAL_VIEW, type MapFocus, type MapHover } from "../city-map-canvas/city-map-canvas";
 import { DataStatus } from "../data-status/data-status";
 import { MapSearch, type SearchOption } from "../map-search/map-search";
 import { ReportPanel } from "../report-panel/report-panel";
@@ -23,8 +30,18 @@ const NO_CATEGORIES: Category[] = [];
 /** Desktop panel width (25rem) plus its 0.75rem margin. */
 const PANEL_INSET = 412;
 
+type LatLng = { lat: number; lng: number };
+
+/** Browsing the map, placing the pin for a new report, or filling in the report. */
+type Mode = { kind: "browse" } | { kind: "picking" } | { kind: "form"; location: LatLng; address: ReverseAddress };
+
+function insideKrakow({ lat, lng }: LatLng): boolean {
+  return lat >= KRAKOW_BOUNDS.south && lat <= KRAKOW_BOUNDS.north && lng >= KRAKOW_BOUNDS.west && lng <= KRAKOW_BOUNDS.east;
+}
+
 export function CityMapView() {
-  const { state, retry } = useCityData();
+  const { state, retry, addReport } = useCityData();
+  const toast = useToastManager();
   const now = useNow();
   const isDesktop = useMediaQuery("(min-width: 768px)", { defaultValue: true });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -32,6 +49,9 @@ export function CityMapView() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hover, setHover] = useState<MapHover | null>(null);
   const [focus, setFocus] = useState<MapFocus | null>(null);
+  const [mode, setMode] = useState<Mode>({ kind: "browse" });
+  const [center, setCenter] = useState<LatLng>({ lat: INITIAL_VIEW.latitude, lng: INITIAL_VIEW.longitude });
+  const pinAddress = useReverseGeocode(mode.kind === "picking" ? center : null);
   /** Category ids to show; null means all (also covers categories the API adds later). */
   const [shownCategoryIds, setShownCategoryIds] = useState<string[] | null>(null);
 
@@ -58,14 +78,17 @@ export function CityMapView() {
     return () => observer.disconnect();
   }, []);
 
+  // Escape closes the detail panel or cancels pin placement; it never discards a half-filled form.
   useEffect(() => {
-    if (!selectedId) return;
+    if (!selectedId && mode.kind !== "picking") return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setSelectedId(null);
+      if (event.key !== "Escape") return;
+      if (mode.kind === "picking") setMode({ kind: "browse" });
+      else setSelectedId(null);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [selectedId]);
+  }, [selectedId, mode.kind]);
 
   function flyTo(location: { lat: number; lng: number }, zoom?: number) {
     setFocus({ key: Date.now(), lng: location.lng, lat: location.lat, zoom });
@@ -86,8 +109,29 @@ export function CityMapView() {
   }
 
   function handlePick(option: SearchOption) {
-    if (option.kind === "report") openReport(option.report);
-    else flyTo(option.place.location, 16);
+    // While placing a pin, search only moves the map.
+    if (option.kind === "report" && mode.kind === "browse") openReport(option.report);
+    else flyTo(option.kind === "report" ? option.report.location : option.place.location, 16.5);
+  }
+
+  function startReport() {
+    setSelectedId(null);
+    setHover(null);
+    setMode({ kind: "picking" });
+  }
+
+  function handleSubmitted(report: CityReport) {
+    addReport(report);
+    // Make sure the new report is visible even if its category was filtered out.
+    if (shownCategoryIds && !shownCategoryIds.includes(report.categoryId)) {
+      setShownCategoryIds([...shownCategoryIds, report.categoryId]);
+    }
+    setMode({ kind: "browse" });
+    setSelectedId(report.id);
+    toast.add({
+      title: "Report sent — thank you",
+      description: `Reference ${report.reference}. Others nearby can now confirm it.`,
+    });
   }
 
   const selectedCategory = selected ? categoriesById.get(selected.categoryId) : undefined;
@@ -105,9 +149,11 @@ export function CityMapView() {
           right: selected && isDesktop ? PANEL_INSET : 0,
           bottom: selected && !isDesktop ? bounds.height * 0.72 : 0,
         }}
-        interactive
+        draftPin={mode.kind === "form" ? mode.location : undefined}
+        interactive={mode.kind === "browse"}
         onHover={setHover}
         onSelect={selectFromMap}
+        onCenterChange={setCenter}
         attribution={ready?.result.source === "demo" ? DEMO_NOTICE : undefined}
       />
 
@@ -135,7 +181,37 @@ export function CityMapView() {
         </div>
       )}
 
-      {hovered && hoveredCategory && hover && hovered.id !== selectedId && isDesktop && (
+      {mode.kind === "picking" && (
+        <>
+          <CenterPin />
+          <LocationPicker
+            address={pinAddress}
+            insideCity={insideKrakow(center)}
+            onLocate={(location) => flyTo(location, 17)}
+            onCancel={() => setMode({ kind: "browse" })}
+            onConfirm={(address) => setMode({ kind: "form", location: center, address })}
+          />
+        </>
+      )}
+
+      {mode.kind === "form" && (
+        <ReportForm
+          categories={categories}
+          location={mode.location}
+          address={mode.address}
+          onChangeLocation={() => setMode({ kind: "picking" })}
+          onCancel={() => setMode({ kind: "browse" })}
+          onSubmitted={handleSubmitted}
+        />
+      )}
+
+      {mode.kind === "browse" && !selected && ready && (
+        <div className="absolute right-3 bottom-20 z-20 md:right-6 md:bottom-8">
+          <ReportFab onClick={startReport} />
+        </div>
+      )}
+
+      {mode.kind === "browse" && hovered && hoveredCategory && hover && hovered.id !== selectedId && isDesktop && (
         <ReportTooltip
           key={hovered.id}
           report={hovered}
@@ -147,7 +223,7 @@ export function CityMapView() {
         />
       )}
 
-      {selected && selectedCategory && (
+      {mode.kind === "browse" && selected && selectedCategory && (
         <ReportPanel
           report={selected}
           category={selectedCategory}

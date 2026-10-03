@@ -1,4 +1,4 @@
-import type { ReportSeverity, ReportStatus } from "@/api/reports/types";
+import type { ReportStatus } from "@/api/reports/types";
 
 export const STATUS_LABEL: Record<ReportStatus, string> = {
   reported: "Reported",
@@ -16,9 +16,3 @@ export const STATUS_HINT: Record<ReportStatus, string> = {
 };
 
 export const STATUS_STEPS: ReportStatus[] = ["reported", "confirmed", "in_progress", "resolved"];
-
-export const SEVERITY_LABEL: Record<ReportSeverity, string> = {
-  low: "Minor",
-  medium: "Affects daily life",
-  high: "Urgent or dangerous",
-};
