@@ -1,4 +1,4 @@
-import { Clock, Lock, Ruler, Users } from "@appica/icons-react";
+import { Clock, Id, Lock, Ruler, Users } from "@appica/icons-react";
 import { Button } from "@appica/ui-react/button";
 import { Field, FieldError, FieldLabel } from "@appica/ui-react/field";
 import { Radio } from "@appica/ui-react/radio";
@@ -90,7 +90,9 @@ export function ReportReviewPanel({ report, workspace, category, now, onClose, o
                 </h2>
                 <p className="text-sm text-foreground-muted">{report.address}</p>
                 <p className={FACTS}>
-                  <span className="font-mono">{report.reference}</span>
+                  <Fact icon={Id} label="Reference">
+                    <span className="font-mono">{report.reference}</span>
+                  </Fact>
                   <Fact icon={Clock} label="Reported">
                     {formatAgo(report.submittedAt, now)}
                   </Fact>

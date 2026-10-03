@@ -1,3 +1,4 @@
+import { Clock, Id } from "@appica/icons-react";
 import { Accordion } from "@appica/ui-react/accordion";
 import { Badge } from "@appica/ui-react/badge";
 import { ScrollArea } from "@appica/ui-react/scroll-area";
@@ -6,9 +7,11 @@ import { useEffect, useRef } from "react";
 import type { Category } from "@/api/categories/types";
 import type { Incident, IncidentCommand, OperationsReport, ProposalDecision, Workspace } from "@/api/operations/types";
 import { FloatingPanel } from "@/shared/components/floating-panel/floating-panel";
+import { formatAgo } from "@/shared/utils/format-time";
 import { institutionName, reportsOf } from "../../utils/queue";
 import { ASSESSMENT } from "../../utils/labels";
 import { EvidenceList } from "../evidence-list/evidence-list";
+import { Fact, FACTS } from "../fact/fact";
 import { IncidentActions } from "../incident-actions/incident-actions";
 import { IncidentHistory } from "../incident-history/incident-history";
 import { PanelHeader } from "../panel-header/panel-header";
@@ -41,6 +44,8 @@ export function IncidentPanel({ incident, workspace, category, now, onClose, onL
   const headingRef = useRef<HTMLHeadingElement>(null);
   const reports: OperationsReport[] = reportsOf(incident, workspace.reports);
   const step = nextStep(incident);
+  // The incident started with its earliest report; ISO strings sort by time.
+  const started = reports.map((report) => report.submittedAt).sort()[0] ?? incident.history[0]?.at;
 
   useEffect(() => {
     headingRef.current?.focus({ preventScroll: true });
@@ -71,8 +76,15 @@ export function IncidentPanel({ incident, workspace, category, now, onClose, onL
                 {incident.title}
               </h2>
               <p className="text-sm text-foreground-muted">{[incident.address, incident.district].filter(Boolean).join(" · ")}</p>
-              <p className="flex items-center gap-2 text-xs text-foreground-muted">
-                <span className="font-mono">{incident.reference}</span>
+              <p className={FACTS}>
+                <Fact icon={Id} label="Reference">
+                  <span className="font-mono">{incident.reference}</span>
+                </Fact>
+                {started && (
+                  <Fact icon={Clock} label="Started">
+                    {formatAgo(started, now)}
+                  </Fact>
+                )}
                 {/* Only an official's verdict is worth a badge; "suspected" is the default state. */}
                 {(incident.assessment === "verified" || incident.assessment === "disputed") && (
                   <Badge variant={ASSESSMENT[incident.assessment].variant} size="xs" title={ASSESSMENT[incident.assessment].hint}>
@@ -115,7 +127,7 @@ export function IncidentPanel({ incident, workspace, category, now, onClose, onL
           )}
 
           <Separator />
-          <Accordion variant="flush" multiple defaultValue={["evidence"]} className="gap-0">
+          <Accordion variant="flush" multiple className="gap-0">
             <EvidenceList
               reports={reports}
               observations={incident.evidence.filter((item) => item.kind !== "report")}
