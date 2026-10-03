@@ -15,7 +15,7 @@ import { ExecutionStatus } from "../execution-status/execution-status";
 import { Fact, FACTS } from "@/shared/components/fact/fact";
 import { IncidentActions } from "../incident-actions/incident-actions";
 import { IncidentHistory } from "../incident-history/incident-history";
-import { PanelHeader } from "../panel-header/panel-header";
+import { PanelHeader } from "@/shared/components/panel-header/panel-header";
 import { ProposalCard } from "../proposal-card/proposal-card";
 import { ResponsibilityPicker } from "../responsibility-picker/responsibility-picker";
 import { ReviewNotice } from "../review-notice/review-notice";

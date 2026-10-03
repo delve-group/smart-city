@@ -1,4 +1,6 @@
 import { useEffect, useEffectEvent, useRef, useState } from "react";
+import { getCategories } from "@/api/categories/get-categories";
+import type { Category } from "@/api/categories/types";
 import { getProfile } from "@/api/institution/get-profile";
 import { getTickets } from "@/api/institution/get-tickets";
 import { InstitutionApiError, type InstitutionProfile, type InstitutionTicket } from "@/api/institution/types";
@@ -9,7 +11,7 @@ const REFRESH_MS = 3_000;
 type InboxState =
   | { status: "loading" }
   | { status: "error"; message: string }
-  | { status: "ready"; profile: InstitutionProfile; tickets: InstitutionTicket[] };
+  | { status: "ready"; profile: InstitutionProfile; tickets: InstitutionTicket[]; categories: Category[] };
 
 const sessionLost = (error: unknown) => error instanceof InstitutionApiError && (error.status === 401 || error.status === 403);
 
@@ -28,9 +30,9 @@ export function useInstitutionData(onSessionLost: () => void) {
 
   useEffect(() => {
     const controller = new AbortController();
-    Promise.all([getProfile(controller.signal), getTickets(controller.signal)])
-      .then(([profile, tickets]) => {
-        setState({ status: "ready", profile, tickets });
+    Promise.all([getProfile(controller.signal), getTickets(controller.signal), getCategories(controller.signal)])
+      .then(([profile, tickets, categories]) => {
+        setState({ status: "ready", profile, tickets, categories });
         setUpdatedAt(Date.now());
       })
       .catch((error: unknown) => {
