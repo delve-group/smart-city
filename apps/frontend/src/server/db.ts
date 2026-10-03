@@ -1,5 +1,5 @@
 import "server-only";
-import { Pool } from "pg";
+import { Pool, type PoolClient } from "pg";
 import { getConfig } from "./config";
 
 const databaseGlobal = globalThis as typeof globalThis & { smartCityPool?: Pool };
@@ -19,4 +19,20 @@ export function getPool(): Pool {
     });
   }
   return databaseGlobal.smartCityPool;
+}
+
+/** Runs one unit of work in a transaction; any thrown error rolls back every write in it. */
+export async function withTransaction<T>(work: (client: PoolClient) => Promise<T>): Promise<T> {
+  const client = await getPool().connect();
+  try {
+    await client.query("BEGIN");
+    const result = await work(client);
+    await client.query("COMMIT");
+    return result;
+  } catch (error) {
+    await client.query("ROLLBACK").catch(() => undefined);
+    throw error;
+  } finally {
+    client.release();
+  }
 }

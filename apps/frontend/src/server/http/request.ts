@@ -10,7 +10,7 @@ export function requireAppOrigin(request: Request): void {
   }
 }
 
-export async function readJson(request: Request): Promise<unknown> {
+export async function readJson(request: Request, maxBytes = 4096): Promise<unknown> {
   if (request.headers.get("content-type")?.split(";", 1)[0].trim().toLowerCase() !== "application/json") {
     throw new ApiError(400, "invalid_request", "Send a JSON request body.");
   }
@@ -24,7 +24,7 @@ export async function readJson(request: Request): Promise<unknown> {
       const { done, value } = await reader.read();
       if (done) break;
       size += value.byteLength;
-      if (size > 4096) {
+      if (size > maxBytes) {
         await reader.cancel();
         throw new ApiError(400, "invalid_request", "The request body is too large.");
       }
