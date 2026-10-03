@@ -8,11 +8,8 @@ import { getReport } from "@/api/intake/get-report";
 import { createReport } from "@/api/reports/create-report";
 import { draftFieldsSchema, EMPTY_DRAFT_FIELDS, type DraftFields, type IntakeDraft, type Report } from "@/api/intake/types";
 import type { LocationCandidate } from "@/api/locations/types";
-import { USE_MOCKS } from "@/api/mocks/use-mocks";
 
-const RECOVERY_KEY = USE_MOCKS ? "mradar-mock-resident-draft" : "mradar-resident-draft";
-
-/** Owned server state survives picker/form remounts. Browser storage holds only its ID. */
+/** Owned server state survives picker/form remounts within this page. Every new report starts from a fresh draft. */
 export function useIntakeDraft() {
   const [draft, setDraft] = useState<IntakeDraft | null>(null);
   const [fields, setFields] = useState<DraftFields>(EMPTY_DRAFT_FIELDS);
@@ -21,43 +18,13 @@ export function useIntakeDraft() {
   const [saving, setSaving] = useState(false);
   const editRevision = useRef(0);
   const [error, setError] = useState<string | null>(null);
-  const [storageWarning, setStorageWarning] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [needsRecovery, setNeedsRecovery] = useState(false);
 
-  function remember(id: string) {
-    try { localStorage.setItem(RECOVERY_KEY, id); }
-    catch { setStorageWarning(true); }
-  }
-
   function accept(next: IntakeDraft, preserveInput = false) {
     setDraft(next);
-    remember(next.id);
     if (!preserveInput) { setFields(next.fields); setDirty(false); }
   }
-
-  useEffect(() => {
-    let cancelled = false;
-    let id: string | null = null;
-    try { id = localStorage.getItem(RECOVERY_KEY); } catch { /* Recovery is optional when browser storage is blocked. */ }
-    if (!id) return;
-    async function restore() {
-      setBusy(true);
-      try {
-        await createGuestSession();
-        const saved = await getDraft(id!);
-        if (!cancelled) { setDraft(saved); setFields(saved.fields); }
-        const committed = saved.submission ? await getReport(saved.submission.report_id) : null;
-        if (!cancelled) {
-          setDraft(saved); setFields(saved.fields); setReport(committed);
-        }
-      } catch (failure) {
-        if (!cancelled) { setNeedsRecovery(true); setError(message(failure)); }
-      } finally { if (!cancelled) setBusy(false); }
-    }
-    void restore();
-    return () => { cancelled = true; };
-  }, []);
 
   useEffect(() => {
     if (!draft || draft.submission || !dirty || busy || saving || needsRecovery) return;
@@ -85,11 +52,7 @@ export function useIntakeDraft() {
         accept(next);
         return next;
       }
-      let id: string | null = null;
-      try { id = localStorage.getItem(RECOVERY_KEY); } catch { setStorageWarning(true); }
-      const next = id && !newReport
-        ? channel === "form" ? await prepareFormDraft(await getDraft(id)) : await getDraft(id)
-        : await createDraft(channel === "form" ? formDefaults() : {});
+      const next = await createDraft(channel === "form" ? formDefaults() : {});
       accept(next); setNeedsRecovery(false);
       setReport(next.submission ? await getReport(next.submission.report_id) : null);
       return next;
@@ -176,7 +139,7 @@ export function useIntakeDraft() {
     return true;
   }
 
-  return { draft, fields, report, busy, saving, error, storageWarning, dirty, needsRecovery,
+  return { draft, fields, report, busy, saving, error, dirty, needsRecovery,
     start, edit, chooseLocation, send, recover, receiveVoiceDraft };
 
   async function prepareFormDraft(current: IntakeDraft) {

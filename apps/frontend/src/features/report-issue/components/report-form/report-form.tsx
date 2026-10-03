@@ -62,7 +62,6 @@ export function ReportForm({ categories, intake, onChangeLocation, onCancel, onN
             )}
             {intake.error && <Alert variant="error"><AlertDescription>{intake.error}</AlertDescription></Alert>}
             {intake.needsRecovery && draft && <Button variant="outline" disabled={blocked} onClick={() => void intake.recover()}>{t("report.checkDraft")}</Button>}
-            {intake.storageWarning && <p className="text-sm text-warning-emphasis">{t("report.storageBlocked")}</p>}
           </div>
         </ScrollArea>
         {!saved && <footer className="flex gap-2 border-t border-border-muted px-5 py-4">

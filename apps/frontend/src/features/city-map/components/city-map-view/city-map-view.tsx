@@ -2,8 +2,6 @@
 
 import { useMediaQuery } from "@appica/ui-react/hooks/use-media-query";
 import { useToastManager } from "@appica/ui-react/toast";
-import { Alert, AlertDescription } from "@appica/ui-react/alert";
-import { Button } from "@appica/ui-react/button";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import type { Category } from "@/api/categories/types";
@@ -63,8 +61,6 @@ export function CityMapView() {
   const [center, setCenter] = useState<LatLng>({ lat: INITIAL_VIEW.latitude, lng: INITIAL_VIEW.longitude });
   /** Set when a new report starts placing a pin, so the camera opens on the resident. */
   const placeAtUser = useRef(false);
-  /** Closing an unfinished report makes the next Report action start from a fresh pin. */
-  const startFreshReport = useRef(false);
   /** Category ids to show; null means all (also covers categories the API adds later). */
   const [shownCategoryIds, setShownCategoryIds] = useState<string[] | null>(null);
   const [tilted, setTilted] = useState(false);
@@ -110,10 +106,7 @@ export function CityMapView() {
     if (!selectedId && mode.kind !== "picking") return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
-      if (mode.kind === "picking") {
-        startFreshReport.current = true;
-        setMode({ kind: "browse" });
-      }
+      if (mode.kind === "picking") setMode({ kind: "browse" });
       else setSelectedId(null);
     };
     window.addEventListener("keydown", onKey);
@@ -155,10 +148,13 @@ export function CityMapView() {
     else flyTo(option.kind === "incident" ? option.incident.public_location : option.place.location, 16.5);
   }
 
-  async function startReport(newReport = false) {
-    const draft = await intake.start(newReport || startFreshReport.current);
-    if (!draft) return;
-    startFreshReport.current = false;
+  /** Every report starts from a fresh draft. A failure is a toast; there is nothing to recover. */
+  async function startReport() {
+    const draft = await intake.start(true);
+    if (!draft) {
+      toast.add({ type: "error", title: t("intake.startFailed"), description: t("intake.startFailedBody") });
+      return;
+    }
     setSelectedId(null);
     setHover(null);
     const picking = !(draft.fields.location || draft.submission);
@@ -167,15 +163,16 @@ export function CityMapView() {
   }
 
   function cancelReport() {
-    startFreshReport.current = true;
     setHover(null);
     setMode({ kind: "browse" });
   }
 
   async function startVoiceReport() {
     const draft = await intake.start(true, "voice");
-    if (!draft) return;
-    startFreshReport.current = false;
+    if (!draft) {
+      toast.add({ type: "error", title: t("intake.startFailed"), description: t("intake.startFailedBody") });
+      return;
+    }
     setSelectedId(null); setHover(null);
     setMode({ kind: "voice" });
   }
@@ -243,19 +240,10 @@ export function CityMapView() {
           />
         )}
         {ready && !selected && (
-          <ReportFab active={mode.kind !== "browse"} busy={intake.busy} onClick={() => mode.kind === "browse" && void startReport(true)} onVoice={() => void startVoiceReport()} />
+          <ReportFab active={mode.kind !== "browse"} busy={intake.busy} onClick={() => mode.kind === "browse" && void startReport()} onVoice={() => void startVoiceReport()} />
         )}
       </div>
 
-      {intake.error && mode.kind !== "form" && (
-        <div className="absolute inset-x-3 top-30 z-30 md:inset-x-auto md:left-3 md:w-96">
-          <Alert variant="error"><AlertDescription>{intake.error}</AlertDescription></Alert>
-          <div className="mt-2 flex gap-2">
-            <Button variant="outline" disabled={intake.busy} onClick={() => void startReport()}>{t("intake.retry")}</Button>
-            {!intake.draft && <Button variant="outline" disabled={intake.busy} onClick={() => void startReport(true)}>{t("intake.startNew")}</Button>}
-          </div>
-        </div>
-      )}
 
       {ready && refreshFailed && (
         <div className={`absolute left-3 z-20 mb-14 max-w-[calc(100%-1.5rem)] rounded-md border border-border bg-background px-3 py-2 shadow-sm md:bottom-3 md:mb-0 md:max-w-sm ${selected || mode.kind === "form" ? "bottom-[calc(72dvh+0.75rem)]" : mode.kind === "picking" ? "bottom-[calc(50dvh+0.75rem)]" : "bottom-3"}`}>
@@ -294,7 +282,7 @@ export function CityMapView() {
           intake={intake}
           onChangeLocation={() => setMode({ kind: "picking" })}
           onCancel={cancelReport}
-          onNew={() => void startReport(true)}
+          onNew={() => void startReport()}
         />
       )}
 
