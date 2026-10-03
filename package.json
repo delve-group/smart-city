@@ -8,6 +8,8 @@
     "config:check": "node scripts/stack.mjs check",
     "stack:down": "node scripts/stack.mjs down",
     "stack:logs": "node scripts/stack.mjs logs",
+    "search:setup": "node scripts/stack.mjs search:setup",
+    "search:rebuild": "node scripts/stack.mjs search:rebuild",
     "deploy": "node scripts/deploy.mjs up",
     "deploy:check": "node scripts/deploy.mjs check",
     "deploy:status": "node scripts/deploy.mjs status",

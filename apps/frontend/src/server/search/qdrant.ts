@@ -210,10 +210,11 @@ export class SearchIndex {
   }
 
   /** The caller authorizes the source and supplies its current authoritative version. */
-  async related(scopeInput: Audience, sourceInput: SourceRef & { version: number }, limit = 10): Promise<CandidateResult> {
+  async related(scopeInput: Audience, sourceInput: SourceRef & { version: number }, limit = 10, filters: SearchFilters = {}): Promise<CandidateResult> {
     const scope = validateSearchInput(audienceSchema, scopeInput);
     const source = validateSearchInput(sourceRefSchema.extend({ version: z.number().int().positive() }), sourceInput);
     validateSearchInput(z.number().int().min(1).max(50), limit);
+    const checkedFilters = validateSearchInput(searchOptionsSchema.shape.filters, filters);
     const id = projectionPointId(source, scope);
     const audience = scopeFilter(scope);
     const started = performance.now();
@@ -236,10 +237,32 @@ export class SearchIndex {
       }
       const response = await this.client.query(this.config.collection, {
         query: vector.data, using: "dense", limit,
-        filter: { must: [audience], must_not: [recordFilter(source)] },
+        filter: { must: [retrievalFilter(audience, checkedFilters)], must_not: [recordFilter(source)] },
         with_payload: CANDIDATE_FIELDS,
       });
       return { candidates: candidates(response.points), elapsedMs: Math.round(performance.now() - started) };
+    });
+  }
+
+  /** Maintenance identities only. Reconciliation re-reads sources before any deletion. */
+  async listIndexedSources(cursor: string | number | null = null): Promise<{
+    items: (SourceRef & { version: number })[]; next_cursor: string | number | null;
+  }> {
+    validateSearchInput(z.union([z.string().min(1).max(200), z.number().int().nonnegative(), z.null()]), cursor);
+    return withSearchErrors(async () => {
+      await this.requireCompatibleCollection();
+      const page = await this.client.scroll(this.config.collection, {
+        limit: 200, ...(cursor !== null ? { offset: cursor } : {}),
+        with_payload: CANDIDATE_FIELDS, with_vector: false,
+      });
+      const items = page.points.map((point) => {
+        const payload = candidatePayloadSchema.safeParse(point.payload);
+        if (!payload.success || payload.data.index_revision !== SEARCH_INDEX_REVISION) {
+          throw new SearchError("index_incompatible", "The search index needs a compatible collection before reconciliation.", false);
+        }
+        return { record_type: payload.data.record_type, record_id: payload.data.record_id, version: payload.data.source_version };
+      });
+      return { items, next_cursor: page.next_page_offset ?? null };
     });
   }
 }

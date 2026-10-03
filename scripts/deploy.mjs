@@ -7,9 +7,9 @@ import { randomUUID } from "node:crypto";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const [operation, input] = process.argv.slice(2);
-const operations = ["check", "up", "status", "logs", "backup", "restore-check"];
+const operations = ["check", "up", "status", "logs", "backup", "restore-check", "search:setup", "search:rebuild"];
 if (!operations.includes(operation) || (input && operation !== "restore-check") || process.argv.length > 4) {
-  console.error("Use npm run deploy[:check|:status|:logs|:backup|:restore-check]. Restore-check requires an absolute dump path.");
+  console.error("Use npm run deploy[:check|:status|:logs|:backup|:restore-check], or npm run search:setup/search:rebuild -- --production. Restore-check requires an absolute dump path.");
   process.exit(1);
 }
 
@@ -28,6 +28,12 @@ function run(command, args, options = {}) {
 
 function compose(args, options) {
   return run("docker", [...composeFiles, ...args], options);
+}
+
+function composeStatus(args) {
+  const result = spawnSync("docker", [...composeFiles, ...args], { cwd: root, env, stdio: "inherit" });
+  if (result.error) console.error("Could not run Docker Compose for search. Check Docker availability.");
+  return result.status ?? 1;
 }
 
 function capture(command, args) {
@@ -111,6 +117,13 @@ try {
     compose(["ps"]);
   } else if (operation === "logs") {
     compose(["logs", "--tail", "100", "--follow"]);
+  } else if (operation === "search:setup" || operation === "search:rebuild") {
+    if (operation === "search:setup") compose(["up", "-d", "--no-recreate", "qdrant"]);
+    // Use the running application's image, even when this checkout is a newer revision.
+    process.exitCode = composeStatus(["exec", "-T", "app", "npm", "run", operation]);
+    if (process.exitCode === 0 && operation === "search:setup") {
+      console.log("Search provider setup is ready. Run npm run search:rebuild -- --production to enqueue source reconciliation.");
+    }
   } else if (operation === "backup") {
     backup();
   } else if (operation === "restore-check") {
@@ -139,8 +152,16 @@ try {
     // exact running images before building, independently of those mutable tags.
     const previousWriters = preserveWriters(writers);
     console.log(`Building revision ${env.MRADAR_REVISION} before stopping the current application.`);
-    compose(["build", "setup", ...writers]);
+    compose(["build", "setup", ...writers, "search-setup"]);
     compose(["run", "--rm", "--no-deps", "caddy", "caddy", "validate", "--config", "/etc/caddy/Caddyfile"]);
+    // Collection compatibility and model warmup happen before the maintenance window.
+    let searchReady = false;
+    if (composeStatus(["up", "-d", "--no-recreate", "qdrant"]) === 0) {
+      const setupStatus = composeStatus(["run", "--rm", "--no-deps", "search-setup"]);
+      if (setupStatus === 2) throw new Error("Search configuration or index compatibility failed before maintenance. Fix the named configuration and retry; existing writers were not stopped.");
+      searchReady = setupStatus === 0;
+    }
+    if (!searchReady) console.warn("Search is degraded: Qdrant or model setup is unavailable. Continuing core deployment; durable indexing work remains recoverable.");
     compose(["up", "-d", "--no-recreate", "--wait", "--wait-timeout", "90", "db"]);
     compose(["stop", "--timeout", "35", ...writers]);
     stoppedWriters = true;
@@ -151,10 +172,12 @@ try {
     compose(["up", "-d", "--no-deps", "--no-build", "--wait", "--wait-timeout", "180", ...writers, "caddy"]);
     stoppedWriters = false;
     await checkHttps();
+    if (searchReady) searchReady = composeStatus(["exec", "-T", "app", "npm", "run", "search:rebuild"]) === 0;
     const migrations = query("smart_city", "SELECT name FROM schema_migrations ORDER BY name");
     const images = compose(["images", "--format", "json"], { stdio: ["ignore", "pipe", "inherit"] });
-    writeFileSync(`${dumpPath}.release.json`, JSON.stringify({ ...release, images, migrations: migrations.split("\n"), readyAt: new Date().toISOString() }, null, 2), { mode: 0o600 });
-    console.log(`Deployed ${env.MRADAR_REVISION} at ${env.APP_ORIGIN}. HTTPS readiness passed. Complete the authentication and provider checks in deploy/README.md.`);
+    writeFileSync(`${dumpPath}.release.json`, JSON.stringify({ ...release, images, migrations: migrations.split("\n"),
+      search: searchReady ? "provider_ready_reconciliation_queued" : "degraded", readyAt: new Date().toISOString() }, null, 2), { mode: 0o600 });
+    console.log(`Core deployed ${env.MRADAR_REVISION} at ${env.APP_ORIGIN}; HTTPS readiness passed. Search is ${searchReady ? "provider-ready; source reconciliation is queued" : "degraded; retry npm run search:setup -- --production, then npm run search:rebuild -- --production"}. Complete the checks in deploy/README.md.`);
   }
 } catch (error) {
   console.error(error instanceof Error ? error.message : "Deployment command failed.");

@@ -1,12 +1,12 @@
 # Report, incident and service-ticket search with Qdrant
 
-Updated: 2026-10-03. Status: real local provider adapter implemented and manually verified; source synchronization, search HTTP/MCP routes and deployment integration remain open in [#32](https://github.com/delve-group/smart-city/issues/32).
+Updated: 2026-10-03. Status: real provider primitives verified; source-aware HTTP search, durable indexing, reconciliation and Compose integration implemented, with combined runtime acceptance still pending in [#32](https://github.com/delve-group/smart-city/issues/32).
 
 ## Decision and scope
 
 Use **Qdrant** when implementing semantic search for agents, an MCP tool that searches reports/incidents/tickets, related-record retrieval, or the shared search backend for users. The accepted corpus is **all reports, incidents and service tickets**, using titles/summaries, descriptions and permitted metadata. Interpret the earlier **1,000-ticket** demo bound as **1,000 logical source records in total across those three kinds**; separately scoped projections may create more index points. Categories and tags may be missing; retrieval must work from content alone.
 
-This note is the implementation reference for D029, D037 and D050. PostgreSQL is authoritative; Qdrant is rebuildable. `apps/frontend/src/server/search` supplies provider primitives, while [workflow contracts §9](../workflow-contracts.md#9-search-source-projections) owns source shapes. The current UI search and mock report backend have not been migrated. Search accepts uncategorized records even though the map/report flow requires API-defined categories.
+This note is the implementation reference for D029, D037 and D050. PostgreSQL is authoritative; Qdrant is rebuildable. `apps/frontend/src/server/search` supplies provider primitives and source-aware retrieval/indexing, while [workflow contracts §9](../workflow-contracts.md#9-search-source-projections) owns source shapes. The current UI search and mock report backend have not been migrated. Search accepts uncategorized records even though the map/report flow requires API-defined categories.
 
 ## Record identity and access
 
@@ -18,15 +18,15 @@ Every indexed source has `record_type` (`report`, `incident` or `service_ticket`
 | `incident` | Title/summary, description and relevant permitted metadata. Public projection uses only approved public summary/location. | Public callers receive publishable incident projections; scoped staff can search the permitted operational projection, including unpublished incidents. |
 | `service_ticket` | Approved ticket title/summary and description, status and permitted incident context. | Authorized staff and the assigned institution. No reporter identities or private narratives in institution results. |
 
-Mandatory audience/institution filters apply before ranking, including both hybrid branches and the [BM25 IDF corpus](https://qdrant.tech/documentation/manage-data/multitenancy/#per-tenant-idf-statistics). Public vectors come only from public incident text. Payload contains identity/access metadata, classification and location, not raw narratives. The provider returns candidate IDs, versions, timestamps and scores only. Before exposing results, the pending source integration must hydrate from PostgreSQL and recheck current access, deletion and version; stale candidates must never bypass a changed permission or publication decision. A model-supplied role or filter cannot grant access.
+Mandatory audience/institution filters apply before ranking, including both hybrid branches and the [BM25 IDF corpus](https://qdrant.tech/documentation/manage-data/multitenancy/#per-tenant-idf-statistics). Public vectors come only from public incident text. Payload contains identity/access metadata, classification and location, not raw narratives. The provider returns candidate IDs, versions, timestamps and scores only. Before exposing results, `searchRecords` hydrates from PostgreSQL and rechecks current access, deletion and version; stale candidates must never bypass a changed permission or publication decision. A model-supplied role or filter cannot grant access.
 
 ## Implemented provider
 
 One Qdrant collection has named `dense` (384-dimensional cosine) and `lexical` (BM25 with IDF) vectors. `search(audience, options)` supports `keyword`, `semantic` and RRF `hybrid`; `related(audience, source, limit)` reuses the current permitted stored dense vector and excludes every projection of the source record. Limits are 1–50 results and 1,000 query characters. Keyword mode does not load the embedding model. Type, category and issue-type filters are optional; §9 currently supplies no tags/status fields, so those planned filters await a producer contract extension.
 
-The server validates collection vector settings and a `mradar_index_revision` metadata manifest before reads/writes. Setup also rejects points with a different or missing revision. An incompatible collection produces `index_incompatible`, never an apparently empty success; setup does not reset it or stamp an unknown collection. Set a new `QDRANT_COLLECTION` and rebuild from authoritative source records when model/preprocessing changes. That source-driven rebuild command is not implemented yet.
+The server validates collection vector settings and a `mradar_index_revision` metadata manifest before reads/writes. Setup also rejects points with a different or missing revision. An incompatible collection produces `index_incompatible`, never an apparently empty success; setup does not reset it or stamp an unknown collection. Set a new `QDRANT_COLLECTION` and rebuild from authoritative source records when model/preprocessing changes. `search:rebuild` queues a source-driven reconciliation sweep against the configured compatible collection; it never resets live data.
 
-Provider errors are safe and distinguish unavailable/busy/incompatible/stale from an empty result. These internal codes are not an HTTP error contract. Setup retries transient provider failures up to five times; invalid configuration, incompatible revisions and permanent HTTP errors fail immediately.
+Provider errors are safe and distinguish unavailable/busy/incompatible/stale from an empty result. The HTTP route maps invalid input to `400 invalid_request` and provider/configuration failures to safe `503 dependency_unavailable`; authorized stale results instead use the success payload's `index_stale` state. Setup retries transient provider failures up to five times; invalid configuration, incompatible revisions and permanent HTTP errors fail immediately.
 
 Suggested tool contract (not implemented):
 
@@ -45,18 +45,31 @@ Qdrant performs native [`qdrant/bm25`](https://qdrant.tech/documentation/inferen
 
 Each process lazily loads its model, serializes inference with at most 30 pending requests, uses two intra-op CPU threads and caches up to 100 query vectors for five minutes. No per-query LLM call is involved. E5 truncates input to 512 tokens; current projection bounds are a 200-character title and 8,000-character text. BM25 sees the full bounded text, but dense retrieval may miss material beyond the model window. Assess shortening/chunking against real aggregated incident content during source integration.
 
-## Local setup
+## Source-aware API and reconciliation
 
-From the repository root:
+`GET /api/search/records` and the reusable `searchRecords(ctx, input)` service use the [exact query/result contract](../workflow-contracts.md#search-query-wire-contract). Text mode is keyword, semantic or hybrid; related search uses the current permitted stored dense vector. Both accept type/category/issue filters. Anonymous/resident callers rank public incidents, officials rank operational projections, and institutions rank only their assigned tickets. There are no client-selected roles or raw provider candidates in responses. The response window is capped at 50 items, titles at 200 characters and excerpts at 240; `next_cursor` is always null.
+
+Hydration requires exact current source-version equality and current domain permission. Missing/unauthorized candidates are omitted without a dropped count. Authorized version mismatches and an unindexed related source yield `index_stale`. A bounded diagnostic also inspects up to 32 identities from the latest unfinished index work per source, scoped by audience and reauthorized through hydration; it exposes no queue counts. `ready` means no staleness found in that bounded check, not a frozen or exhaustive corpus snapshot.
+
+The existing single worker is the only application writer to Qdrant. Its `index` handler reloads current report, incident or ticket text, replaces all projections or removes a genuinely deleted source, then rechecks the source version. A source change during inference leaves work pending; its transactional mutation work also supplies catch-up. Older events never replay stored narrative snapshots. Source writes and intake stay independent of providers. After successful current-version reconciliation, older queued/failed index status for that source is marked reconciled while attempt history remains.
+
+`search:rebuild` enumerates all three source kinds and Qdrant identities, deduplicates typed IDs and enqueues fresh run-specific work in batches of 100. Including indexed IDs repairs deletions as well as missing/failed indexing. Only the worker performs writes, so a sweep cannot race it with direct provider updates. The sweep caps at 10,000 unique sources and 200 index pages; all provider reads happen outside enqueue transactions. Concurrent inserts behind a UUID cursor are covered by their normal mutation work. Command success reports **queued**, not finished, reconciliation; interrupted runs can safely be repeated with a new run ID.
+
+## Local setup and recovery
+
+The root `npm run dev` starts the database, application, worker and private Qdrant, attempts collection/model setup, and queues reconciliation after core readiness. No cloud account or search secret is required. Initial warmup downloads about 130 MiB; app, worker and setup share the persistent writable model-cache volume. Qdrant and PostgreSQL have no published host ports in the normal stack. Ordinary shutdown retains their volumes.
+
+A transient provider/model outage leaves intake and core services ready and prints a search-degraded result. Deterministic invalid configuration, incompatible collection revisions and permanent provider failures stop setup with exit code 2 before deployment maintenance. Recover with:
 
 ```sh
-docker compose -f compose.search.yaml up -d qdrant
-docker compose -f compose.search.yaml run --build --rm search-setup
+npm run search:setup
+npm run search:rebuild
+docker compose exec worker npm run worker:status
 ```
 
-This independent `mradar-search` project publishes Qdrant only on loopback port 6333 (override `QDRANT_PORT`) and persists the index and model cache in named volumes. It does not start PostgreSQL, index application sources or change the existing app. No provider account/key is required. Initial warmup downloads about 130 MiB of model files; later starts reuse the writable model volume. `down` preserves both volumes.
+For the deployed stack, add `-- --production` to the search commands. The [Scaleway runbook](../../deploy/README.md) defines build/setup/backup ordering and exact recovery commands. The root scripts fix the internal Qdrant URL and model-cache mount; `QDRANT_COLLECTION` is the only optional root search setting. App/worker readiness does not certify search availability. Search setup exits 1 on transient provider failure; a successful setup must be followed by reconciliation after exhausted index retries.
 
-For direct host setup, use the existing ignored `apps/frontend/.env.local`, then run `npm run search:setup` from `apps/frontend`:
+The independent `compose.search.yaml` remains available for isolated provider fixtures, with its own volumes and loopback port 6333. It does not synchronize the application database. For direct host development, configure the existing ignored `apps/frontend/.env.local` with the normal database/application settings plus:
 
 ```dotenv
 QDRANT_URL=http://127.0.0.1:6333
@@ -65,7 +78,7 @@ QDRANT_COLLECTION=mradar_records_v1
 # Optional: SEARCH_MODEL_CACHE_DIR must be an absolute path.
 ```
 
-Search validates its configuration when used; unrelated application startup does not require these variables. Never expose them as `NEXT_PUBLIC_*`. The standalone Compose setup uses its own internal Qdrant URL. Adding Qdrant/model volumes to the normal app/worker and [Scaleway stack](../../deploy/README.md) remains deployment integration work; this loopback-only development file is not a production deployment configuration. Cloud Qdrant is an optional future alternative, not a required account or a provisioned service.
+Run `npm run search:setup`, `npm run search:rebuild` and the supervised worker from `apps/frontend`. Never expose search configuration as `NEXT_PUBLIC_*`. The fixed Next.js version already externalizes `@huggingface/transformers` and `onnxruntime-node`; no browser import or custom bundling workaround is added. The production route still needs real runtime verification, as a successful Node-only provider check does not validate Next.js routing/bundling.
 
 ## Verification and remaining integration
 
@@ -73,8 +86,8 @@ Manual checks used real E5 vectors and Qdrant with labelled disposable fixtures 
 
 On six logical sources/eight projections, final Linux sample times were 79 ms keyword, 55 ms semantic, 50 ms hybrid and 95 ms related. Thirty distinct concurrent hybrid queries all succeeded in 468 ms total, with about 699 MiB process RSS while other checks were running. The same complete real-provider fixture check passed on Linux x64 at revision `75eb97f`: keyword/semantic/hybrid/related samples were 56/70/66/64 ms, with 30 queries completing in 967 ms and about 687 MiB RSS. These are small-fixture observations, not a 1,000-record or 15–30-user application capacity guarantee. Budget memory separately for each web/worker process that loads the model; relevant-record ranking thresholds are not calibrated.
 
-Report and incident source readers, rebuild pagination and hydration functions now exist in `server/search-sources`; service-ticket readers remain pending. The merged contract supports anonymous public reads through `ActorContext` with `kind: "anonymous"`. No authenticated actor needs to be invented for public search. These source functions are not connected to this provider yet.
+All three source readers are now connected to the index handler and hydration service. The merged contract supports anonymous public reads through `ActorContext` with `kind: "anonymous"`. Report/ticket hydration currently accepts session principals only; authorized decision-maker access is a producer follow-up, never an impersonated official session. Aggregated incident projections also need a producer-side size bound before exceeding the provider's 8,000-character text limit; oversized input fails visibly instead of being silently truncated.
 
-Issue #32 stays open for transactional index-handler registration; source integration and service-ticket readers; hydration/version/access checks while the index is stale; exact PostgreSQL lookup; source-driven rebuild/reconciliation; HTTP/MCP adapters and cursor/error mapping; optional tag/status metadata; and deployed runtime validation. Register indexing only for implemented source kinds; an unavailable reader must not be mistaken for a deleted record. Report hydration currently accepts an official session only; it must explicitly permit the authorized decision-maker principal before agent retrieval is connected. Aggregated incident projections also need a producer-side size bound before they can exceed this provider's 8,000-character text limit. Follow [AGENTS.md](../../AGENTS.md) for verification; no test framework or automated test files were added.
+The new integrated API/worker/rebuild/startup slice has not yet completed lint, typecheck, production route inference, failure/recovery and 1,000-record acceptance. Issue #32 remains open until those checks and the coordinated source fixes pass. Exact lookup by typed source ID is exported as `getSearchRecord(ctx, ref)` and uses PostgreSQL hydration without a provider call. Optional tag/status metadata still needs a producer contract; MCP transport belongs to its separate slice. The current resident search UI still uses its legacy search until its owner switches it. Follow [AGENTS.md](../../AGENTS.md) for verification; no test framework or automated test files were added.
 
 References: [hybrid search](https://qdrant.tech/documentation/search/text-search/hybrid-search/), [filters versus ranked search](https://qdrant.tech/documentation/guides/text-search/).

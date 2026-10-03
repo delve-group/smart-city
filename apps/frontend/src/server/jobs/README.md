@@ -35,7 +35,7 @@ After authorizing a source, call `getSourceWorkStatus(client, { type, id })` to 
 
 ## Ownership and recovery
 
-- One dedicated PostgreSQL session holds an advisory lock for the worker's lifetime. A second worker exits with `worker_already_running`. One sequential dispatcher runs handlers; a partial unique index also prohibits concurrent running work for the same source type/ID across kinds and versions.
+- One dedicated PostgreSQL session holds advisory lock `736142002` for the worker's lifetime, separate from migration `736142000` and seed `736142001`. Stop the previous worker before the first upgrade from the old shared seed key; old/new worker versions must not overlap during that upgrade. A second current-version worker exits with `worker_already_running`. One sequential dispatcher runs handlers; a partial unique index also prohibits concurrent running work for the same source type/ID across kinds and versions.
 - Each claim increments attempts, records an attempt row and gets a fresh lease token. Heartbeats extend only a current, unexpired token. Completion must match the current unexpired token. An expired lease becomes an `abandoned` attempt and is reclaimed with a new token; the old token cannot complete or renew it.
 - A handler may request two transient retries, delayed by 2 and 10 seconds. A third `retry` result is terminal `failed` with `retry_limit`. Crashed/expired attempts remain in history but do not consume the handler's transient dependency retry budget.
 - An unregistered kind becomes `parked` with `handler_unavailable`, without creating an attempt or consuming retries. Registering that handler and restarting the worker makes it immediately eligible. A handler's own `parked` result records that outcome, subtracts its counted attempt, and waits 30 seconds before checking again.
@@ -43,6 +43,8 @@ After authorizing a source, call `getSourceWorkStatus(client, { type, id })` to 
 - SIGINT/SIGTERM stops claiming and allows the current handler to finish while heartbeats continue. A 30-second shutdown deadline terminates unfinished work, which remains reclaimable after its lease expires. Compose allows 35 seconds for this shutdown. Graceful shutdown removes only this worker's heartbeat and closes its advisory-lock session.
 
 ## Operations
+
+The application registers `triage`, `execute` and `index`. The search handler reloads current report/incident/ticket projections and writes the derived index outside a database transaction. A successful reconciliation clears older queued/failed index status for that source/version, preserving attempt history. `search:rebuild` queues a fresh recovery sweep, including indexed identities whose sources may have been deleted; it never writes Qdrant directly or changes source records. See the [search guide](../../../../../docs/knowledge-base/qdrant-search.md) for commands and limits.
 
 From `apps/frontend`, use `npm run worker`, `npm run worker:health` (exit status only when healthy), or `npm run worker:status` (safe JSON heartbeat, registered kinds and queue counts). The worker script supplies Node's `react-server` condition so the existing `server-only` database guard works outside Next. Keep these script flags when running under another supervisor.
 

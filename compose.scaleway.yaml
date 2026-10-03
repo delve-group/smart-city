@@ -5,6 +5,13 @@ x-log-rotation: &log-rotation
     max-file: "3"
 
 services:
+  qdrant:
+    logging: *log-rotation
+  search-setup:
+    image: mradar-search-setup:${MRADAR_REVISION:?Use npm run deploy}
+    labels:
+      org.opencontainers.image.revision: ${MRADAR_REVISION}
+    logging: *log-rotation
   db:
     logging: *log-rotation
   setup:

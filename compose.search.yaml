@@ -1,4 +1,5 @@
-# Independent provider preparation for #32. No source synchronization or API cutover.
+# Optional isolated provider fixtures; separate volumes from the application stack.
+# Normal local/deployment startup uses the private Qdrant service in compose.yaml.
 # Start: docker compose -f compose.search.yaml up -d qdrant
 # Initialize/warm: docker compose -f compose.search.yaml run --build --rm search-setup
 name: mradar-search

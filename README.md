@@ -84,16 +84,19 @@ For Scaleway, follow the [deployment and recovery runbook](deploy/README.md). `n
 
 Runtime secrets are passed into containers, not baked into the image. Only the one-shot setup container receives demo seed passwords. The app accepts either `DATABASE_URL` or all five standard connection variables (`PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, `PGDATABASE`); Compose supplies the latter so passwords do not need URL escaping. Direct host development can use the same configuration in `apps/frontend/.env.local`, then run `npm run db:setup` and `npm run dev` there against a reachable PostgreSQL database.
 
-## Independent search provider setup
+## Search setup and recovery
 
-The real Qdrant/local embedding adapter can be initialized separately:
+`npm run dev` includes private Qdrant, persistent index/model volumes and source reconciliation through the existing worker. `GET /api/search/records` serves scoped keyword, semantic, hybrid and related results from reports, incidents and service tickets; the legacy resident UI switches separately. First model warmup downloads about 130 MiB. No cloud account or search credential is required.
+
+Core startup remains usable during a transient search outage and prints a degraded status. After restoring provider availability, run:
 
 ```bash
-docker compose -f compose.search.yaml up -d qdrant
-docker compose -f compose.search.yaml run --build --rm search-setup
+npm run search:setup
+npm run search:rebuild
+docker compose exec worker npm run worker:status
 ```
 
-This creates a persistent index and warms a pinned multilingual CPU model; first startup downloads about 130 MiB. No cloud account is required. It does not index application records or expose a search API. Source synchronization, safe result hydration, HTTP/MCP routes and normal app/worker deployment integration remain in [#32](https://github.com/delve-group/smart-city/issues/32). See the [search guide](docs/knowledge-base/qdrant-search.md) for configuration, verified behavior and limits.
+For Scaleway, add `-- --production` to the two search commands. Rebuild queues current sources and indexed identities for reconciliation, including deleted records and failed work; it does not claim indexing is already finished. Invalid configuration and incompatible collection revisions fail explicitly. See the [search guide](docs/knowledge-base/qdrant-search.md) for the wire contract, verification status, native-model limits and the isolated provider fixture stack.
 
 ## Checks and next work
 

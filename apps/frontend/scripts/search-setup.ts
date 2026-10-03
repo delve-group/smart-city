@@ -27,5 +27,5 @@ async function main() {
 main().catch((error: unknown) => {
   console.error(error instanceof SearchError || error instanceof ConfigurationError
     ? error.message : "Search setup failed. Check provider availability and model-cache permissions.");
-  process.exitCode = 1;
+  process.exitCode = error instanceof ConfigurationError || (error instanceof SearchError && !error.retryable) ? 2 : 1;
 });
