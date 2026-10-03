@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
+import { USE_MOCKS } from "@/api/mocks/use-mocks";
 import { isDemoMode } from "@/server/config";
 import { OperationsGate } from "@/features/incident-operations/components/operations-gate/operations-gate";
 
@@ -14,7 +15,7 @@ export default async function OperationsPage() {
   return (
     <main className="h-dvh w-full">
       <h1 className="sr-only">Operations workspace</h1>
-      <OperationsGate demoMode={isDemoMode()} />
+      <OperationsGate demoMode={isDemoMode() || USE_MOCKS} />
     </main>
   );
 }

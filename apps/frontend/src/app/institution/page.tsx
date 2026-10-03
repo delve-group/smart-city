@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
+import { USE_MOCKS } from "@/api/mocks/use-mocks";
 import { isDemoMode } from "@/server/config";
 import { InstitutionGate } from "@/features/institution-inbox/components/institution-gate/institution-gate";
 
@@ -14,7 +15,7 @@ export default async function InstitutionPage() {
   return (
     <main className="h-dvh w-full">
       <h1 className="sr-only">Institution inbox</h1>
-      <InstitutionGate demoMode={isDemoMode()} />
+      <InstitutionGate demoMode={isDemoMode() || USE_MOCKS} />
     </main>
   );
 }
