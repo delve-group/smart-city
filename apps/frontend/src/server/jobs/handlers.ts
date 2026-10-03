@@ -1,4 +1,6 @@
 import { registerDomainWorkHandlers } from "@/server/work-handlers";
+import { handleAssessmentWork } from "@/server/agents/handler";
+import { registerWorkHandler } from "./registry";
 
 /**
  * Worker composition boundary. Import and register domain handlers here as
@@ -8,4 +10,5 @@ import { registerDomainWorkHandlers } from "@/server/work-handlers";
 export function registerApplicationWorkHandlers(): void {
   // Incident-response handlers (workstream 2). `index` joins with SEARCH and stays parked until then.
   registerDomainWorkHandlers();
+  registerWorkHandler("assess", handleAssessmentWork);
 }

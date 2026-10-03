@@ -77,7 +77,7 @@ export async function runWorker(pool: Pool, options: WorkerOptions): Promise<voi
         ));
       }).finally(() => { heartbeatTask = undefined; });
     }, options.heartbeatMs);
-    console.info("Worker ready", { registered_kinds: kinds, missing_handlers: ["triage", "index", "execute"].filter((kind) => !kinds.includes(kind as WorkKind)) });
+    console.info("Worker ready", { registered_kinds: kinds, missing_handlers: ["triage", "index", "execute", "assess"].filter((kind) => !kinds.includes(kind as WorkKind)) });
 
     while (!options.signal.aborted) {
       const claimed = await Promise.race([claimWork(client, workerId, kinds, options.leaseMs), failure]);
