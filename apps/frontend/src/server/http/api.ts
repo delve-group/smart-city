@@ -15,9 +15,9 @@ export class ApiError extends Error {
   }
 }
 
-export function success<T>(data: T, correlationId: string, status = 200) {
+export function success<T>(data: T, correlationId: string, status = 200, version?: number) {
   return NextResponse.json(
-    { data, correlation_id: correlationId },
+    version === undefined ? { data, correlation_id: correlationId } : { data, version, correlation_id: correlationId },
     { status, headers: { "Cache-Control": "no-store" } },
   );
 }
