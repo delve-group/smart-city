@@ -401,6 +401,29 @@ function hydrateSearchHit(ctx: ActorContext, ref: SourceRef): Promise<
 
 `hydrateSearchHit` with an `anonymous` context (or any non-official caller) returns only the public incident projection; reports and tickets return `null` for it. Point identity is `(record_type, record_id, audience)`. An index entry older than the source `version`, or whose `hydrateSearchHit` returns `null`, must not be returned.
 
+### Search query wire contract
+
+`GET /api/search/records` accepts `q` (1–1,000 trimmed characters), `mode=keyword|semantic|hybrid` (default `hybrid`), `limit` (1–50, default 10) and repeatable `category_id`, `issue_type`, `record_type` filters. Categories/issues accept up to 20 values each; record types accept up to three. Related lookup supplies both `related_type` and `related_id` instead of `q`; it uses the permitted stored dense vector and the same result filters. The `mode` parameter applies to text queries only. Unknown query parameters and repeated scalar parameters are rejected with `400 invalid_request`.
+
+The standard success envelope contains:
+
+```ts
+type SearchPage = {
+  status: "ready" | "index_stale";
+  items: {
+    record_type: SourceRef["record_type"]; record_id: string; source_version: number;
+    title: string; excerpt: string; category_id: string | null; score: number; indexed_at: string;
+  }[];
+  next_cursor: null;
+};
+```
+
+This is a bounded top-results window, without cursor pagination. Anonymous/resident callers rank only public incidents; officials rank official projections; institution sessions rank assigned-ticket projections only. `searchRecords(ctx, input)` in `server/search/service` provides the same behavior to server tools using their credential-derived actor. Unsupported system principals are forbidden; a decision-maker can rank official projections but source hydration still controls access. It never impersonates an official session. `getSearchRecord(ctx, ref)` provides exact lookup by typed source ID from PostgreSQL with the same scope and hydration checks, independently of Qdrant availability.
+
+Results use current domain-owned text and require exact candidate/source version equality. Missing or unauthorized results are silently omitted; no dropped count is exposed. A stale authorized candidate/related source or currently authorized pending index work produces `index_stale`, which can accompany zero items. The diagnostic checks at most 32 source identities from the latest index work per source; `ready` does not claim a consistent snapshot of the whole corpus. Provider failure is `503 dependency_unavailable` with safe retryability, distinct from zero matches. A missing/inaccessible related source returns `404 not_found`. Scores are ranks, not probabilities or grouping authority.
+
+The `index` handler rereads current source state; source versions in old work never supply old text. The one existing worker serializes index writes. Rebuild/reconciliation queues fresh run-specific work for current sources and indexed identities; only a missing authoritative source triggers deletion. Successful current-version reconciliation clears older failed/queued index status while preserving attempt history. Source mutations during a sweep commit their own work, so the command reports queued work rather than a completed, frozen snapshot.
+
 ## 10. Migration stages
 
 | Stage | Issue / owner | Server change | Callers | Still working |

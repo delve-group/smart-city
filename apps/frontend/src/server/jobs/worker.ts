@@ -5,8 +5,9 @@ import { z } from "zod";
 import { claimWork, finishWork, renewWorkLease } from "./store";
 import type { ClaimedWork, WorkHandler, WorkKind, WorkResult } from "./types";
 
-// Separate from the migration advisory lock (736142000).
-const WORKER_LOCK = 736142001;
+// Separate from migration (736142000) and demo-seed (736142001) locks.
+// Stop the previous worker during the first upgrade from the old shared seed key.
+const WORKER_LOCK = 736142002;
 const resultSchema = z.discriminatedUnion("status", [
   z.object({ status: z.literal("done"), detail: z.string().max(300).optional() }).strict(),
   ...(["retry", "failed", "parked"] as const).map((status) =>
