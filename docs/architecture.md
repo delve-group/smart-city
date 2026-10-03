@@ -103,3 +103,7 @@ First: pagination and filtering at the data source, indexes for real queries and
 ## Verification
 
 Follow the [policy in AGENTS.md](../AGENTS.md): no tests during the PoC phase; lint, type check, build and a manual review on phone and desktop, including the keyboard, in both themes.
+
+## Durable decision assessment
+
+`DECISION_PROVIDER=disabled` retains the labelled rule-based demo proposer. Explicit `scaleway` mode queues an `assess` work item in the incident mutation transaction. The same worker retrieves current source-owned context and optional scoped related records, makes one bounded model request per attempt, stores the response, and asks the domain to create a pending proposal or visible review. A stable incident/version key prevents repeat delivery from replacing an approval. No network call holds a database transaction. Migrations `006_action_assessment_identity.sql` and `007_incident_assessments.sql` add replay identity and private assessment history without rewriting existing migrations. Credentials are supplied only to the worker; the web process receives the selected mode so its mutations enqueue the appropriate work.

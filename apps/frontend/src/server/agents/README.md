@@ -10,7 +10,7 @@ The handler checks the saved final outcome before retrieval or a provider call. 
 
 Before the provider call, a short transaction stores the immutable private snapshot, its SHA-256, prompt/schema versions and attempt number. No transaction spans search or inference. Each assessment permits at most three provider attempts, counted before requests so process crashes cannot reset the limit. Retryable provider failures return to the worker's existing two-retry schedule and leave a safe official review note. Permanent errors and exhausted attempts finish as `review`; stale versions or protected human/action state finish as `superseded`. A successfully prepared pending proposal finishes as `proposal`. A completed work item means the assessment reached one of these outcomes, not that the provider succeeded or an action was approved.
 
-A validated response and its safe provider metadata are persisted before calling `proposeAction`. Restarted work reuses that response, and the domain's assessment key replays a proposal if the process stopped between proposal creation and final assessment persistence. Human approval/rejection and current domain preconditions retain authority. Database failures use the bounded transport retry; if the database cannot persist a review, ordinary failed work remains visible rather than pretending a result was saved.
+A validated response and its safe provider metadata are persisted before calling `proposeAction`. Restarted work reuses that response, and the domain's assessment key replays a proposal if the process stopped between proposal creation and final assessment persistence. Human approval/rejection and current domain preconditions retain authority. Database failures use the bounded transport retry; if the database cannot persist a review, inspect the failed queue item with `worker:status`. The official may still see the earlier queued note; no saved review is claimed.
 
 `incident_assessments` holds outcome, correlation, attempt count and an optional proposal reference. `incident_assessment_attempts` holds the private snapshot, validated result/metadata, timestamps and safe error codes. There is no public reader for these tables. Queue details contain outcome codes only; snapshots, private narratives, provider bodies and credentials are never logged. Changing provider configuration does not rerun an already final assessment for the same incident version.
 
@@ -24,7 +24,7 @@ The result includes the selected server-supplied action descriptor, incident ver
 
 ## Configuration and limits
 
-The adapter validates these server-only variables lazily; existing app startup does not require them:
+The adapter validates credentials when used. Root startup validates the required names when `DECISION_PROVIDER=scaleway`; disabled mode needs no model credentials. Compose passes model credentials only to the worker, and the selected mode to web and worker:
 
 | Variable | Value |
 | --- | --- |

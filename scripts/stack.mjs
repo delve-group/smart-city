@@ -30,6 +30,21 @@ try {
 if (!/^\d+$/.test(env.APP_PORT ?? "3000") || Number(env.APP_PORT ?? 3000) < 1 || Number(env.APP_PORT ?? 3000) > 65535) {
   problems.push("APP_PORT: use a port number from 1 to 65535");
 }
+const decisionProvider = env.DECISION_PROVIDER ?? "disabled";
+if (!["disabled", "scaleway"].includes(decisionProvider)) {
+  problems.push("DECISION_PROVIDER: use disabled or scaleway");
+}
+if (decisionProvider === "scaleway") {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(env.SCW_PROJECT_ID ?? "")) {
+    problems.push("SCW_PROJECT_ID: set the dedicated Scaleway project UUID");
+  }
+  if (!env.SCW_GENERATIVE_API_KEY || env.SCW_GENERATIVE_API_KEY.length > 512 || /\s/.test(env.SCW_GENERATIVE_API_KEY)) {
+    problems.push("SCW_GENERATIVE_API_KEY: set the project's model-access credential");
+  }
+  if (!["qwen3.6-35b-a3b", "mistral-small-3.2-24b-instruct-2506"].includes(env.SCW_DECISION_MODEL)) {
+    problems.push("SCW_DECISION_MODEL: choose a supported model from .env.example");
+  }
+}
 if (problems.length > 0) {
   console.error(`Configuration is incomplete. Copy .env.example to .env and fill the values:\n${problems.map((problem) => `- ${problem}`).join("\n")}`);
   process.exit(1);

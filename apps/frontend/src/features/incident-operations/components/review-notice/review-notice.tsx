@@ -8,6 +8,8 @@ const TITLE: Partial<Record<Review["reason"], string>> = {
   needs_link: "Which incident does this belong to?",
   private_scope: "Apartment-only report",
   pending_triage: "Automatic triage did not finish",
+  assessment_pending: "Decision assessment is queued",
+  assessment_review: "Decision assessment needs your review",
 };
 
 /** Why the record is waiting for the official. A ready proposal speaks for itself. */

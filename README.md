@@ -102,3 +102,7 @@ Proof of concept: **residents report problems in Kraków** — power outages, br
 - Map data still comes from `/api/categories` and `/api/reports`, clearly labelled mock routes with an in-memory store (new map reports disappear when the app restarts). The new persistent authentication does not retrofit ownership or permissions onto those legacy routes; their coordinated incident migration is a separate slice.
 
 One neutral theme in light and dark mode; it follows the OS setting until toggled.
+
+### Optional decision assessment
+
+Local startup defaults to the labelled rule-based demo proposer. To process new incident changes with the real Scaleway model, set `DECISION_PROVIDER=scaleway` and the three `SCW_*` values documented in `.env.example`, then run `npm run dev` (or the deployment command on the server). Startup validates the variable names without printing values. The worker stores bounded attempts and proposals; the official must still approve the exact ticket payload. Existing seeded proposals are fixtures until their incident changes. Disabling the provider stops new automatic assessment requests; previously stored results remain available for replay and audit.

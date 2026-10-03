@@ -301,7 +301,11 @@ Delivered by [#27](https://github.com/delve-group/smart-city/issues/27). The exe
 
 The `execute` handler answers `retry` for a known no-effect failure (the same key is sent again after revalidation, within the worker's bounded retries) and `failed` with reason `execution_unknown` for an unknown outcome, which is never resent automatically. Reconciliation looks the key up at the connector: a found request becomes the ticket; otherwise the proposal is `failed` and the official prepares a fresh proposal. While a proposal is `executing` or `unknown`, new proposals and approvals for that incident are refused with `execution_unknown`.
 
-Until the decision-maker ([#34](https://github.com/delve-group/smart-city/issues/34)) exists, a labelled **rule-based proposer (demo)** prepares the pending proposal whenever an active incident with exactly one configured institution changes materially. It uses no model, follows the same `propose_action` rules and is superseded by any later proposal. `proposeAction` (decision-maker only) requires the single configured institution and evidence IDs stored on the incident.
+With `DECISION_PROVIDER=disabled` (default), a labelled **rule-based proposer (demo)** supplies the existing fixture behavior. With `scaleway`, a material active-incident change supersedes outdated proposals and transactionally queues one `assess` job instead. The official's explicit institution-selection command continues to create its own manual proposal. AI cannot replace that pending manual proposal or a human decision at the same incident version.
+
+`getAssessmentAction(ctx, incidentId)` supplies the current version and one server-prepared action or a review reason. The destination and exact payload come from the existing configured/official-selected responsibility and payload builder. Urgent/disputed incidents, missing/stale/contradictory service evidence, rejected tickets, active work and protected proposals cannot receive an automated action. `proposeAction` requires the stable `assessment_key: assess:incident:{id}:v{version}`, current `expected_incident_version`, a matching `institution_id`, bounded `explanation`, and 1–8 distinct stored `evidence_ids`. An optional payload must exactly match the server-built payload; no model constructs it. A repeated key returns its original proposal even after approval, execution or supersession. A new key never replaces an existing human decision.
+
+The bounded worker persists the complete limited input, snapshot hash, model/prompt/schema versions, usage/latency and response before applying it. At most three provider attempts, including interrupted attempts, are allowed. A saved response is verified and reapplied without another model call. Oversized, uncertain or failed assessments leave visible `assessment_review` notes; queued work has `assessment_pending`. Stored rationale/evidence is private to the official workflow. Approval and execution remain separate commands.
 
 ## 7. Institution tickets
 
@@ -330,7 +334,7 @@ The ticket change, incident status/version, public timeline event, audit event a
 Workstream 3 owns the work schema (`002_jobs.sql`, no foreign keys to domain tables), the worker and `server/jobs`; workstream 2 calls `enqueueWork` inside its own transactions and supplies domain handlers. Delivered by [#22](https://github.com/delve-group/smart-city/issues/22); final names may differ only if this section is updated in that PR.
 
 ```ts
-type WorkKind = "triage" | "index" | "execute";
+type WorkKind = "triage" | "index" | "execute" | "assess";
 type WorkSource = { type: "report" | "incident" | "service_ticket" | "action_proposal"; id: string; version: number };
 
 /** Uses the caller's open transaction: the work row commits or rolls back with the domain write. */
@@ -357,6 +361,7 @@ function registerWorkHandler(kind: WorkKind, handler: (work: WorkItem) => Promis
 | --- | --- | --- | --- | --- |
 | `triage` | `report` at its version | `triage:report:{id}:v{version}` | Submission (#23); classification change (#27) | Workstream 2, `server/incidents` (#25). Re-reads the report; a stale version is `done` with detail `superseded`. |
 | `index` | `report` / `incident` / `service_ticket` at its version | `index:{type}:{id}:v{version}` | Every source mutation (#23, #25, #27, #31) | Workstream 3 (#32), reading [section 9](#9-search-source-projections). |
+| `assess` | `incident` at its version | `assess:incident:{id}:v{version}` | Material incident changes when Scaleway assessment is enabled | Workstream 3, `server/agents/handler.ts`; no provider calls inside a database transaction. |
 | `execute` | `action_proposal` at its version | `execute:proposal:{id}` | Approval (#27) | Workstream 2, `server/actions` (#27). |
 
 Workstream 2 exports `registerDomainWorkHandlers()` from `server/work-handlers.ts`; the worker calls it once at startup. It registers `triage` now and `execute` with #27.

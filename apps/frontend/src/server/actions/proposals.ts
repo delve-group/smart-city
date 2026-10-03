@@ -1,14 +1,15 @@
 import "server-only";
 
 import type { PoolClient } from "pg";
+import { z } from "zod";
 import type { ActorContext } from "@/server/actor-context";
 import { recordAudit } from "@/server/audit/audit";
 import { withTransaction } from "@/server/db";
 import { ApiError } from "@/server/http/api";
 import { findIncidentRow, isUuid, type IncidentRow } from "@/server/incidents/incidents";
-import { resolveResponsibility } from "@/server/incidents/responsibility";
 import { enqueueWork } from "@/server/jobs";
-import { insertProposal, supersedeOpenProposals, type PayloadLine, type ProposalState } from "./proposal-lifecycle";
+import { getProposalPayload, insertProposal, supersedeOpenProposals, type PayloadLine, type ProposalState } from "./proposal-lifecycle";
+import { currentAssessmentAction, requireDecisionMaker } from "./assessment";
 
 export interface ProposalRow {
   id: string;
@@ -76,7 +77,8 @@ export interface ProposeActionInput {
   institution_id: string;
   explanation: string;
   payload?: PayloadLine[];
-  evidence_ids?: string[];
+  evidence_ids: string[];
+  assessment_key: string;
 }
 
 /**
@@ -85,23 +87,36 @@ export interface ProposeActionInput {
  * every cited evidence item must be stored on the incident. Approval is a separate human command.
  */
 export async function proposeAction(ctx: ActorContext, input: ProposeActionInput): Promise<{ proposal_id: string; version: number }> {
-  if (ctx.kind !== "system" || ctx.principal !== "decision_maker") {
-    throw new ApiError(403, "forbidden", "Only the decision-maker can propose an action here.");
+  requireDecisionMaker(ctx);
+  const parsed = z.strictObject({
+    incident_id: z.uuid(), expected_incident_version: z.number().int().positive().max(2_147_483_647),
+    institution_id: z.string().min(1).max(200), explanation: z.string().trim().min(1).max(1_000),
+    evidence_ids: z.array(z.uuid()).min(1).max(8).refine((ids) => new Set(ids).size === ids.length), assessment_key: z.string().min(1).max(300),
+    payload: z.array(z.strictObject({ key: z.string().max(200), value: z.string().max(2_000) })).max(20).optional(),
+  }).safeParse(input);
+  if (!parsed.success || input.assessment_key !== `assess:incident:${input.incident_id.toLowerCase()}:v${input.expected_incident_version}`) {
+    throw new ApiError(400, "invalid_request", "Supply a bounded assessment and its incident-version identity.");
   }
+  input = parsed.data;
   return withTransaction(async (client) => {
     const incident = await findIncidentRow(client, input.incident_id, true);
     if (!incident) throw new ApiError(404, "not_found", "This incident does not exist.");
+    const replay = await client.query<{ id: string; version: number }>(
+      "SELECT id, version FROM action_proposals WHERE assessment_key = $1 AND incident_id = $2 AND incident_version = $3",
+      [input.assessment_key, incident.id, input.expected_incident_version],
+    );
+    if (replay.rows[0]) return { proposal_id: replay.rows[0].id, version: replay.rows[0].version };
     if (incident.version !== input.expected_incident_version) {
       throw new ApiError(409, "version_conflict", "The incident changed. Read its current context before proposing.");
     }
     await assertCanPropose(client, incident);
-
-    const responsibility = await resolveResponsibility(
-      { category_id: incident.category_id, issue_type: incident.issue_type, location: { lat: incident.anchor_lat, lng: incident.anchor_lng } },
-      client,
-    );
-    if (responsibility.outcome !== "single" || responsibility.matches[0].institution.id !== input.institution_id) {
-      throw new ApiError(409, "invalid_state", "Responsibility is unknown or ambiguous for this incident. It stays in human review.");
+    const eligibility = await currentAssessmentAction(client, incident);
+    if (!eligibility.action || eligibility.action.institution_id !== input.institution_id) {
+      throw new ApiError(409, "invalid_state", eligibility.reason ?? "The selected institution is no longer eligible.");
+    }
+    const payload = await getProposalPayload(client, incident.id);
+    if (input.payload && JSON.stringify(input.payload) !== JSON.stringify(payload)) {
+      throw new ApiError(400, "invalid_request", "The proposal payload must match the current server-owned payload.");
     }
     if (input.evidence_ids?.length) {
       const known = await client.query<{ id: string }>(
@@ -117,8 +132,9 @@ export async function proposeAction(ctx: ActorContext, input: ProposeActionInput
       institution_id: input.institution_id,
       created_by: "Decision-maker agent",
       explanation: input.explanation,
-      payload: input.payload,
+      payload,
       evidence_ids: input.evidence_ids,
+      assessment_key: input.assessment_key,
     });
     await recordAudit(client, ctx, {
       operation: "proposal.create",
