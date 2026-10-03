@@ -418,6 +418,12 @@ async function localizeSetOne(client: PoolClient) {
     const [from, to] = pair.split("|");
     await client.query(`UPDATE ${table} SET ${column} = $2 WHERE ${column} = $1`, [from, to]);
   }
+  // Severity arrived after set 1 was first seeded; outages are urgent, the drain affects daily life.
+  await client.query(
+    `UPDATE reports SET severity = CASE WHEN category_id IN ('power', 'water') AND issue_type <> 'blocked_drain' THEN 'high' ELSE 'medium' END
+     WHERE severity IS NULL AND summary = ANY($1::text[])`,
+    [pairs.filter(([table, column]) => table === "reports" && column === "summary").map(([, , pair]) => pair.split("|")[1])],
+  );
   await client.query(
     `UPDATE incident_evidence SET label = replace(replace(label, ' · Voice report', ' · zgłoszenie głosowe'), ' · Form report', ' · zgłoszenie z formularza')
      WHERE label LIKE '% report'`,

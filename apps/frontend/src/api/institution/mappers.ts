@@ -12,6 +12,8 @@ export function mapTicket(dto: InstitutionTicketDto): InstitutionTicket {
       reference: dto.incident.reference,
       categoryId: dto.incident.category_id,
       summary: dto.incident.public_summary,
+      issueType: dto.incident.issue_type,
+      precision: dto.incident.public_location.precision,
       locationLabel: dto.incident.public_location.label,
       location: { lat: dto.incident.public_location.lat, lng: dto.incident.public_location.lng },
     },

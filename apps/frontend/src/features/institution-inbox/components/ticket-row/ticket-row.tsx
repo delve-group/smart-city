@@ -5,13 +5,15 @@ import { useI18n } from "@/shared/i18n/locale";
 import type { MessageKey } from "@/shared/i18n/messages";
 import { categoryAppearance } from "@/shared/utils/category-appearance";
 import { formatAgo } from "@/shared/utils/format-time";
+import { ticketSummary } from "../../utils/labels";
 
 type TicketRowProps = { ticket: InstitutionTicket; selected: boolean; now: number; onSelect: () => void };
 
 /** One ticket in the inbox list. Same shape as an operations queue row. */
 export function TicketRow({ ticket, selected, now, onSelect }: TicketRowProps) {
   const { t, locale } = useI18n();
-  const { categoryId, summary } = ticket.incident;
+  const { categoryId } = ticket.incident;
+  const summary = ticketSummary(t, ticket);
   const { Icon, textClass } = categoryAppearance(categoryId);
   const waiting = ticket.status === "created";
 

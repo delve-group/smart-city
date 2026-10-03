@@ -80,15 +80,15 @@ async function seed(): Promise<void> {
                  jsonb_build_array(
                    jsonb_build_object('key', 'Issue', 'value', r.title),
                    jsonb_build_object('key', 'Area', 'value', concat_ws(', ', r.public_label, r.district)),
-                   jsonb_build_object('key', 'Residents reporting', 'value', r.support_count || ' (unverified identities)'),
+                   jsonb_build_object('key', 'Residents reporting', 'value', r.support_count || ' (niezweryfikowane tożsamości)'),
                    jsonb_build_object('key', 'City assessment', 'value', r.assessment)),
                  ARRAY(SELECT e.id FROM incident_evidence e WHERE e.incident_id = r.id AND e.removed_at IS NULL AND e.state <> 'missing'),
-                 'Prepared from the configured responsibility rule, without a language model.',
+                 'Przygotowano na podstawie skonfigurowanej reguły odpowiedzialności, bez modelu językowego.',
                  'Rule-based proposer', 'execute:proposal:' || r.proposal_id
           FROM ready r
           RETURNING incident_id
         )
-        UPDATE incidents SET review_reason = 'proposal_ready', review_note = 'A ticket proposal is ready for your decision.', review_since = now()
+        UPDATE incidents SET review_reason = 'proposal_ready', review_note = 'Propozycja zlecenia czeka na Twoją decyzję.', review_since = now()
         WHERE id IN (SELECT incident_id FROM inserted)
       `);
       await client.query("COMMIT");
