@@ -52,6 +52,13 @@ The backend lives in `apps/frontend/src/server/` behind thin Next.js route handl
 | `POST /api/auth/logout` | Revoke the session and clear its cookie. |
 | `GET /api/operations/me` | Official-only identity endpoint. |
 | `GET /api/institution/me` | Institution-only identity and assigned demo institution. |
+| `POST /api/report-drafts`, `GET`/`PATCH /api/report-drafts/{id}` | Resident-owned intake draft with revision checks. |
+| `POST /api/report-drafts/{id}/confirmation` | Confirm exactly the current draft revision. |
+| `POST /api/reports` with `{ draft_id, revision }` | Submit the confirmed draft once; a repeat returns the same report. |
+| `GET /api/reports/{id}` | Private report for its owner or an official. |
+| `GET /api/issue-types` | Issue types a draft may name (demo configuration). |
+| `GET /api/incidents`, `GET /api/incidents/{id}` | Public incident cards and timeline (allowlisted projection). |
+| `POST /api/incidents/{id}/contributions` | "I'm affected too" for the current resident, counted once. |
 
 Seeded usernames are `official`, `electricity` and `water`. Their passwords come from the corresponding `DEMO_*_PASSWORD` values in your ignored `.env`; there is no built-in password. Sessions use an HttpOnly cookie, with Secure enabled for HTTPS. New guest and staff sessions last 30 days from creation, without automatic renewal. Previously issued sessions keep their original expiry; sign in again to receive the longer staff session. Staff login replaces the current session, and logout or cookie loss ends guest recovery. Use separate browser profiles for resident and staff demonstrations. A public request cannot choose a staff role or institution.
 
@@ -81,7 +88,7 @@ The remaining work is assigned across three computers: **Rafal** handles citizen
 
 Install host dependencies once with `npm --prefix apps/frontend ci`, then run `npm run lint`, `npm run typecheck` and `npm run build` from the repository root. Follow [AGENTS.md](AGENTS.md) for manual checks; no test suite is introduced.
 
-This is the shared starting point for the assigned GitHub Issues: persistent report/incident APIs, ElevenLabs intake, Qdrant search across reports/incidents/service tickets, and Scaleway deployment. The [feature plan](specs/001-voice-incident-response/plan.md) defines their boundaries. Add a supervised worker when triage/indexing introduces durable work; the foundation has no idle placeholder worker. Version checks are specified for future report mutations, but no report/incident tables or workflow endpoints are created yet.
+This is the shared starting point for the assigned GitHub Issues: persistent report/incident APIs, ElevenLabs intake, Qdrant search across reports/incidents/service tickets, and Scaleway deployment. The [feature plan](specs/001-voice-incident-response/plan.md) defines their boundaries. The [durable worker](apps/frontend/src/server/jobs/README.md) now provides caller-transaction enqueue, leased attempts, bounded retries and health diagnostics. Root startup includes it; unregistered domain handlers leave work visibly parked without consuming attempts. Domain handlers, report/incident tables and authoritative workflows remain separate slices. Persistent resident intake (drafts, confirmation, idempotent submission, private report lookup) is implemented behind these routes and writes its pending triage/index work in the same transaction; the resident form and map still use the labelled in-memory routes until the citizen cutover, and a submitted report stays `pending` until the worker runs the deterministic triage handler, which links it to an incident, opens a suspected incident or puts it in review. Public incidents, their timeline and resident contributions are served from PostgreSQL; the seed adds a few fictional incidents with explicitly linked demo reports. Exact payloads are in the [shared workflow contracts](docs/workflow-contracts.md).
 
 ## Status
 
