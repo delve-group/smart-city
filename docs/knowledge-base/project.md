@@ -5,6 +5,7 @@ Updated: 2026-10-03.
 ## Confirmed
 
 - Project: Smart City, built under hackathon conditions. Current phase: proof of concept.
+- Product name: **mRadar**. Its radar-sweep mark represents detecting and grouping reported city issues; it does not represent surveillance or emergency dispatch.
 - Delivery speed matters a lot. Code should stay modular and easy to maintain and scale.
 - UI base: Appica UI (`@appica/ui-react`). One neutral, professional theme in light and dark mode (2026-10-03, replaced the earlier Civic and Signal themes).
 - Verification rules are defined only in [AGENTS.md](../../AGENTS.md). No tests during the PoC phase.

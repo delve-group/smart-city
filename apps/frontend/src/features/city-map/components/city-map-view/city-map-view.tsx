@@ -14,6 +14,7 @@ import { LocationPicker } from "@/features/report-issue/components/location-pick
 import { ReportFab } from "@/features/report-issue/components/report-fab/report-fab";
 import { ReportForm } from "@/features/report-issue/components/report-form/report-form";
 import { useReverseGeocode } from "@/features/report-issue/hooks/use-reverse-geocode";
+import { AppBrand } from "@/shared/components/app-brand/app-brand";
 import { useAffectedReports } from "../../hooks/use-affected-reports";
 import { useCityData } from "../../hooks/use-city-data";
 import { useNow } from "../../hooks/use-now";
@@ -178,7 +179,11 @@ export function CityMapView() {
         tilted={tilted}
       />
 
-      <div className="absolute top-3 right-3 left-3 z-20 flex max-w-140 items-start gap-2">
+      <div className="absolute top-3 right-3 z-20">
+        <AppBrand />
+      </div>
+
+      <div className="absolute top-16 right-3 left-3 z-20 flex items-start gap-2 md:top-3 md:right-auto md:w-140">
         <div className="min-w-0 flex-1">
           <MapSearch reports={reports} categoriesById={categoriesById} onPick={handlePick} />
         </div>
@@ -196,7 +201,7 @@ export function CityMapView() {
       </div>
 
       {state.status !== "ready" && (
-        <div className="absolute inset-x-3 top-18 z-20 flex justify-center md:top-3">
+        <div className="absolute inset-x-3 top-30 z-20 flex justify-center md:top-3">
           {state.status === "loading" ? (
             <DataStatus status="loading" />
           ) : (
