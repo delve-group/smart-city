@@ -2,6 +2,8 @@
 
 Status: proof of concept, 2026-10-03. The domain and the backend wait for the main product scenario.
 
+The [voice and incident discovery draft](plans/2026-10-03-voice-incident-design.md) proposes the next domain and data-flow changes. This architecture describes the implemented baseline; the draft's incidents, actors, persistence and approvals are not implemented yet.
+
 ## Direction
 
 One frontend, modules by feature, and one backend only if the scenario really needs it. Frontend: Next.js (App Router, Turbopack, React Compiler), React 19, TypeScript (strict), Tailwind CSS v4 and Appica UI components. Package manager: npm; versions are pinned by `package-lock.json`. Appica components work in Server Components; move interactivity into small `"use client"` components.
