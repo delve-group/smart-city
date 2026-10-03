@@ -54,6 +54,8 @@ The dependency graph describes complete integration. An Issue may explicitly per
 
 ## Integration boundaries
 
+Exact payloads, signatures, migration stages and reserved migration filenames live in the [shared workflow contracts](../workflow-contracts.md); the points below are the summary.
+
 - Franek owns one durable draft/report submission service for both form and voice. Rafal owns the browser/provider adapters and complete migration of existing report-map callers to public incidents.
 - Agent-3 owns transaction-aware work storage and the single worker. Franek commits source mutations and pending work atomically and supplies deterministic business handlers. The worker facility is verified independently first; real handler outcomes are verified by their domain/search Issues.
 - Franek owns authoritative permissions, grouping, proposals, approvals and execution. Agent-3's LLM/MCP invokes these services; it cannot grant itself approval.

@@ -2,7 +2,7 @@
 
 Own authoritative draft/report/incident/evidence/contribution/action/ticket services, domain migrations and fixtures, public projections, and official/institution UI with staff login. Primary server areas are `server/reports`, `server/incidents`, `server/actions` and `server/institutions`; their HTTP routes remain thin. Reuse the existing accounts and fixed 30-day sessions.
 
-Deliver the shared-contract Issue first. Rafal owns citizen UI, location and voice adapters; agent-3 owns the worker, Qdrant, LLM orchestration and MCP transport. Expose explicit callable domain operations and permitted source projections for those consumers, rather than creating a second implementation inside tools or route handlers.
+Deliver the shared-contract Issue first; its result is the [shared workflow contracts](../../../../docs/workflow-contracts.md), which you own and keep current. Rafal owns citizen UI, location and voice adapters; agent-3 owns the worker, Qdrant, LLM orchestration and MCP transport. Expose explicit callable domain operations and permitted source projections for those consumers, rather than creating a second implementation inside tools or route handlers.
 
 Persist report submission and pending triage/indexing work in the same PostgreSQL transaction using the agent-3 work interface. Provider calls happen outside that transaction. The worker invokes this workstream's deterministic eligibility/version checks; an LLM suggestion never bypasses them. Keep assessment, response progress, distinct support and official verification separate.
 
