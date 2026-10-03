@@ -1,6 +1,6 @@
 # Design system — Smart City
 
-Dwa motywy, wspólna struktura komponentów shadcn/ui. Źródłem wartości jest [themes.css](../design-system/themes.css); [wzornik](../design-system/preview.html) prezentuje ich użycie. To autorskie palety inspirowane referencjami, nie oficjalne identyfikacje wizualne tych serwisów.
+Dwa motywy, wspólne komponenty [Appica UI](https://appica.dev/ui) (React, Base UI, Tailwind CSS v4). Źródłem wartości dla aplikacji jest [appica-theme.css](../design-system/appica-theme.css). [Wzornik](../design-system/preview.html) bez zależności korzysta z [themes.css](../design-system/themes.css) z tymi samymi kolorami bazowymi. To autorskie palety inspirowane referencjami, nie oficjalne identyfikacje wizualne tych serwisów.
 
 ## Signal — futurystyczny
 
@@ -46,40 +46,35 @@ Promień bazowy 10 px, łagodny cień i dużo przestrzeni. Opisy prostym polskim
 - Tekst bazowy 16 px / 1.5; pomocniczy 14 px / 1.5; nagłówki 24, 32, 48–64 px. Duża skala tylko w krótkim nagłówku głównym. Akapity do około 65 znaków szerokości.
 - Skala odstępów: 4, 8, 12, 16, 24, 32, 48, 64 px. Treść do 1200 px; margines 20 px na telefonie i 32 px na desktopie.
 - Układ: jeden słupek na telefonie, dwa od 768 px, szersza nawigacja od 1024 px. Tabele mogą mieć lokalny poziomy scroll; cała strona nie powinna go wymagać.
-- Akcje dotykowe co najmniej 44 × 44 px. Ikony jednej rodziny (propozycja: Lucide), zwykle 20 px. Przycisk ikonowy zawsze ma dostępną nazwę.
+- Akcje dotykowe co najmniej 44 × 44 px. Ikony jednej rodziny (Appica Icons, `@appica/icons-react`), zwykle 20 px. Przycisk ikonowy zawsze ma dostępną nazwę.
 - Focus widoczny: obrys 2 px tokenem `ring`, odstęp 3 px. Status zawsze ma tekst; kolor jest dodatkową informacją. Respektuj `prefers-reduced-motion`.
 - Cel kontrastu: zwykły tekst minimum 4.5:1; istotne granice kontrolek i focus 3:1 względem przylegającego tła. Token `border` służy podziałom dekoracyjnym; kontrolki używają mocniejszego `input`. Dostępność całego ekranu wymaga ręcznej oceny po wdrożeniu.
 
-## Komponenty shadcn/ui
+## Komponenty Appica UI
 
 | Komponent | Reguła użycia |
 | --- | --- |
-| Button | Jedna dominująca akcja na sekcję; secondary/outline dla pozostałych. Destructive tylko dla działania destrukcyjnego. |
+| Button | Jedna dominująca akcja (`primary`) na sekcję; `outline`/`soft`/`ghost` dla pozostałych. `destructive` tylko dla działania destrukcyjnego. |
 | Card, Separator | Grupowanie treści; unikaj wielopiętrowych kart. |
-| Input, Textarea, Label, Field | Trwała etykieta, opis i błąd powiązany przez `aria-describedby`; placeholder nie zastępuje etykiety. |
-| Select, Checkbox | Wybór wartości zgodny z semantyką; klawiatura obsługiwana przez bazowy komponent. |
-| Alert, Badge | Komunikat i nazwany status; błąd formularza również przy polu. |
-| Dialog / Sheet | Tytuł, opis, zamykanie Escape i powrót focusu. Portal ma dziedziczyć motyw z `html`. |
-| Table | Nagłówki kolumn, etykiety danych; wersja mobilna lub lokalny scroll. |
-| Skeleton / Empty | Oczekiwanie i brak wyników; pusty stan wyjaśnia następny krok. |
+| Field, Input, Textarea | `FieldLabel`, `FieldDescription` i `FieldError` w `Field`; placeholder nie zastępuje etykiety. |
+| Select, Checkbox, Radio, Switch | Wybór wartości zgodny z semantyką; klawiatura obsługiwana przez Base UI. |
+| Alert, Badge, Toast | Komunikat i nazwany status; błąd formularza również przy polu. |
+| Dialog / Drawer | Tytuł, opis, zamykanie Escape i powrót focusu. |
+| Table, Data Table | Nagłówki kolumn; wersja mobilna lub lokalny scroll. |
+| Skeleton, Loader | Oczekiwanie; pusty stan wyjaśnia następny krok. |
 
-Dodawaj tylko komponenty wymagane przez implementowany ekran. Wzornik HTML demonstruje stylistykę natywnymi elementami; nie jest implementacją shadcn/ui.
+Pełny katalog: [llms.txt](https://appica.dev/ui/react/llms.txt). Zanim napiszesz własny komponent, sprawdź, czy biblioteka go nie ma. Ikony: `@appica/icons-react`.
 
-## Podłączenie do aplikacji
+## Podłączenie w aplikacji
 
-Model tokenów opiera się na [dokumentacji shadcn/ui](https://ui.shadcn.com/docs/theming), sprawdzonej 2026-10-03. Konfiguracja `components.json` ma używać `tailwind.cssVariables: true`. Przy uruchomieniu aplikacji postępuj według [instalacji dla Vite](https://ui.shadcn.com/docs/installation/vite).
+Stan na 2026-10-03, `@appica/ui-react` 1.2, według [instalacji](https://appica.dev/ui/docs/react/installation) i [motywów](https://appica.dev/ui/docs/react/theming).
 
-1. Zainicjalizuj aplikację i shadcn/ui. Pozostaw importy bazowe wymagane przez wygenerowaną wersję.
-2. W `src/styles/globals.css` po importach bazowych dodaj poniższe importy (ścieżki dotyczą planowanej struktury):
+1. `src/app/globals.css` importuje kolejno: `tailwindcss`, `@appica/ui-react/styles.css` (bazowe tokeny biblioteki), `design-system/appica-theme.css` (nasze wartości). Te same selektory i późniejsze źródło sprawiają, że nasze wartości wygrywają.
+2. `@source` wskazuje `node_modules/@appica/ui-react/dist` ścieżką względną; bez tego klasy komponentów się nie wygenerują.
+3. `ThemeProvider` (`src/app/providers.tsx`) ma motywy `civic` i `signal`, mapowane na klasy `light` i `dark` na `<html>`. Domyślny jest Civic, `enableSystem` jest wyłączone, więc systemowy tryb ciemny nie zmienia motywu. Wybór trafia do `localStorage` (`smart-city-theme`); skrypt providera ustawia klasę przed pierwszym renderem.
+4. Model tokenów Appica jest oparty na rolach: `foreground-*`, `background-*`, `border-*` oraz skale akcentów `primary`, `secondary`, `error`, `success`, `warning`, `info` (`subtle`, `soft`, `muted`, bazowy, `strong`, `emphasis`, `intense`, `foreground`). Wariant `dark:` oznacza Signal.
+5. `background` to powierzchnia karty. Strona Civic używa `background-subtle` (#F5F7FA), a strona Signal `background` (#090A0F); ustawia to `body` w layoucie.
+6. `*-foreground` to kolor tekstu zarówno na bazowym, jak i na `*-muted` wypełnieniu, np. w Badge. Dlatego w Civic `muted` jest ciemnym, pełnym odcieniem z białym tekstem, a w Signal jasnym pastelem z ciemnym tekstem. Pary sprawdzono wzorem WCAG: wszystkie ≥ 5:1, obramowanie pola ≥ 3:1.
+7. Klasy semantyczne: `bg-background`, `text-foreground-intense`, `border-border-strong`, `bg-primary text-primary-foreground`, `bg-brand-accent`. Nie wpisuj hexów w komponentach.
 
-```css
-@import "../../design-system/themes.css";
-@import "../../design-system/tailwind-theme.css";
-```
-
-3. Usuń kolidujące domyślne bloki `:root`, `.dark` i mapowania tokenów wygenerowane przez CLI. Utrzymuj jedno źródło kolorów. Mapowanie Tailwind zakłada wersję 4 i pełne wartości CSS, np. `var(--primary)`, nie `hsl(var(--primary))`.
-4. Ustaw `data-theme="civic"` lub `data-theme="signal"` na `html`. Domyślny `:root` zapewnia Civic bez JavaScript. Wariant Tailwind `dark:` jest przypisany do Signal w pliku mapowania; nie utrzymuj drugiego, niezależnego przełącznika `.dark`.
-5. Używaj klas semantycznych: `bg-background text-foreground`, `bg-primary text-primary-foreground`, `border-input`, `ring-ring`. Nie wpisuj hexów w komponentach.
-6. Jeśli wybór jest zapisywany, odczytaj wyłącznie dozwolone wartości przed pierwszym renderem; przy niedostępnym storage wróć do Civic. Nie mapuj automatycznie systemowego dark mode na tożsamość motywu.
-
-Tokeny obejmują także popovery, sidebar, pięć kolorów wykresów i statusy. Wykresy wymagają dodatkowo etykiet lub wzorów; sama paleta nie gwarantuje czytelności danych.
+Wykresy wymagają etykiet lub wzorów; sama paleta nie gwarantuje czytelności danych. Paleta wykresów nie jest jeszcze przeniesiona — dodaj ją razem z pierwszym wykresem.

@@ -10,3 +10,7 @@ coverage/
 .env.*
 !.env.example
 *.tsbuildinfo
+out/
+next-env.d.ts
+.vercel
+*.pem
