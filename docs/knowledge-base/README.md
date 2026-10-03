@@ -7,6 +7,7 @@ This base holds project context and decisions; it is not the app's database or a
 | Goal, constraints, status and unknowns | [Project context](project.md) |
 | Competition rules, judging stages and criteria | [Smart City competition judging](hackathon-evaluation.md) |
 | Why we chose a given solution | [Decisions](decisions.md) |
+| Implementing agent search, MCP ticket/incident search tools, related-ticket retrieval or shared user search | [Qdrant search decision and implementation guide](qdrant-search.md) — read before implementation |
 | Map sources, WMS/WFS, buildings, parcels and 3D | [Geospatial data and Geoportal](geospatial-data.md) |
 | Module boundaries, data flow, libraries and scaling | [Architecture](../architecture.md) |
 | Components, colours, typography and accessibility | [Design system](../design-system.md) |
