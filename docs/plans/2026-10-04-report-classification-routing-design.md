@@ -86,3 +86,9 @@ rules and the new specific rules point to the same institution, so resolution st
 single. Infrastructure ownership remains a configured fictional assumption, not a model
 inference. Both old English and Polish power-only review messages are eligible for the
 bounded migration backfill; new seeded review examples no longer claim that restriction.
+
+After the Polish fixture integration, fresh migrations plus the actual `db:seed` script
+completed on a separate disposable database. Seven responsibility lookups remained
+single, including broad-plus-specific accessibility/road rules. The Polish legacy-gate
+note requeued successfully and no seeded report retained the retired restriction.
+Lint, typecheck and build were rerun against this integrated code.
