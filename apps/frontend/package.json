@@ -16,6 +16,8 @@
     "db:migrate": "tsx scripts/db-migrate.ts",
     "db:seed": "tsx scripts/db-seed.ts",
     "db:setup": "npm run db:migrate && npm run db:seed",
+    "search:setup": "node --conditions=react-server --import tsx scripts/search-setup.ts",
+    "search:rebuild": "node --conditions=react-server --import tsx scripts/search-rebuild.ts",
     "worker": "node --conditions=react-server --import tsx scripts/worker.ts",
     "worker:health": "tsx scripts/worker-health.ts",
     "worker:status": "tsx scripts/worker-health.ts --details"
@@ -23,7 +25,10 @@
   "dependencies": {
     "@appica/icons-react": "^1.1.0",
     "@appica/ui-react": "^1.2.0",
+    "@huggingface/transformers": "4.3.0",
+    "@modelcontextprotocol/sdk": "1.32.0",
     "@next/env": "16.3.8",
+    "@qdrant/js-client-rest": "1.19.0",
     "geist": "1.7.2",
     "maplibre-gl": "^6.11.2",
     "next": "16.3.8",
@@ -49,6 +54,11 @@
     "typescript": "^5"
   },
   "engines": {
-    "node": ">=20.9"
+    "node": ">=22.14"
+  },
+  "overrides": {
+    "@qdrant/js-client-rest": {
+      "undici": "7.29.1"
+    }
   }
 }

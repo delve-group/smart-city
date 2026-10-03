@@ -29,6 +29,8 @@ export const REVIEW_REASONS = [
   "needs_link",
   "private_scope",
   "pending_triage",
+  "assessment_pending",
+  "assessment_review",
 ] as const;
 export type ReviewReason = (typeof REVIEW_REASONS)[number];
 

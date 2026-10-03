@@ -88,6 +88,20 @@ For Scaleway, follow the [deployment and recovery runbook](deploy/README.md). `n
 
 Runtime secrets are passed into containers, not baked into the image. Only the one-shot setup container receives demo seed passwords. The app accepts either `DATABASE_URL` or all five standard connection variables (`PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, `PGDATABASE`); Compose supplies the latter so passwords do not need URL escaping. Direct host development can use the same configuration in `apps/frontend/.env.local`, then run `npm run db:setup` and `npm run dev` there against a reachable PostgreSQL database.
 
+## Search setup and recovery
+
+`npm run dev` includes private Qdrant, persistent index/model volumes and source reconciliation through the existing worker. `GET /api/search/records` serves scoped keyword, semantic, hybrid and related results from reports, incidents and service tickets; the legacy resident UI switches separately. First model warmup downloads about 130 MiB. No cloud account or search credential is required.
+
+Core startup remains usable during a transient search outage and prints a degraded status. After restoring provider availability, run:
+
+```bash
+npm run search:setup
+npm run search:rebuild
+docker compose exec worker npm run worker:status
+```
+
+For Scaleway, add `-- --production` to the two search commands. Rebuild queues current sources and indexed identities for reconciliation, including deleted records and failed work; it does not claim indexing is already finished. Invalid configuration and incompatible collection revisions fail explicitly. See the [search guide](docs/knowledge-base/qdrant-search.md) for the wire contract, verification status, native-model limits and the isolated provider fixture stack.
+
 ## Checks and next work
 
 The remaining work is assigned across three computers: **Rafal** handles citizen/ElevenLabs, **Franek** handles incident response/staff, and **agent-3** is reserved for the user's machine for search, decision-maker and deployment. See the [live backlog and starting tasks](docs/knowledge-base/parallel-delivery.md) and use the [repo-local development skill](.agents/skills/mradar-development/SKILL.md) for implementation and PR handoffs.
@@ -106,3 +120,7 @@ Proof of concept: **residents report problems in Kraków** — power outages, br
 - Map data still comes from `/api/categories` and `/api/reports`, clearly labelled mock routes with an in-memory store (new map reports disappear when the app restarts). The new persistent authentication does not retrofit ownership or permissions onto those legacy routes; their coordinated incident migration is a separate slice.
 
 One neutral theme in light and dark mode; it follows the OS setting until toggled.
+
+### Optional decision assessment
+
+Local startup defaults to the labelled rule-based demo proposer. To process new incident changes with the real Scaleway model, set `DECISION_PROVIDER=scaleway` and the three `SCW_*` values documented in `.env.example`, then run `npm run dev` (or the deployment command on the server). Startup validates the variable names without printing values. The worker stores bounded attempts and proposals; the official must still approve the exact ticket payload. Existing seeded proposals are fixtures until their incident changes. Disabling the provider stops new automatic assessment requests; previously stored results remain available for replay and audit.

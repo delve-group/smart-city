@@ -3,7 +3,7 @@ import { z } from "zod";
 import { WorkInputError, type EnqueueWorkInput } from "./types";
 
 const workSchema = z.object({
-  kind: z.enum(["triage", "index", "execute"]),
+  kind: z.enum(["triage", "index", "execute", "assess"]),
   source: z.object({
     type: z.enum(["report", "incident", "service_ticket", "action_proposal"]),
     id: z.string().min(1).max(200),
@@ -16,7 +16,9 @@ const workSchema = z.object({
   (work.kind === "triage" && work.source.type === "report")
   || (work.kind === "index" && work.source.type !== "action_proposal")
   || (work.kind === "execute" && work.source.type === "action_proposal")
-));
+  || (work.kind === "assess" && work.source.type === "incident")
+)).refine((work) => work.kind !== "assess"
+  || work.idempotency_key === `assess:incident:${work.source.id}:v${work.source.version}`);
 
 /** The caller owns the open transaction and rolls it back on any thrown error. */
 export async function enqueueWork(

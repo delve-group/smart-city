@@ -31,6 +31,7 @@ const environmentSchema = z.object({
       return false;
     }
   }, "must be an HTTP(S) origin without a path, credentials, query or fragment"),
+  DECISION_PROVIDER: z.enum(["disabled", "scaleway"]).default("disabled"),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 }).superRefine((environment, context) => {
   if (environment.NODE_ENV === "production" && !environment.APP_ORIGIN.startsWith("https://")) {
