@@ -3,12 +3,38 @@
 import { Alert, AlertDescription, AlertTitle } from "@appica/ui-react/alert";
 import { Button } from "@appica/ui-react/button";
 import { Spinner } from "@appica/ui-react/spinner";
+import { useState } from "react";
 import { StaffSignIn } from "@/shared/components/staff-sign-in/staff-sign-in";
 import { useStaffSession } from "@/shared/hooks/use-staff-session";
 import { InstitutionInbox } from "../institution-inbox/institution-inbox";
 
 /** The inbox opens only for an institution account; the server scopes every request to that account's institution. */
-export function InstitutionGate() {
+type InstitutionGateProps = {
+  /** Server DEMO_MODE: no sign-in; the API acts as the seeded demo account. */
+  demoMode: boolean;
+};
+
+export function InstitutionGate({ demoMode }: InstitutionGateProps) {
+  return demoMode ? <DemoMode /> : <SignedIn />;
+}
+
+/** Demo mode never shows sign-in. A rejected request means the demo account is missing (not seeded). */
+function DemoMode() {
+  const [failed, setFailed] = useState(false);
+  if (failed) {
+    return (
+      <div className="flex min-h-dvh w-full items-center justify-center px-4">
+        <Alert variant="error" className="max-w-sm">
+          <AlertTitle>Demo account unavailable</AlertTitle>
+          <AlertDescription>Demo mode is on, but the demo accounts are not set up. Run the database seed and reload.</AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+  return <InstitutionInbox onSessionLost={() => setFailed(true)} />;
+}
+
+function SignedIn() {
   const { state, retry, signedIn, sessionLost, signOut } = useStaffSession("institution");
 
   if (state.status === "ready") {

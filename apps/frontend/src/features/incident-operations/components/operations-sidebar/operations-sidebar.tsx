@@ -28,7 +28,8 @@ type OperationsSidebarProps = {
   updatedAt: number | null;
   refreshFailed: boolean;
   onRefresh: () => void;
-  onSignOut: () => void;
+  /** Absent in demo mode, where there is no sign-in. */
+  onSignOut?: () => void;
   /** Phones only: switch from the list to the map. */
   onShowMap: () => void;
 };
@@ -61,7 +62,7 @@ export function OperationsSidebar({
               <MapIcon data-icon="start" />
               Map
             </Button>
-            <Button variant="ghost" size="sm" onClick={onSignOut}>Sign out</Button>
+            {onSignOut && <Button variant="ghost" size="sm" onClick={onSignOut}>Sign out</Button>}
           </div>
         </div>
         <Input

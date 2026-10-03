@@ -61,12 +61,7 @@ export function StaffSignIn({ product, title, role, notice, onSignedIn }: StaffS
     <div className="flex min-h-dvh w-full items-center justify-center bg-background px-4 py-10">
       <form onSubmit={handleSubmit} noValidate className="flex w-full max-w-sm flex-col gap-5">
         <AppBrand variant="plain" product={product} />
-        <div className="flex flex-col gap-1">
-          <h2 className="text-xl font-semibold tracking-tight text-foreground-intense">{title}</h2>
-          <p className="text-sm text-pretty text-foreground-muted">
-            Demo staff accounts with fictional data. This is not a city or government sign-in.
-          </p>
-        </div>
+        <h2 className="text-xl font-semibold tracking-tight text-foreground-intense">{title}</h2>
         {notice && (
           <Alert variant="warning">
             <AlertDescription>{notice}</AlertDescription>

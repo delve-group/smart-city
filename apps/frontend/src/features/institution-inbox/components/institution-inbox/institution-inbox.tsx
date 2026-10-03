@@ -25,7 +25,7 @@ const SAVED: Record<TicketUpdate["status"], string> = {
   rejected: "Ticket rejected",
 };
 
-type InstitutionInboxProps = { onSessionLost: () => void; onSignOut: () => void };
+type InstitutionInboxProps = { onSessionLost: () => void; onSignOut?: () => void };
 
 /** The institution's assigned tickets and their progress. Which institution is decided by the account alone. */
 export function InstitutionInbox({ onSessionLost, onSignOut }: InstitutionInboxProps) {
@@ -84,7 +84,7 @@ export function InstitutionInbox({ onSessionLost, onSignOut }: InstitutionInboxP
         <header className="flex flex-col gap-3 border-b border-border-muted px-4 pt-4 pb-3">
           <div className="flex items-center justify-between gap-2">
             <AppBrand variant="plain" product="Institution" />
-            <Button variant="ghost" size="sm" onClick={onSignOut}>Sign out</Button>
+            {onSignOut && <Button variant="ghost" size="sm" onClick={onSignOut}>Sign out</Button>}
           </div>
           {state.status === "ready" && (
             <p className="flex flex-wrap items-center gap-2 text-sm text-foreground">

@@ -64,6 +64,8 @@ The backend lives in `apps/frontend/src/server/` behind thin Next.js route handl
 
 Seeded usernames are `official`, `electricity` and `water`. Their passwords come from the corresponding `DEMO_*_PASSWORD` values in your ignored `.env`; there is no built-in password. Sessions use an HttpOnly cookie, with Secure enabled for HTTPS. New guest and staff sessions last 30 days from creation, without automatic renewal. Previously issued sessions keep their original expiry; sign in again to receive the longer staff session. Staff login replaces the current session, and logout or cookie loss ends guest recovery. Use separate browser profiles for resident and staff demonstrations. A public request cannot choose a staff role or institution.
 
+**Demo mode.** Set `DEMO_MODE=true` in `.env` and restart to switch staff sign-in off: `/operations` opens as `official` and `/institution` as `electricity`, and staff API routes without a staff session act as those seeded accounts. Run the seed first. Only for fictional demo data; anyone who can reach the app gets staff access.
+
 All auth writes require an `Origin` header matching `APP_ORIGIN`. For example:
 
 ```bash
