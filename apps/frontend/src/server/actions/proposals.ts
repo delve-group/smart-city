@@ -81,6 +81,13 @@ export interface ProposeActionInput {
   assessment_key: string;
 }
 
+export const proposalSuggestionSchema = z.strictObject({
+  incident_id: z.uuid(), expected_incident_version: z.number().int().positive().max(2_147_483_647),
+  institution_id: z.string().min(1).max(200), explanation: z.string().trim().min(1).max(1_000),
+  evidence_ids: z.array(z.uuid()).min(1).max(8).refine((ids) => new Set(ids).size === ids.length), assessment_key: z.string().min(1).max(300),
+  payload: z.array(z.strictObject({ key: z.string().max(200), value: z.string().max(2_000) })).max(20).optional(),
+});
+
 /**
  * `propose_action` for the bounded decision-maker: an immutable pending proposal and nothing
  * else. The destination must be the single institution the configured rules resolve to, and
@@ -88,12 +95,7 @@ export interface ProposeActionInput {
  */
 export async function proposeAction(ctx: ActorContext, input: ProposeActionInput): Promise<{ proposal_id: string; version: number }> {
   requireDecisionMaker(ctx);
-  const parsed = z.strictObject({
-    incident_id: z.uuid(), expected_incident_version: z.number().int().positive().max(2_147_483_647),
-    institution_id: z.string().min(1).max(200), explanation: z.string().trim().min(1).max(1_000),
-    evidence_ids: z.array(z.uuid()).min(1).max(8).refine((ids) => new Set(ids).size === ids.length), assessment_key: z.string().min(1).max(300),
-    payload: z.array(z.strictObject({ key: z.string().max(200), value: z.string().max(2_000) })).max(20).optional(),
-  }).safeParse(input);
+  const parsed = proposalSuggestionSchema.safeParse(input);
   if (!parsed.success || input.assessment_key !== `assess:incident:${input.incident_id.toLowerCase()}:v${input.expected_incident_version}`) {
     throw new ApiError(400, "invalid_request", "Supply a bounded assessment and its incident-version identity.");
   }
