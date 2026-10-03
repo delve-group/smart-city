@@ -1,6 +1,6 @@
 "use client";
 
-import { DeviceMicrophone, DeviceMicrophoneOff } from "@appica/icons-react";
+import { DeviceMicrophone, DeviceMicrophoneOff, X } from "@appica/icons-react";
 import { Button } from "@appica/ui-react/button";
 import { Spinner } from "@appica/ui-react/spinner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@appica/ui-react/tooltip";
@@ -20,7 +20,7 @@ type Props = {
 };
 
 /** One big mic button at the bottom centre. Its tooltip stays open and says what to do; red means recording. */
-export function VoicePanelContent({ intake, categories, onLocate, onFallback }: Props) {
+export function VoicePanelContent({ intake, categories, onLocate, onClose, onFallback }: Props) {
   const { t } = useI18n();
   const voice = useBrowserVoice(intake, categories, onLocate);
   const [hovered, setHovered] = useState(false);
@@ -76,6 +76,16 @@ export function VoicePanelContent({ intake, categories, onLocate, onFallback }: 
           </Button>
         </div>
       )}
+      <Button
+        variant="outline"
+        size="icon-sm"
+        aria-label={t("voice.close")}
+        disabled={voice.phase === "stopping"}
+        onClick={() => void voice.stop().then(onClose)}
+        className="absolute -top-1 -right-1 z-10 size-7 rounded-full border-border-strong/50 bg-background shadow-xs"
+      >
+        <X className="size-4" />
+      </Button>
       <Tooltip open={!hovered} onOpenChange={() => undefined}>
         <TooltipTrigger
           render={
