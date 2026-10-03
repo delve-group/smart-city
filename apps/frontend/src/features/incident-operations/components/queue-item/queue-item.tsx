@@ -35,10 +35,11 @@ export function QueueItem({ item, category, selected, now, onSelect }: QueueItem
       type="button"
       onClick={onSelect}
       aria-current={selected ? "true" : undefined}
-      className={`flex w-full flex-col gap-1 rounded-md px-3 py-3 text-start transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-focus-ring ${
+      className={`flex h-28 w-full flex-col justify-between gap-2 rounded-md px-3 py-4 text-start transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-focus-ring ${
         selected ? "bg-background-muted" : "hover:bg-background-subtle"
       }`}
     >
+      {/* Fixed height: two title lines max, status pinned to the bottom so rows line up. */}
       <span className="line-clamp-2 text-sm font-medium text-foreground-intense">{title}</span>
       <span className="flex items-center justify-between gap-3 text-xs">
         <span className={`flex min-w-0 items-center gap-1.5 ${item.review ? "font-medium text-foreground" : "text-foreground-muted"}`}>
