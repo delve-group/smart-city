@@ -6,14 +6,15 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import type { Category } from "@/api/categories/types";
 import type { ReverseAddress } from "@/api/photon/types";
+import type { LocationCandidate } from "@/api/locations/types";
 import { confirmReport } from "@/api/reports/confirm-report";
-import { KRAKOW_BOUNDS, type CityReport } from "@/api/reports/types";
+import { type CityReport } from "@/api/reports/types";
 import { CategoryFilter } from "@/features/category-filter/components/category-filter/category-filter";
 import { CenterPin } from "@/features/report-issue/components/center-pin/center-pin";
 import { LocationPicker } from "@/features/report-issue/components/location-picker/location-picker";
 import { ReportFab } from "@/features/report-issue/components/report-fab/report-fab";
 import { ReportForm } from "@/features/report-issue/components/report-form/report-form";
-import { useReverseGeocode } from "@/features/report-issue/hooks/use-reverse-geocode";
+import { insideKrakow } from "@/shared/utils/krakow";
 import { AppBrand } from "@/shared/components/app-brand/app-brand";
 import { useAffectedReports } from "../../hooks/use-affected-reports";
 import { heatWeight } from "../../utils/heat-weight";
@@ -38,11 +39,7 @@ const PANEL_INSET = 412;
 type LatLng = { lat: number; lng: number };
 
 /** Browsing the map, placing the pin for a new report, or filling in the report. */
-type Mode = { kind: "browse" } | { kind: "picking" } | { kind: "form"; location: LatLng; address: ReverseAddress };
-
-function insideKrakow({ lat, lng }: LatLng): boolean {
-  return lat >= KRAKOW_BOUNDS.south && lat <= KRAKOW_BOUNDS.north && lng >= KRAKOW_BOUNDS.west && lng <= KRAKOW_BOUNDS.east;
-}
+type Mode = { kind: "browse" } | { kind: "picking" } | { kind: "form"; location: LatLng; address: ReverseAddress; candidate: LocationCandidate };
 
 export function CityMapView() {
   const { state, retry, addReport, replaceReport } = useCityData();
@@ -57,7 +54,7 @@ export function CityMapView() {
   const [focus, setFocus] = useState<MapFocus | null>(null);
   const [mode, setMode] = useState<Mode>({ kind: "browse" });
   const [center, setCenter] = useState<LatLng>({ lat: INITIAL_VIEW.latitude, lng: INITIAL_VIEW.longitude });
-  const pinAddress = useReverseGeocode(mode.kind === "picking" ? center : null);
+  const [selectedLocation, setSelectedLocation] = useState<LocationCandidate | null>(null);
   /** Category ids to show; null means all (also covers categories the API adds later). */
   const [shownCategoryIds, setShownCategoryIds] = useState<string[] | null>(null);
   const [tilted, setTilted] = useState(false);
@@ -130,6 +127,7 @@ export function CityMapView() {
   function startReport() {
     setSelectedId(null);
     setHover(null);
+    setSelectedLocation(null);
     setMode({ kind: "picking" });
   }
 
@@ -221,11 +219,16 @@ export function CityMapView() {
         <>
           <CenterPin />
           <LocationPicker
-            address={pinAddress}
+            pin={center}
+            selected={selectedLocation}
             insideCity={insideKrakow(center)}
-            onLocate={(location) => flyTo(location, 17)}
+            onLocate={(location) => { setSelectedLocation(null); flyTo(location, 17); }}
+            onSelect={(candidate) => { setSelectedLocation(candidate); flyTo(candidate, 17); }}
             onCancel={() => setMode({ kind: "browse" })}
-            onConfirm={(address) => setMode({ kind: "form", location: center, address })}
+            onConfirm={(candidate) => setMode({
+              kind: "form", location: { lat: candidate.lat, lng: candidate.lng }, candidate,
+              address: { address: candidate.label, district: candidate.district ?? undefined },
+            })}
           />
         </>
       )}

@@ -46,4 +46,6 @@ Still open: the supervised worker when durable triage/indexing is implemented; E
 
 ## Delivery status
 
+Location preparation for #26 adds a bounded Photon HTTP/client adapter and explicit address-candidate selection with an exact-pin fallback; see [location resolution](../location-resolution.md). It preserves the legacy report form/map. Owned draft, revision confirmation and persistent intake remain blocked by their shared-contract/intake dependencies; preparation does not complete the citizen workflow.
+
 Done: project guidance, design system and a Next.js map PoC with categories, search, report form and confirmations, still fed by mock report routes. The local backend foundation adds Docker startup, PostgreSQL migrations, persistent authentication, demo staff/institutions and health/access-check APIs; newly issued sessions last 30 days. Missing: persistent reports/incidents, voice, search integration, actor tools, worker, operator approvals, institution tickets, cross-screen updates and Scaleway deployment. The [parallel-delivery backlog](parallel-delivery.md) now assigns these implementation slices; creating Issues does not implement them.
