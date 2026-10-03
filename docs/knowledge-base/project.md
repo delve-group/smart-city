@@ -15,6 +15,7 @@ Updated: 2026-10-03.
 - Voice/incident direction (2026-10-03): a report is one resident observation; an incident aggregates related reports and tracks the response. The proposed roles are dispatcher, decision-maker and institution, with official approval before external contact or ticket execution. Browser voice is the confirmed first channel; a phone number comes later. Government identity is a demo mock. Current requirements and acceptance criteria are in the [feature specification](../../specs/001-voice-incident-response/spec.md); integration and tool contracts are in its [technical plan](../../specs/001-voice-incident-response/plan.md).
 - Voice provider (2026-10-03): **ElevenLabs Agents**, explicitly selected by the user. Browser voice first; no GPT-Live/Realtime provider comparison is pending. Integration and account validation are not yet done.
 - Agent and MCP ticket/incident search: provider and scope accepted in D029; implementation is pending. Read the [Qdrant search guide](qdrant-search.md), including its handling of uncategorized source records, before implementing search.
+- Selected citizen scenarios: broken lift (5), dangerous pothole (3), blocked drain (2) and power outage (1). Canonical report scripts and reuse guidance for manual testing and demo videos are in [Citizen use cases](citizen-use-cases.md). Selection does not imply that the scenarios have been executed or their workflows implemented.
 
 ## Working assumptions
 
