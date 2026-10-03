@@ -103,10 +103,10 @@ export function CityMapView() {
 
   // Escape closes the detail panel or cancels pin placement; it never discards a half-filled form.
   useEffect(() => {
-    if (!selectedId && mode.kind !== "picking") return;
+    if (!selectedId && mode.kind !== "picking" && mode.kind !== "voice") return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
-      if (mode.kind === "picking") setMode({ kind: "browse" });
+      if (mode.kind === "picking" || mode.kind === "voice") setMode({ kind: "browse" });
       else setSelectedId(null);
     };
     window.addEventListener("keydown", onKey);
@@ -240,7 +240,7 @@ export function CityMapView() {
           />
         )}
         {ready && !selected && (
-          <ReportFab active={mode.kind !== "browse"} busy={intake.busy} onClick={() => mode.kind === "browse" && void startReport()} onVoice={() => void startVoiceReport()} />
+          <ReportFab active={mode.kind !== "browse"} busy={intake.busy} onClick={() => { if (mode.kind === "browse") void startReport(); else if (mode.kind === "voice") cancelReport(); }} onVoice={() => void startVoiceReport()} />
         )}
       </div>
 

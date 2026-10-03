@@ -15,7 +15,7 @@ export function ReportFab({ active, busy = false, onClick, onVoice }: { active: 
       variant={active ? "primary" : "outline"}
       size="lg"
       aria-pressed={active}
-      onClick={onVoice ? undefined : onClick}
+      onClick={onVoice && !active ? undefined : onClick}
       disabled={busy}
       className={`shrink-0 shadow-xs ${active ? "" : "border-border-strong/50 bg-background"}`}
     >

@@ -1,45 +1,57 @@
 "use client";
 
-import { DeviceMicrophone, DeviceMicrophoneOff, X } from "@appica/icons-react";
+import { DeviceMicrophone, DeviceMicrophoneOff } from "@appica/icons-react";
 import { Button } from "@appica/ui-react/button";
 import { Spinner } from "@appica/ui-react/spinner";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@appica/ui-react/tooltip";
+import { useState } from "react";
 import type { Category } from "@/api/categories/types";
 import type { IntakeDraft } from "@/api/intake/types";
 import { useI18n } from "@/shared/i18n/locale";
 import type { VoiceDraftController } from "../../types";
 import { useBrowserVoice } from "../../hooks/use-browser-voice";
 
-type Props = { intake: VoiceDraftController; categories: readonly Category[]; onLocate?: (location: { lat: number; lng: number }) => void; onClose: () => void; onFallback: (draft: IntakeDraft | null) => void };
+type Props = {
+  intake: VoiceDraftController;
+  categories: readonly Category[];
+  onLocate?: (location: { lat: number; lng: number }) => void;
+  onClose: () => void;
+  onFallback: (draft: IntakeDraft | null) => void;
+};
 
-/** Siri-like voice card: one mic button, the app's latest line and the resident's latest line. */
-export function VoicePanelContent({ intake, categories, onLocate, onClose, onFallback }: Props) {
+/** One big mic button at the bottom centre. Its tooltip stays open and says what to do; red means recording. */
+export function VoicePanelContent({ intake, categories, onLocate, onFallback }: Props) {
   const { t } = useI18n();
   const voice = useBrowserVoice(intake, categories, onLocate);
+  const [hovered, setHovered] = useState(false);
+  /** Continue appears once the resident has unmuted, so the first screen is just the mic. */
+  const [spoke, setSpoke] = useState(false);
   const saved = intake.report ?? intake.draft?.submission;
   const connected = voice.phase === "connected";
   const waiting = voice.phase === "starting" || voice.phase === "stopping";
   const listening = connected && !voice.isMuted;
-  const lastAgent = voice.messages.findLast((message) => message.role === "agent")?.text;
-  const lastUser = voice.messages.findLast((message) => message.role === "user")?.text;
-  /** Before the first conversation, the second line says where the audio goes. */
-  const showNotice = !lastUser && !connected && !waiting && !voice.errorCode && !saved && voice.messages.length === 0;
+
   const errorText = voice.errorCode === "microphone_denied" ? t("voice.microphoneDenied")
     : voice.errorCode === "voice_session_active" ? t("voice.sessionActive")
     : voice.errorCode === "voice_start_limit" ? t("voice.startLimit")
     : voice.errorCode === "connection_lost" ? t("voice.disconnected") : t("voice.unavailable");
-
-  // The app's line: an error or saved report first, then what it last said, then what to do next.
-  const appLine = voice.errorCode ? errorText
+  const hint = voice.errorCode ? errorText
     : saved ? t("voice.saved", { reference: saved.reference })
     : voice.phase === "starting" ? t("voice.connecting")
     : voice.phase === "stopping" ? t("voice.stopping")
-    : connected && lastAgent ? lastAgent
     : listening ? t("voice.speakNow")
     : t("voice.unmuteToSpeak");
+  const showNotice = !spoke && !connected && !waiting && !voice.errorCode && !saved;
 
   function toggleMic() {
-    if (connected) voice.toggleMute();
-    else if (!waiting && !saved) void voice.start();
+    // Starting or unmuting both turn the mic on.
+    if (connected) {
+      if (voice.isMuted) setSpoke(true);
+      voice.toggleMute();
+    } else if (!waiting && !saved) {
+      setSpoke(true);
+      void voice.start();
+    }
   }
 
   async function continueInForm() {
@@ -49,43 +61,40 @@ export function VoicePanelContent({ intake, categories, onLocate, onClose, onFal
   }
 
   return (
-    <section
-      aria-label={t("voice.title")}
-      className="absolute right-[4.25rem] bottom-3 left-3 z-30 flex items-center gap-3 rounded-2xl border border-border bg-background p-3 shadow-lg transition-[opacity,translate] duration-200 ease-out starting:translate-y-2 starting:opacity-0 motion-reduce:transition-none md:left-auto md:w-[26rem]"
-    >
-      <Button
-        variant={listening ? "primary" : "outline"}
-        aria-label={listening ? t("voice.mute") : t("voice.unmute")}
-        aria-pressed={listening}
-        aria-describedby="voice-privacy"
-        disabled={waiting || (Boolean(saved) && !connected)}
-        onClick={toggleMic}
-        className="size-14 shrink-0 rounded-full p-0"
-      >
-        {waiting ? <Spinner className="size-6" /> : listening ? <DeviceMicrophone className="size-6" /> : <DeviceMicrophoneOff className="size-6" />}
-      </Button>
-
-      <div role="status" aria-live="polite" className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <p title={appLine} className={`${lastUser || showNotice ? "truncate" : "line-clamp-2"} text-sm font-medium ${voice.errorCode ? "text-warning-emphasis" : "text-foreground-intense"}`}>{appLine}</p>
-        {lastUser ? <p title={lastUser} className="truncate text-sm text-foreground-muted">{lastUser}</p>
-          : showNotice && <p className="line-clamp-2 text-xs text-foreground-muted">{t("voice.notice")}</p>}
-      </div>
-      <p id="voice-privacy" className="sr-only">{t("voice.introduction")}</p>
-
-      <Button variant="ghost" size="sm" className="shrink-0" disabled={voice.phase === "stopping"} onClick={() => void continueInForm()}>
-        {t("voice.continue")}
-      </Button>
-
-      <Button
-        variant="outline"
-        size="icon-sm"
-        aria-label={t("report.closeAria")}
-        disabled={voice.phase === "stopping"}
-        onClick={() => void voice.stop().then(onClose)}
-        className="absolute -top-2.5 -right-2.5 size-6 rounded-full bg-background shadow-sm"
-      >
-        <X className="size-3.5" />
-      </Button>
-    </section>
+    <div className="absolute bottom-12 left-1/2 z-30 -translate-x-1/2 md:bottom-6 transition-[opacity,translate] duration-200 ease-out starting:translate-y-2 starting:opacity-0 motion-reduce:transition-none">
+      {(spoke || saved) && (
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={voice.phase === "stopping"}
+          onClick={() => void continueInForm()}
+          className="absolute top-1/2 right-full mr-4 -translate-y-1/2 border-border-strong/50 bg-background shadow-xs transition-opacity duration-200 starting:opacity-0 motion-reduce:transition-none"
+        >
+          {t("voice.continue")}
+        </Button>
+      )}
+      <Tooltip open={!hovered} onOpenChange={() => undefined}>
+        <TooltipTrigger
+          render={
+            <Button
+              variant={listening ? "destructive" : "outline"}
+              aria-label={listening ? t("voice.mute") : t("voice.unmute")}
+              aria-pressed={listening}
+              disabled={waiting || (Boolean(saved) && !connected)}
+              onClick={toggleMic}
+              onPointerEnter={() => setHovered(true)}
+              onPointerLeave={() => setHovered(false)}
+              className={`size-20 rounded-full p-0 shadow-md ${listening ? "" : "border-border-strong/50 bg-background"}`}
+            />
+          }
+        >
+          {waiting ? <Spinner className="size-8" /> : listening ? <DeviceMicrophone className="size-8" /> : <DeviceMicrophoneOff className="size-8" />}
+        </TooltipTrigger>
+        <TooltipContent side="top" sideOffset={12} className="max-w-72 text-center">
+          <span role="status" aria-live="polite" className="block">{hint}</span>
+          {showNotice && <span className="mt-1 block text-xs opacity-80">{t("voice.notice")}</span>}
+        </TooltipContent>
+      </Tooltip>
+    </div>
   );
 }
