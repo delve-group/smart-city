@@ -7,6 +7,8 @@ import { useEffect, useRef } from "react";
 import type { Category } from "@/api/categories/types";
 import type { Incident, IncidentCommand, OperationsReport, ProposalDecision, Workspace } from "@/api/operations/types";
 import { FloatingPanel } from "@/shared/components/floating-panel/floating-panel";
+import { useI18n } from "@/shared/i18n/locale";
+import type { MessageKey } from "@/shared/i18n/messages";
 import { formatAgo } from "@/shared/utils/format-time";
 import { institutionName, reportsOf } from "../../utils/queue";
 import { ASSESSMENT } from "../../utils/labels";
@@ -47,6 +49,7 @@ function nextStep(incident: Incident): "proposal" | "sending" | "choose" | "tick
 export function IncidentPanel({ incident, workspace, category, now, onClose, onLocate, onDecide, onReconcile, onCommand }: IncidentPanelProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const reports: OperationsReport[] = reportsOf(incident, workspace.reports);
+  const { t, locale } = useI18n();
   const step = nextStep(incident);
   // The incident started with its earliest report; ISO strings sort by time.
   const started = reports.map((report) => report.submittedAt).sort()[0] ?? incident.history[0]?.at;
@@ -81,18 +84,18 @@ export function IncidentPanel({ incident, workspace, category, now, onClose, onL
               </h2>
               <p className="text-sm text-foreground-muted">{[incident.address, incident.district].filter(Boolean).join(" · ")}</p>
               <p className={FACTS}>
-                <Fact icon={Id} label="Reference">
+                <Fact icon={Id} label={t("common.reference")}>
                   <span className="font-mono">{incident.reference}</span>
                 </Fact>
                 {started && (
-                  <Fact icon={Clock} label="Started">
-                    {formatAgo(started, now)}
+                  <Fact icon={Clock} label={t("common.started")}>
+                    {formatAgo(started, now, locale)}
                   </Fact>
                 )}
                 {/* Only an official's verdict is worth a badge; "suspected" is the default state. */}
                 {(incident.assessment === "verified" || incident.assessment === "disputed") && (
-                  <Badge variant={ASSESSMENT[incident.assessment].variant} size="xs" title={ASSESSMENT[incident.assessment].hint}>
-                    {ASSESSMENT[incident.assessment].label}
+                  <Badge variant={ASSESSMENT[incident.assessment].variant} size="xs" title={t(`assessment.${incident.assessment}Hint` as MessageKey)}>
+                    {t(`assessment.${incident.assessment}` as MessageKey)}
                   </Badge>
                 )}
               </p>

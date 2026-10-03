@@ -13,6 +13,7 @@ import { MARKER_PIXEL_RATIO, MARKER_SIZE } from "../../utils/report-icon-svg";
 import { readMapColors } from "../../utils/read-map-colors";
 import { toAreaCollection, toFeatureCollection } from "../../utils/to-feature-collection";
 import { INITIAL_VIEW, type MapArea, type MapFocus, type MapHover, type MapPoint, type MapView } from "./map-types";
+import { useI18n } from "@/shared/i18n/locale";
 import { AttributionControl } from "./attribution-control";
 import { useReportPlaces } from "./use-report-places";
 
@@ -88,6 +89,7 @@ export default function CityMapCanvas({
   heatmap = true,
   initialView = INITIAL_VIEW,
 }: CityMapCanvasProps) {
+  const { t } = useI18n();
   const mapRef = useRef<MapRef>(null);
   /** True while the camera moves (drag, zoom, fly-to); hover is meaningless then. */
   const movingRef = useRef(false);
@@ -267,7 +269,7 @@ export default function CityMapCanvas({
       <AttributionControl position="bottom-left" compact customAttribution={attribution} />
       {userLocation && (
         <Marker longitude={userLocation.lng} latitude={userLocation.lat} anchor="center" style={{ pointerEvents: "none" }}>
-          <span role="img" aria-label="Your location" className="relative flex size-10 items-center justify-center">
+          <span role="img" aria-label={t("report.yourLocation")} className="relative flex size-10 items-center justify-center">
             <span className="absolute inset-0 rounded-full bg-(--map-user-location)/15" />
             <span className="relative size-4 rounded-full border-2 border-background bg-(--map-user-location) shadow-sm" />
           </span>

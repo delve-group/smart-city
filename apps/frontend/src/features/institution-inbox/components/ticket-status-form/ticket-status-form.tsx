@@ -3,27 +3,29 @@ import { Field, FieldError, FieldLabel } from "@appica/ui-react/field";
 import { Textarea } from "@appica/ui-react/textarea";
 import { useState } from "react";
 import type { InstitutionTicket, TicketUpdate } from "@/api/institution/types";
+import { useI18n } from "@/shared/i18n/locale";
+import type { MessageKey } from "@/shared/i18n/messages";
 
 type NextStatus = TicketUpdate["status"];
 
-const NEXT: Record<InstitutionTicket["status"], { status: NextStatus; label: string; needsNote: boolean }[]> = {
+const NEXT: Record<InstitutionTicket["status"], { status: NextStatus; label: MessageKey; needsNote: boolean }[]> = {
   created: [
-    { status: "acknowledged", label: "Acknowledge", needsNote: false },
-    { status: "rejected", label: "Reject", needsNote: true },
+    { status: "acknowledged", label: "inbox.acknowledge", needsNote: false },
+    { status: "rejected", label: "common.reject", needsNote: true },
   ],
   acknowledged: [
-    { status: "in_progress", label: "Start work", needsNote: false },
-    { status: "rejected", label: "Reject", needsNote: true },
+    { status: "in_progress", label: "inbox.start", needsNote: false },
+    { status: "rejected", label: "common.reject", needsNote: true },
   ],
-  in_progress: [{ status: "resolved", label: "Report as resolved", needsNote: true }],
+  in_progress: [{ status: "resolved", label: "inbox.reportResolved", needsNote: true }],
   resolved: [],
   rejected: [],
 };
 
-const NOTE_HINT: Partial<Record<InstitutionTicket["status"], string>> = {
-  created: "A note is needed only to reject. A rejected ticket goes back to the city official; nobody else is assigned automatically.",
-  acknowledged: "A note is needed only to reject. A rejected ticket goes back to the city official; nobody else is assigned automatically.",
-  in_progress: "Say what was done. The city sees this note; residents see only that the problem was reported as fixed.",
+const NOTE_HINT: Partial<Record<InstitutionTicket["status"], MessageKey>> = {
+  created: "inbox.noteHintReject",
+  acknowledged: "inbox.noteHintReject",
+  in_progress: "inbox.noteHintDone",
 };
 
 type TicketStatusFormProps = {
@@ -37,16 +39,18 @@ type TicketStatusFormProps = {
 
 /** The steps this institution may take next. The server enforces the same order. */
 export function TicketStatusForm({ ticket, note, onNoteChange, onUpdate }: TicketStatusFormProps) {
+  const { t } = useI18n();
   const [busy, setBusy] = useState<NextStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
   const actions = NEXT[ticket.status];
+  const hint = NOTE_HINT[ticket.status];
   if (actions.length === 0) return null;
   const noteRelevant = actions.some((action) => action.needsNote);
 
   async function run(action: (typeof actions)[number]) {
     const trimmed = note.trim();
     if (action.needsNote && trimmed.length < 3) {
-      setError(action.status === "resolved" ? "Say what was done before reporting it as resolved." : "Say why you are rejecting the ticket.");
+      setError(action.status === "resolved" ? t("inbox.sayDone") : t("inbox.sayReject"));
       return;
     }
     setError(null);
@@ -57,15 +61,15 @@ export function TicketStatusForm({ ticket, note, onNoteChange, onUpdate }: Ticke
 
   return (
     <section aria-labelledby="ticket-next-title" className="flex flex-col gap-3">
-      <h3 id="ticket-next-title" className="text-sm font-semibold text-foreground-intense">Next step</h3>
+      <h3 id="ticket-next-title" className="text-sm font-semibold text-foreground-intense">{t("inbox.next")}</h3>
       {noteRelevant && (
         <Field invalid={Boolean(error)}>
-          <FieldLabel>Note</FieldLabel>
+          <FieldLabel>{t("common.note")}</FieldLabel>
           <Textarea
             rows={3}
             maxLength={500}
             value={note}
-            placeholder={ticket.status === "in_progress" ? "Feeder repaired, supply restored…" : "Optional, unless you reject the ticket"}
+            placeholder={ticket.status === "in_progress" ? t("inbox.placeholderDone") : t("inbox.placeholderOptional")}
             onChange={(event) => {
               onNoteChange(event.target.value);
               if (error) setError(null);
@@ -83,13 +87,13 @@ export function TicketStatusForm({ ticket, note, onNoteChange, onUpdate }: Ticke
             onClick={() => void run(action)}
             className={action.status === "rejected" ? "" : "flex-1"}
           >
-            {busy === action.status ? "Saving…" : action.label}
+            {busy === action.status ? t("common.saving") : t(action.label)}
           </Button>
         ))}
       </div>
       {noteRelevant && (
         <p className="text-xs text-pretty text-foreground-muted">
-          {NOTE_HINT[ticket.status]}
+          {hint ? t(hint) : null}
         </p>
       )}
     </section>

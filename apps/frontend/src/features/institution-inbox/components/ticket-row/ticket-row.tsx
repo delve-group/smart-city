@@ -1,14 +1,16 @@
 import { Clock } from "@appica/icons-react";
 import type { InstitutionTicket } from "@/api/institution/types";
 import { Fact } from "@/shared/components/fact/fact";
+import { useI18n } from "@/shared/i18n/locale";
+import type { MessageKey } from "@/shared/i18n/messages";
 import { categoryAppearance } from "@/shared/utils/category-appearance";
 import { formatAgo } from "@/shared/utils/format-time";
-import { STATUS } from "../../utils/labels";
 
 type TicketRowProps = { ticket: InstitutionTicket; selected: boolean; now: number; onSelect: () => void };
 
 /** One ticket in the inbox list. Same shape as an operations queue row. */
 export function TicketRow({ ticket, selected, now, onSelect }: TicketRowProps) {
+  const { t, locale } = useI18n();
   const { categoryId, summary } = ticket.incident;
   const { Icon, textClass } = categoryAppearance(categoryId);
   const waiting = ticket.status === "created";
@@ -31,11 +33,11 @@ export function TicketRow({ ticket, selected, now, onSelect }: TicketRowProps) {
           <span aria-hidden className="text-foreground-muted">
             ·
           </span>
-          <span className="truncate">{STATUS[ticket.status].label}</span>
+          <span className="truncate">{t(`inboxStatus.${ticket.status}` as MessageKey)}</span>
         </span>
         <span className="shrink-0 text-foreground-muted tabular-nums">
-          <Fact icon={Clock} label="Received">
-            {formatAgo(ticket.createdAt, now)}
+          <Fact icon={Clock} label={t("inbox.received")}>
+            {formatAgo(ticket.createdAt, now, locale)}
           </Fact>
         </span>
       </span>

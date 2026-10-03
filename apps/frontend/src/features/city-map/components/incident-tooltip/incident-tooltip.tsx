@@ -2,6 +2,7 @@ import { Clock, MapPin, Users } from "@appica/icons-react";
 import type { Category } from "@/api/categories/types";
 import type { PublicIncident } from "@/api/incidents/types";
 import { CategoryLabel } from "@/shared/components/category-label/category-label";
+import { useI18n, tCount } from "@/shared/i18n/locale";
 import { formatAgo } from "@/shared/utils/format-time";
 import { IncidentStatus } from "../incident-status/incident-status";
 
@@ -20,6 +21,7 @@ type IncidentTooltipProps = {
 
 /** Follows the pointer and flips away from the nearest edge. Purely informational. */
 export function IncidentTooltip({ incident, category, now, x, y, bounds }: IncidentTooltipProps) {
+  const { t, locale } = useI18n();
   const flipX = x + OFFSET + WIDTH > bounds.width;
   const flipY = y > bounds.height * 0.6;
 
@@ -42,24 +44,24 @@ export function IncidentTooltip({ incident, category, now, x, y, bounds }: Incid
       </p>
       <dl className="flex flex-col gap-1.5 text-sm text-foreground">
         <div className="flex items-start gap-2">
-          <dt className="sr-only">Where</dt>
+          <dt className="sr-only">{t("common.where")}</dt>
           <MapPin size={16} aria-hidden className="mt-0.5 shrink-0 text-foreground-subtle" />
           <dd className="line-clamp-1">{incident.public_location.label}</dd>
         </div>
         <div className="flex items-start gap-2">
-          <dt className="sr-only">Reported</dt>
+          <dt className="sr-only">{t("common.reported")}</dt>
           <Clock size={16} aria-hidden className="mt-0.5 shrink-0 text-foreground-subtle" />
-          <dd>Reported {formatAgo(incident.created_at, now)}</dd>
+          <dd>{t("report.reportedAgo", { when: formatAgo(incident.created_at, now, locale) })}</dd>
         </div>
         <div className="flex items-start gap-2">
-          <dt className="sr-only">Supporters</dt>
+          <dt className="sr-only">{t("incidentMap.supportersLabel")}</dt>
           <Users size={16} aria-hidden className="mt-0.5 shrink-0 text-foreground-subtle" />
           <dd>
-            {incident.support_count === 1 ? "1 distinct supporter" : `${incident.support_count} distinct supporters`}
+            {tCount(t, locale, "incidentMap.supporters", incident.support_count)}
           </dd>
         </div>
       </dl>
-      <p className="text-xs text-foreground-muted">Click the point for details</p>
+      <p className="text-xs text-foreground-muted">{t("report.click")}</p>
     </div>
   );
 }

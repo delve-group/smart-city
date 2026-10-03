@@ -3,6 +3,7 @@ import { connection } from "next/server";
 import { USE_MOCKS } from "@/api/mocks/use-mocks";
 import { isDemoMode } from "@/server/config";
 import { InstitutionGate } from "@/features/institution-inbox/components/institution-gate/institution-gate";
+import { ScreenTitle } from "@/shared/components/screen-title/screen-title";
 
 export const metadata: Metadata = {
   title: "mRadar — institution inbox",
@@ -14,7 +15,7 @@ export default async function InstitutionPage() {
   await connection();
   return (
     <main className="h-dvh w-full">
-      <h1 className="sr-only">Institution inbox</h1>
+      <ScreenTitle title="meta.institution" heading="page.institution" />
       <InstitutionGate demoMode={isDemoMode() || USE_MOCKS} />
     </main>
   );

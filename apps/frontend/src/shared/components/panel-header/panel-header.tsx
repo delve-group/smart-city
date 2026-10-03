@@ -3,6 +3,7 @@ import { Button } from "@appica/ui-react/button";
 import type { ReactNode } from "react";
 import type { Category } from "@/api/categories/types";
 import { CategoryLabel } from "@/shared/components/category-label/category-label";
+import { useI18n } from "@/shared/i18n/locale";
 
 type PanelHeaderProps = {
   category: Category | undefined;
@@ -14,15 +15,16 @@ type PanelHeaderProps = {
 
 /** Same header as the resident panel: category on the left, actions on the right. */
 export function PanelHeader({ category, actions, onCenter, onClose }: PanelHeaderProps) {
+  const { t } = useI18n();
   return (
     <div className="flex items-center justify-between gap-3">
       <div className="flex min-w-0 items-center">{category && <CategoryLabel category={category} />}</div>
       <div className="flex shrink-0 items-center gap-1">
         {actions}
-        <Button variant="ghost" size="icon-md" aria-label="Show on map" onClick={onCenter}>
+        <Button variant="ghost" size="icon-md" aria-label={t("common.showOnMap")} onClick={onCenter}>
           <CurrentLocation />
         </Button>
-        <Button variant="ghost" size="icon-md" aria-label="Close details" onClick={onClose}>
+        <Button variant="ghost" size="icon-md" aria-label={t("common.close")} onClick={onClose}>
           <X />
         </Button>
       </div>

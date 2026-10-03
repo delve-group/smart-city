@@ -8,13 +8,12 @@ h1,h2,h3,p{margin:0}
 .slide strong{color:var(--ink);font-weight:600}
 
 /* Type */
-.eyebrow{font-size:30px;font-weight:600;letter-spacing:-.01em;color:var(--rose-2)}
-.display{font-size:132px;font-weight:700;letter-spacing:-.055em;line-height:.95}
-.title{font-size:96px;font-weight:700;letter-spacing:-.05em;line-height:1;margin-top:28px}
+.display{font-size:132px;font-weight:700;letter-spacing:-.04em;line-height:.95}
+.title{font-size:96px;font-weight:700;letter-spacing:-.04em;line-height:1;text-wrap:balance}
 .lead{font-size:36px;line-height:1.35;color:var(--soft);letter-spacing:-.015em;font-weight:450}
-.grad{background:linear-gradient(100deg,#fda4af 0%,#f43f5e 45%,#f5b83d 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hl{color:var(--rose-2)}
+.dim{color:var(--mute)}
 .mono{font-family:var(--mono)}
-.num{position:absolute;right:120px;bottom:56px;font-size:20px;color:var(--mute);font-variant-numeric:tabular-nums}
 .foot{position:absolute;left:120px;bottom:56px;font-size:20px;color:var(--mute)}
 
 /* Surfaces */
@@ -24,49 +23,54 @@ h1,h2,h3,p{margin:0}
 .crop{position:absolute;overflow:hidden;border-radius:26px;box-shadow:0 0 0 1.5px var(--line),0 50px 140px rgba(0,0,0,.75)}
 .crop img{position:absolute;right:0;top:0;width:1240px;display:block}
 .glow{position:absolute;pointer-events:none;background:radial-gradient(closest-side,var(--c),transparent)}
-.phone{position:absolute;border-radius:74px;padding:16px;background:linear-gradient(160deg,#3a3a3c,#1c1c1e 40%,#2c2c2e);box-shadow:0 0 0 2px #48484a,0 60px 140px rgba(0,0,0,.8)}
-.phone .screen{width:100%;height:100%;border-radius:58px;overflow:hidden;background:#000;padding-top:64px}
-.phone img{display:block;width:100%;height:100%;object-fit:cover;object-position:top}
-.phone::after{content:"";position:absolute;top:34px;left:50%;width:120px;height:34px;margin-left:-60px;border-radius:20px;background:#000}
+/* Apple device frames: the screenshot sits under the frame's transparent screen. */
+.iphone,.monitor{position:absolute;z-index:1}
+.iphone{aspect-ratio:978/2000;filter:drop-shadow(0 40px 60px rgba(0,0,0,.6))}
+.monitor{aspect-ratio:4760/4050;filter:drop-shadow(0 40px 80px rgba(0,0,0,.6))}
+.iphone .frame,.monitor .frame{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+.iphone .screen,.monitor .screen{position:absolute;overflow:hidden;background:#000}
+.iphone .screen{left:5.32%;top:2.6%;width:89.37%;height:94.9%;border-radius:14%/6.5%}
+.monitor .screen{left:2.941%;top:3.704%;width:94.118%;height:62.222%}
+.iphone .screen img,.monitor .screen img{display:block;width:100%;height:100%;object-fit:cover;object-position:top}
 
 /* 1 · Cover */
 #cover .bg{position:absolute;right:-470px;top:0;height:1080px;width:auto;opacity:.95}
 #cover .fade{position:absolute;inset:0;background:linear-gradient(90deg,#000 0%,#000 46%,rgba(0,0,0,.6) 60%,rgba(0,0,0,0) 80%),linear-gradient(0deg,#000 0%,rgba(0,0,0,0) 30%)}
 #cover .copy{position:absolute;left:120px;top:250px;width:900px}
 #cover .mark{width:132px;height:132px;display:block}
-#cover h1{font-size:220px;font-weight:700;letter-spacing:-.06em;line-height:.9;margin-top:36px}
-#cover .tagline{font-size:64px;font-weight:600;letter-spacing:-.035em;margin-top:28px}
+#cover h1{font-size:220px;font-weight:700;letter-spacing:-.04em;line-height:.9;margin-top:36px}
+#cover .tagline{font-size:64px;font-weight:600;letter-spacing:-.03em;margin-top:28px;color:var(--rose-2)}
 #cover .lead{margin-top:36px;max-width:760px}
 
 /* 2 · Problem */
-#problem .copy{position:absolute;left:160px;top:190px;width:1600px}
-#problem .display{margin-top:36px}
+#problem .copy{position:absolute;left:160px;top:200px;width:1600px}
 #problem .display+.display{margin-top:12px}
 #problem .three{display:grid;grid-template-columns:repeat(3,1fr);gap:64px;margin-top:110px}
 
-/* 3 · Loop */
-#loop .copy{position:absolute;left:120px;top:150px}
-#loop .cards{position:absolute;left:120px;right:120px;top:430px;display:grid;grid-template-columns:repeat(3,1fr);gap:36px}
-.card{border-radius:36px;padding:56px 52px;background:linear-gradient(160deg,#1c1c1e,#111);box-shadow:inset 0 0 0 1.5px var(--line);height:560px;display:flex;flex-direction:column}
-.card.hot{background:linear-gradient(160deg,#2a0f17,#140a0d);box-shadow:inset 0 0 0 1.5px rgba(244,63,94,.35)}
-.card .route{font-family:var(--mono);font-size:24px;color:var(--mute)}
-.card.hot .route{color:var(--rose-2)}
-.card h3{font-size:64px;font-weight:700;letter-spacing:-.045em;margin-top:auto}
-.card .lead{margin-top:20px}
-
+/* 3 · Loop: three real fragments joined by the path they hand work along */
+.loop-title{position:absolute;left:120px;top:110px}
+.loop-lead{position:absolute;left:1320px;top:118px;width:480px;font-size:30px;line-height:1.35;color:var(--soft)}
+.loop-path{position:absolute;inset:0;width:1920px;height:1080px;fill:none;stroke:#fb7185;stroke-width:2.5;stroke-linecap:round}
+.frag{position:absolute;width:480px;margin:0;border-radius:22px;overflow:hidden;box-shadow:0 0 0 1.5px rgba(255,255,255,.14),0 30px 80px rgba(0,0,0,.6);z-index:1}
+.frag img{display:block;width:100%}
+.step-label{position:absolute;top:812px;width:470px}
+.step-label h3{font-size:40px;font-weight:700;letter-spacing:-.03em}
+.step-label p{font-size:26px;line-height:1.35;color:var(--soft);margin-top:10px}
+.loop-return{position:absolute;left:0;right:0;top:1004px;text-align:center;font-size:24px;color:var(--ink)}
+.loop-return{width:max-content;margin:0 auto;padding:0 20px;background:#000}
 /* Headline left, copy right, screenshot below */
 .split-head{position:absolute;left:120px;top:120px;width:820px}
 .split-lead{position:absolute;left:1040px;top:180px;width:760px}
 
 /* 5 · Reporting */
 #reporting .copy{position:absolute;left:120px;top:150px;width:860px}
-#reporting .steps{display:flex;flex-direction:column;gap:44px;margin-top:80px}
+#reporting .steps{display:flex;flex-direction:column;gap:44px;margin-top:72px}
 #reporting .step{display:flex;gap:32px;align-items:baseline}
-#reporting .step .n{font-family:var(--mono);font-size:40px;font-weight:600}
+#reporting .step .n{font-size:40px;font-weight:700;color:var(--rose-2);font-variant-numeric:tabular-nums;min-width:28px}
 
 /* 7 · Review */
 #review .copy{position:absolute;left:1080px;top:150px;width:720px}
-#review .points{display:flex;flex-direction:column;gap:40px;margin-top:72px}
+#review .points{display:flex;flex-direction:column;gap:40px;margin-top:64px}
 
 /* 8 · Institutions */
 #handoff .copy{position:absolute;left:120px;top:120px}
@@ -85,7 +89,7 @@ h1,h2,h3,p{margin:0}
 .legend span::before{content:"";width:18px;height:18px;border-radius:50%;background:var(--c)}
 
 /* 10 · Close */
-#close .head{position:absolute;left:0;right:0;top:150px;text-align:center}
+#close .head{position:absolute;left:0;right:0;top:190px;text-align:center}
 #close .pills{position:absolute;left:260px;right:260px;top:410px;display:flex;flex-wrap:wrap;gap:14px;justify-content:center}
 .pill{font-size:24px;font-weight:500;padding:12px 22px;border-radius:999px;border:1.5px solid var(--line);color:var(--ink);background:rgba(255,255,255,.04)}
 #close .try{position:absolute;left:0;right:0;top:590px;display:flex;flex-direction:column;align-items:center;gap:22px}
@@ -93,15 +97,13 @@ h1,h2,h3,p{margin:0}
 #close .repo{font-family:var(--mono);font-size:28px;color:var(--soft)}
 #close .sign{position:absolute;left:0;right:0;bottom:120px;display:flex;justify-content:center;align-items:center;gap:28px}
 #close .sign img{width:72px;height:72px}
-#close .sign span{font-size:72px;font-weight:700;letter-spacing:-.055em}
+#close .sign span{font-size:72px;font-weight:700;letter-spacing:-.04em}
 #close .disclose{position:absolute;left:0;right:0;bottom:52px;text-align:center;font-size:19px;color:var(--mute)}
 
-/* PDF viewers render clipped gradient text as a solid block; print it in solid rose. */
-@media print{.grad{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--rose-2)}}
 
 /* Copy always sits above screenshots and their shadows. */
 .copy,.split-head,.split-lead,.head,.caption,.tag{z-index:2}
-.compare,.shot,.crop,.phone,.bleed{z-index:1}
+.compare,.shot,.crop,.bleed{z-index:1}
 #cover .bleed{z-index:0}#cover .fade{z-index:1}
-.foot,.num{z-index:2}
+.foot{z-index:2}
 .legend{z-index:2}
