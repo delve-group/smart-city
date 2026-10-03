@@ -40,6 +40,21 @@ function query(database, sql) {
   });
 }
 
+function preserveWriters(services) {
+  const previous = [];
+  for (const service of services) {
+    const container = compose(["ps", "--all", "--quiet", service], { stdio: ["ignore", "pipe", "inherit"] });
+    if (!container) continue;
+    if (container.includes("\n")) throw new Error(`Expected one ${service} container; inspect the deployment before continuing.`);
+    const inspected = JSON.parse(capture("docker", ["inspect", "--type", "container", "--format",
+      '{"imageId":{{json .Image}},"sourceRevision":{{json (index .Config.Labels "org.opencontainers.image.revision")}}}', container]));
+    const rollbackTag = `mradar-${service}:rollback-${stamp}-${randomUUID().slice(0, 8)}`;
+    run("docker", ["image", "tag", inspected.imageId, rollbackTag]);
+    previous.push({ service, sourceRevision: inspected.sourceRevision || null, imageId: inspected.imageId, rollbackTag });
+  }
+  return previous;
+}
+
 function backupDirectory() {
   const directory = env.MRADAR_BACKUP_DIR || "/var/backups/mradar";
   if (!isAbsolute(directory)) throw new Error("MRADAR_BACKUP_DIR must be an absolute path outside the repository.");
@@ -120,22 +135,25 @@ try {
     backupDirectory();
     const services = compose(["config", "--services"], { stdio: ["ignore", "pipe", "inherit"] }).split("\n");
     const writers = ["app", ...(services.includes("worker") ? ["worker"] : [])];
+    // A rebuild of the same Git revision can replace its image tag. Preserve the
+    // exact running images before building, independently of those mutable tags.
+    const previousWriters = preserveWriters(writers);
     console.log(`Building revision ${env.MRADAR_REVISION} before stopping the current application.`);
     compose(["build", "setup", ...writers]);
     compose(["run", "--rm", "--no-deps", "caddy", "caddy", "validate", "--config", "/etc/caddy/Caddyfile"]);
-    const previousImages = compose(["images", "--format", "json"], { stdio: ["ignore", "pipe", "inherit"] });
     compose(["up", "-d", "--no-recreate", "--wait", "--wait-timeout", "90", "db"]);
     compose(["stop", "--timeout", "30", ...writers]);
     stoppedWriters = true;
     const dumpPath = backup();
-    writeFileSync(`${dumpPath}.release.json`, JSON.stringify({ revision: env.MRADAR_REVISION, origin: env.APP_ORIGIN, project, previousImages, startedAt: stamp }, null, 2), { mode: 0o600, flag: "wx" });
+    const release = { targetRevision: env.MRADAR_REVISION, origin: env.APP_ORIGIN, project, previousWriters, startedAt: stamp };
+    writeFileSync(`${dumpPath}.release.json`, JSON.stringify(release, null, 2), { mode: 0o600, flag: "wx" });
     compose(["run", "--rm", "--no-deps", "setup", "npm", "run", "db:setup"]);
     compose(["up", "-d", "--no-deps", "--no-build", "--wait", "--wait-timeout", "180", ...writers, "caddy"]);
     stoppedWriters = false;
     await checkHttps();
     const migrations = query("smart_city", "SELECT name FROM schema_migrations ORDER BY name");
     const images = compose(["images", "--format", "json"], { stdio: ["ignore", "pipe", "inherit"] });
-    writeFileSync(`${dumpPath}.release.json`, JSON.stringify({ revision: env.MRADAR_REVISION, origin: env.APP_ORIGIN, project, previousImages, images, migrations: migrations.split("\n"), startedAt: stamp, readyAt: new Date().toISOString() }, null, 2), { mode: 0o600 });
+    writeFileSync(`${dumpPath}.release.json`, JSON.stringify({ ...release, images, migrations: migrations.split("\n"), readyAt: new Date().toISOString() }, null, 2), { mode: 0o600 });
     console.log(`Deployed ${env.MRADAR_REVISION} at ${env.APP_ORIGIN}. HTTPS readiness passed. Complete the authentication and provider checks in deploy/README.md.`);
   }
 } catch (error) {

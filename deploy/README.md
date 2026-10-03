@@ -38,11 +38,11 @@ Use one deployment operator at a time. `deploy:check` validates the existing req
 
 `deploy` requires a clean committed checkout and performs this sequence:
 
-1. Tag/build the app and setup images by the current Git revision while the old app keeps running. Validate the pinned Caddy configuration.
+1. Preserve each existing app/worker container's exact image under a unique timestamped rollback tag, recording its source revision label. Then build the app and setup images by the target Git revision while the old app keeps running. Validate the pinned Caddy configuration. A cold deployment has no previous writer to preserve.
 2. Start or reuse PostgreSQL without recreating an existing database container. Stop the application and, when present, worker for a short maintenance window.
 3. Save a PostgreSQL custom-format dump and a release JSON file outside the repository. A backup failure aborts before migrations.
 4. Run migration/seed using the newly built setup image. A migration failure leaves writers stopped for inspection rather than guessing a safe rollback.
-5. Start the new app, optional worker and Caddy; wait for container readiness and the public HTTPS readiness endpoint. Save revision, image IDs, applied migrations and readiness time beside the dump.
+5. Start the new app, optional worker and Caddy; wait for container readiness and the public HTTPS readiness endpoint. Save the target revision, previous writer revisions/image IDs/rollback tags, new image IDs, applied migrations and readiness time beside the dump.
 
 The proxy stores certificate state in named volumes and forwards to `app:3000` on the Compose network. It uses the official pinned Caddy image, automatic HTTP-to-HTTPS redirects and bounded container logs. A container's `localhost` would refer to that container, so it is not the proxy target. [Caddy Docker setup](https://caddyserver.com/docs/running#docker-compose)
 
@@ -67,19 +67,22 @@ The backup command uses PostgreSQL 17 `pg_dump` inside the database container, w
 
 `deploy:restore-check` creates a randomly named disposable database, restores the given dump with errors treated as failures, reads the migration ledger and actor/session counts, then drops **only that scratch database**. It never replaces `smart_city`, starts an app against the copy or executes provider jobs. Use a recent backup containing known records; compare the counts and migration names with the source. After domain/jobs are delivered, also verify a known saved reference and pending job in an isolated application rehearsal before marking #24 complete.
 
-For an actual data recovery, stop all app/worker writers, preserve the damaged database and restore into a fresh PostgreSQL volume/database first. Verify that recovery copy before switching the application to it. Use the code revision recorded for the backup, matching environment secrets and provider configuration. Only one worker may consume the recovered jobs. Restoring an old backup discards later writes, so choose the recovery point deliberately. Rebuild Qdrant from restored PostgreSQL through SEARCH's eventual reindex command; a search-index snapshot is not the primary database.
+For an actual data recovery, stop all app/worker writers, preserve the damaged database and restore into a fresh PostgreSQL volume/database first. Verify that recovery copy before switching the application to it. A deployment dump precedes migrations: use the previous writer's `sourceRevision` from its release JSON, matching environment secrets and provider configuration, rather than assuming `targetRevision` matches the restored schema. If an older container lacked a revision label, recover that revision from the previous release record before proceeding; do not infer it from the current checkout. Only one worker may consume the recovered jobs. Restoring an old backup discards later writes, so choose the recovery point deliberately. Rebuild Qdrant from restored PostgreSQL through SEARCH's eventual reindex command; a search-index snapshot is not the primary database.
 
-For a **code rollback with compatible migrations**, retain the previous `mradar-app:<revision>` image shown in the release JSON, check out that clean previous revision, and start that image without running migrations again:
+For a **code rollback with compatible migrations**, use the app entry in `previousWriters` in the release JSON. Its unique `rollbackTag` preserves the exact image even when the same Git revision was deployed again. Verify that the tag still resolves to the recorded `imageId`, retag it as the previous source revision, check out that clean revision, and start without running migrations again:
 
 ```bash
-# Replace PREVIOUS_REVISION with the full recorded Git commit, not a branch name.
-git switch --detach PREVIOUS_REVISION
-MRADAR_REVISION=PREVIOUS_REVISION docker compose -p mradar \
+# Replace both placeholders with the recorded rollbackTag and full sourceRevision.
+docker image inspect --format '{{.Id}}' RECORDED_ROLLBACK_TAG
+# Continue only when that ID equals the recorded imageId.
+docker image tag RECORDED_ROLLBACK_TAG mradar-app:PREVIOUS_SOURCE_REVISION
+git switch --detach PREVIOUS_SOURCE_REVISION
+MRADAR_REVISION=PREVIOUS_SOURCE_REVISION docker compose -p mradar \
   -f compose.yaml -f compose.scaleway.yaml \
   up -d --no-deps --no-build --wait app
 ```
 
-Include the corresponding worker image/service once implemented. Check public health and authentication again. Do not use `npm run deploy` for a schema-incompatible rollback: it runs the selected revision's setup. Prefer additive migrations during the hackathon. If old code cannot read the new schema, use the explicit backup recovery above or a forward fix; never automatically reverse applied SQL migrations.
+Once implemented, perform the same image-ID check and retag for the worker's recorded rollback image as `mradar-worker:PREVIOUS_SOURCE_REVISION`, and include `worker` in the start command. Do not prune rollback images before the release is accepted. Check public health and authentication again. Do not use `npm run deploy` for a schema-incompatible rollback: it runs the selected revision's setup. Prefer additive migrations during the hackathon. If old code cannot read the new schema, use the explicit backup recovery above or a forward fix; never automatically reverse applied SQL migrations.
 
 ## Release checklist and remaining evidence
 
