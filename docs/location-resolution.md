@@ -42,6 +42,10 @@ Send performs the required save, revision confirmation and canonical `POST /api/
 
 Raw-create POST compatibility is retired with `400 legacy_contract_retired`; existing labelled public mock reads/contributions remain until the complete #28 map cutover. No persistent private report is added to that mock feed. The isolated local PostgreSQL manual review does not verify Docker startup, deployment or live voice switching.
 
+### Saved-report status feedback
+
+The saved-report view's **Check status** action shows an Appica spinner and a localized checking label while recovering the same owned draft/report, with a 15-second read deadline. It announces the time of a successful check even when the report status is unchanged. The time describes the browser's completed read, not when city assessment progressed. A failed read preserves the saved reference/current status, displays the existing recovery error and does not announce a successful check. Repeated clicks and new-report creation are disabled during the read; keyboard focus remains on the checking button. Feedback resets for a different report. English and Polish follow the map's shared language setting.
+
 `npm run dev:ui` keeps the incoming database-free preview: intake uses explicitly labelled browser fixtures and `MOCK-*` references, with a separate recovery key/store. That development mode stores fictional form data in the browser, reuses the same pure draft rules, and calls public Photon directly. It cannot authenticate or create server reports. Normal development/production stores only the recovery draft ID in browser storage and uses the authenticated application endpoints; all persistence acceptance evidence comes from that mode.
 
 ## Manual review
