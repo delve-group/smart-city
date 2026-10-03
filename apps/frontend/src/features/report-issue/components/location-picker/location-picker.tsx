@@ -30,7 +30,7 @@ export function LocationPicker({ address, insideCity, onLocate, onCancel, onConf
   return (
     <section
       aria-labelledby="location-picker-title"
-      className="absolute inset-x-3 bottom-3 z-30 flex flex-col gap-4 rounded-lg border border-border bg-background p-5 shadow-md transition-[opacity,translate] duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] starting:translate-y-6 starting:opacity-0 motion-reduce:transition-none md:inset-x-auto md:bottom-6 md:left-1/2 md:w-[28rem] md:-translate-x-1/2"
+      className="absolute inset-x-3 bottom-3 z-30 flex flex-col gap-4 rounded-lg border border-border bg-background p-5 shadow-md transition-[opacity,translate] duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] starting:translate-y-6 starting:opacity-0 motion-reduce:transition-none md:inset-x-auto md:bottom-6 md:left-1/2 md:w-[32rem] md:-translate-x-1/2"
     >
       <div className="flex flex-col gap-1">
         <h2 id="location-picker-title" className="text-lg font-semibold text-foreground-intense">
@@ -48,18 +48,26 @@ export function LocationPicker({ address, insideCity, onLocate, onCancel, onConf
         <p role="alert" className="text-sm text-error-emphasis">{location.state.message}</p>
       )}
 
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        {location.supported ? (
-          <Button variant="ghost" onClick={location.locate} disabled={location.state.status === "locating"}>
+      <div className="flex items-center gap-1.5 md:gap-2">
+        {location.supported && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={location.locate}
+            disabled={location.state.status === "locating"}
+            className="md:h-10 md:gap-1.5 md:px-3.5 md:text-sm"
+          >
             <CurrentLocation data-icon="start" />
             {location.state.status === "locating" ? "Locating…" : "Use my location"}
           </Button>
-        ) : (
-          <span />
         )}
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={onCancel}>Cancel</Button>
-          <Button onClick={() => onConfirm(confirmed)} disabled={!canConfirm}>Confirm location</Button>
+        <div className="ml-auto flex shrink-0 gap-1.5 md:gap-2">
+          <Button variant="outline" size="sm" onClick={onCancel} className="md:h-10 md:px-5 md:text-sm">
+            Cancel
+          </Button>
+          <Button size="sm" onClick={() => onConfirm(confirmed)} disabled={!canConfirm} className="md:h-10 md:px-5 md:text-sm">
+            Confirm location
+          </Button>
         </div>
       </div>
     </section>

@@ -190,7 +190,9 @@ export function CityMapView() {
             onChange={(ids) => setShownCategoryIds(ids.length === categoryIds.length ? null : ids)}
           />
         )}
-        {mode.kind === "browse" && !selected && ready && <ReportFab onClick={startReport} />}
+        {ready && !selected && (
+          <ReportFab active={mode.kind !== "browse"} onClick={() => mode.kind === "browse" && startReport()} />
+        )}
       </div>
 
       {state.status !== "ready" && (
