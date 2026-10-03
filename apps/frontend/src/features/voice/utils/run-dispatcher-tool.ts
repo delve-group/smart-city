@@ -14,6 +14,7 @@ function readback(draft: IntakeDraft) {
 /** SDK-facing dispatcher adapter. No browser/model value can select its actor or draft. */
 export async function runDispatcherTool(
   sessionId: string, draftId: string, operation: string, parameters: Record<string, unknown>, receive: DraftReceiver,
+  previewLocation?: (location: { lat: number; lng: number }) => void,
 ) {
   const parsed = voiceToolSchema.safeParse({ ...parameters, operation,
     ...(operation === "prepare_report" && parameters.unit === "" ? { unit: null } : {}) });
@@ -21,7 +22,8 @@ export async function runDispatcherTool(
   try {
     const result = await runVoiceTool(sessionId, parsed.data);
     if ("revision" in result) {
-      await receive(result);
+      const accepted = await receive(result);
+      if (accepted && operation === "prepare_report" && result.fields.location) previewLocation?.(result.fields.location);
       return JSON.stringify(readback(result));
     }
     if ("report" in result) {
@@ -31,6 +33,9 @@ export async function runDispatcherTool(
       catch { /* The successful response already proves the committed reference. */ }
       return JSON.stringify({ reference: result.report.reference, replayed: result.replayed, triage_state: result.report.triage_state,
         message: "Saved. Assessment/response progress is separate; do not invent an institution or ETA." });
+    }
+    if ("candidates" in result && result.status === "candidates" && result.candidates.length === 1) {
+      previewLocation?.(result.candidates[0]);
     }
     return JSON.stringify(result);
   } catch (failure) {

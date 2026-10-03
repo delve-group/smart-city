@@ -298,7 +298,7 @@ export function CityMapView() {
         />
       )}
 
-      {mode.kind === "voice" && <VoicePanel intake={intake} categories={categories} onClose={cancelReport}
+      {mode.kind === "voice" && <VoicePanel intake={intake} categories={categories} onLocate={(location) => flyTo(location, 17)} onClose={cancelReport}
         onFallback={(draft) => setMode({ kind: draft && !draft.submission && !draft.fields.location ? "picking" : "form" })} />}
 
       {mode.kind === "browse" && ready && (
