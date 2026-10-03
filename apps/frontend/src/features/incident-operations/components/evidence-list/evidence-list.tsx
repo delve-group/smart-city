@@ -1,4 +1,4 @@
-import { Activity, Clock, Lock, Refresh, Server } from "@appica/icons-react";
+import { Activity, Clock, Id, Lock, Refresh, Server } from "@appica/icons-react";
 import { Badge } from "@appica/ui-react/badge";
 import type { Evidence, OperationsReport } from "@/api/operations/types";
 import { InfoHint } from "@/shared/components/info-hint/info-hint";
@@ -42,7 +42,9 @@ export function EvidenceList({ reports, observations, now, onLocate }: EvidenceL
             >
               <span className="text-sm text-pretty text-foreground">{report.summary}</span>
               <span className={FACTS}>
-                <span className="font-mono">{report.reference}</span>
+                <Fact icon={Id} label="Reference">
+                  <span className="font-mono">{report.reference}</span>
+                </Fact>
                 <Fact icon={Clock} label="Reported">
                   {formatAgo(report.submittedAt, now)}
                 </Fact>
