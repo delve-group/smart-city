@@ -114,12 +114,17 @@ export default function CityMapCanvas({
   }, [tilted]);
 
   // MapLibre's types cannot express a match built from a runtime list, hence the cast.
-  const categoryColor = [
-    "match",
-    ["get", "category"],
-    ...categoryIds.flatMap((id) => [id, colors.category[id] ?? colors.fallback]),
-    colors.fallback,
-  ] as unknown as ExpressionSpecification;
+  // A match needs at least one case, so use the fallback colour until categories load.
+  const categoryColor = (
+    categoryIds.length === 0
+      ? colors.fallback
+      : [
+          "match",
+          ["get", "category"],
+          ...categoryIds.flatMap((id) => [id, colors.category[id] ?? colors.fallback]),
+          colors.fallback,
+        ]
+  ) as unknown as ExpressionSpecification;
   const radius = (base: number): ExpressionSpecification => [
     "interpolate",
     ["linear"],
@@ -127,6 +132,14 @@ export default function CityMapCanvas({
     HANDOVER.start, ["+", base, ["*", ["get", "weight"], 4]],
     17, ["+", base * 2, ["*", ["get", "weight"], 12]],
   ];
+
+  /** On narrow screens the expanded attribution runs under the bottom-right controls; start it collapsed. */
+  function handleLoad() {
+    const container = mapRef.current?.getContainer();
+    if (container && container.clientWidth < 768) {
+      container.querySelector(".maplibregl-ctrl-attrib")?.classList.remove("maplibregl-compact-show");
+    }
+  }
 
   function handleMoveStart() {
     movingRef.current = true;
@@ -165,6 +178,7 @@ export default function CityMapCanvas({
       onMouseMove={interactive ? handleMove : undefined}
       onMouseLeave={() => onHover(null)}
       onClick={interactive ? handleClick : undefined}
+      onLoad={handleLoad}
       onMoveStart={handleMoveStart}
       onMoveEnd={handleMoveEnd}
     >

@@ -64,10 +64,11 @@ App: [apps/frontend](../apps/frontend). As of 2026-10-03, `@appica/ui-react` 1.2
 
 ## Map screen patterns
 
-- **Floating chrome over a full-bleed map.** Search (top left) with the filter and light/dark buttons beside it; the primary "Report an issue" button bottom right; attribution bottom left. No toolbars or frames around the map.
+- **Floating chrome over a full-bleed map.** Search (top left) with the filter and light/dark buttons beside it; the "3D" toggle and "Report an issue" bottom right, at the same 12 px inset as the search; attribution bottom left. No toolbars or frames around the map.
 - **Detail and form panel:** one non-modal shell (`shared/components/floating-panel`), inset from the right edge on desktop and a bottom sheet on phones. The header stays visible; when the title scrolls away it repeats in the header.
 - **Category colour:** eight `--category-*` tokens per theme (power, water, roads, transit, waste, accessibility, greenery, air), all ≥ 4.5:1 as text on their surfaces. Colour is always paired with the category icon and label; unknown API categories get a neutral style.
 - **3D view:** a "3D" button above "Report an issue" tilts the map to 55° and zooms to at least 15.5, where OpenMapTiles building heights extrude; "2D" resets pitch and bearing.
+- **Panel sections:** Impact is always visible; Progress, Details and Nearby are collapsible (Appica `Accordion`, same separators and headings as before). Progress opens by default; Nearby shows its count while closed.
 - **Panel header:** category label and actions only; status lives in the progress timeline (the hover tooltip keeps a status badge).
 - **Report status:** Reported (outline), Confirmed (soft), In progress (warning, pulsing dot), Resolved (success). The panel shows the full progress timeline.
 - **I'm affected too:** an outline button under the impact numbers; after use it becomes a quiet "You are counted as affected" note. Hidden on resolved reports.

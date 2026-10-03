@@ -229,7 +229,7 @@ export function CityMapView() {
       )}
 
       {mode.kind === "browse" && !selected && ready && (
-        <div className="absolute right-3 bottom-20 z-20 flex flex-col items-end gap-2 md:right-6 md:bottom-8">
+        <div className="absolute right-3 bottom-3 z-20 flex flex-col items-end gap-2">
           <TiltToggle tilted={tilted} onChange={setTilted} />
           <ReportFab onClick={startReport} />
         </div>

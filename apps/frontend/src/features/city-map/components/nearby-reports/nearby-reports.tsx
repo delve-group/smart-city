@@ -4,7 +4,7 @@ import type { CityReport } from "@/api/reports/types";
 import { CategoryTile } from "@/shared/components/category-tile/category-tile";
 import { formatAgo } from "../../utils/format-time";
 import { formatDistance, nearbyReports } from "../../utils/nearby-reports";
-import { PanelSection } from "../panel-section/panel-section";
+import { PanelAccordionItem } from "../panel-accordion-item/panel-accordion-item";
 
 type NearbyReportsProps = {
   report: CityReport;
@@ -20,7 +20,7 @@ export function NearbyReports({ report, reports, category, now, onSelect }: Near
   const sameCategory = nearby.filter(({ report: other }) => other.categoryId === report.categoryId).length;
 
   return (
-    <PanelSection title="Nearby">
+    <PanelAccordionItem value="nearby" title="Nearby" meta={nearby.length}>
       {sameCategory >= 2 && (
         <div className="flex gap-3 rounded-md bg-background-muted p-3 text-sm">
           <InfoCircle size={18} aria-hidden className="mt-0.5 shrink-0 text-foreground-muted" />
@@ -56,6 +56,6 @@ export function NearbyReports({ report, reports, category, now, onSelect }: Near
           ))}
         </ul>
       )}
-    </PanelSection>
+    </PanelAccordionItem>
   );
 }

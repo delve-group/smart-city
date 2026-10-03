@@ -2,13 +2,13 @@ import { Check } from "@appica/icons-react";
 import type { CityReport } from "@/api/reports/types";
 import { formatDateTime } from "../../utils/format-time";
 import { STATUS_HINT, STATUS_LABEL, STATUS_STEPS } from "../../utils/report-status";
-import { PanelSection } from "../panel-section/panel-section";
+import { PanelAccordionItem } from "../panel-accordion-item/panel-accordion-item";
 
 export function ReportProgress({ report, now }: { report: CityReport; now: number }) {
   const current = STATUS_STEPS.indexOf(report.status);
 
   return (
-    <PanelSection title="Progress">
+    <PanelAccordionItem value="progress" title="Progress">
       <ol className="flex flex-col">
         {STATUS_STEPS.map((step, index) => {
           const done = index < current;
@@ -55,6 +55,6 @@ export function ReportProgress({ report, now }: { report: CityReport; now: numbe
           Responsible: <span className="text-foreground-intense">{report.responsible}</span>
         </p>
       )}
-    </PanelSection>
+    </PanelAccordionItem>
   );
 }

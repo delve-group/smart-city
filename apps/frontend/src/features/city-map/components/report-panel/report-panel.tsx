@@ -1,4 +1,5 @@
 import { CurrentLocation, X } from "@appica/icons-react";
+import { Accordion } from "@appica/ui-react/accordion";
 import { Button } from "@appica/ui-react/button";
 import { ScrollArea } from "@appica/ui-react/scroll-area";
 import { Separator } from "@appica/ui-react/separator";
@@ -81,11 +82,13 @@ export function ReportPanel({ report, category, reports, now, onClose, onCenter,
           </h2>
           <ReportImpact report={report} affected={affected} onConfirm={() => onConfirm(report)} />
           <Separator />
-          <ReportProgress report={report} now={now} />
-          <Separator />
-          <ReportDetails report={report} now={now} />
-          <Separator />
-          <NearbyReports report={report} reports={reports} category={category} now={now} onSelect={onSelect} />
+          <Accordion variant="flush" multiple defaultValue={["progress"]} className="gap-0">
+            <ReportProgress report={report} now={now} />
+            <Separator />
+            <ReportDetails report={report} now={now} />
+            <Separator />
+            <NearbyReports report={report} reports={reports} category={category} now={now} onSelect={onSelect} />
+          </Accordion>
         </div>
       </ScrollArea>
     </FloatingPanel>

@@ -1,6 +1,6 @@
 import type { CityReport } from "@/api/reports/types";
 import { formatDateTime } from "../../utils/format-time";
-import { PanelSection } from "../panel-section/panel-section";
+import { PanelAccordionItem } from "../panel-accordion-item/panel-accordion-item";
 
 export function ReportDetails({ report, now }: { report: CityReport; now: number }) {
   const facts = [
@@ -12,7 +12,7 @@ export function ReportDetails({ report, now }: { report: CityReport; now: number
   ];
 
   return (
-    <PanelSection title="Details">
+    <PanelAccordionItem value="details" title="Details">
       {report.description && <p className="text-sm leading-relaxed text-pretty text-foreground">{report.description}</p>}
       <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
         {facts.map((fact) => (
@@ -22,6 +22,6 @@ export function ReportDetails({ report, now }: { report: CityReport; now: number
           </div>
         ))}
       </dl>
-    </PanelSection>
+    </PanelAccordionItem>
   );
 }
