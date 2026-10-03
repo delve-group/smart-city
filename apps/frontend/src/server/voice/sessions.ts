@@ -5,7 +5,9 @@ import { getPool, withTransaction } from "@/server/db";
 import { ApiError } from "@/server/http/api";
 import { getDraft, loadOwnedDraft, requireResident } from "@/server/reports/drafts";
 import { getVoiceConfig } from "./config";
-import { getConversationCredential } from "./provider";
+import { getConversationCredential, requestProvider } from "./provider";
+import { ConfigurationError } from "@/server/config";
+import { dispatcherAgentSchema, verifyPreparedDispatcher } from "./dispatcher-agent";
 
 interface VoiceSessionRow { id: string; draft_id: string; expires_at: Date; ended_at: Date | null; location_candidates: unknown }
 
@@ -29,6 +31,13 @@ export async function createVoiceSession(ctx: ActorContext, draftId: string, sig
     return inserted.rows[0];
   });
   try {
+    const query = new URLSearchParams({ version_id: config.versionId });
+    const dispatcher = await requestProvider(`/v1/convai/agents/${encodeURIComponent(config.agentId)}?${query}`, config.apiKey, dispatcherAgentSchema, { signal });
+    const tools = dispatcher.conversation_config.agent.prompt.tool_ids;
+    verifyPreparedDispatcher(dispatcher, tools);
+    if (dispatcher.version_id !== config.versionId || tools.length !== 5 || new Set(tools).size !== 5) {
+      throw new ConfigurationError("Voice requires the pinned integrated private dispatcher with five reviewed client tools. Run the explicit tool setup; the form remains available.");
+    }
     const credential = await getConversationCredential(config, signal);
     const result = await getPool().query("UPDATE voice_sessions SET provider_conversation_id = $1 WHERE id = $2 AND ended_at IS NULL AND expires_at > now() RETURNING id", [credential.conversation_id, session.id]);
     if (!result.rowCount) throw new ApiError(409, "voice_session_ended", "This voice session ended before connecting. Use the form or start again.");

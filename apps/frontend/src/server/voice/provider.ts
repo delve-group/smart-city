@@ -11,7 +11,7 @@ export class VoiceProviderError extends Error {
 }
 
 /** Server-only provider boundary. Raw headers, tokens and error bodies are never logged. */
-export async function requestProvider<T>(path: string, apiKey: string, schema: z.ZodType<T>, options: { method?: "GET" | "POST"; body?: unknown; signal?: AbortSignal } = {}): Promise<T> {
+export async function requestProvider<T>(path: string, apiKey: string, schema: z.ZodType<T>, options: { method?: "GET" | "POST" | "PATCH"; body?: unknown; signal?: AbortSignal } = {}): Promise<T> {
   const url = new URL(path, PROVIDER_ORIGIN);
   if (url.origin !== PROVIDER_ORIGIN || !url.pathname.startsWith("/v1/convai/")) throw new VoiceProviderError("provider_unavailable");
   let response: Response;

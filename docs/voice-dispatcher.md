@@ -15,6 +15,17 @@ node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-
 
 Setup creates a **private, tool-free** agent, verifies its settings, and writes agent/immutable version IDs to the ignored root `.env` with owner-only permissions. Repeating setup reuses an exact matching agent; it refuses ambiguous names, mismatched settings or an existing different version pin rather than updating an agent silently. It starts no conversation and exposes no browser token. If creation has an unknown outcome, run setup again so its lookup can recover the existing agent.
 
+For integrated reporting, attach the five reviewed client tools and explicitly repin, then check:
+
+```sh
+node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-tools-setup.ts
+node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-check.ts
+```
+
+This command reuses exact matching tool definitions, refuses ambiguous/mismatched workspace tools, verifies their actual definitions without response mocks, updates only the configured private dispatcher and saves the resulting version pin in ignored `.env`. Repeating it reads/reuses the same five tools. After integration, use this command rather than the tool-free preparation command. Recreate the local web container to load the changed version pin. Session creation checks the exact pinned agent's private settings and five distinct tools before issuing a credential. It does not silently provision or change the provider.
+
+On 2026-10-03, actual tool provisioning and repeated setup/readback succeeded. The first create returned `response_mocks: null`; the adapter now accepts that actual empty shape and recovered the created tool through lookup without duplication. The integrated pin minted a real application-bound credential after web recreation; the reservation was explicitly ended, without connecting WebRTC.
+
 The checker reports access/settings without credentials, tokens or raw provider errors. It reads the configured immutable version and creates no agent, token or conversation. On 2026-10-03, the initial key returned `401 missing_permissions`; the replacement key succeeded. One private dispatcher was provisioned, setup reuse succeeded without duplication, and its pinned settings passed read-back. Actual IDs remain in ignored local configuration, not checked-in documentation.
 
 ## Prepared configuration
@@ -40,7 +51,7 @@ Setup records the actual agent ID and immutable version in ignored configuration
 
 ## Remaining integration
 
-The current [React SDK guidance](https://elevenlabs.io/docs/eleven-agents/libraries/react) requires `ConversationProvider` around conversation hooks, a WebRTC conversation token, controlled mute and awaited `endSession`. `@elevenlabs/react` 1.16.0 is now pinned for the browser integration; it is not yet wired to UI.
+The current [React SDK guidance](https://elevenlabs.io/docs/eleven-agents/libraries/react) requires `ConversationProvider` around conversation hooks, a WebRTC conversation token and controlled mute. `@elevenlabs/react` 1.16.0 is pinned but not yet wired to UI. Inspection of this installed version shows its hook `startSession` and `endSession` return `void`: awaiting the hook alone does not await teardown. The browser adapter must retain the underlying conversation from the public lifecycle callback and await its actual `endSession(): Promise<void>`, with pending-connection/disconnect handling.
 
 #26 is merged. Migration 008 and the session-bound API reuse its owned draft/revision/submission identity and canonical services; one active reservation, five starts per ten minutes and five-minute application access passed local HTTP checks. Tokens have been minted for transport checks, without a WebRTC connection. Verify provider-side duration/cleanup after an abruptly closed browser; a local lease expiry alone does not prove the provider stopped. Attach reviewed tools and repin before the browser flow is usable.
 
