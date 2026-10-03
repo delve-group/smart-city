@@ -10,7 +10,8 @@ Updated: 2026-10-03.
 - Verification rules are defined only in [AGENTS.md](../../AGENTS.md). No tests during the PoC phase.
 - All documentation, code and UI copy are written in English.
 - Kraków has publicly published official map services (MSIP and GUGiK). The identified sources and pre-integration checks are described in the [geospatial data note](geospatial-data.md).
-- First feature: an interactive map showing a heatmap of events that will come from an API (mocked for now).
+- Product direction (2026-10-03): **residents report problems in the city** — power outages, broken street lights, burst pipes, potholes, broken lifts, illegal dumping, smoke from illegal burning — at a precise location. The map shows open reports by category, a heatmap of where problems cluster, and nearby related reports, so residents see what is already known and city services see patterns. This answers the task's "responding to failures and disruptions", "communication between residents and public institutions" and "using urban data to support decisions".
+- Every report belongs to exactly one category. Categories are defined by the API, not the frontend.
 
 ## Working assumptions
 
@@ -20,7 +21,7 @@ Updated: 2026-10-03.
 
 ## To be decided
 
-- The main user and the single most important demo scenario.
+- The single most important demo scenario for the jury (proposal: a street-light and power outage cluster in one district, reported by several residents and confirmed on the map).
 - The real events API: owner, format, authentication and limits.
 - Whether the demo needs persistence, a backend or live updates.
 - Deployment conditions and the team's concrete time constraints.
