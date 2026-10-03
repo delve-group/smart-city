@@ -4,7 +4,7 @@ Status: shared frontend–backend contract, 2026-10-03. It distinguishes **imple
 
 Exact payloads, error codes, official command paths, the transactional work interface, search-source projections and the two-stage legacy migration for the specified PoC are in the [shared workflow contracts](workflow-contracts.md). That file is the integration baseline for the three workstreams and takes precedence over the summaries below where it is more specific; it does not make any specified route implemented.
 
-ElevenLabs Agents is the selected browser-voice provider, and Qdrant is the selected derived search index ([D029 guide](knowledge-base/qdrant-search.md)). Neither integration has been implemented or verified. The older [discovery draft](plans/2026-10-03-voice-incident-design.md) is background research, not a competing feature specification.
+ElevenLabs Agents is the selected browser-voice provider; its integration is pending. The [Qdrant provider adapter](knowledge-base/qdrant-search.md) is implemented and verified independently with real local embeddings, but source synchronization/hydration and search HTTP/MCP routes remain pending. In particular, `GET /api/search/records` is still specified, not available. The older [discovery draft](plans/2026-10-03-voice-incident-design.md) is background research, not a competing feature specification.
 
 ## Scope and vocabulary
 

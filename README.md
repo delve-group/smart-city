@@ -75,6 +75,17 @@ For Scaleway, follow the [deployment and recovery runbook](deploy/README.md). `n
 
 Runtime secrets are passed into containers, not baked into the image. Only the one-shot setup container receives demo seed passwords. The app accepts either `DATABASE_URL` or all five standard connection variables (`PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, `PGDATABASE`); Compose supplies the latter so passwords do not need URL escaping. Direct host development can use the same configuration in `apps/frontend/.env.local`, then run `npm run db:setup` and `npm run dev` there against a reachable PostgreSQL database.
 
+## Independent search provider setup
+
+The real Qdrant/local embedding adapter can be initialized separately:
+
+```bash
+docker compose -f compose.search.yaml up -d qdrant
+docker compose -f compose.search.yaml run --build --rm search-setup
+```
+
+This creates a persistent index and warms a pinned multilingual CPU model; first startup downloads about 130 MiB. No cloud account is required. It does not index application records or expose a search API. Source synchronization, safe result hydration, HTTP/MCP routes and normal app/worker deployment integration remain in [#32](https://github.com/delve-group/smart-city/issues/32). See the [search guide](docs/knowledge-base/qdrant-search.md) for configuration, verified behavior and limits.
+
 ## Checks and next work
 
 The remaining work is assigned across three computers: **Rafal** handles citizen/ElevenLabs, **Franek** handles incident response/staff, and **agent-3** is reserved for the user's machine for search, decision-maker and deployment. See the [live backlog and starting tasks](docs/knowledge-base/parallel-delivery.md) and use the [repo-local development skill](.agents/skills/mradar-development/SKILL.md) for implementation and PR handoffs.

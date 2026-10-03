@@ -43,6 +43,8 @@ Each app in `apps/` is a standalone project with its own dependencies. The root 
 | ESLint + `eslint-config-next` | 9 / 16.3 | Linting with Next.js and React rules. | Run with `npm run lint`. |
 | PostgreSQL / `pg` | 17 / pinned in app lockfile | Durable identities, sessions, fictional institutions and login throttling. | One relational store with explicit SQL and transactions; later workflow tables use new migrations. |
 | `tsx`, `@next/env`, Node crypto | pinned in app lockfile / Node runtime | Run TypeScript setup scripts, load host development settings and hash staff passwords. | Reuse the app's types/configuration; avoid a separate backend framework or authentication service. |
+| Qdrant / `@qdrant/js-client-rest` | 1.19.1 / 1.19.0 | Derived dense/BM25 index and scoped provider operations in `server/search`. | One engine for keyword, semantic, hybrid and related retrieval; source/HTTP integration is pending. |
+| `@huggingface/transformers` | 4.3.0 | Local CPU ONNX inference using pinned multilingual E5-small q8 weights. | Real Polish-capable embeddings without another cloud account or Python service; see [model and runtime limits](knowledge-base/qdrant-search.md). |
 
 Swapping the map for Google Maps later means replacing only `features/city-map/components/city-map-canvas/city-map-canvas.tsx` with an implementation based on `@vis.gl/react-google-maps` and a deck.gl `HeatmapLayer` (see D013 in the [decision log](knowledge-base/decisions.md)).
 
@@ -77,7 +79,7 @@ Form state stays local. Search and filter parameters go into the URL when a view
 
 The API layer maps external data to a small app model, validates the boundary and returns a clear result or error. Server modules validate writes, enforce permissions and hold secrets. The frontend is not a security boundary. The new authentication is not yet applied to the old public report fixtures; persistent report/incident work must use server sessions and migrate its callers as a complete slice.
 
-Planned report/incident/service-ticket retrieval for agents, MCP tools and shared user search follows the [Qdrant search decision and implementation guide](knowledge-base/qdrant-search.md) (D029, D037). Read it before implementing those paths. PostgreSQL is the authoritative store; Qdrant remains an unimplemented derived search index.
+Report/incident/service-ticket retrieval follows the [Qdrant search guide](knowledge-base/qdrant-search.md) (D029, D037, D045). `server/search` implements scoped provider operations with local dense inference and Qdrant BM25/RRF. It returns IDs/version metadata, never hydrated user results. PostgreSQL remains authoritative; source synchronization, current permission/version hydration, HTTP/MCP routes and app/worker integration are pending. The independent `compose.search.yaml` initializes the provider and model cache without switching existing application routes.
 
 The [frontend–backend contract](api-contract.md) separates today's resident-report routes, the specified ElevenLabs voice-to-incident PoC, and later interfaces from the platform SPEC. The feature specification and plan govern the next implementation slice; public incident projections, private reports, official commands and institution tickets must not be collapsed into one record or route.
 

@@ -16,7 +16,7 @@ Updated: 2026-10-03.
 - Every report belongs to exactly one category. Categories are defined by the API, not the frontend.
 - Voice/incident direction (2026-10-03): a report is one resident observation; an incident aggregates related reports and tracks the response. The proposed roles are dispatcher, decision-maker and institution, with official approval before external contact or ticket execution. Browser voice is the confirmed first channel; a phone number comes later. Government identity is a demo mock. Current requirements and acceptance criteria are in the [feature specification](../../specs/001-voice-incident-response/spec.md); integration and tool contracts are in its [technical plan](../../specs/001-voice-incident-response/plan.md).
 - Voice provider (2026-10-03): **ElevenLabs Agents**, explicitly selected by the user. Browser voice first; no GPT-Live/Realtime provider comparison is pending. Integration and account validation are not yet done.
-- Agent and MCP ticket/incident search: provider and scope accepted in D029; implementation is pending. Read the [Qdrant search guide](qdrant-search.md), including its handling of uncategorized source records, before implementing search.
+- Agent and MCP ticket/incident search: the independent Qdrant/local multilingual embedding adapter is implemented and manually verified (D045); source synchronization/hydration and HTTP/MCP integration remain pending. Read the [Qdrant search guide](qdrant-search.md), including its handling of uncategorized source records and memory limits.
 - Backend foundation (D036): one Next.js web/API application with local PostgreSQL, SQL migrations, persistent guest/staff sessions and fictional staff/institution seed data. Use the root [startup instructions](../../README.md#running). The existing report map still uses its mock store.
 - Parallel delivery (D040): workstream 1 belongs to `Rafal` (citizen/ElevenLabs), workstream 2 to `Franek` (incident response/staff), and workstream 3 to the user's machine (`agent-3`: search, decision-maker, worker and Scaleway). Use the [delivery index and repo-local skill](parallel-delivery.md); GitHub Issues/PRs carry dependencies and handoffs.
 - Search clarification (D037): index reports, incidents and service tickets, with server-scoped text projections. The [Qdrant guide](qdrant-search.md) defines identities and visibility; integration remains pending.
@@ -34,7 +34,7 @@ Updated: 2026-10-03.
 - ElevenLabs account access, configured voice/agent/model, retention settings and live conversation validation.
 - Institution responsibility data, service observations and ticket connector contracts; real access is not established.
 - Scaleway resource/runtime choice, deployment owner and primary-store provisioning; matching, public visibility and refresh defaults are specified and need implementation verification.
-- Provider capacity and the team's concrete time constraints. Local startup and a production image/configuration path exist; Scaleway selection does not establish whether Qdrant remains in Free Cloud or is hosted on Scaleway.
+- Provider capacity and the team's concrete time constraints. Local search uses self-hosted Qdrant and CPU embeddings; integration and resource verification on Scaleway remain pending.
 
 ## Implementation-readiness review — 2026-10-03
 
@@ -42,7 +42,7 @@ The feature specification and API contract agree on the main response loop. The 
 
 Follow-up foundation work resolves the architecture wording, search corpus, session wire contracts and local startup gaps. The [API contract](../api-contract.md) now specifies report `version`/`expected_version` semantics for later domain mutations. Location lookup and official workflow payloads remain with their dependent implementation slices.
 
-Still open: the supervised worker when durable triage/indexing is implemented; ElevenLabs account-wide conversation capacity; Qdrant hosting and dense inference; Scaleway resource sizing, proxy and deployment. Local checks do not establish 15–30-user capacity or provider performance.
+Still open: the supervised worker when durable triage/indexing is implemented; ElevenLabs account-wide conversation capacity; Qdrant/source and deployed inference integration; Scaleway resource sizing and live deployment. The [Scaleway runbook](../../deploy/README.md) supplies the proxy/deployment commands. Small-fixture local search checks do not establish 15–30-user application capacity.
 
 ## Delivery status
 

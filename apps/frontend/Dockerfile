@@ -7,6 +7,7 @@ RUN --mount=type=cache,target=/home/node/.npm,uid=1000,gid=1000 npm ci --no-audi
 
 FROM dependencies AS development
 ENV NEXT_TELEMETRY_DISABLED=1
+RUN mkdir -p /home/node/.cache/mradar-models
 COPY --chown=node:node . .
 EXPOSE 3000
 CMD ["npm", "run", "dev", "--", "--hostname", "0.0.0.0"]

@@ -1,0 +1,33 @@
+# Independent provider preparation for #32. No source synchronization or API cutover.
+# Start: docker compose -f compose.search.yaml up -d qdrant
+# Initialize/warm: docker compose -f compose.search.yaml run --build --rm search-setup
+name: mradar-search
+
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.19.1
+    ports:
+      - "127.0.0.1:${QDRANT_PORT:-6333}:6333"
+    volumes:
+      - search-index:/qdrant/storage
+    restart: unless-stopped
+
+  search-setup:
+    build:
+      context: ./apps/frontend
+      target: development
+    environment:
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-mradar_records_v1}
+      SEARCH_MODEL_CACHE_DIR: /home/node/.cache/mradar-models
+    volumes:
+      - search-models:/home/node/.cache/mradar-models
+    command: ["npm", "run", "search:setup"]
+    depends_on:
+      qdrant:
+        condition: service_started
+    restart: "no"
+
+volumes:
+  search-index:
+  search-models:
