@@ -1,9 +1,11 @@
 type AppBrandProps = {
   /** "map" floats over map tiles and needs a shadow to stay legible; "plain" sits on a surface. */
   variant?: "map" | "plain";
+  /** Second word of the lockup for a staff product, e.g. "Operator". */
+  product?: string;
 };
 
-export function AppBrand({ variant = "map" }: AppBrandProps) {
+export function AppBrand({ variant = "map", product }: AppBrandProps) {
   const map = variant === "map";
   return (
     <div
@@ -16,7 +18,9 @@ export function AppBrand({ variant = "map" }: AppBrandProps) {
         <path d="M29 28 47 18 52 26 34 36Z" fill="currentColor" />
         <rect x="35" y="41" width="10" height="10" rx="5" fill="var(--heat-mid)" />
       </svg>
-      <span className={`${map ? "text-2xl" : "text-lg"} font-semibold tracking-[-0.04em]`}>mRadar</span>
+      <span className={`${map ? "text-2xl" : "text-lg"} font-semibold tracking-[-0.04em]`}>
+        mRadar{product && ` ${product}`}
+      </span>
     </div>
   );
 }

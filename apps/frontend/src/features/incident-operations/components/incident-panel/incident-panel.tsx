@@ -1,16 +1,19 @@
+import { Clock, Id } from "@appica/icons-react";
 import { Accordion } from "@appica/ui-react/accordion";
+import { Badge } from "@appica/ui-react/badge";
 import { ScrollArea } from "@appica/ui-react/scroll-area";
 import { Separator } from "@appica/ui-react/separator";
 import { useEffect, useRef } from "react";
 import type { Category } from "@/api/categories/types";
 import type { Incident, IncidentCommand, OperationsReport, ProposalDecision, Workspace } from "@/api/operations/types";
 import { FloatingPanel } from "@/shared/components/floating-panel/floating-panel";
+import { formatAgo } from "@/shared/utils/format-time";
 import { institutionName, reportsOf } from "../../utils/queue";
+import { ASSESSMENT } from "../../utils/labels";
 import { EvidenceList } from "../evidence-list/evidence-list";
-import { IncidentDecisions } from "../incident-decisions/incident-decisions";
+import { Fact, FACTS } from "../fact/fact";
+import { IncidentActions } from "../incident-actions/incident-actions";
 import { IncidentHistory } from "../incident-history/incident-history";
-import { IncidentStatus } from "../incident-status/incident-status";
-import { LinkedReports } from "../linked-reports/linked-reports";
 import { PanelHeader } from "../panel-header/panel-header";
 import { ProposalCard } from "../proposal-card/proposal-card";
 import { ResponsibilityPicker } from "../responsibility-picker/responsibility-picker";
@@ -41,6 +44,8 @@ export function IncidentPanel({ incident, workspace, category, now, onClose, onL
   const headingRef = useRef<HTMLHeadingElement>(null);
   const reports: OperationsReport[] = reportsOf(incident, workspace.reports);
   const step = nextStep(incident);
+  // The incident started with its earliest report; ISO strings sort by time.
+  const started = reports.map((report) => report.submittedAt).sort()[0] ?? incident.history[0]?.at;
 
   useEffect(() => {
     headingRef.current?.focus({ preventScroll: true });
@@ -50,13 +55,18 @@ export function IncidentPanel({ incident, workspace, category, now, onClose, onL
     <FloatingPanel
       labelledBy="incident-panel-title"
       header={
-        <PanelHeader category={category} reference={incident.reference} onCenter={() => onLocate(incident.location)} onClose={onClose} />
+        <PanelHeader
+          category={category}
+          actions={<IncidentActions incident={incident} onCommand={(command) => onCommand(incident, command)} />}
+          onCenter={() => onLocate(incident.location)}
+          onClose={onClose}
+        />
       }
     >
       <ScrollArea className="min-h-0 flex-1">
         <div key={incident.id} className="flex flex-col px-5 pb-6 transition-opacity duration-200 ease-out starting:opacity-0 motion-reduce:transition-none">
           <div className="flex flex-col gap-3 pt-4 pb-5">
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-2">
               <h2
                 id="incident-panel-title"
                 ref={headingRef}
@@ -66,8 +76,23 @@ export function IncidentPanel({ incident, workspace, category, now, onClose, onL
                 {incident.title}
               </h2>
               <p className="text-sm text-foreground-muted">{[incident.address, incident.district].filter(Boolean).join(" · ")}</p>
+              <p className={FACTS}>
+                <Fact icon={Id} label="Reference">
+                  <span className="font-mono">{incident.reference}</span>
+                </Fact>
+                {started && (
+                  <Fact icon={Clock} label="Started">
+                    {formatAgo(started, now)}
+                  </Fact>
+                )}
+                {/* Only an official's verdict is worth a badge; "suspected" is the default state. */}
+                {(incident.assessment === "verified" || incident.assessment === "disputed") && (
+                  <Badge variant={ASSESSMENT[incident.assessment].variant} size="xs" title={ASSESSMENT[incident.assessment].hint}>
+                    {ASSESSMENT[incident.assessment].label}
+                  </Badge>
+                )}
+              </p>
             </div>
-            <IncidentStatus incident={incident} />
             {incident.review && <ReviewNotice review={incident.review} />}
           </div>
 
@@ -102,14 +127,15 @@ export function IncidentPanel({ incident, workspace, category, now, onClose, onL
           )}
 
           <Separator />
-          <Accordion variant="flush" multiple defaultValue={["reports"]} className="gap-0">
-            <LinkedReports reports={reports} now={now} onLocate={(report) => onLocate(report.location)} />
-            <Separator />
-            <EvidenceList evidence={incident.evidence} now={now} />
+          <Accordion variant="flush" multiple className="gap-0">
+            <EvidenceList
+              reports={reports}
+              observations={incident.evidence.filter((item) => item.kind !== "report")}
+              now={now}
+              onLocate={(report) => onLocate(report.location)}
+            />
             <Separator />
             <IncidentHistory history={incident.history} now={now} />
-            <Separator />
-            <IncidentDecisions incident={incident} onCommand={(command) => onCommand(incident, command)} />
           </Accordion>
         </div>
       </ScrollArea>

@@ -295,11 +295,10 @@ export function OperationsWorkspace() {
           </div>
         )}
 
-        {!panelOpen && (
-          <div className="absolute right-3 bottom-3 z-20">
-            <MapSettings tilted={tilted} onTiltedChange={setTilted} />
-          </div>
-        )}
+        {/* Stays reachable: moves beside the panel on desktop, above the sheet on phones. */}
+        <div className={`absolute right-3 bottom-3 z-20 transition-[right,bottom] duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${panelOpen ? "bottom-[calc(72dvh+0.75rem)] md:right-[26.25rem] md:bottom-3" : ""}`}>
+          <MapSettings tilted={tilted} onTiltedChange={setTilted} />
+        </div>
 
         {workspace && selection?.kind === "incident" && (
           <IncidentPanel
