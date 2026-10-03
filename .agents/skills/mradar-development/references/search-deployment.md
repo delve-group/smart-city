@@ -1,0 +1,13 @@
+# Search, decision-maker and deployment — user's machine
+
+Workstream 3 uses label `agent-3` and is reserved for the user's computer. Own `server/search`, `server/agents`, `server/mcp`, the durable worker/job facility, and deployment integration in Compose/startup/configuration. Coordinate dependency files and environment changes with provider-adapter owners.
+
+Read the [Qdrant guide](../../../../docs/knowledge-base/qdrant-search.md). Index reports, incidents and service tickets using stable type/ID/projection identities and source versions. Franek owns permitted source readers and mutation rules. Apply server-derived scope before ranking and hydrate current source records before returning results; changed permissions/deletions take precedence over stale index entries. Provide keyword, semantic, hybrid and related-record retrieval, including Polish and uncategorized content. Rafal owns the public search UI.
+
+Provide the transactional enqueue interface early so Franek can commit source changes and pending work together. Keep one PostgreSQL-backed worker in this application, with leases, bounded retries and restart recovery. Job infrastructure must not require domain tables before their owning migrations exist. Connect real handlers as their Issues land; report a parked job honestly rather than marking it successfully processed.
+
+Own bounded retrieve/assess/propose orchestration and scoped MCP transport. Call Franek's services for deterministic triage, context, responsibility, evidence and proposals. Tool input supplies data, never authority. Official approval and approved-ticket execution remain outside model authority. Unavailable search/LLM must leave durable reports and visible human-review paths.
+
+Own simple Scaleway deployment using the existing environment validation/startup conventions: application, PostgreSQL, one worker, HTTPS and persistent storage. Record the selected Qdrant/embedding hosting choice and required credentials during that Issue; these are not already provisioned by the foundation. Keep each computer's and deployment's secrets outside Git. Use only the authorized project and report unavailable account/domain inputs precisely.
+
+The final rehearsal integrates all three owners' merged work: real configured voice/search, deterministic grouping counterexamples, official approval, institution resolution, public updates, failure recovery and restart. Record measured outcomes and limitations; source code or a healthy container alone does not establish the full demo or 15–30-user capacity.

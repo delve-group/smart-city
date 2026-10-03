@@ -1,0 +1,4 @@
+interface:
+  display_name: "mRadar Development"
+  short_description: "Deliver assigned mRadar issues across three agents"
+  default_prompt: "Use $mradar-development to implement the next unblocked issue in my assigned workstream and deliver it through a PR."

@@ -31,6 +31,8 @@ We are building a Smart City project for a hackathon. The current phase is a **p
 
 ## Knowledge base and delivery
 
+For an assigned three-agent workstream or its GitHub Issues, use the repo-local [mRadar development skill](.agents/skills/mradar-development/SKILL.md). It defines ownership, dependencies and cross-computer PR handoffs; the [delivery index](docs/knowledge-base/parallel-delivery.md) links the live backlog.
+
 1. When starting work, read the [knowledge index](docs/knowledge-base/README.md) and the [project context](docs/knowledge-base/project.md).
 2. Before changing module boundaries, data flow or integrations, read the [architecture](docs/architecture.md). Before UI work, read the [design system](docs/design-system.md) and use the [tokens](apps/frontend/src/shared/styles/appica-theme.css).
 3. Deliver the smallest complete scope. Ask only about missing information that materially affects the product; make reversible decisions yourself and state your assumptions.
