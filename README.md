@@ -22,6 +22,8 @@ npm run dev
 
 The app runs at http://localhost:3000. This command validates configuration, builds the containers, starts PostgreSQL, runs migrations and seeds fictional staff accounts, then starts the app with hot reload. It returns after readiness succeeds. Missing configuration is reported by variable name, without printing credentials. No ElevenLabs or Qdrant account is needed for this slice.
 
+**Frontend only** (no Docker or database): `cd apps/frontend && npm run dev:ui`. The resident map at `/` works on its in-memory demo data; `/operations`, `/institution`, sign-in and voice drafts need the database and will show errors.
+
 ```bash
 npm run config:check
 npm run stack:logs
