@@ -84,9 +84,10 @@ export function OperationsSidebar({
 
       <ScrollArea className="min-h-0 flex-1">
         {items.length > 0 ? (
-          <ul className="flex flex-col gap-0.5 p-2" aria-label={TAB_LABEL[tab]}>
+          <ul className="flex flex-col p-2" aria-label={TAB_LABEL[tab]}>
             {items.map((item) => (
-              <li key={item.key}>
+              // Hairline between rows, inset to the text; the hover fill covers it.
+              <li key={item.key} className="relative not-last:after:absolute not-last:after:inset-x-3 not-last:after:-bottom-px not-last:after:h-px not-last:after:bg-border-muted has-[:hover]:after:opacity-0">
                 <QueueItem
                   item={item}
                   category={categoriesById.get(item.kind === "incident" ? item.incident.categoryId : item.report.categoryId)}

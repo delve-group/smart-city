@@ -69,7 +69,6 @@ export function ResponsibilityPicker({ incident, category, institutions, onChoos
               <span className="flex flex-col gap-0.5">
                 <span id={`institution-${institution.id}`} className="text-sm font-medium text-foreground-intense">
                   {institution.name}
-                  {institution.isDemo && <span className="font-normal text-foreground-muted"> · demo</span>}
                 </span>
                 <span className="text-xs text-foreground-muted">{hint}</span>
               </span>

@@ -142,7 +142,7 @@ try {
     compose(["build", "setup", ...writers]);
     compose(["run", "--rm", "--no-deps", "caddy", "caddy", "validate", "--config", "/etc/caddy/Caddyfile"]);
     compose(["up", "-d", "--no-recreate", "--wait", "--wait-timeout", "90", "db"]);
-    compose(["stop", "--timeout", "30", ...writers]);
+    compose(["stop", "--timeout", "35", ...writers]);
     stoppedWriters = true;
     const dumpPath = backup();
     const release = { targetRevision: env.MRADAR_REVISION, origin: env.APP_ORIGIN, project, previousWriters, startedAt: stamp };

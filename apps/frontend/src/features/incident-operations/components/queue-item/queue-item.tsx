@@ -1,9 +1,10 @@
-import { AlertTriangle } from "@appica/icons-react";
+import { AlertTriangle, Clock } from "@appica/icons-react";
 import type { Category } from "@/api/categories/types";
 import { categoryAppearance } from "@/shared/utils/category-appearance";
 import { formatAgo } from "@/shared/utils/format-time";
 import { REVIEW, RESPONSE, TICKET } from "../../utils/labels";
 import type { QueueItem as QueueItemData } from "../../utils/queue";
+import { Fact } from "../fact/fact";
 
 type QueueItemProps = {
   item: QueueItemData;
@@ -34,28 +35,31 @@ export function QueueItem({ item, category, selected, now, onSelect }: QueueItem
       type="button"
       onClick={onSelect}
       aria-current={selected ? "true" : undefined}
-      className={`flex w-full flex-col gap-1 rounded-md px-3 py-2.5 text-start transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-focus-ring ${
+      className={`flex h-18 w-full cursor-pointer flex-col justify-between gap-1 rounded-md px-3 py-4 text-start transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-focus-ring ${
         selected ? "bg-background-muted" : "hover:bg-background-subtle"
       }`}
     >
-      <span className="flex items-center justify-between gap-2 text-xs">
-        {item.urgent ? (
-          <span className="inline-flex items-center gap-1.5 font-semibold text-error">
-            <AlertTriangle size={14} strokeWidth={2} aria-hidden />
-            Urgent
+      {/* Fixed height: one title line, the rest ellipsed; the full title is in the panel. */}
+      <span title={title} className="truncate text-sm font-medium text-foreground-intense">{title}</span>
+      <span className="flex items-center justify-between gap-3 text-xs">
+        <span className={`flex min-w-0 items-center gap-1.5 ${item.review ? "font-medium text-foreground" : "text-foreground-muted"}`}>
+          {/* Colour stays on the icon only: red for urgent, the category hue otherwise. */}
+          {item.urgent ? (
+            <AlertTriangle size={14} strokeWidth={2} className="shrink-0 text-error" role="img" aria-label="Urgent" />
+          ) : (
+            <Icon size={14} strokeWidth={2} className={`shrink-0 ${textClass}`} role="img" aria-label={category?.label ?? categoryId} />
+          )}
+          <span aria-hidden className="text-foreground-muted">
+            ·
           </span>
-        ) : (
-          <span className={`inline-flex min-w-0 items-center gap-1.5 font-semibold ${textClass}`}>
-            <Icon size={14} strokeWidth={2} aria-hidden />
-            <span className="truncate">{category?.label ?? categoryId}</span>
-          </span>
-        )}
+          <span className="truncate">{statusLine(item)}</span>
+        </span>
         <span className="shrink-0 text-foreground-muted tabular-nums">
-          {age}
+          <Fact icon={Clock} label={item.review ? "Waiting" : "Updated"}>
+            {age}
+          </Fact>
         </span>
       </span>
-      <span className="line-clamp-2 text-sm font-medium text-foreground-intense">{title}</span>
-      <span className={`text-xs ${item.review ? "font-medium text-foreground" : "text-foreground-muted"}`}>{statusLine(item)}</span>
     </button>
   );
 }
