@@ -26,14 +26,22 @@ This command reuses exact matching tool definitions, refuses ambiguous/mismatche
 
 On 2026-10-03, actual tool provisioning and repeated setup/readback succeeded. The first create returned `response_mocks: null`; the adapter now accepts that actual empty shape and recovered the created tool through lookup without duplication. The integrated pin minted a real application-bound credential after web recreation. The initial transport check ended without connecting WebRTC; a subsequent browser check completed a real greeting exchange and explicit end. The separate evidence is recorded in [voice sessions](voice-sessions.md#browser-panel-and-local-review).
 
-To explicitly upgrade the configured reviewed English v1 to Polish v2:
+To explicitly upgrade the configured reviewed English v1 to the current Polish dispatcher:
 
 ```sh
 node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-tools-setup.ts --update-language
 node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-check.ts
 ```
 
-The upgrade requires the configured previous version pin, exact v1 prompt fingerprint and greeting, unchanged private settings and the five reviewed tools. Unrelated or edited agents are rejected. Repeating setup on exact v2 reuses its tools and pin. On 2026-10-03 the explicit upgrade, repeated setup and resulting provider readback succeeded; the local web app was recreated to load the new immutable pin. A subsequent real WebRTC call recognized Polish speech and replied in Polish; see the [browser evidence](voice-sessions.md#browser-panel-and-local-review). Earlier English greeting evidence is historical. Neither exchange establishes complete Polish spoken-report acceptance.
+The upgrade requires the configured previous version pin, exact v1 prompt fingerprint and greeting, unchanged private settings and the five reviewed tools. Unrelated or edited agents are rejected. Repeating setup on the exact current configuration reuses its tools and pin. On 2026-10-03 the v1-to-v2 upgrade, repeated setup and resulting provider readback succeeded; the local web app was recreated to load the new immutable pin. A subsequent real WebRTC call recognized Polish speech and replied in Polish; see the [browser evidence](voice-sessions.md#browser-panel-and-local-review). Earlier English greeting evidence is historical. Neither exchange establishes complete Polish spoken-report acceptance.
+
+The first submitted Polish conversation exposed scope/title/address-readback defects (D065). To upgrade only the configured, pinned, exact reviewed Polish v2 to v3, use:
+
+```sh
+node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-tools-setup.ts --update-prompt
+```
+
+V3 gives explicit several-buildings-to-street and English-title instructions, keeps the Polish original private, and offers map-pin fallback when address labels cannot distinguish candidates. The explicit upgrade and full provider readback passed locally. Recreate the local web app to load the resulting immutable pin; do not edit source or restart it during an elapsed-session-limit rehearsal.
 
 The checker reports access/settings without credentials, tokens or raw provider errors. It reads the configured immutable version and creates no agent, token or conversation. On 2026-10-03, the initial key returned `401 missing_permissions`; the replacement key succeeded. One private dispatcher was provisioned, setup reuse succeeded without duplication, and its pinned settings passed read-back. Actual IDs remain in ignored local configuration, not checked-in documentation.
 
@@ -43,7 +51,7 @@ The checker reports access/settings without credentials, tokens or raw provider 
 
 | Setting | Configured value | Verification |
 | --- | --- | --- |
-| Prompt/name | `mradar-dispatcher-v2` | Exact prompt and name read back from pinned version |
+| Prompt/name | `mradar-dispatcher-v3` | Exact prompt and name read back from pinned version |
 | Language/greeting | `pl`, Polish first message | Actual language and exact greeting are checked with the pinned prompt |
 | LLM | `gpt-4.1-mini` | Agent configuration read back; greeting/reply observed, complete report latency unverified |
 | Voice | `cjVigY5qzO86Huf0OWal` | Agent configuration read back; voice quality unverified |
