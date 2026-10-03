@@ -51,11 +51,12 @@ Component index (fetch a component's `.md` page before using it for the first ti
 
 ## Map
 
-- Map: MapLibre GL (`react-map-gl/maplibre`) with free OpenFreeMap tiles, no API key. Only `features/city-map/components/city-map-canvas/city-map-canvas.tsx` imports the map library; switching to Google Maps means a new implementation of that component with the same props.
+- Map: MapLibre GL (`react-map-gl/maplibre`) with free OpenFreeMap tiles, no API key. Only the `features/city-map/components/city-map-canvas/` folder (the canvas and its colocated hooks) imports the map library; switching to Google Maps means a new implementation of that component with the same props.
 - MapLibre 6 loads its worker as a separate module. `scripts/copy-maplibre-worker.mjs` copies it to `public/maplibre/` before `dev` and `build`; do not commit those files.
 - Mount heatmap layers conditionally instead of hiding them with `visibility: "none"` — a heatmap layer added while hidden does not draw once shown.
 - Use `offset`, not `padding`, in `flyTo`: MapLibre keeps padding for all later camera moves and tile loading, which leaves an empty strip after the panel closes.
 - Map layers need literal colours: read them from theme tokens at runtime (`utils/read-map-colors.ts`), never hard-code hex values. The base map (land, parks, buildings, water, roads) is recoloured by `utils/style-base-map.ts` (OpenMapTiles layer ids) with the `--map-*` tokens and adds a `building-3d` fill-extrusion layer under the labels; the style JSON is fetched and patched in `hooks/use-map-style.ts`.
+- Report places: `city-map-canvas/use-report-places.ts` matches each report in view (street zoom) to the building it is in or the road within 30 m, from rendered tile features. Tiles merge neighbouring buildings into one feature with one id, so never colour buildings by id or feature state — copy the single footprint (`utils/building-footprint.ts`) into the report-buildings source instead.
 - Place search and reverse geocoding use the public Photon instance (fair use, no key). Replace it with a self-hosted or commercial geocoder before real traffic.
 - Categories are API data. Style known ids in `shared/utils/category-appearance.ts` and the `--category-*` tokens; unknown ids fall back to a neutral style, never break.
 - `src/app/api/*` is a demo backend with an in-memory store. Validate request bodies there with the same Zod schema the client uses (`src/api/reports/types.ts`).

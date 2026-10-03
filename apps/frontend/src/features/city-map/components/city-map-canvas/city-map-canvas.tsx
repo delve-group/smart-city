@@ -2,9 +2,10 @@
 
 import "maplibre-gl/dist/maplibre-gl.css";
 import { setWorkerUrl, type ExpressionSpecification, type MapStyleImageMissingEvent } from "maplibre-gl";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MapPinFilled } from "@appica/icons-react";
 import Map, { AttributionControl, Layer, Marker, Source, type MapLayerMouseEvent, type MapRef, type ViewStateChangeEvent } from "react-map-gl/maplibre";
+import type { Feature, FeatureCollection, LineString, Polygon } from "geojson";
 import type { CityReport } from "@/api/reports/types";
 import { useColorScheme } from "../../hooks/use-color-scheme";
 import { useMapStyle } from "../../hooks/use-map-style";
@@ -12,6 +13,7 @@ import { useReportIcons } from "../../hooks/use-report-icons";
 import { MARKER_PIXEL_RATIO, MARKER_SIZE } from "../../utils/report-icon-svg";
 import { readMapColors } from "../../utils/read-map-colors";
 import { toFeatureCollection } from "../../utils/to-feature-collection";
+import { useReportPlaces } from "./use-report-places";
 
 // The only file that knows the map library. A Google Maps version implements the same props.
 // Served from public/ by scripts/copy-maplibre-worker.mjs (runs before dev and build).
@@ -88,6 +90,34 @@ export default function CityMapCanvas({
   const colors = useMemo(() => ({ scheme, ...readMapColors(categoryIds) }), [scheme, categoryIds]);
   const data = useMemo(() => toFeatureCollection(reports), [reports]);
   const mapStyle = useMapStyle(MAP_STYLE, colors.scheme, colors.baseMap);
+  /** Set once the map has loaded; until then the instance behind mapRef may not exist yet. */
+  const [loaded, setLoaded] = useState(false);
+  const places = useReportPlaces(mapRef, reports, loaded);
+  // Shapes on the base map that carry a report: its building, or a stretch of its road.
+  const { buildings, roadSegments } = useMemo(() => {
+    const buildingFeatures: Feature<Polygon>[] = [];
+    const roadFeatures: Feature<LineString>[] = [];
+    for (const report of reports) {
+      const place = places.get(report.id);
+      if (place?.kind === "building") {
+        buildingFeatures.push({
+          type: "Feature",
+          properties: { category: report.categoryId, height: place.height, base: place.base },
+          geometry: { type: "Polygon", coordinates: place.footprint },
+        });
+      } else if (place?.kind === "road" && place.line.length > 1) {
+        roadFeatures.push({
+          type: "Feature",
+          properties: { category: report.categoryId },
+          geometry: { type: "LineString", coordinates: place.line },
+        });
+      }
+    }
+    return {
+      buildings: { type: "FeatureCollection", features: buildingFeatures } satisfies FeatureCollection<Polygon>,
+      roadSegments: { type: "FeatureCollection", features: roadFeatures } satisfies FeatureCollection<LineString>,
+    };
+  }, [reports, places]);
   const icons = useReportIcons(
     categoryIds,
     { category: colors.category, fallback: colors.fallback, ring: colors.surface, icon: colors.onCategory },
@@ -170,6 +200,7 @@ export default function CityMapCanvas({
       if (image && !map.hasImage(event.id)) map.addImage(event.id, image, { pixelRatio: MARKER_PIXEL_RATIO });
     });
     registerIcons();
+    setLoaded(true);
 
     // On narrow screens the expanded attribution runs under the bottom-right controls; start it collapsed.
     const container = mapRef.current?.getContainer();
@@ -226,6 +257,34 @@ export default function CityMapCanvas({
           <MapPinFilled size={40} aria-hidden className="text-foreground-intense drop-shadow-sm" />
         </Marker>
       )}
+      {/* Before the reports source, so buildings and stretches draw under the markers. */}
+      <Source id="report-buildings" type="geojson" data={buildings}>
+        <Layer
+          id="report-building-shapes"
+          type="fill-extrusion"
+          minzoom={14}
+          paint={{
+            "fill-extrusion-color": categoryColor,
+            // Same rise as the base 3D buildings, so the copy sits exactly over its building.
+            "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 14, 0, 15, ["+", ["get", "height"], 0.3]],
+            "fill-extrusion-base": ["interpolate", ["linear"], ["zoom"], 14, 0, 15, ["get", "base"]],
+            "fill-extrusion-opacity": 0.92,
+          }}
+        />
+      </Source>
+      <Source id="report-roads" type="geojson" data={roadSegments}>
+        <Layer
+          id="report-road-segments"
+          type="line"
+          minzoom={HANDOVER.start}
+          layout={{ "line-cap": "round", "line-join": "round" }}
+          paint={{
+            "line-color": categoryColor,
+            "line-width": ["interpolate", ["exponential", 1.6], ["zoom"], 14, 4, 18, 18],
+            "line-opacity": ["interpolate", ["linear"], ["zoom"], HANDOVER.start, 0, HANDOVER.end, 0.8],
+          }}
+        />
+      </Source>
       <Source id="reports" type="geojson" data={data}>
         <Layer
           id="report-heat"
@@ -235,8 +294,8 @@ export default function CityMapCanvas({
             "heatmap-weight": ["get", "weight"],
             "heatmap-intensity": ["interpolate", ["linear"], ["zoom"], 10, 0.6, 15, 2],
             "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 10, 12, 15, 40],
-            // Fades to a faint glow as points take over, so density stays readable underneath.
-            "heatmap-opacity": ["interpolate", ["linear"], ["zoom"], HANDOVER.start, 0.85, HANDOVER.end + 1, 0.2],
+            // Gone at street level, where coloured buildings, road stretches and icons take over.
+            "heatmap-opacity": ["interpolate", ["linear"], ["zoom"], HANDOVER.start, 0.85, HANDOVER.end + 1, 0],
             "heatmap-color": [
               "interpolate",
               ["linear"],
