@@ -1,0 +1,4 @@
+interface:
+  display_name: "HTML Presentations"
+  short_description: "Branded HTML decks with a separate presenter window"
+  default_prompt: "Use $html-presentations to build an HTML slide deck with speaker notes and presenter mode, following this repository’s brand."

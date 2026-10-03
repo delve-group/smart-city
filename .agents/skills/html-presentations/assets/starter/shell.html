@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="{{LANG}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<style id="deckStyles">{{CSS}}</style>
+</head>
+<body>
+<main id="deckStage" aria-label="Presentation">{{SLIDES}}</main>
+<button id="controlsToggle" class="controls-toggle" aria-label="Show presentation controls" aria-expanded="false">•••</button>
+<nav id="controls" aria-label="Presentation controls">
+<button id="prev" aria-label="Previous slide">←</button><span id="counter"></span><button id="next" aria-label="Next slide">→</button>
+<button id="presenter" title="Separate speaker window (P)">Present</button>
+<button id="appendix" title="Appendix / return (A)">Appendix</button>
+<button id="fullscreen" title="Fullscreen (F)">Full</button>
+<button id="edit" title="Edit slide text (E)" aria-pressed="false">Edit</button>
+<button id="save" title="Download HTML (Ctrl/Cmd+S)">Save</button>
+<button id="help" aria-label="Keyboard shortcuts">?</button>
+</nav>
+<p id="status" role="status" aria-live="polite"></p>
+<dialog id="helpDialog"><h2>Presenting</h2><p>← → / Space: navigate · Home / End: first / last<br>P: speaker window · A: appendix / return<br>F: fullscreen · E: edit text · Esc: finish editing<br>Ctrl/Cmd+S: download the edited HTML</p><p>Move the speaker window to your laptop. Share only the audience window. Notes remain embedded in the HTML file.</p><p>Edits are browser-local until you download the HTML. Rebuilding uses source files; copy any edits you want to keep back into source/slides.html.</p><form method="dialog"><button>Close</button></form></dialog>
+<script type="application/json" id="deckConfig">{{CONFIG}}</script>
+<script type="application/json" id="presenterTemplate">{{PRESENTER}}</script>
+<script id="deckRuntime">{{RUNTIME}}</script>
+</body>
+</html>
