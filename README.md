@@ -1,6 +1,6 @@
-# Smart City
+# mRadar
 
-Hackathon project: knowledge base, working rules, design system and a Next.js app built with [Appica UI](https://appica.dev/ui).
+Smart City hackathon project: residents report city problems and follow the response on a shared map. The repository includes the knowledge base, working rules, design system and a Next.js app built with [Appica UI](https://appica.dev/ui).
 
 - [Agent rules](AGENTS.md)
 - [Knowledge base](docs/knowledge-base/README.md)

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">mRadar mark</title>
+  <path d="M13 53C1 41 3 20 18 9C32-1 53 5 62 21L52 27C47 16 33 12 23 19C13 26 12 39 22 47Z" fill="#171717"/>
+  <path d="M29 28 47 18 52 26 34 36Z" fill="#171717"/>
+  <rect x="35" y="41" width="10" height="10" rx="5" fill="#B4234A"/>
+</svg>

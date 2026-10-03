@@ -19,8 +19,9 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Smart City",
-  description: "Smart City hackathon project",
+  applicationName: "mRadar",
+  title: "mRadar — city reports",
+  description: "Report city problems and follow the response.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
