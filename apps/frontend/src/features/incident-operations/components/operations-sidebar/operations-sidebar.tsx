@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger } from "@appica/ui-react/tabs";
 import type { Category } from "@/api/categories/types";
 import { AppBrand } from "@/shared/components/app-brand/app-brand";
 import { QUEUE_TABS, TAB_LABEL, type QueueItem as QueueItemData, type QueueTab } from "../../utils/queue";
-import { FreshnessStatus } from "../freshness-status/freshness-status";
+import { FreshnessStatus } from "@/shared/components/freshness-status/freshness-status";
 import { QueueItem } from "../queue-item/queue-item";
 
 const EMPTY: Record<QueueTab, string> = {
