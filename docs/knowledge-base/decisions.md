@@ -8,3 +8,4 @@
 | D004 / 2026-10-03 | Robocza: Civic domyślny, Signal opcjonalny | Usługi miejskie powinny mieć spokojny, czytelny punkt wejścia. Wybór odwracalny. |
 | D005 / 2026-10-03 | Propozycja: React, TypeScript, Vite, Tailwind CSS | Prosty frontend; backend wybieramy po poznaniu scenariusza i źródeł danych. |
 | D006 / 2026-10-03 | Przyjęta: wzornik bez zależności na etapie inicjalizacji | Można ocenić palety i hierarchię przed uruchomieniem aplikacji. HTML nie zastępuje komponentów shadcn/ui. |
+| D007 / 2026-10-03 | Przyjęta: przepływ Git i integracja według sekcji „Git, PR i integracja zmian” w [AGENTS.md](../../AGENTS.md) | Zmiany mają być przeglądalne i zgodne z aktualnym kodem docelowym przed scaleniem. |

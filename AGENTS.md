@@ -22,6 +22,15 @@ Budujemy Smart City na hackathon. Dostarczaj działające, małe fragmenty produ
 - Wygląd, responsywność, klawiaturę i stany błędów sprawdzaj krótkim ręcznym przeglądem. Uruchamiaj dostępny lint, kontrolę typów, build oraz jednostki związane ze zmianą.
 - Raportuj, co rzeczywiście sprawdzono, a czego nie udało się zweryfikować.
 
+## Git, PR i integracja zmian
+
+- **Nie wolno wykonywać bezpośredniego push ani force push do `main`. Wszystkie zmiany trafiają do `main` wyłącznie przez Pull Request.** Nie omijaj tego procesu lokalnym scaleniem i późniejszym pushem do `main`.
+- Pracuj i commituj na osobnej gałęzi `codex/<opis-zmiany>`. Pushuj gałąź roboczą i otwórz PR do właściwej gałęzi docelowej.
+- Przed zgłoszeniem PR do scalenia pobierz aktualny stan zdalnej gałęzi docelowej i zintegruj go ze swoją gałęzią przez merge lub rebase. Rozwiąż konflikty z zachowaniem intencji obu zmian; nie nadpisuj cudzej pracy dla samego usunięcia konfliktu.
+- Sprawdź wspólne działanie dołączanego kodu i aktualnego kodu docelowego: kontrakty, wywołania, typy, zależności i przepływy danych objęte zmianą. Sam brak konfliktów Git nie oznacza poprawnej integracji.
+- Po integracji uruchom dostępne kontrole odpowiednie do zmiany, zgodnie z sekcją „Testy i weryfikacja”. Opisz w PR wynik, wykonane sprawdzenia i ograniczenia. Jeśli gałąź docelowa zmieni się przed scaleniem, ponów integrację i sprawdzenia objętych nią obszarów.
+- Scalaj przez mechanizm PR po spełnieniu wymaganych kontroli i reguł repozytorium. Gdy brak zdalnego repozytorium lub dostępu uniemożliwia PR, zachowaj zmiany na gałęzi roboczej i zgłoś przeszkodę; nie zastępuj PR pushem do `main`.
+
 ## Baza wiedzy i realizacja
 
 1. Przy rozpoczęciu pracy przeczytaj [indeks wiedzy](docs/knowledge-base/README.md) i [kontekst projektu](docs/knowledge-base/project.md).
