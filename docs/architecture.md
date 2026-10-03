@@ -7,16 +7,20 @@ Status: projekt startowy, 2026-10-03. Konkretna domena i backend czekają na pie
 Jeden frontend, moduły według funkcji i jeden backend, jeśli scenariusz rzeczywiście go wymaga. Frontend: Next.js (App Router, Turbopack, React Compiler), React 19, TypeScript (strict), Tailwind CSS v4 i komponenty Appica UI. Menedżer pakietów: npm; wersje utrwala `package-lock.json`. Komponenty Appica działają w Server Components; interaktywność przenoś do małych komponentów z `"use client"`.
 
 ```text
-src/
-  app/                    # routing Next.js, layout, providers.tsx, globals.css
-  features/<feature>/
-    components/           # UI funkcji złożone z komponentów Appica UI
-    domain/               # czyste reguły, typy, ważne jednostki obok kodu
-    api/                  # operacje danych i mapowanie odpowiedzi
-  lib/                    # tylko faktycznie wspólne narzędzia
+apps/
+  frontend/               # aplikacja Next.js (własny package.json i lockfile)
+    src/
+      app/                # routing Next.js, layout, providers.tsx, globals.css
+      styles/             # tokeny motywów Civic/Signal dla Appica UI
+      features/<feature>/
+        components/       # UI funkcji złożone z komponentów Appica UI
+        domain/           # czyste reguły, typy, ważne jednostki obok kodu
+        api/              # operacje danych i mapowanie odpowiedzi
+      lib/                # tylko faktycznie wspólne narzędzia
+  backend/                # tylko gdy scenariusz wymaga serwera (jeszcze nie istnieje)
 ```
 
-To plan struktury: twórz katalogi dopiero wraz z kodem. Moduł udostępnia małe publiczne API; inne funkcje nie importują jego prywatnych plików. `domain` nie zależy od komponentów ani transportu. Komponenty bazowe pochodzą z pakietu `@appica/ui-react`; nie kopiujemy ich do repozytorium. Nie buduj generycznego repozytorium, kontenera DI ani biblioteki wewnętrznej na zapas.
+Każda aplikacja w `apps/` jest samodzielnym projektem z własnymi zależnościami; wspólny workspace dodamy, gdy powstanie druga aplikacja i realna potrzeba współdzielenia kodu. To plan struktury: twórz katalogi dopiero wraz z kodem. Moduł udostępnia małe publiczne API; inne funkcje nie importują jego prywatnych plików. `domain` nie zależy od komponentów ani transportu. Komponenty bazowe pochodzą z pakietu `@appica/ui-react`; nie kopiujemy ich do repozytorium. Nie buduj generycznego repozytorium, kontenera DI ani biblioteki wewnętrznej na zapas.
 
 ## Przepływ danych
 

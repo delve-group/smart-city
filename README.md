@@ -7,18 +7,20 @@ Fundament projektu hackathonowego: baza wiedzy, zasady pracy i design system i s
 - [Architektura systemu](docs/architecture.md)
 - [Design system i oba motywy](docs/design-system.md)
 - [Podgląd motywów](design-system/preview.html) — otwórz plik w przeglądarce; działa bez instalacji.
-- [Tokeny aplikacji](design-system/appica-theme.css) i [tokeny wzornika](design-system/themes.css)
+- [Frontend](apps/frontend) i jego [zasady dla agentów](apps/frontend/AGENTS.md)
+- [Tokeny aplikacji](apps/frontend/src/styles/appica-theme.css) i [tokeny wzornika](design-system/themes.css)
 
 ## Uruchomienie
 
 Wymagany Node.js 20.9+.
 
 ```bash
+cd apps/frontend
 npm install
 npm run dev
 ```
 
-Aplikacja działa pod http://localhost:3000. Kontrole: `npm run lint`, `npm run typecheck`, `npm run build`.
+Aplikacja działa pod http://localhost:3000. Kontrole w `apps/frontend`: `npm run lint`, `npm run typecheck`, `npm run build`.
 
 ## Stan
 
