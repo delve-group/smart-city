@@ -4,10 +4,9 @@ import { createDraft } from "@/api/intake/create-draft";
 import { getDraft } from "@/api/intake/get-draft";
 import { updateDraft } from "@/api/intake/update-draft";
 import { confirmDraft } from "@/api/intake/confirm-draft";
-import { getIssueTypes } from "@/api/intake/get-issue-types";
 import { getReport } from "@/api/intake/get-report";
 import { createReport } from "@/api/reports/create-report";
-import { draftFieldsSchema, EMPTY_DRAFT_FIELDS, type DraftFields, type IntakeDraft, type IssueType, type Report } from "@/api/intake/types";
+import { draftFieldsSchema, EMPTY_DRAFT_FIELDS, type DraftFields, type IntakeDraft, type Report } from "@/api/intake/types";
 import type { LocationCandidate } from "@/api/locations/types";
 import { USE_MOCKS } from "@/api/mocks/use-mocks";
 
@@ -18,7 +17,6 @@ export function useIntakeDraft() {
   const [draft, setDraft] = useState<IntakeDraft | null>(null);
   const [fields, setFields] = useState<DraftFields>(EMPTY_DRAFT_FIELDS);
   const [report, setReport] = useState<Report | null>(null);
-  const [issueTypes, setIssueTypes] = useState<IssueType[]>([]);
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
   const editRevision = useRef(0);
@@ -49,10 +47,9 @@ export function useIntakeDraft() {
         await createGuestSession();
         const saved = await getDraft(id!);
         if (!cancelled) { setDraft(saved); setFields(saved.fields); }
-        const types = await getIssueTypes();
         const committed = saved.submission ? await getReport(saved.submission.report_id) : null;
         if (!cancelled) {
-          setDraft(saved); setFields(saved.fields); setIssueTypes(types); setReport(committed);
+          setDraft(saved); setFields(saved.fields); setReport(committed);
         }
       } catch (failure) {
         if (!cancelled) { setNeedsRecovery(true); setError(message(failure)); }
@@ -83,12 +80,16 @@ export function useIntakeDraft() {
     setBusy(true); setError(null);
     try {
       await createGuestSession();
-      const types = await getIssueTypes();
-      setIssueTypes(types);
-      if (draft && !newReport) return draft;
+      if (draft && !newReport) {
+        const next = await prepareFormDraft(draft);
+        accept(next);
+        return next;
+      }
       let id: string | null = null;
       try { id = localStorage.getItem(RECOVERY_KEY); } catch { setStorageWarning(true); }
-      const next = id && !newReport ? await getDraft(id) : await createDraft({ severity: "medium" });
+      const next = id && !newReport
+        ? await prepareFormDraft(await getDraft(id))
+        : await createDraft(formDefaults());
       accept(next); setNeedsRecovery(false);
       setReport(next.submission ? await getReport(next.submission.report_id) : null);
       return next;
@@ -115,22 +116,35 @@ export function useIntakeDraft() {
     finally { setBusy(false); }
   }
 
-  async function review() {
-    if (!draft || busy || saving) return;
+  async function send() {
+    if (!draft || busy || saving || needsRecovery) return;
     const parsed = draftFieldsSchema.safeParse(fields);
     if (!parsed.success) { setError(parsed.error.issues[0]?.message ?? "Check the report fields."); return; }
     setBusy(true); setError(null);
-    try { accept(await updateDraft(draft.id, draft.revision, parsed.data)); setNeedsRecovery(false); }
-    catch (failure) { setError(message(failure)); setNeedsRecovery(true); }
-    finally { setBusy(false); }
-  }
-
-  async function confirm() {
-    if (!draft || busy || saving || dirty || needsRecovery) return;
-    setBusy(true); setError(null);
-    try { accept(await confirmDraft(draft.id, draft.revision)); }
-    catch (failure) { setError(message(failure)); setNeedsRecovery(true); }
-    finally { setBusy(false); }
+    try {
+      const saved = await updateDraft(draft.id, draft.revision, parsed.data);
+      const confirmed = await confirmDraft(saved.id, saved.revision);
+      const committed = await createReport(confirmed.id, confirmed.revision);
+      setReport(committed);
+      setDirty(false);
+      setNeedsRecovery(false);
+      // The reference is already committed even if this recovery read fails.
+      try { accept(await getDraft(confirmed.id)); } catch { setDraft(confirmed); }
+    } catch (failure) {
+      try {
+        const saved = await getDraft(draft.id);
+        accept(saved, true);
+        if (saved.submission) {
+          setReport(await getReport(saved.submission.report_id));
+          setNeedsRecovery(false);
+        } else {
+          setError(message(failure));
+        }
+      } catch {
+        setError("The save outcome is unknown. Check the report before retrying; your input is still here.");
+        setNeedsRecovery(true);
+      }
+    } finally { setBusy(false); }
   }
 
   async function recover(preserveInput = true) {
@@ -146,33 +160,30 @@ export function useIntakeDraft() {
     finally { setBusy(false); }
   }
 
-  async function submit() {
-    if (!draft || busy || saving || dirty || needsRecovery || draft.confirmation?.revision !== draft.revision) return;
-    setBusy(true); setError(null);
-    try {
-      const committed = await createReport(draft.id, draft.revision);
-      setReport(committed);
-      // The reference is already committed even if this recovery read fails.
-      try { accept(await getDraft(draft.id)); } catch { /* Keep the committed result. */ }
-    } catch (failure) {
-      let committed = false;
-      try {
-        const saved = await getDraft(draft.id);
-        accept(saved, true);
-        committed = Boolean(saved.submission);
-        if (saved.submission) setReport(await getReport(saved.submission.report_id));
-        else setError(`${message(failure)} No committed report was found; review the current draft before retrying.`);
-        setNeedsRecovery(false);
-      } catch {
-        setError(committed ? "Your report was saved, but its current status could not be read. Check the same draft again."
-          : "The save outcome is unknown. Check the same draft before retrying; your input and submission identity are preserved.");
-        setNeedsRecovery(true);
-      }
-    } finally { setBusy(false); }
-  }
+  return { draft, fields, report, busy, saving, error, storageWarning, dirty, needsRecovery,
+    start, edit, chooseLocation, send, recover };
 
-  return { draft, fields, report, issueTypes, busy, saving, error, storageWarning, dirty, needsRecovery,
-    start, edit, chooseLocation, review, confirm, recover, submit };
+  async function prepareFormDraft(current: IntakeDraft) {
+    if (current.submission) return current;
+    const patch: Partial<DraftFields> = {};
+    if (!current.fields.issue_type) patch.issue_type = "other";
+    if (current.fields.observed_time_state === "unknown") {
+      patch.observed_at = new Date().toISOString();
+      patch.observed_time_state = "known";
+    }
+    return Object.keys(patch).length > 0
+      ? updateDraft(current.id, current.revision, patch)
+      : current;
+  }
+}
+
+function formDefaults(): Partial<DraftFields> {
+  return {
+    severity: "medium",
+    issue_type: "other",
+    observed_at: new Date().toISOString(),
+    observed_time_state: "known",
+  };
 }
 
 function message(failure: unknown) {

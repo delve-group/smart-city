@@ -7,7 +7,6 @@ import { Button } from "@appica/ui-react/button";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import type { Category } from "@/api/categories/types";
-import type { LocationCandidate } from "@/api/locations/types";
 import { confirmReport } from "@/api/reports/confirm-report";
 import { type CityReport } from "@/api/reports/types";
 import { CategoryFilter } from "@/features/category-filter/components/category-filter/category-filter";
@@ -62,7 +61,10 @@ export function CityMapView() {
   const [focus, setFocus] = useState<MapFocus | null>(null);
   const [mode, setMode] = useState<Mode>({ kind: "browse" });
   const [center, setCenter] = useState<LatLng>({ lat: INITIAL_VIEW.latitude, lng: INITIAL_VIEW.longitude });
-  const [selectedLocation, setSelectedLocation] = useState<LocationCandidate | null>(null);
+  /** Set when a new report starts placing a pin, so the camera opens on the resident. */
+  const placeAtUser = useRef(false);
+  /** Closing an unfinished report makes the next Report action start from a fresh pin. */
+  const startFreshReport = useRef(false);
   /** Category ids to show; null means all (also covers categories the API adds later). */
   const [shownCategoryIds, setShownCategoryIds] = useState<string[] | null>(null);
   const [tilted, setTilted] = useState(false);
@@ -110,7 +112,10 @@ export function CityMapView() {
     if (!selectedId && mode.kind !== "picking") return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
-      if (mode.kind === "picking") setMode({ kind: "browse" });
+      if (mode.kind === "picking") {
+        startFreshReport.current = true;
+        setMode({ kind: "browse" });
+      }
       else setSelectedId(null);
     };
     window.addEventListener("keydown", onKey);
@@ -120,6 +125,17 @@ export function CityMapView() {
   function flyTo(location: { lat: number; lng: number }, zoom?: number) {
     setFocus((previous) => ({ key: (previous?.key ?? 0) + 1, lng: location.lng, lat: location.lat, zoom }));
   }
+
+  // A new report opens on the resident. Dragging the map before the position arrives keeps the current view.
+  useEffect(() => {
+    if (mode.kind !== "picking") {
+      placeAtUser.current = false;
+      return;
+    }
+    if (!placeAtUser.current || !userLocation) return;
+    placeAtUser.current = false;
+    flyTo(userLocation, 17);
+  }, [mode.kind, userLocation]);
 
   function openReport(report: CityReport) {
     setSelectedId(report.id);
@@ -142,12 +158,20 @@ export function CityMapView() {
   }
 
   async function startReport(newReport = false) {
-    const draft = await intake.start(newReport);
+    const draft = await intake.start(newReport || startFreshReport.current);
     if (!draft) return;
+    startFreshReport.current = false;
     setSelectedId(null);
     setHover(null);
-    setSelectedLocation(null);
-    setMode({ kind: draft.fields.location || draft.submission ? "form" : "picking" });
+    const picking = !(draft.fields.location || draft.submission);
+    placeAtUser.current = picking;
+    setMode({ kind: picking ? "picking" : "form" });
+  }
+
+  function cancelReport() {
+    startFreshReport.current = true;
+    setHover(null);
+    setMode({ kind: "browse" });
   }
 
   async function handleConfirm(report: CityReport) {
@@ -184,10 +208,11 @@ export function CityMapView() {
         draftPin={mode.kind === "form" ? intake.fields.location ?? undefined : undefined}
         userLocation={userLocation}
         interactive={mode.kind === "browse"}
+        hoverable={mode.kind !== "picking"}
         onHover={setHover}
         onSelect={selectFromMap}
         onCenterChange={setCenter}
-        onUserMove={() => setSelectedLocation(null)}
+        onUserMove={() => { placeAtUser.current = false; }}
         attribution={ready?.result.source === "demo" ? t("demo.reports") : undefined}
         tilted={tilted}
       />
@@ -218,17 +243,10 @@ export function CityMapView() {
           />
         )}
         {ready && !selected && (
-          <ReportFab active={mode.kind !== "browse"} busy={intake.busy} onClick={() => mode.kind === "browse" && void startReport()} />
+          <ReportFab active={mode.kind !== "browse"} busy={intake.busy} onClick={() => mode.kind === "browse" && void startReport(true)} />
         )}
       </div>
 
-      {mode.kind === "browse" && intake.draft && !intake.error && (
-        <div className="absolute top-30 left-3 z-20 md:top-18">
-          <Button variant="outline" disabled={intake.busy} onClick={() => void startReport()}>
-            {intake.report ? t("intake.viewSaved", { reference: intake.report.reference }) : t("intake.resume")}
-          </Button>
-        </div>
-      )}
       {intake.error && mode.kind !== "form" && (
         <div className="absolute inset-x-3 top-30 z-30 md:inset-x-auto md:left-3 md:w-96">
           <Alert variant="error"><AlertDescription>{intake.error}</AlertDescription></Alert>
@@ -255,11 +273,9 @@ export function CityMapView() {
           <LocationPicker
             ref={pickerRef}
             pin={center}
-            selected={selectedLocation}
             insideCity={insideKrakow(center)}
-            onLocate={(location) => { setSelectedLocation(null); flyTo(location, 17); }}
-            onSelect={(candidate) => { setSelectedLocation(candidate); flyTo(candidate, 17); }}
-            onCancel={() => setMode({ kind: "browse" })}
+            onLocate={(location) => flyTo(location, 17)}
+            onCancel={cancelReport}
             busy={intake.busy || intake.saving}
             onConfirm={(candidate) => { void intake.chooseLocation(candidate).then((saved) => { if (saved) setMode({ kind: "form" }); }); }}
           />
@@ -271,7 +287,7 @@ export function CityMapView() {
           categories={categories}
           intake={intake}
           onChangeLocation={() => setMode({ kind: "picking" })}
-          onCancel={() => setMode({ kind: "browse" })}
+          onCancel={cancelReport}
           onNew={() => void startReport(true)}
         />
       )}
@@ -283,7 +299,7 @@ export function CityMapView() {
         </div>
       )}
 
-      {mode.kind === "browse" && hovered && hoveredCategory && hover && hovered.id !== selectedId && isDesktop && (
+      {mode.kind !== "picking" && hovered && hoveredCategory && hover && hovered.id !== selectedId && isDesktop && (
         <ReportTooltip
           key={hovered.id}
           report={hovered}
@@ -291,7 +307,10 @@ export function CityMapView() {
           now={now}
           x={hover.x}
           y={hover.y}
-          bounds={bounds}
+          bounds={{
+            width: sheetCoversMap && isDesktop ? Math.max(0, bounds.width - PANEL_INSET) : bounds.width,
+            height: bounds.height,
+          }}
         />
       )}
 
