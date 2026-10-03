@@ -9,6 +9,7 @@ import { AddressSearch } from "../address-search/address-search";
 type LocationPickerProps = {
   pin: { lat: number; lng: number };
   selected: LocationCandidate | null;
+  busy?: boolean;
   insideCity: boolean;
   onLocate: (location: { lat: number; lng: number }) => void;
   onCancel: () => void;
@@ -17,16 +18,18 @@ type LocationPickerProps = {
 };
 
 /** Bottom card shown while the user moves the map under the centre pin. */
-export function LocationPicker({ pin, selected, insideCity, onLocate, onSelect, onCancel, onConfirm }: LocationPickerProps) {
+export function LocationPicker({ pin, selected, busy = false, insideCity, onLocate, onSelect, onCancel, onConfirm }: LocationPickerProps) {
   const location = useCurrentLocation(onLocate);
   const lookup = usePinResolution(pin);
-  const chosen = selected && Math.abs(selected.lat - pin.lat) < 0.00001 && Math.abs(selected.lng - pin.lng) < 0.00001
-    ? selected : null;
+  // Explicit selection remains authoritative while the camera animates to it.
+  // The parent clears it when the resident moves the map themselves.
+  const chosen = selected;
+  const canConfirm = chosen !== null || insideCity;
   const nearby = lookup.status === "done" ? lookup.result.candidates[0] : null;
 
   let line: string;
-  if (!insideCity) line = "This spot is outside Kraków. Move the pin into the city.";
-  else if (chosen) line = `${chosen.label}, Kraków${chosen.building_number ? "" : " — building number unknown"}`;
+  if (chosen) line = `${chosen.label}, Kraków${chosen.building_number ? "" : " — building number unknown"}`;
+  else if (!insideCity) line = "This spot is outside Kraków. Move the pin into the city.";
   else if (nearby) line = `Pin near ${nearby.label}. This nearby address is not confirmed.`;
   else if (lookup.status === "loading") line = "Finding nearby addresses… You can confirm the exact pin now.";
   else line = "Address lookup unavailable or no match — you can confirm the exact pin.";
@@ -37,28 +40,28 @@ export function LocationPicker({ pin, selected, insideCity, onLocate, onSelect, 
       className="absolute inset-x-3 bottom-3 z-30 flex max-h-[calc(50dvh-2rem)] flex-col gap-4 overflow-hidden rounded-lg border border-border bg-background p-5 shadow-md md:inset-x-auto md:bottom-6 md:left-1/2 md:max-h-[75dvh] md:w-[32rem] md:-translate-x-1/2"
     >
       <div className="flex min-h-0 flex-col gap-4 overflow-y-auto">
-      <div className="flex flex-col gap-1">
-        <h2 id="location-picker-title" className="text-lg font-semibold text-foreground-intense">
-          Where is the problem?
-        </h2>
-        <p className="text-sm text-foreground-muted">Find an address or move the map so the pin sits on the exact spot.</p>
-      </div>
+        <div className="flex flex-col gap-1">
+          <h2 id="location-picker-title" className="text-lg font-semibold text-foreground-intense">
+            Where is the problem?
+          </h2>
+          <p className="text-sm text-foreground-muted">Find an address or move the map so the pin sits on the exact spot.</p>
+        </div>
 
-      <AddressSearch onSelect={onSelect} />
+        <AddressSearch onSelect={onSelect} />
 
-      <p aria-live="polite" className="flex items-start gap-2 rounded-md bg-background-muted p-3 text-sm">
-        <MapPin size={18} aria-hidden className={`mt-0.5 shrink-0 ${insideCity ? "text-foreground-muted" : "text-error-emphasis"}`} />
-        <span className={insideCity ? "text-foreground-intense" : "text-error-emphasis"}>{line}</span>
-      </p>
+        <p aria-live="polite" className="flex items-start gap-2 rounded-md bg-background-muted p-3 text-sm">
+          <MapPin size={18} aria-hidden className={`mt-0.5 shrink-0 ${insideCity ? "text-foreground-muted" : "text-error-emphasis"}`} />
+          <span className={insideCity ? "text-foreground-intense" : "text-error-emphasis"}>{line}</span>
+        </p>
 
-      <p className="text-xs text-foreground-muted">
-        {chosen ? `Selected address: ${chosen.lat.toFixed(5)}, ${chosen.lng.toFixed(5)}. Check it on the map.`
-          : `Exact pin: ${pin.lat.toFixed(5)}, ${pin.lng.toFixed(5)}. Street and building remain unknown.`}
-      </p>
+        <p className="text-xs text-foreground-muted">
+          {chosen ? `Selected address: ${chosen.lat.toFixed(5)}, ${chosen.lng.toFixed(5)}. Check it on the map.`
+            : `Exact pin: ${pin.lat.toFixed(5)}, ${pin.lng.toFixed(5)}. Street and building remain unknown.`}
+        </p>
 
-      {location.state.status === "error" && (
-        <p role="alert" className="text-sm text-error-emphasis">{location.state.message}</p>
-      )}
+        {location.state.status === "error" && (
+          <p role="alert" className="text-sm text-error-emphasis">{location.state.message}</p>
+        )}
       </div>
 
       <div className="flex shrink-0 flex-wrap items-center gap-2">
@@ -78,8 +81,8 @@ export function LocationPicker({ pin, selected, insideCity, onLocate, onSelect, 
           <Button variant="outline" size="lg" onClick={onCancel} className="px-3 text-sm">
             Cancel
           </Button>
-          <Button size="lg" onClick={() => onConfirm(chosen ?? mapPin(pin))} disabled={!insideCity} className="px-3 text-sm">
-            Confirm location
+          <Button size="lg" onClick={() => onConfirm(chosen ?? mapPin(pin))} disabled={!canConfirm || busy} className="px-3 text-sm">
+            {busy ? "Saving location…" : "Confirm location"}
           </Button>
         </div>
       </div>

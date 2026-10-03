@@ -1,6 +1,6 @@
 # Resident location resolution
 
-Implemented preparation for [#26](https://github.com/delve-group/smart-city/issues/26), workstream 1 / Rafal. Persistent intake and exact draft-revision confirmation remain dependent on #21 and #23. This adapter does not save reports, confirm drafts or determine institution responsibility.
+Implemented for [#26](https://github.com/delve-group/smart-city/issues/26), workstream 1 / Rafal, using the shared contracts and persistent intake from #21/#23. Geography itself does not save reports, confirm drafts or determine institution responsibility.
 
 ## HTTP and client boundary
 
@@ -30,9 +30,13 @@ A candidate follows the canonical `LocationResult` in [shared workflow contracts
 
 The existing public [Photon service](https://github.com/komoot/photon) supplies address suggestions. Search requests include the reporting bounding box and a Kraków bias; results are independently checked for the bounds and a Kraków city label. Polish place names are preserved. The reporting rectangle in `src/shared/utils/krakow.ts` is the existing PoC limit, not a municipal polygon. Requests have a five-second timeout and are cancelled when the browser query or pin changes. There are no automatic provider retries; address search runs on Find and pin lookup is debounced. Public Photon is fair-use infrastructure, not a production integration.
 
-Reverse lookup returns nearby suggestions separately from the exact supplied pin. A pin retains `point` precision and null street/building facts even when a nearby address is found. The picker displays the coordinates and does not silently move to a nearby building. Address selection deliberately moves the map to that candidate; moving the map away clears its applicability. Confirm location passes the selected candidate or the exact pin to the legacy form. This UI action is not the persistent summary/revision confirmation required for intake.
+Reverse lookup returns nearby suggestions separately from the exact supplied pin. A pin retains `point` precision and null street/building facts even when a nearby address is found. The picker displays the coordinates and does not silently move to a nearby building. Address selection deliberately moves the map to that candidate and remains selected during the animation; a resident camera gesture clears it. Confirm location saves the selected candidate or the exact pin to the owned draft. This UI action is separate from the persistent summary/revision confirmation required for submission.
 
-The form/map continue using the labelled in-memory report routes. The first cutover must reuse this geography result while creating/recovering an owned draft, preserving the server submission key and recording exact-revision confirmation through Franek's shared service. The public incident-map migration remains a separate complete cutover in #28. No persistent private report is added to the current public mock feed.
+The form creates/recovers a guest-owned draft through the shared intake APIs. Valid edits save after a 1.2-second pause; incomplete/invalid input stays visible with an unsaved indicator. Review report explicitly saves the current fields. Category/issue type come from the server catalogues; original Polish observations and unit details stay private, and unknown scope/time remain explicit. A location change saves the selected geography while preserving other entered fields and invalidating the old confirmation.
+
+The resident explicitly confirms the server readback for the current revision before canonical `POST /api/reports { draft_id, revision }`. Any edit removes the UI confirmation and the server invalidates it on save. A dropped submission response triggers `GET /api/report-drafts/{id}` before retry; its committed reference is authoritative even if the current report-status read fails. Saved references and pending/review/private/out-of-scope next steps are shown separately from the public map. Browser storage contains only `mradar-resident-draft` (the draft ID); the submission key remains server-issued and is reused across recovery. No full narrative/transcript is stored in browser recovery storage.
+
+Raw-create POST compatibility is retired with `400 legacy_contract_retired`; existing labelled public mock reads/contributions remain until the complete #28 map cutover. No persistent private report is added to that mock feed. The isolated local PostgreSQL manual review does not verify Docker startup, deployment or live voice switching.
 
 ## Manual review
 

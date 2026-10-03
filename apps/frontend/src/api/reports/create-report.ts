@@ -1,21 +1,7 @@
-import { mapReportDto } from "./mappers";
-import { reportDtoSchema, type CityReport, type CreateReportInput } from "./types";
+import { jsonBody, requestIntake } from "@/api/intake/request-intake";
+import { submittedReportSchema } from "@/api/intake/types";
 
-/** POST /api/reports */
-export async function createReport(input: CreateReportInput, signal?: AbortSignal): Promise<CityReport> {
-  const response = await fetch("/api/reports", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
-    signal,
-  });
-  if (!response.ok) {
-    const problem = (await response.json().catch(() => null)) as { error?: string } | null;
-    throw new Error(problem?.error ?? `Could not submit the report (${response.status}).`);
-  }
-
-  const body = reportDtoSchema.safeParse(await response.json());
-  if (!body.success) throw new Error("Unexpected response after submitting the report.");
-
-  return mapReportDto(body.data);
+/** Canonical confirmed-draft submission. The server owns its submission key. */
+export function createReport(draftId: string, revision: number) {
+  return requestIntake("/api/reports", submittedReportSchema, jsonBody("POST", { draft_id: draftId, revision }));
 }

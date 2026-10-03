@@ -1,147 +1,91 @@
 import { ArrowLeft, MapPin, X } from "@appica/icons-react";
 import { Alert, AlertDescription } from "@appica/ui-react/alert";
 import { Button } from "@appica/ui-react/button";
-import { Field, FieldDescription, FieldError, FieldLabel } from "@appica/ui-react/field";
+import { Field, FieldDescription, FieldLabel } from "@appica/ui-react/field";
+import { Fieldset } from "@appica/ui-react/fieldset";
 import { Input } from "@appica/ui-react/input";
 import { ScrollArea } from "@appica/ui-react/scroll-area";
 import { Textarea } from "@appica/ui-react/textarea";
-import { useState, type FormEvent } from "react";
 import type { Category } from "@/api/categories/types";
-import type { ReverseAddress } from "@/api/photon/types";
-import { createReport } from "@/api/reports/create-report";
-import { createReportInputSchema, type CityReport, type ReportSeverity } from "@/api/reports/types";
+import type { IntakeController } from "../../hooks/use-intake-draft";
 import { FloatingPanel } from "@/shared/components/floating-panel/floating-panel";
 import { CategoryField } from "../category-field/category-field";
 import { SeverityField } from "../severity-field/severity-field";
+import { ObservationFields } from "../observation-fields/observation-fields";
+import { ReportOutcome } from "../report-outcome/report-outcome";
 
-type ReportFormProps = {
-  categories: readonly Category[];
-  location: { lat: number; lng: number };
-  address: ReverseAddress;
-  onChangeLocation: () => void;
-  onCancel: () => void;
-  onSubmitted: (report: CityReport) => void;
-};
+type Props = { categories: readonly Category[]; intake: IntakeController; onChangeLocation: () => void; onCancel: () => void; onNew: () => void };
 
-type Errors = Partial<Record<"category_id" | "title" | "description", string>>;
-
-const DESCRIPTION_MAX = 1000;
-
-export function ReportForm({ categories, location, address, onChangeLocation, onCancel, onSubmitted }: ReportFormProps) {
-  const [categoryId, setCategoryId] = useState("");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [severity, setSeverity] = useState<ReportSeverity>("medium");
-  const [errors, setErrors] = useState<Errors>({});
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (submitting) return;
-
-    const parsed = createReportInputSchema.safeParse({
-      category_id: categoryId,
-      title,
-      description,
-      severity,
-      lat: location.lat,
-      lng: location.lng,
-      address: address.address,
-      district: address.district,
-    });
-    if (!parsed.success) {
-      const next: Errors = {};
-      for (const issue of parsed.error.issues) {
-        const key = issue.path[0] as keyof Errors;
-        next[key] ??= issue.message;
-      }
-      setErrors(next);
-      return;
-    }
-
-    setErrors({});
-    setSubmitError(null);
-    setSubmitting(true);
-    try {
-      onSubmitted(await createReport(parsed.data));
-    } catch (error) {
-      // Keep everything the user typed; they can retry.
-      setSubmitError(error instanceof Error ? error.message : "Could not submit the report.");
-      setSubmitting(false);
-    }
-  }
-
+export function ReportForm({ categories, intake, onChangeLocation, onCancel, onNew }: Props) {
+  const { fields, draft, report, busy, saving, dirty, edit } = intake;
+  const blocked = busy || saving;
+  const confirmed = Boolean(draft && !dirty && !intake.needsRecovery && draft.confirmation?.revision === draft.revision);
+  const saved = report ?? (draft?.submission ? { ...draft.submission, resident_next_step: null } : null);
   return (
-    <FloatingPanel
-      labelledBy="report-form-title"
-      header={
-        <div className="flex items-center justify-between gap-3">
-          <h2 id="report-form-title" className="text-lg font-semibold text-foreground-intense">Create a report</h2>
-          <Button variant="ghost" size="icon-md" aria-label="Cancel report" onClick={onCancel}>
-            <X />
-          </Button>
-        </div>
-      }
-    >
-      <form noValidate onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+    <FloatingPanel labelledBy="report-form-title" header={
+      <div className="flex items-center justify-between gap-3">
+        <h2 id="report-form-title" className="text-lg font-semibold text-foreground-intense">{saved ? "Your report" : "Create a report"}</h2>
+        <Button variant="ghost" size="icon-md" aria-label="Close report" onClick={onCancel} disabled={busy}><X /></Button>
+      </div>
+    }>
+      <form noValidate onSubmit={(event) => { event.preventDefault(); void (confirmed ? intake.submit() : intake.review()); }} className="flex min-h-0 flex-1 flex-col">
         <ScrollArea className="min-h-0 flex-1">
           <div className="flex flex-col gap-5 px-5 py-5">
-            <div className="flex items-start gap-3 rounded-md bg-background-muted p-3">
-              <MapPin size={18} aria-hidden className="mt-0.5 shrink-0 text-foreground-muted" />
-              <div className="flex min-w-0 flex-1 flex-col">
-                <span className="text-sm font-medium text-foreground-intense">{address.address}</span>
-                {address.district && <span className="text-xs text-foreground-muted">{address.district}, Kraków</span>}
-              </div>
-              <Button type="button" variant="ghost" size="sm" onClick={onChangeLocation}>
-                <ArrowLeft data-icon="start" />
-                Change
-              </Button>
-            </div>
-
-            <CategoryField categories={categories} value={categoryId} error={errors.category_id} onChange={setCategoryId} />
-
-            <Field invalid={Boolean(errors.title)}>
-              <FieldLabel>What is wrong?</FieldLabel>
-              <Input
-                inputSize="lg"
-                value={title}
-                maxLength={80}
-                placeholder="e.g. Street light out by the tram stop"
-                onChange={(event) => setTitle(event.target.value)}
-              />
-              <FieldError match={Boolean(errors.title)}>{errors.title}</FieldError>
-            </Field>
-
-            <Field invalid={Boolean(errors.description)}>
-              <FieldLabel>Details (optional)</FieldLabel>
-              <Textarea
-                value={description}
-                rows={4}
-                maxLength={DESCRIPTION_MAX}
-                placeholder="Since when? What exactly is affected? Anything a crew should know?"
-                onChange={(event) => setDescription(event.target.value)}
-              />
-              <FieldDescription>{description.length} / {DESCRIPTION_MAX}</FieldDescription>
-              <FieldError match={Boolean(errors.description)}>{errors.description}</FieldError>
-            </Field>
-
-            <SeverityField value={severity} onChange={setSeverity} />
-
-            {submitError && (
-              <Alert variant="error">
-                <AlertDescription>{submitError}</AlertDescription>
-              </Alert>
+            {saved ? <ReportOutcome report={saved} busy={busy} onRefresh={() => void intake.recover(false)} onNew={onNew} /> : (
+              <>
+                <div className="flex items-start gap-3 rounded-md bg-background-muted p-3">
+                  <MapPin size={18} aria-hidden className="mt-0.5 shrink-0 text-foreground-muted" />
+                  <div className="flex min-w-0 flex-1 flex-col">
+                    <span className="text-sm font-medium text-foreground-intense">{fields.location?.label ?? "Choose a location"}</span>
+                    <span className="text-xs text-foreground-muted">{fields.location?.district ? `${fields.location.district}, ` : ""}Kraków</span>
+                  </div>
+                  <Button variant="ghost" size="sm" disabled={blocked} onClick={onChangeLocation}><ArrowLeft data-icon="start" />Change</Button>
+                </div>
+                <p aria-live="polite" className="text-xs text-foreground-muted">
+                  Guest · unverified. {saving ? "Saving draft…" : dirty ? "Unsaved edits — review to save, or wait for automatic save." : "Draft saved; it can be recovered after refresh."}
+                </p>
+                <Fieldset disabled={busy} className="gap-5">
+                  <CategoryField categories={categories} value={fields.category_id ?? ""} autoFocus onChange={(category_id) => edit({ category_id, issue_type: null })} />
+                  <Field>
+                    <FieldLabel>What is wrong?</FieldLabel>
+                    <Input inputSize="lg" value={fields.title ?? ""} maxLength={80} placeholder="e.g. Power outage in my building" onChange={(event) => edit({ title: event.target.value || null })} />
+                    <FieldDescription>English summary for city review. Preserve original Polish observations below.</FieldDescription>
+                  </Field>
+                  <Field>
+                    <FieldLabel>Original observation (optional)</FieldLabel>
+                    <Textarea value={fields.description ?? ""} rows={4} maxLength={1000} onChange={(event) => edit({ description: event.target.value })} />
+                    <FieldDescription>{fields.description?.length ?? 0} / 1000 · Private to you and authorized city staff.</FieldDescription>
+                  </Field>
+                  <ObservationFields fields={fields} issueTypes={intake.issueTypes} onEdit={edit} />
+                  <SeverityField value={fields.severity} onChange={(severity) => edit({ severity })} />
+                </Fieldset>
+                {draft && !dirty && (
+                  <section aria-labelledby="readback-title" className="flex flex-col gap-3 rounded-md border border-border p-3">
+                    <h3 id="readback-title" className="font-medium text-foreground-intense">Review summary and location</h3>
+                    <p className="text-sm">{draft.readback_summary}</p>
+                    {draft.missing_fields.length > 0 ? <p className="text-sm text-warning-emphasis">Still needed: {draft.missing_fields.map((field) => MISSING_LABELS[field]).join(", ")}.</p> : (
+                      <Button variant="outline" focusableWhenDisabled disabled={blocked || confirmed || intake.needsRecovery} onClick={() => void intake.confirm()}>
+                        {confirmed ? "Summary and location confirmed" : "Confirm summary and location"}
+                      </Button>
+                    )}
+                  </section>
+                )}
+              </>
             )}
+            {intake.error && <Alert variant="error"><AlertDescription>{intake.error}</AlertDescription></Alert>}
+            {intake.needsRecovery && draft && <Button variant="outline" disabled={blocked} onClick={() => void intake.recover()}>Check current draft (keep my edits)</Button>}
+            {intake.storageWarning && <p className="text-sm text-warning-emphasis">Browser recovery storage is blocked. Keep this window open until you receive a saved reference.</p>}
           </div>
         </ScrollArea>
-        <footer className="flex gap-2 border-t border-border-muted px-5 py-4">
-          <Button type="button" variant="outline" size="lg" onClick={onCancel}>Cancel</Button>
-          <Button type="submit" size="lg" className="flex-1" disabled={submitting}>
-            {submitting ? "Sending…" : "Send report"}
+        {!saved && <footer className="flex gap-2 border-t border-border-muted px-5 py-4">
+          <Button variant="outline" size="lg" onClick={onCancel} disabled={busy}>Close</Button>
+          <Button type="submit" size="lg" className="flex-1" focusableWhenDisabled disabled={blocked || intake.needsRecovery}>
+            {busy ? "Working…" : saving ? "Saving draft…" : confirmed ? "Send report" : "Review report"}
           </Button>
-        </footer>
+        </footer>}
       </form>
     </FloatingPanel>
   );
 }
+
+const MISSING_LABELS = { category_id: "category", issue_type: "issue type", title: "summary", location: "location" };
