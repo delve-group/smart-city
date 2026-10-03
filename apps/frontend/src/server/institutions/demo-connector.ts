@@ -14,7 +14,10 @@ export type ConnectorResult =
   | { outcome: "failed"; reason: string }
   | { outcome: "unknown" };
 
-const PREFIX: Record<string, string> = { "demo-electricity": "ELE", "demo-water": "WAT" };
+const PREFIX: Record<string, string> = {
+  "demo-electricity": "ELE", "demo-water": "WOD", "demo-roads": "DRO", "demo-transit": "KOM",
+  "demo-waste": "OCZ", "demo-greenery": "ZIE", "demo-air": "SRO",
+};
 
 async function store(executionKey: string, institutionId: string, payload: unknown): Promise<string> {
   const pool = getPool();
@@ -22,7 +25,7 @@ async function store(executionKey: string, institutionId: string, payload: unkno
     `INSERT INTO demo_connector_requests (execution_key, institution_id, external_reference, payload)
      VALUES ($1, $2, $3 || '-26-' || lpad(nextval('service_ticket_reference_seq')::text, 6, '0'), $4)
      ON CONFLICT (execution_key) DO NOTHING`,
-    [executionKey, institutionId, PREFIX[institutionId] ?? "DEMO", JSON.stringify(payload)],
+    [executionKey, institutionId, PREFIX[institutionId] ?? "TKT", JSON.stringify(payload)],
   );
   return (await lookupConnectorRequest(executionKey))!;
 }

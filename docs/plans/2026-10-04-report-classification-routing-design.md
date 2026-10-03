@@ -26,7 +26,7 @@ sewers. New entries are installed by an additive migration 010 for existing depl
 Institution inbox accounts remain the existing electricity and water accounts.
 
 Migration 010 also requeues unlinked, non-urgent, non-unit reports whose review note
-exactly identifies the retired power-only gate. It increments their versions and commits
+identifies the retired power-only gate in English or Polish. It increments their versions and commits
 audit plus triage/index work together. Other review items and existing links are preserved.
 
 Complete non-power reports may start a separate incident when no nearby candidate
@@ -76,3 +76,13 @@ version conflicts with disposable database records. No automated tests are intro
   views displayed the panel and category correctly; keyboard focus reached its controls.
 - Production deployment, a fresh microphone session and elapsed provider timeout were
   not exercised. No automated tests were added.
+
+## Integration with the Polish fixture directory
+
+The final integration reuses the incoming Polish institution IDs and names, including
+`demo-air` and the configured `demo-roads` accessibility responsibility. No separate
+building/environment institution competes with that directory. Existing broad category
+rules and the new specific rules point to the same institution, so resolution stays
+single. Infrastructure ownership remains a configured fictional assumption, not a model
+inference. Both old English and Polish power-only review messages are eligible for the
+bounded migration backfill; new seeded review examples no longer claim that restriction.
