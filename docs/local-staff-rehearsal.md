@@ -1,6 +1,6 @@
 # Local staff response rehearsal
 
-Recorded: 2026-10-03. Partial acceptance evidence for [#19](https://github.com/delve-group/smart-city/issues/19) and [#35](https://github.com/delve-group/smart-city/issues/35). Work ran in an isolated worktree on `feature/franek-takeover`, initially based on `f596f8f`, then integrated with `895c5a8` after the primary thread merged #51. No application behavior was changed and no automated tests were added.
+Recorded: 2026-10-03. Partial acceptance evidence for [#19](https://github.com/delve-group/smart-city/issues/19) and [#35](https://github.com/delve-group/smart-city/issues/35). Work ran in an isolated worktree on `feature/franek-takeover`, initially based on `f596f8f`, then integrated with `895c5a8` after the primary thread merged #51 and `b537360` after #62. No application behavior was changed and no automated tests were added.
 
 ## Separation and provider mode
 
@@ -57,7 +57,7 @@ At 390 px, focusing the lower actions scrolled the inner viewport while the cate
 
 ## Verification limits and handoff
 
-No concrete staff/domain defect was found in these completed cases, so this slice delivers evidence only. After integration with `895c5a8`, `npm run lint`, `npm run typecheck` and `npm run build` all passed. `git diff --check` also passed. No automated tests were added.
+No concrete staff/domain defect was found in these completed cases, so this slice delivers evidence only. After integration with `895c5a8` and again with `b537360`, `npm run lint`, `npm run typecheck` and `npm run build` all passed. `git diff --check` also passed. No automated tests were added.
 
 - Browser control disconnected while preparing additional concurrent-tab checks. **Stale-save/network-failure UI feedback and retention were not forced in this run.** HTTP stale-version behavior passed, and ordinary fixture polling retained input; those are separate claims.
 - The final integrated-main UI was not re-reviewed after #51 merged. Its staff implementation is unchanged, and the updated category consumer compatibility was reviewed and compiled, but this is not real-backend browser acceptance.
