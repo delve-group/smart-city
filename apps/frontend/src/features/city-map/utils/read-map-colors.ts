@@ -20,6 +20,7 @@ export function readMapColors(categoryIds: readonly string[]) {
       roadMajorCasing: token("--map-road-major-casing"),
       roadMotorway: token("--map-road-motorway"),
       roadMotorwayCasing: token("--map-road-motorway-casing"),
+      building3d: token("--map-building-3d"),
     },
   };
 }

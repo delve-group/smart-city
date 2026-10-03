@@ -24,6 +24,8 @@ const MAP_STYLE = {
 export const INITIAL_VIEW = { longitude: 19.945, latitude: 50.0617, zoom: 12.3 };
 /** Invisible, larger circles that catch the pointer, so small points are easy to hit. */
 const HIT_LAYER = "report-hit-area";
+/** Camera for the 3D view. */
+const TILT = { pitch: 55, minZoom: 15.5 };
 /** Zoom band where the heatmap hands over to individual points. */
 const HANDOVER = { start: 12.5, end: 14 };
 
@@ -57,6 +59,8 @@ export type CityMapCanvasProps = {
   onCenterChange?: (center: { lat: number; lng: number }) => void;
   /** Extra attribution, e.g. a demo-data notice. */
   attribution?: string;
+  /** Tilted view that shows buildings in 3D. */
+  tilted?: boolean;
 };
 
 export default function CityMapCanvas({
@@ -72,6 +76,7 @@ export default function CityMapCanvas({
   onSelect,
   onCenterChange,
   attribution,
+  tilted = false,
 }: CityMapCanvasProps) {
   const mapRef = useRef<MapRef>(null);
   const scheme = useColorScheme();
@@ -93,6 +98,18 @@ export default function CityMapCanvas({
     // Only a new focus request should move the map, not inset changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focus]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    map.easeTo({
+      pitch: tilted ? TILT.pitch : 0,
+      bearing: tilted ? map.getBearing() : 0,
+      // Buildings rise from zoom 14; tilting further out would show nothing new.
+      zoom: tilted ? Math.max(map.getZoom(), TILT.minZoom) : map.getZoom(),
+      duration: 800,
+    });
+  }, [tilted]);
 
   // MapLibre's types cannot express a match built from a runtime list, hence the cast.
   const categoryColor = [
@@ -130,6 +147,7 @@ export default function CityMapCanvas({
     <Map
       ref={mapRef}
       initialViewState={INITIAL_VIEW}
+      maxPitch={70}
       mapStyle={mapStyle}
       style={{ width: "100%", height: "100%" }}
       attributionControl={false}

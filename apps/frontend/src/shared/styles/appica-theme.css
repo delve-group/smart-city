@@ -104,22 +104,23 @@
   --category-greenery: #2F7A3F;
   --category-air: #7D5A4F;
 
-  /* Base map in the app's greys; roads stand out by contrast, motorways by a heavier casing. */
+  /* Base map in the app's greys; main roads carry a faint warm accent, motorways a little more. */
   --map-land: #EEEEEE;
   --map-residential: #EBEBEB;
   --map-park: #E3E3E3;
   --map-building: #E0E0E0;
   --map-water: #D4D4D4;
   --map-road-minor: #FFFFFF;
-  --map-road-major: #FFFFFF;
-  --map-road-major-casing: #CACACA;
-  --map-road-motorway: #FFFFFF;
-  --map-road-motorway-casing: #A6A6A6;
+  --map-road-major: #FBF6EC;
+  --map-road-major-casing: #DCCDB0;
+  --map-road-motorway: #F6EAD2;
+  --map-road-motorway-casing: #C9B188;
+  --map-building-3d: #E2E2E2;
 
-  /* Heatmap ramp, from a few reports to a dense cluster. */
-  --heat-low: #F5B83D;
-  --heat-mid: #EA6A1F;
-  --heat-high: #C0262D;
+  /* Heatmap: one rose hue, from a faint wash to a deep core. */
+  --heat-low: rgba(244, 114, 142, 0.35);
+  --heat-mid: rgba(225, 29, 72, 0.7);
+  --heat-high: #9F1239;
 
   --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -228,14 +229,15 @@
   --map-building: #1D1D1D;
   --map-water: #0B0B0B;
   --map-road-minor: #242424;
-  --map-road-major: #303030;
-  --map-road-major-casing: #3A3A3A;
-  --map-road-motorway: #3D3D3D;
-  --map-road-motorway-casing: #4C4C4C;
+  --map-road-major: #34302A;
+  --map-road-major-casing: #403A31;
+  --map-road-motorway: #463E31;
+  --map-road-motorway-casing: #574C3A;
+  --map-building-3d: #262626;
 
-  --heat-low: #F5B83D;
-  --heat-mid: #F07A35;
-  --heat-high: #E5484D;
+  --heat-low: rgba(251, 113, 133, 0.3);
+  --heat-mid: rgba(244, 63, 94, 0.7);
+  --heat-high: #FDA4AF;
 
   --shadow-color: rgb(0 0 0 / 35%);
   --selection-color: rgb(255 255 255 / 16%);

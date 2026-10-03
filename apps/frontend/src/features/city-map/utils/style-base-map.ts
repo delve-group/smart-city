@@ -12,6 +12,7 @@ export type BaseMapColors = {
   roadMajorCasing: string;
   roadMotorway: string;
   roadMotorwayCasing: string;
+  building3d: string;
 };
 
 /** OpenFreeMap (OpenMapTiles schema) layer ids in the positron and dark styles. */
@@ -53,14 +54,36 @@ function recolor(layer: LayerSpecification, color: string): LayerSpecification {
   }
 }
 
-/** Returns a copy of the base style in the app's neutral palette. Unknown layers and empty tokens stay as they are. */
-export function styleBaseMap(style: StyleSpecification, colors: BaseMapColors): StyleSpecification {
+/** OpenMapTiles buildings carry their height; they show in 3D once the map is tilted. */
+function buildings3d(color: string): LayerSpecification {
   return {
-    ...style,
-    layers: style.layers.map((layer) => {
-      const role = LAYER_ROLES[layer.id];
-      // A missing token must not break the map: keep the style's own colour.
-      return role && colors[role] ? recolor(layer, colors[role]) : layer;
-    }),
+    id: "building-3d",
+    type: "fill-extrusion",
+    source: "openmaptiles",
+    "source-layer": "building",
+    minzoom: 14,
+    paint: {
+      "fill-extrusion-color": color,
+      "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 14, 0, 15, ["get", "render_height"]],
+      "fill-extrusion-base": ["interpolate", ["linear"], ["zoom"], 14, 0, 15, ["get", "render_min_height"]],
+      "fill-extrusion-opacity": 0.85,
+    },
   };
+}
+
+/**
+ * Returns a copy of the base style in the app's palette, with 3D buildings under the labels.
+ * Unknown layers and empty tokens stay as they are.
+ */
+export function styleBaseMap(style: StyleSpecification, colors: BaseMapColors): StyleSpecification {
+  const layers = style.layers.map((layer) => {
+    const role = LAYER_ROLES[layer.id];
+    // A missing token must not break the map: keep the style's own colour.
+    return role && colors[role] ? recolor(layer, colors[role]) : layer;
+  });
+  if (colors.building3d && style.sources.openmaptiles) {
+    const firstLabel = layers.findIndex((layer) => layer.type === "symbol");
+    layers.splice(firstLabel === -1 ? layers.length : firstLabel, 0, buildings3d(colors.building3d));
+  }
+  return { ...style, layers };
 }
