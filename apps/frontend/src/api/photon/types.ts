@@ -6,6 +6,7 @@ export const photonFeatureSchema = z.object({
   properties: z.object({
     osm_id: z.number(),
     osm_type: z.string(),
+    osm_key: z.string().optional(),
     osm_value: z.string().optional(),
     name: z.string().optional(),
     street: z.string().optional(),

@@ -1,13 +1,13 @@
 import { z } from "zod";
+import { KRAKOW_BOUNDS } from "@/shared/utils/krakow";
+
+export { KRAKOW_BOUNDS } from "@/shared/utils/krakow";
 
 export const REPORT_STATUSES = ["reported", "confirmed", "in_progress", "resolved"] as const;
 export type ReportStatus = (typeof REPORT_STATUSES)[number];
 
 export const REPORT_SEVERITIES = ["low", "medium", "high"] as const;
 export type ReportSeverity = (typeof REPORT_SEVERITIES)[number];
-
-/** Reports must be inside Kraków; the same bounds validate the form and the endpoint. */
-export const KRAKOW_BOUNDS = { south: 49.96, west: 19.79, north: 50.13, east: 20.22 };
 
 /** Wire format of one report. Demo contract until the real API is known. */
 export const reportDtoSchema = z.object({
