@@ -34,7 +34,7 @@ export function CategoryFilter({ categories, counts, selected, onChange }: Categ
             variant={filtered ? "primary" : "outline"}
             size="icon-lg"
             aria-label={label}
-            className="relative shrink-0 shadow-xs"
+            className={`relative shrink-0 shadow-xs ${filtered ? "" : "border-border-strong/50"}`}
           />
         }
       >

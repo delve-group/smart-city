@@ -188,7 +188,7 @@ export function CityMapView() {
             onChange={(ids) => setShownCategoryIds(ids.length === categoryIds.length ? null : ids)}
           />
         )}
-        <ThemeToggle className="shrink-0 bg-background shadow-xs" />
+        <ThemeToggle className="shrink-0 border-border-strong/50 bg-background shadow-xs" />
       </div>
 
       {state.status !== "ready" && (

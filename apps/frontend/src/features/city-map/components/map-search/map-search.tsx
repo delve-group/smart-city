@@ -72,7 +72,7 @@ export function MapSearch({ reports, categoriesById, onPick }: MapSearchProps) {
       <ComboboxInput
         aria-label="Search reports and places"
         placeholder="Search reports, streets and places"
-        className="bg-background shadow-xs"
+        className="border-border-strong/50 bg-background shadow-xs"
         startSlot={<Search size={18} aria-hidden className="text-foreground-muted" />}
         endSlot={searchingPlaces ? <Spinner className="size-4 text-foreground-muted" aria-label="Searching places" /> : null}
       />
