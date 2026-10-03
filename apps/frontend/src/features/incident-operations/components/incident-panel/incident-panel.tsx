@@ -1,4 +1,5 @@
 import { Accordion } from "@appica/ui-react/accordion";
+import { Badge } from "@appica/ui-react/badge";
 import { ScrollArea } from "@appica/ui-react/scroll-area";
 import { Separator } from "@appica/ui-react/separator";
 import { useEffect, useRef } from "react";
@@ -6,11 +7,10 @@ import type { Category } from "@/api/categories/types";
 import type { Incident, IncidentCommand, OperationsReport, ProposalDecision, Workspace } from "@/api/operations/types";
 import { FloatingPanel } from "@/shared/components/floating-panel/floating-panel";
 import { institutionName, reportsOf } from "../../utils/queue";
+import { ASSESSMENT } from "../../utils/labels";
 import { EvidenceList } from "../evidence-list/evidence-list";
-import { IncidentDecisions } from "../incident-decisions/incident-decisions";
+import { IncidentActions } from "../incident-actions/incident-actions";
 import { IncidentHistory } from "../incident-history/incident-history";
-import { IncidentStatus } from "../incident-status/incident-status";
-import { LinkedReports } from "../linked-reports/linked-reports";
 import { PanelHeader } from "../panel-header/panel-header";
 import { ProposalCard } from "../proposal-card/proposal-card";
 import { ResponsibilityPicker } from "../responsibility-picker/responsibility-picker";
@@ -50,7 +50,12 @@ export function IncidentPanel({ incident, workspace, category, now, onClose, onL
     <FloatingPanel
       labelledBy="incident-panel-title"
       header={
-        <PanelHeader category={category} reference={incident.reference} onCenter={() => onLocate(incident.location)} onClose={onClose} />
+        <PanelHeader
+          category={category}
+          actions={<IncidentActions incident={incident} onCommand={(command) => onCommand(incident, command)} />}
+          onCenter={() => onLocate(incident.location)}
+          onClose={onClose}
+        />
       }
     >
       <ScrollArea className="min-h-0 flex-1">
@@ -66,8 +71,16 @@ export function IncidentPanel({ incident, workspace, category, now, onClose, onL
                 {incident.title}
               </h2>
               <p className="text-sm text-foreground-muted">{[incident.address, incident.district].filter(Boolean).join(" · ")}</p>
+              <p className="flex items-center gap-2 text-xs text-foreground-muted">
+                <span className="font-mono">{incident.reference}</span>
+                {/* Only an official's verdict is worth a badge; "suspected" is the default state. */}
+                {(incident.assessment === "verified" || incident.assessment === "disputed") && (
+                  <Badge variant={ASSESSMENT[incident.assessment].variant} size="xs" title={ASSESSMENT[incident.assessment].hint}>
+                    {ASSESSMENT[incident.assessment].label}
+                  </Badge>
+                )}
+              </p>
             </div>
-            <IncidentStatus incident={incident} />
             {incident.review && <ReviewNotice review={incident.review} />}
           </div>
 
@@ -102,14 +115,15 @@ export function IncidentPanel({ incident, workspace, category, now, onClose, onL
           )}
 
           <Separator />
-          <Accordion variant="flush" multiple defaultValue={["reports"]} className="gap-0">
-            <LinkedReports reports={reports} now={now} onLocate={(report) => onLocate(report.location)} />
-            <Separator />
-            <EvidenceList evidence={incident.evidence} now={now} />
+          <Accordion variant="flush" multiple defaultValue={["evidence"]} className="gap-0">
+            <EvidenceList
+              reports={reports}
+              observations={incident.evidence.filter((item) => item.kind !== "report")}
+              now={now}
+              onLocate={(report) => onLocate(report.location)}
+            />
             <Separator />
             <IncidentHistory history={incident.history} now={now} />
-            <Separator />
-            <IncidentDecisions incident={incident} onCommand={(command) => onCommand(incident, command)} />
           </Accordion>
         </div>
       </ScrollArea>

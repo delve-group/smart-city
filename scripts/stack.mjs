@@ -5,6 +5,7 @@ import { parseEnv } from "node:util";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const mode = process.argv[2];
+const production = mode === "production" || (mode === "check" && process.argv.includes("--production"));
 if (!["dev", "production", "check", "down", "logs"].includes(mode)) {
   console.error("Use npm run dev, npm start, npm run config:check, stack:down or stack:logs.");
   process.exit(1);
@@ -22,7 +23,7 @@ try {
   if (!["http:", "https:"].includes(origin.protocol) || origin.origin !== env.APP_ORIGIN) {
     problems.push("APP_ORIGIN: use an HTTP(S) origin without a path or trailing slash");
   }
-  if (mode === "production" && origin.protocol !== "https:") problems.push("APP_ORIGIN: production requires HTTPS");
+  if (production && origin.protocol !== "https:") problems.push("APP_ORIGIN: production requires HTTPS");
 } catch {
   problems.push("APP_ORIGIN: set the browser origin, for example http://localhost:3000");
 }
@@ -34,7 +35,7 @@ if (problems.length > 0) {
   process.exit(1);
 }
 if (mode === "check") {
-  console.log("Local stack configuration is valid. Provider credentials are not required yet.");
+  console.log(`${production ? "Production" : "Local"} stack configuration is valid. Provider credentials are not required yet.`);
   process.exit(0);
 }
 

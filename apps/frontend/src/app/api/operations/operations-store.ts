@@ -76,7 +76,7 @@ function proposalFor(incident: IncidentDto, institutionId: string, createdBy: st
     payload: [
       { key: "Issue", value: incident.title },
       { key: "Area", value: [incident.address, incident.district].filter(Boolean).join(", ") },
-      { key: "Residents reporting", value: `${reports.length} (demo, unverified)` },
+      { key: "Residents reporting", value: `${reports.length} (unverified)` },
       { key: "Evidence", value: evidenceIds.join(", ") },
     ],
     evidence_ids: evidenceIds,

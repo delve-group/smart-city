@@ -74,7 +74,9 @@ Requests use the [API contract](docs/api-contract.md#backend-foundation-implemen
 
 ## Production image and configuration
 
-`npm start` builds and runs the production Compose configuration with the same migration/seed ordering and validation. Set `APP_ORIGIN` to the real HTTPS origin first. The app binds to loopback on `APP_PORT` (default 3000); an HTTPS reverse proxy must forward to it. Proxy/DNS setup and Scaleway provisioning are later work, not delivered by this local foundation. The base Compose file keeps the database on durable storage and restarts long-running containers.
+`npm start` builds and runs the base production Compose configuration with the same migration/seed ordering and validation. Set `APP_ORIGIN` to the real HTTPS origin first. The app binds to loopback on `APP_PORT` (default 3000). The base Compose file keeps the database on durable storage and restarts long-running containers.
+
+For Scaleway, follow the [deployment and recovery runbook](deploy/README.md). `npm run deploy:check` validates production settings; `npm run deploy` builds revision-tagged images, backs up PostgreSQL before migrations, then starts the application with Caddy HTTPS. `npm run deploy:backup` and `npm run deploy:restore-check -- /absolute/backup.dump` exercise backup and scratch recovery. These commands require a prepared host and configured DNS; providing them does not establish a live deployment. The deployment uses its own `mradar` Compose project, separate from local development.
 
 Runtime secrets are passed into containers, not baked into the image. Only the one-shot setup container receives demo seed passwords. The app accepts either `DATABASE_URL` or all five standard connection variables (`PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, `PGDATABASE`); Compose supplies the latter so passwords do not need URL escaping. Direct host development can use the same configuration in `apps/frontend/.env.local`, then run `npm run db:setup` and `npm run dev` there against a reachable PostgreSQL database.
 

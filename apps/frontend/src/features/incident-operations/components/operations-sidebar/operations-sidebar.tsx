@@ -1,5 +1,4 @@
 import { Map as MapIcon, Search } from "@appica/icons-react";
-import { Badge } from "@appica/ui-react/badge";
 import { Button } from "@appica/ui-react/button";
 import { Input } from "@appica/ui-react/input";
 import { ScrollArea } from "@appica/ui-react/scroll-area";
@@ -54,14 +53,11 @@ export function OperationsSidebar({
     <div className="flex h-full min-h-0 flex-col bg-background">
       <header className="flex flex-col gap-4 border-b border-border-muted px-4 pt-4 pb-3">
         <div className="flex items-center justify-between gap-2">
-          <AppBrand variant="plain" />
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" size="sm">Operations</Badge>
-            <Button variant="outline" size="sm" className="md:hidden" onClick={onShowMap}>
-              <MapIcon data-icon="start" />
-              Map
-            </Button>
-          </div>
+          <AppBrand variant="plain" product="Operator" />
+          <Button variant="outline" size="sm" className="md:hidden" onClick={onShowMap}>
+            <MapIcon data-icon="start" />
+            Map
+          </Button>
         </div>
         <Input
           type="search"
@@ -75,9 +71,9 @@ export function OperationsSidebar({
           startSlot={<Search size={18} aria-hidden className="text-foreground-muted" />}
         />
         <Tabs value={tab} onValueChange={(next) => onTabChange(next as QueueTab)} variant="line" size="sm">
-          <TabsList className="w-full">
+          <TabsList className="grid w-full grid-cols-3 gap-0">
             {QUEUE_TABS.map((value) => (
-              <TabsTrigger key={value} value={value} className="flex-1 gap-1.5">
+              <TabsTrigger key={value} value={value} className="w-full justify-center gap-1.5">
                 {TAB_LABEL[value]}
                 <span className="text-xs font-normal text-foreground-muted tabular-nums">{queue[value].length}</span>
               </TabsTrigger>
@@ -88,9 +84,10 @@ export function OperationsSidebar({
 
       <ScrollArea className="min-h-0 flex-1">
         {items.length > 0 ? (
-          <ul className="flex flex-col gap-0.5 p-2" aria-label={TAB_LABEL[tab]}>
+          <ul className="flex flex-col p-2" aria-label={TAB_LABEL[tab]}>
             {items.map((item) => (
-              <li key={item.key}>
+              // Hairline between rows, inset to the text; the hover fill covers it.
+              <li key={item.key} className="relative not-last:after:absolute not-last:after:inset-x-3 not-last:after:-bottom-px not-last:after:h-px not-last:after:bg-border-muted has-[:hover]:after:opacity-0">
                 <QueueItem
                   item={item}
                   category={categoriesById.get(item.kind === "incident" ? item.incident.categoryId : item.report.categoryId)}
@@ -108,12 +105,12 @@ export function OperationsSidebar({
         )}
       </ScrollArea>
 
-      <footer className="flex flex-col gap-2 border-t border-border-muted px-4 py-3">
-        <FreshnessStatus updatedAt={updatedAt} failed={refreshFailed} onRetry={onRefresh} />
-        <p className="text-xs text-foreground-muted">
-          Demo workspace: sample data, fictional institutions, no staff sign-in yet.
-        </p>
-      </footer>
+      {/* Only when the data on screen may be out of date. */}
+      {refreshFailed && (
+        <footer className="border-t border-border-muted px-4 py-3">
+          <FreshnessStatus updatedAt={updatedAt} onRetry={onRefresh} />
+        </footer>
+      )}
     </div>
   );
 }

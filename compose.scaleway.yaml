@@ -1,0 +1,37 @@
+x-log-rotation: &log-rotation
+  driver: local
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  db:
+    logging: *log-rotation
+  setup:
+    image: mradar-setup:${MRADAR_REVISION:?Use npm run deploy}
+    logging: *log-rotation
+  app:
+    image: mradar-app:${MRADAR_REVISION:?Use npm run deploy}
+    labels:
+      org.opencontainers.image.revision: ${MRADAR_REVISION}
+    logging: *log-rotation
+  caddy:
+    image: caddy:2.11.6-alpine
+    environment:
+      APP_ORIGIN: ${APP_ORIGIN:?Set APP_ORIGIN in .env}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+    logging: *log-rotation
+
+volumes:
+  caddy-data:
+  caddy-config:

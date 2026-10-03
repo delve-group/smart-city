@@ -8,9 +8,9 @@ import type { HistoryDto, IncidentDto, InstitutionDto, OperationsReportDto, Work
 
 const MINUTE = 60_000;
 
-export const OFFICIAL = "official (demo)";
-export const AGENT = "Decision-maker agent (demo)";
-export const TRIAGE = "Automatic triage (demo)";
+export const OFFICIAL = "City official";
+export const AGENT = "Decision-maker agent";
+export const TRIAGE = "Automatic triage";
 
 export const INSTITUTIONS: InstitutionDto[] = [
   { id: "demo-electricity", name: "Electricity Operator", category_ids: ["power"], is_demo: true },
@@ -129,7 +129,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
       report_ids: ["r-311", "r-312", "r-318"],
       evidence: [
         ...evidenceFor(["r-311", "r-312", "r-318"], 6),
-        { id: "OBS-7", kind: "observation", label: "Feeder Dietla-3 reports a fault", source: "Electricity Operator telemetry (demo feed)",
+        { id: "OBS-7", kind: "observation", label: "Feeder Dietla-3 reports a fault", source: "Electricity Operator telemetry",
           observed_at: ago(33), retrieved_at: ago(6), provenance: "demo", state: "current", note: null },
       ],
       proposal: {
@@ -138,11 +138,11 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
           { key: "Issue", value: "Power outage" },
           { key: "Area", value: "ul. Józefa Dietla 40–58, Stare Miasto" },
           { key: "Since", value: "about 14:00 (earliest report)" },
-          { key: "Residents reporting", value: "3 (demo, unverified)" },
+          { key: "Residents reporting", value: "3 (unverified)" },
           { key: "Evidence", value: "R-311, R-312, R-318, OBS-7" },
         ],
         evidence_ids: ["R-311", "R-312", "R-318", "OBS-7"],
-        explanation: "Three residents within 120 m and 8 minutes describe the same outage, and the demo feed shows a fault on the feeder that supplies the block. The Electricity Operator is mapped to power outages in Stare Miasto.",
+        explanation: "Three residents within 120 m and 8 minutes describe the same outage, and the telemetry feed shows a fault on the feeder that supplies the block. The Electricity Operator is mapped to power outages in Stare Miasto.",
         state: "pending", created_by: AGENT, created_at: ago(6), decided_by: null, decided_at: null, reason: null,
       },
       ticket: null,
@@ -162,7 +162,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
       report_ids: ["r-320"],
       evidence: [
         ...evidenceFor(["r-320"], 9),
-        { id: "OBS-9", kind: "observation", label: "No telemetry for this cable box", source: "Electricity Operator telemetry (demo feed)",
+        { id: "OBS-9", kind: "observation", label: "No telemetry for this cable box", source: "Electricity Operator telemetry",
           observed_at: null, retrieved_at: ago(8), provenance: "demo", state: "missing", note: "Missing is not a zero reading." },
       ],
       proposal: null,
@@ -182,7 +182,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
         payload: [
           { key: "Issue", value: "Street lighting off" },
           { key: "Area", value: "ul. Miodowa 20–32, Kazimierz" },
-          { key: "Residents reporting", value: "2 (demo, unverified)" },
+          { key: "Residents reporting", value: "2 (unverified)" },
           { key: "Evidence", value: "R-290, R-292" },
         ],
         evidence_ids: ["R-290", "R-292"],
@@ -202,7 +202,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
         event(150, AGENT, "Proposed ticket v1", "Electricity Operator"),
         event(140, OFFICIAL, "Approved proposal v1"),
         event(140, "Executor", "Created ticket ELE-26-0418"),
-        event(40, "Electricity Operator (demo)", "Rejected ticket", "Not our network"),
+        event(40, "Electricity Operator", "Rejected ticket", "Not our network"),
       ],
       updated_at: ago(40),
     },
@@ -232,11 +232,11 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
       history: [
         event(65, TRIAGE, "Created suspected incident", "From R-301"),
         event(58, TRIAGE, "Linked R-303"),
-        event(55, OFFICIAL, "Verified", "Photo from the street camera (demo)"),
+        event(55, OFFICIAL, "Verified", "Photo from the street camera"),
         event(52, AGENT, "Proposed ticket v1", "Water Services"),
         event(48, OFFICIAL, "Approved proposal v1"),
         event(48, "Executor", "Created ticket WAT-26-1022"),
-        event(30, "Water Services (demo)", "Acknowledged ticket"),
+        event(30, "Water Services", "Acknowledged ticket"),
       ],
       updated_at: ago(30),
     },
@@ -269,8 +269,8 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
         event(80, AGENT, "Proposed ticket v1", "Water Services"),
         event(75, OFFICIAL, "Approved proposal v1"),
         event(75, "Executor", "Created ticket WAT-26-1019"),
-        event(62, "Water Services (demo)", "Acknowledged ticket"),
-        event(35, "Water Services (demo)", "Started work"),
+        event(62, "Water Services", "Acknowledged ticket"),
+        event(35, "Water Services", "Started work"),
       ],
       updated_at: ago(35),
     },
@@ -287,7 +287,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
           { key: "Area", value: "Rynek Podgórski 10–14, Podgórze" },
           { key: "Evidence", value: "R-271" },
         ],
-        evidence_ids: ["R-271"], explanation: "Report confirmed by the demo feed.",
+        evidence_ids: ["R-271"], explanation: "Report confirmed by telemetry.",
         state: "executed", created_by: AGENT, created_at: ago(400), decided_by: OFFICIAL, decided_at: ago(395), reason: null,
       },
       ticket: {
@@ -304,7 +304,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
         event(400, AGENT, "Proposed ticket v1", "Electricity Operator"),
         event(395, OFFICIAL, "Approved proposal v1"),
         event(395, "Executor", "Created ticket ELE-26-0409"),
-        event(70, "Electricity Operator (demo)", "Resolved ticket", "Cable joint replaced; supply restored."),
+        event(70, "Electricity Operator", "Resolved ticket", "Cable joint replaced; supply restored."),
       ],
       updated_at: ago(70),
     },
