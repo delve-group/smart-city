@@ -23,10 +23,20 @@ export const locationCandidateSchema = z.object({
   precision: z.enum(["building", "street", "point"]),
 });
 
+export const locationBoundsSchema = z.object({
+  west: z.number().min(-180).max(180), east: z.number().min(-180).max(180),
+  south: z.number().min(-90).max(90), north: z.number().min(-90).max(90),
+}).refine((bounds) => bounds.west < bounds.east && bounds.south < bounds.north);
+
 export const locationResolutionSchema = z.object({
   status: z.enum(["candidates", "ambiguous", "unresolved", "unavailable", "outside_city"]),
   candidates: z.array(locationCandidateSchema).max(5),
   pin: locationCandidateSchema.nullable(),
+  /** Present only when exactly one actual place name matches the query. Preview bounds are not report scope. */
+  matched_place: z.object({
+    candidate_id: z.string().min(1), name: z.string().min(1).max(200),
+    bounds: locationBoundsSchema.nullable(),
+  }).nullable().optional(),
 });
 
 export const locationResponseSchema = z.object({
@@ -37,3 +47,6 @@ export const locationResponseSchema = z.object({
 export type ResolveLocationInput = z.infer<typeof resolveLocationInputSchema>;
 export type LocationCandidate = z.infer<typeof locationCandidateSchema>;
 export type LocationResolution = z.infer<typeof locationResolutionSchema>;
+export type LocationBounds = z.infer<typeof locationBoundsSchema>;
+/** Transient geography under discussion, separate from the owned draft. */
+export type LocationPreview = { lat: number; lng: number; label: string; bounds?: LocationBounds | null };

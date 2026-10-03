@@ -1,3 +1,5 @@
+import type { LocationBounds } from "@/api/locations/types";
+
 export type LatLng = { lat: number; lng: number };
 
 /** One marker on the map. Screens map their own records (reports, incidents) to points. */
@@ -30,6 +32,8 @@ export type MapFocus = {
   lng: number;
   lat: number;
   zoom?: number;
+  /** Actual geocoder extent; a focus can zoom out to fit the whole named place. */
+  bounds?: LocationBounds | null;
 };
 
 export type MapHover = { id: string; x: number; y: number };

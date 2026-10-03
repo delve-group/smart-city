@@ -39,16 +39,21 @@ async function main() {
       && agent.name === "mradar-dispatcher-v3" && hash === "cb691a6aabdb480a31d89fa799dc3a31c2854a8842b206b537f26f25f57e3513"
       && previous.language === DISPATCHER_LANGUAGE && previous.first_message === DISPATCHER_FIRST_MESSAGE
       && previous.prompt.llm === DISPATCHER_MODEL;
+    const reviewedPlace = process.argv.includes("--update-prompt")
+      && agent.name === "mradar-dispatcher-v4" && hash === "6ba1d08b85e982a3331c6c8ae5c393adf11a9ac33802c91330d62fd77eaae1bd"
+      && previous.language === DISPATCHER_LANGUAGE && previous.first_message === DISPATCHER_FIRST_MESSAGE
+      && previous.prompt.llm === DISPATCHER_MODEL;
     const legacyEvents = DISPATCHER_CLIENT_EVENTS.filter((event) => event !== "agent_tool_response");
     if (agent.version_id !== config.versionId
-      || !(reviewedEndCall || previous.prompt.llm === "gpt-4.1-mini" && (reviewedEnglish || reviewedPolish || reviewedModel))
-      || Object.values(previous.prompt.built_in_tools).some((tool) => tool != null)
-      || JSON.stringify([...agent.conversation_config.conversation.client_events].sort()) !== JSON.stringify(legacyEvents.sort())) throw failure;
+      || !(reviewedPlace || reviewedEndCall || previous.prompt.llm === "gpt-4.1-mini" && (reviewedEnglish || reviewedPolish || reviewedModel))
+      || !reviewedPlace && (Object.values(previous.prompt.built_in_tools).some((tool) => tool != null)
+        || JSON.stringify([...agent.conversation_config.conversation.client_events].sort()) !== JSON.stringify(legacyEvents.sort()))) throw failure;
     verifyPreparedDispatcher({ ...agent, name: DISPATCHER_PROMPT_VERSION,
       conversation_config: { ...agent.conversation_config,
-        conversation: { ...agent.conversation_config.conversation, client_events: DISPATCHER_CLIENT_EVENTS }, agent: { ...previous,
+        conversation: { ...agent.conversation_config.conversation, client_events: reviewedPlace ? agent.conversation_config.conversation.client_events : DISPATCHER_CLIENT_EVENTS }, agent: { ...previous,
         language: DISPATCHER_LANGUAGE, first_message: DISPATCHER_FIRST_MESSAGE,
-        prompt: { ...previous.prompt, prompt: DISPATCHER_PROMPT, llm: DISPATCHER_MODEL, built_in_tools: { end_call: DISPATCHER_END_CALL } } } } }, currentIds);
+        prompt: { ...previous.prompt, prompt: DISPATCHER_PROMPT, llm: DISPATCHER_MODEL,
+          built_in_tools: reviewedPlace ? previous.prompt.built_in_tools : { end_call: DISPATCHER_END_CALL } } } } }, currentIds);
     configurationUpgrade = true;
   }
   if (currentIds.length) await verifyDispatcherTools(config.apiKey, currentIds);

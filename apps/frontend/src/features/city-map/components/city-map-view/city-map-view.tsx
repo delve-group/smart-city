@@ -5,6 +5,7 @@ import { useToastManager } from "@appica/ui-react/toast";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import type { Category } from "@/api/categories/types";
+import type { LocationPreview } from "@/api/locations/types";
 import { addContribution } from "@/api/incidents/add-contribution";
 import type { PublicIncident } from "@/api/incidents/types";
 import { CategoryFilter } from "@/features/category-filter/components/category-filter/category-filter";
@@ -57,6 +58,7 @@ export function CityMapView() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hover, setHover] = useState<MapHover | null>(null);
   const [focus, setFocus] = useState<MapFocus | null>(null);
+  const [voiceLocation, setVoiceLocation] = useState<LocationPreview | null>(null);
   const [mode, setMode] = useState<Mode>({ kind: "browse" });
   const [center, setCenter] = useState<LatLng>({ lat: INITIAL_VIEW.latitude, lng: INITIAL_VIEW.longitude });
   /** Set when a new report starts placing a pin, so the camera opens on the resident. */
@@ -117,6 +119,11 @@ export function CityMapView() {
     setFocus((previous) => ({ key: (previous?.key ?? 0) + 1, lng: location.lng, lat: location.lat, zoom }));
   }
 
+  function previewVoiceLocation(location: LocationPreview | null) {
+    setVoiceLocation(location);
+    if (location) setFocus((previous) => ({ key: (previous?.key ?? 0) + 1, ...location, zoom: 17 }));
+  }
+
   // A new report opens on the resident. Dragging the map before the position arrives keeps the current view.
   useEffect(() => {
     if (mode.kind !== "picking") {
@@ -174,6 +181,7 @@ export function CityMapView() {
       return;
     }
     setSelectedId(null); setHover(null);
+    setVoiceLocation(null);
     setMode({ kind: "voice" });
   }
 
@@ -207,6 +215,7 @@ export function CityMapView() {
           bottom: selected && !isDesktop ? bounds.height * 0.72 : 0,
         }}
         draftPin={mode.kind === "form" ? intake.fields.location ?? undefined : undefined}
+        locationPreview={mode.kind === "voice" ? voiceLocation : null}
         userLocation={userLocation}
         interactive={mode.kind === "browse"}
         hoverable={mode.kind !== "picking"}
@@ -286,7 +295,7 @@ export function CityMapView() {
         />
       )}
 
-      {mode.kind === "voice" && <VoicePanel intake={intake} categories={categories} onLocate={(location) => flyTo(location, 17)} onClose={cancelReport}
+      {mode.kind === "voice" && <VoicePanel intake={intake} categories={categories} onLocate={previewVoiceLocation} onClose={cancelReport}
         onFallback={(draft) => setMode({ kind: draft && !draft.submission && !draft.fields.location ? "picking" : "form" })} />}
 
       {(mode.kind === "browse" || mode.kind === "voice") && ready && (

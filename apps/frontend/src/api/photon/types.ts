@@ -14,6 +14,8 @@ export const photonFeatureSchema = z.object({
     district: z.string().optional(),
     locality: z.string().optional(),
     city: z.string().optional(),
+    /** Photon order: west, north, east, south. */
+    extent: z.tuple([z.number(), z.number(), z.number(), z.number()]).optional(),
   }),
 });
 

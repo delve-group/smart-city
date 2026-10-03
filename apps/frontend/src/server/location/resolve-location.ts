@@ -3,6 +3,7 @@ import { mapPin } from "@/api/locations/mappers";
 import { photonResponseSchema } from "@/api/photon/types";
 import { insideKrakow, KRAKOW_BOUNDS } from "@/shared/utils/krakow";
 import { mapLocationCandidates } from "./map-candidates";
+import { locationQuery, matchNamedPlace } from "./match-named-place";
 
 const PHOTON_ORIGIN = "https://photon.komoot.io";
 
@@ -17,7 +18,8 @@ export async function resolveLocation(input: ResolveLocationInput, signal: Abort
     url.searchParams.set("lon", String(pin.lng));
     url.searchParams.set("radius", "0.1");
   } else if ("address" in input) {
-    const q = /krak[oó]w/i.test(input.address) ? input.address : `${input.address} Kraków`;
+    const address = locationQuery(input.address);
+    const q = /krak[oó]w/i.test(address) ? address : `${address} Kraków`;
     url.searchParams.set("q", q);
     url.searchParams.set("lat", "50.0617");
     url.searchParams.set("lon", "19.945");
@@ -30,10 +32,12 @@ export async function resolveLocation(input: ResolveLocationInput, signal: Abort
     });
     if (!response.ok) throw new Error("Photon unavailable");
     const body = photonResponseSchema.parse(await response.json());
-    const candidates = mapLocationCandidates(body.features);
+    const matchedPlace = "address" in input ? matchNamedPlace(body.features, input.address) : null;
+    const allCandidates = mapLocationCandidates(body.features);
+    const candidates = matchedPlace ? allCandidates.filter((candidate) => candidate.candidate_id === matchedPlace.candidate_id) : allCandidates;
     return {
       status: candidates.length > 1 ? "ambiguous" : candidates.length ? "candidates" : "unresolved",
-      candidates, pin,
+      candidates, pin, matched_place: candidates.length === 1 ? matchedPlace : null,
     };
   } catch {
     return { status: "unavailable", candidates: [], pin };

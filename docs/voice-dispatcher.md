@@ -73,13 +73,26 @@ The guard rejects an altered predecessor prompt, model, language, greeting, enab
 
 Runtime verification requires the reviewed `end_call` definition, rejects any other enabled system tool and checks `agent_tool_response` delivery alongside the existing client events. The installed SDK handles the system event by tearing down WebRTC and stopping microphone tracks. The application recognizes `context.type: end_call` as a normal ending, releases the owned session, and reconciles pending saves before allowing another start. Unexpected transport loss still shows the recovery message.
 
+## Named venues and location preview — 2026-10-04
+
+V5 extends the reviewed v4 ending configuration with landmark-aware location instructions. Resolve the resident's place before asking address clarification; accept a unique `matched_place` by name, use the actual returned candidate ID, and ask useful observation details rather than unrelated street numbers. The browser's `map_preview` label anchors ambiguous-address questions; a correction triggers another lookup before discussing that address. Explicit confirmation of the final report revision remains required.
+
+Upgrade only the configured, pinned, exact reviewed v4:
+
+```sh
+node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-tools-setup.ts --update-prompt
+node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-check.ts
+```
+
+The guard checks the predecessor's prompt fingerprint, language, model, greeting, actual system `end_call`, client events, private settings and five reviewed client tools. It preserves the earlier ending behavior. The v4-to-v5 upgrade and fixed-version provider readback passed in the isolated local worktree; its review app loaded that pin and issued/ended actual owned voice reservations. Original development and production pins were not replaced by this review. Geography, draft authority and manual canvas evidence are in [voice sessions](voice-sessions.md#voice-location-map-preview--2026-10-04). No v5 microphone conversation or production rollout was performed.
+
 ## Prepared configuration
 
-`src/server/voice/dispatcher-config.ts` supplies the English prompt and a provider configuration builder. Actual settings were read back on 2026-10-03; the model change and v4 ending configuration were read back on 2026-10-04:
+`src/server/voice/dispatcher-config.ts` supplies the English prompt and a provider configuration builder. Actual settings were read back on 2026-10-03; the model change, v4 ending configuration and v5 named-place instructions were read back on 2026-10-04:
 
 | Setting | Configured value | Verification |
 | --- | --- | --- |
-| Prompt/name | `mradar-dispatcher-v4` | Exact prompt and name read back from pinned version |
+| Prompt/name | `mradar-dispatcher-v5` | Exact prompt and name read back from pinned version |
 | Ending | System `end_call`, plus `agent_tool_response` client event | Reviewed definition and event set checked before issuing credentials |
 | Language/greeting | `pl`, Polish first message | Actual language and exact greeting are checked with the pinned prompt |
 | LLM | `gpt-6.1-sol` | New pinned configuration read back; spoken quality and latency unverified on this model |
