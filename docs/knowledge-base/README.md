@@ -11,6 +11,7 @@ This base holds project context and decisions; it is not the app's database or a
 | Implementing agent search, MCP ticket/incident search tools, related-ticket retrieval or shared user search | [Qdrant search decision and implementation guide](qdrant-search.md) — read before implementation |
 | Map sources, WMS/WFS, buildings, parcels and 3D | [Geospatial data and Geoportal](geospatial-data.md) |
 | Module boundaries, data flow, libraries and scaling | [Architecture](../architecture.md) |
+| Frontend–backend API, data shapes, roles and workflows | [API contract](../api-contract.md) |
 | Components, colours, typography and accessibility | [Design system](../design-system.md) |
 | Current PoC requirements, user stories and acceptance criteria | [Voice and incident specification](../../specs/001-voice-incident-response/spec.md) |
 | ElevenLabs integration, actor tools, persistence and delivery slices | [Technical implementation plan](../../specs/001-voice-incident-response/plan.md) |
