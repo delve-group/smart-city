@@ -4,7 +4,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { setWorkerUrl, type ExpressionSpecification, type MapStyleImageMissingEvent } from "maplibre-gl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MapPinFilled } from "@appica/icons-react";
-import Map, { AttributionControl, Layer, Marker, Source, type MapLayerMouseEvent, type MapRef, type ViewStateChangeEvent } from "react-map-gl/maplibre";
+import Map, { Layer, Marker, Source, type MapLayerMouseEvent, type MapRef, type ViewStateChangeEvent } from "react-map-gl/maplibre";
 import type { Feature, FeatureCollection, LineString, Polygon } from "geojson";
 import { useColorScheme } from "../../hooks/use-color-scheme";
 import { useMapStyle } from "../../hooks/use-map-style";
@@ -13,6 +13,7 @@ import { MARKER_PIXEL_RATIO, MARKER_SIZE } from "../../utils/report-icon-svg";
 import { readMapColors } from "../../utils/read-map-colors";
 import { toAreaCollection, toFeatureCollection } from "../../utils/to-feature-collection";
 import { INITIAL_VIEW, type MapArea, type MapFocus, type MapHover, type MapPoint, type MapView } from "./map-types";
+import { AttributionControl } from "./attribution-control";
 import { useReportPlaces } from "./use-report-places";
 
 // The only file that knows the map library. A Google Maps version implements the same props.
