@@ -76,7 +76,7 @@ export function MapSearch({ reports, categoriesById, onPick }: MapSearchProps) {
         startSlot={<Search size={18} aria-hidden className="text-foreground-muted" />}
         endSlot={searchingPlaces ? <Spinner className="size-4 text-foreground-muted" aria-label="Searching places" /> : null}
       />
-      <ComboboxContent className="w-(--anchor-width)">
+      <ComboboxContent className="w-(--anchor-width) min-w-96 max-w-[calc(100vw-1.5rem)]">
         <ComboboxEmpty>
           {searchingPlaces
             ? "Searching places…"
@@ -92,7 +92,7 @@ export function MapSearch({ reports, categoriesById, onPick }: MapSearchProps) {
               <ComboboxLabel>{group.value}</ComboboxLabel>
               <ComboboxCollection>
                 {(option: SearchOption) => (
-                  <ComboboxItem key={`${option.kind}-${option.id}`} value={option}>
+                  <ComboboxItem key={`${option.kind}-${option.id}`} value={option} className="*:min-w-0">
                     {option.kind === "report" ? (
                       <SearchReportOption report={option.report} category={categoriesById.get(option.report.categoryId)} />
                     ) : (
