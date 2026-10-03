@@ -45,15 +45,28 @@ V3 gives explicit several-buildings-to-street and English-title instructions, ke
 
 The checker reports access/settings without credentials, tokens or raw provider errors. It reads the configured immutable version and creates no agent, token or conversation. On 2026-10-03, the initial key returned `401 missing_permissions`; the replacement key succeeded. One private dispatcher was provisioned, setup reuse succeeded without duplication, and its pinned settings passed read-back. Actual IDs remain in ignored local configuration, not checked-in documentation.
 
+## Model upgrade — 2026-10-04
+
+The user selected `gpt-6.1-sol` in place of `gpt-4.1-mini`. Upgrade an exact, pinned Polish v3 predecessor explicitly:
+
+```sh
+node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-tools-setup.ts --update-model
+node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-check.ts
+```
+
+The model-only upgrade patches only `conversation_config.agent.prompt.llm`, preserves the five reviewed tools and saves the new immutable version in the ignored local `.env`. It rejects a different prompt, language, greeting, private configuration or predecessor model. Existing language/prompt upgrade flags also adopt the current model. Repeating setup on the current configuration does not create another version.
+
+Actual account catalog availability, upgrade, repeated setup and new pinned readback passed. After recreating only the local app, readiness returned 200, a fresh guest obtained a real provider credential (201) for an owned empty draft, and explicit end returned that same draft (200). Lint, typecheck, build and diff checks passed. No microphone/WebRTC connection was started. The previous immutable GPT-4.1 mini version remained unchanged and readable; the production application and its old version pin were not changed. Polish speech quality, response latency and the scope defect in #66 have not been re-evaluated with the new model. Earlier spoken-report evidence below refers to GPT-4.1 mini.
+
 ## Prepared configuration
 
-`src/server/voice/dispatcher-config.ts` supplies the English prompt and a provider configuration builder. Actual provisioned settings, read back on 2026-10-03, are:
+`src/server/voice/dispatcher-config.ts` supplies the English prompt and a provider configuration builder. Actual provisioned settings were read back on 2026-10-03, with the model change read back on 2026-10-04:
 
 | Setting | Configured value | Verification |
 | --- | --- | --- |
 | Prompt/name | `mradar-dispatcher-v3` | Exact prompt and name read back from pinned version |
 | Language/greeting | `pl`, Polish first message | Actual language and exact greeting are checked with the pinned prompt |
-| LLM | `gpt-4.1-mini` | Agent configuration read back; greeting/reply observed, complete report latency unverified |
+| LLM | `gpt-6.1-sol` | New pinned configuration read back; spoken quality and latency unverified on this model |
 | Voice | `cjVigY5qzO86Huf0OWal` | Agent configuration read back; voice quality unverified |
 | TTS | `eleven_v4_turbo` | Agent configuration read back; Polish recognition/voice unverified |
 | Authentication | `enable_auth: true`, empty allowlist | Actual private setting read back |

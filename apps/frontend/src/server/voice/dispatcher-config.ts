@@ -2,7 +2,7 @@
 export const DISPATCHER_PROMPT_VERSION = "mradar-dispatcher-v3";
 export const DISPATCHER_LANGUAGE = "pl";
 export const DISPATCHER_FIRST_MESSAGE = "Dzień dobry, jestem demonstracyjnym asystentem mRadar. Co się wydarzyło i gdzie w Krakowie?";
-export const DISPATCHER_MODEL = "gpt-4.1-mini";
+export const DISPATCHER_MODEL = "gpt-6.1-sol";
 export const DISPATCHER_VOICE_ID = "cjVigY5qzO86Huf0OWal";
 export const DISPATCHER_TTS_MODEL = "eleven_v4_turbo";
 
