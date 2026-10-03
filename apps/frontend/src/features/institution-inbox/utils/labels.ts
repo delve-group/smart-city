@@ -1,4 +1,5 @@
 import type { InstitutionTicket, TicketStatus } from "@/api/institution/types";
+import { matchesQuery } from "@/shared/utils/normalize-text";
 
 type BadgeVariant = "secondary" | "outline" | "success" | "warning" | "error" | "soft";
 
@@ -26,4 +27,28 @@ export function sortTickets(tickets: readonly InstitutionTicket[]): { open: Inst
     open: tickets.filter(isOpen).sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
     finished: tickets.filter((ticket) => !isOpen(ticket)).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)),
   };
+}
+
+/** Tickets in the shown categories (null: all) whose reference, place, summary or request matches every word of the query. */
+export function filterTickets(
+  tickets: readonly InstitutionTicket[],
+  query: string,
+  categoryIds: ReadonlySet<string> | null,
+  categoryLabel: (categoryId: string) => string | undefined,
+): InstitutionTicket[] {
+  return tickets.filter(
+    (ticket) =>
+      (!categoryIds || categoryIds.has(ticket.incident.categoryId)) &&
+      matchesQuery(
+        [
+          ticket.reference,
+          ticket.incident.reference,
+          ticket.incident.summary,
+          ticket.incident.locationLabel,
+          categoryLabel(ticket.incident.categoryId),
+          ...ticket.payload.map((entry) => entry.value),
+        ],
+        query,
+      ),
+  );
 }

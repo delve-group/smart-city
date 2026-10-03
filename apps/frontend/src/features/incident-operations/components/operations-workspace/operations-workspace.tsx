@@ -25,9 +25,9 @@ import {
 import type { MapArea, MapFocus, MapPoint } from "@/features/city-map/components/city-map-canvas/map-types";
 import { MapSettings } from "@/features/city-map/components/map-settings/map-settings";
 import { useNow } from "@/shared/hooks/use-now";
-import { useI18n } from "@/shared/i18n/locale";
+import { categoryText, useI18n } from "@/shared/i18n/locale";
 import { useOperationsData } from "../../hooks/use-operations-data";
-import { buildQueue, incidentKey, institutionName, reportKey, type QueueItem, type QueueTab } from "../../utils/queue";
+import { buildQueue, categoryOf, incidentKey, institutionName, reportKey, type QueueItem, type QueueTab } from "../../utils/queue";
 import { IncidentPanel } from "../incident-panel/incident-panel";
 import { OperationsSidebar } from "../operations-sidebar/operations-sidebar";
 import { ReportReviewPanel } from "../report-review-panel/report-review-panel";
@@ -68,6 +68,8 @@ export function OperationsWorkspace({ onSessionLost, onSignOut }: { onSessionLos
   const [mapHeight, setMapHeight] = useState(0);
   const [tab, setTab] = useState<QueueTab>("review");
   const [query, setQuery] = useState("");
+  /** Category ids to show; null means all (also covers categories the API adds later). */
+  const [shownCategoryIds, setShownCategoryIds] = useState<string[] | null>(null);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   /** Phones show one thing at a time: the queue, or the map with the detail sheet. */
   const [mobileView, setMobileView] = useState<"queue" | "map">("queue");
@@ -79,7 +81,20 @@ export function OperationsWorkspace({ onSessionLost, onSignOut }: { onSessionLos
   const categories = state.status === "ready" ? state.categories : NO_CATEGORIES;
   const categoriesById = new Map(categories.map((category) => [category.id, category]));
   const categoryIds = categories.map((category) => category.id);
-  const queue = workspace ? buildQueue(workspace, query) : EMPTY_QUEUE;
+  const shownIds = shownCategoryIds ?? categoryIds;
+  const queue = workspace
+    ? buildQueue(workspace, {
+        query,
+        categoryIds: shownCategoryIds ? new Set(shownCategoryIds) : null,
+        categoryLabel: (id) => {
+          const category = categoriesById.get(id);
+          return category ? categoryText(t, category).label : undefined;
+        },
+      })
+    : EMPTY_QUEUE;
+  // Checklist counts ignore the filter, so hidden categories still show what they hold.
+  const allItems = workspace ? Object.values(buildQueue(workspace)).flat() : [];
+  const counts = new Map(categoryIds.map((id) => [id, allItems.filter((item) => categoryOf(item) === id).length]));
   const selection = resolveSelection(workspace, selectedKey);
 
   useEffect(() => {
@@ -109,8 +124,12 @@ export function OperationsWorkspace({ onSessionLost, onSignOut }: { onSessionLos
       .map((incident) => incident.id) ?? [],
   );
   const urgentIds = new Set(workspace?.incidents.filter((incident) => incident.urgent).map((incident) => incident.id) ?? []);
+  // The map shows what the queue shows: search and category filter apply to both. The selection always stays.
+  const listedKeys = new Set(Object.values(queue).flat().map((item) => item.key));
+  if (selectedKey) listedKeys.add(selectedKey);
   const points: MapPoint[] = (workspace?.reports ?? [])
     .filter((report) => (report.incidentId ? openIncidentIds.has(report.incidentId) : report.review !== null))
+    .filter((report) => listedKeys.has(report.incidentId ? incidentKey(report.incidentId) : reportKey(report.id)))
     .map((report) => ({
       id: report.id,
       categoryId: report.categoryId,
@@ -254,6 +273,11 @@ export function OperationsWorkspace({ onSessionLost, onSignOut }: { onSessionLos
           onTabChange={setTab}
           query={query}
           onQueryChange={setQuery}
+          categories={categories}
+          categoryCounts={counts}
+          shownCategoryIds={shownIds}
+          filtered={shownCategoryIds !== null}
+          onShownCategoriesChange={(ids) => setShownCategoryIds(ids.length === categoryIds.length ? null : ids)}
           selectedKey={selectedKey}
           onSelect={selectFromQueue}
           categoriesById={categoriesById}

@@ -17,10 +17,12 @@ type CategoryFilterProps = {
   /** Category ids currently shown on the map and in search. */
   selected: readonly string[];
   onChange: (selected: string[]) => void;
+  /** What hiding a category does on this screen; defaults to the resident map's wording. */
+  hint?: string;
 };
 
 /** Square button next to the search field; opens a category checklist. */
-export function CategoryFilter({ categories, counts, selected, onChange }: CategoryFilterProps) {
+export function CategoryFilter({ categories, counts, selected, onChange, hint }: CategoryFilterProps) {
   const { t } = useI18n();
   const allIds = categories.map((category) => category.id);
   const filtered = selected.length < allIds.length;
@@ -53,7 +55,7 @@ export function CategoryFilter({ categories, counts, selected, onChange }: Categ
       <PopoverContent align="end" sideOffset={8} className="w-80">
         <div className="flex flex-col gap-1">
           <PopoverTitle>{t("filter.title")}</PopoverTitle>
-          <PopoverDescription>{t("filter.hint")}</PopoverDescription>
+          <PopoverDescription>{hint ?? t("filter.hint")}</PopoverDescription>
         </div>
         <CheckboxGroup
           aria-labelledby="category-filter-all"
