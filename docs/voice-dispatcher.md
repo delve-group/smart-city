@@ -84,7 +84,7 @@ node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-
 node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-check.ts
 ```
 
-The guard checks the predecessor's prompt fingerprint, language, model, greeting, actual system `end_call`, client events, private settings and five reviewed client tools. It preserves the earlier ending behavior. The v4-to-v5 upgrade and fixed-version provider readback passed in the isolated local worktree; its review app loaded that pin and issued/ended actual owned voice reservations. Original development and production pins were not replaced by this review. Geography, draft authority and manual canvas evidence are in [voice sessions](voice-sessions.md#voice-location-map-preview--2026-10-04). No v5 microphone conversation or production rollout was performed.
+The guard checks the predecessor's prompt fingerprint, language, model, greeting, actual system `end_call`, client events, private settings and five reviewed client tools. It preserves the earlier ending behavior. The v4-to-v5 upgrade and fixed-version provider readback passed in the isolated local worktree; its review app loaded that pin and issued/ended actual owned voice reservations. Original development and production pins were not replaced by this review. Geography, draft authority and manual canvas evidence are in [voice sessions](voice-sessions.md#voice-location-map-preview--2026-10-04). The subsequent authorized `7be11ec` rollout deployed the v5 pin with provider readback and HTTPS credential issuance/end verified; see the [release record](../deploy/scaleway-release.md#report-classification-rollout--2026-10-04). No v5 microphone conversation was started.
 
 ## Prepared configuration
 

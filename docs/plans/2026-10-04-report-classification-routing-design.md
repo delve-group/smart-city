@@ -74,8 +74,11 @@ version conflicts with disposable database records. No automated tests are intro
   and private reports stayed unchanged. Repeating the SQL created no extra version.
 - Operator UI showed Water Service selected for the sewer case. Desktop and 390-pixel
   views displayed the panel and category correctly; keyboard focus reached its controls.
-- Production deployment, a fresh microphone session and elapsed provider timeout were
-  not exercised. No automated tests were added.
+- Initial implementation checks did not exercise production deployment, a fresh
+  microphone session or elapsed provider timeout. The subsequent authorized
+  [Scaleway rollout](../../deploy/scaleway-release.md#report-classification-rollout--2026-10-04)
+  verified existing-server classification/routing and HTTPS/provider readiness. No
+  microphone conversation or elapsed timeout check was added. No automated tests were added.
 
 ## Integration with the Polish fixture directory
 
