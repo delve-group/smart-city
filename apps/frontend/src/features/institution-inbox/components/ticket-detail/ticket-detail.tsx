@@ -8,8 +8,10 @@ import type { InstitutionTicket, TicketUpdate } from "@/api/institution/types";
 import { Fact, FACTS } from "@/shared/components/fact/fact";
 import { FloatingPanel } from "@/shared/components/floating-panel/floating-panel";
 import { PanelHeader } from "@/shared/components/panel-header/panel-header";
+import { translateAssessment, translatePayloadKey, useI18n } from "@/shared/i18n/locale";
+import type { MessageKey } from "@/shared/i18n/messages";
 import { formatAgo, formatDateTime } from "@/shared/utils/format-time";
-import { EVENT_LABEL, STATUS } from "../../utils/labels";
+import { STATUS } from "../../utils/labels";
 import { TicketStatusForm } from "../ticket-status-form/ticket-status-form";
 
 type TicketDetailProps = {
@@ -25,6 +27,7 @@ type TicketDetailProps = {
 
 /** What the city asked for, what happened so far and the next allowed step. */
 export function TicketDetail({ ticket, now, note, category, onNoteChange, onUpdate, onLocate, onClose }: TicketDetailProps) {
+  const { t, locale } = useI18n();
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -40,32 +43,32 @@ export function TicketDetail({ ticket, now, note, category, onNoteChange, onUpda
               {ticket.incident.summary}
             </h2>
             <p className="text-sm text-foreground-muted">
-              {ticket.incident.locationLabel} · city incident <span className="font-mono">{ticket.incident.reference}</span>
+              {ticket.incident.locationLabel} · {t("inbox.cityIncident")} <span className="font-mono">{ticket.incident.reference}</span>
             </p>
             <p className={FACTS}>
-              <Fact icon={Id} label="Ticket">
+              <Fact icon={Id} label={t("common.ticket")}>
                 <span className="font-mono">{ticket.reference}</span>
               </Fact>
-              <Fact icon={Clock} label="Received">
-                {formatAgo(ticket.createdAt, now)}
+              <Fact icon={Clock} label={t("inbox.received")}>
+                {formatAgo(ticket.createdAt, now, locale)}
               </Fact>
               {ticket.expectedResolutionAt && (
-                <Fact icon={Calendar} label="Expected fix">
-                  {formatDateTime(ticket.expectedResolutionAt, now)}
+                <Fact icon={Calendar} label={t("common.expectedFix")}>
+                  {formatDateTime(ticket.expectedResolutionAt, now, locale)}
                 </Fact>
               )}
-              <Badge variant={STATUS[ticket.status].variant} size="xs">{STATUS[ticket.status].label}</Badge>
+              <Badge variant={STATUS[ticket.status].variant} size="xs">{t(`inboxStatus.${ticket.status}` as MessageKey)}</Badge>
             </p>
           </div>
 
           <Separator />
           <section aria-labelledby="ticket-request-title" className="flex flex-col gap-3">
-            <h3 id="ticket-request-title" className="text-sm font-semibold text-foreground-intense">Request from the city</h3>
-            <dl aria-label="Approved by a city official. Resident identities and their own words are not shared." className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+            <h3 id="ticket-request-title" className="text-sm font-semibold text-foreground-intense">{t("inbox.request")}</h3>
+            <dl aria-label={t("inbox.requestLabel")} className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
               {ticket.payload.map((line) => (
                 <div key={line.key} className="col-span-2 grid grid-cols-subgrid">
-                  <dt className="text-foreground-muted">{line.key}</dt>
-                  <dd className="text-pretty text-foreground">{line.value}</dd>
+                  <dt className="text-foreground-muted">{translatePayloadKey(t, line.key)}</dt>
+                  <dd className="text-pretty text-foreground">{line.key === "City assessment" ? translateAssessment(t, line.value) : line.value}</dd>
                 </div>
               ))}
             </dl>
@@ -75,22 +78,22 @@ export function TicketDetail({ ticket, now, note, category, onNoteChange, onUpda
           <TicketStatusForm key={`${ticket.id}:${ticket.status}`} ticket={ticket} note={note} onNoteChange={onNoteChange} onUpdate={onUpdate} />
           {ticket.status === "resolved" || ticket.status === "rejected" ? (
             <p className="text-sm text-foreground-muted">
-              {ticket.status === "resolved" ? "You reported this ticket as resolved." : "You rejected this ticket; it is back with the city official."} No further steps are possible here.
+              {ticket.status === "resolved" ? t("inbox.resolvedNote") : t("inbox.rejectedNote")} {t("inbox.noMore")}
             </p>
           ) : (
             <Separator />
           )}
 
           <section aria-labelledby="ticket-history-title" className="flex flex-col gap-3">
-            <h3 id="ticket-history-title" className="text-sm font-semibold text-foreground-intense">History</h3>
+            <h3 id="ticket-history-title" className="text-sm font-semibold text-foreground-intense">{t("common.history")}</h3>
             <ol className="flex flex-col gap-3">
               {ticket.events.map((event, index) => (
                 <li key={`${event.status}-${index}`} className="flex flex-col gap-0.5 text-sm">
                   <span className="flex flex-wrap items-center justify-between gap-x-3 text-foreground">
-                    {EVENT_LABEL[event.status]}
+                    {t(`inboxEvent.${event.status}` as MessageKey)}
                     <span className={FACTS}>
-                      <Fact icon={Clock} label="When">
-                        {formatAgo(event.at, now)}
+                      <Fact icon={Clock} label={t("common.when")}>
+                        {formatAgo(event.at, now, locale)}
                       </Fact>
                     </span>
                   </span>

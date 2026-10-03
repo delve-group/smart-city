@@ -3,14 +3,16 @@ import { Badge } from "@appica/ui-react/badge";
 import type { Evidence, OperationsReport } from "@/api/operations/types";
 import { InfoHint } from "@/shared/components/info-hint/info-hint";
 import { PanelAccordionItem } from "@/shared/components/panel-accordion-item/panel-accordion-item";
+import { tCount, useI18n } from "@/shared/i18n/locale";
+import type { MessageKey } from "@/shared/i18n/messages";
 import { formatAgo } from "@/shared/utils/format-time";
 import { Fact, FACTS } from "@/shared/components/fact/fact";
 
 /** Only a problem gets a badge; current data is the norm. */
-const PROBLEM: Record<Exclude<Evidence["state"], "current">, { label: string; variant: "warning" | "error" }> = {
-  stale: { label: "Stale", variant: "warning" },
-  missing: { label: "Missing", variant: "warning" },
-  contradictory: { label: "Contradictory", variant: "error" },
+const PROBLEM: Record<Exclude<Evidence["state"], "current">, { label: MessageKey; variant: "warning" | "error" }> = {
+  stale: { label: "evidence.stale", variant: "warning" },
+  missing: { label: "evidence.missing", variant: "warning" },
+  contradictory: { label: "evidence.contradictory", variant: "error" },
 };
 
 type EvidenceListProps = {
@@ -23,15 +25,16 @@ type EvidenceListProps = {
 
 /** Everything the incident rests on: resident reports first, then data sources. Missing data is shown, never read as zero. */
 export function EvidenceList({ reports, observations, now, onLocate }: EvidenceListProps) {
+  const { t, locale } = useI18n();
   const meta = [
-    `${reports.length} ${reports.length === 1 ? "report" : "reports"}`,
-    observations.length > 0 && `${observations.length} ${observations.length === 1 ? "observation" : "observations"}`,
+    tCount(t, locale, "countReports", reports.length),
+    observations.length > 0 && tCount(t, locale, "countObservations", observations.length),
   ]
     .filter(Boolean)
     .join(" · ");
 
   return (
-    <PanelAccordionItem value="evidence" title="Evidence" meta={meta}>
+    <PanelAccordionItem value="evidence" title={t("evidence.title")} meta={meta}>
       <ul className="flex flex-col divide-y divide-border-muted">
         {reports.map((report) => (
           <li key={report.id} className="flex items-start gap-1 py-1 first:pt-0">
@@ -42,19 +45,19 @@ export function EvidenceList({ reports, observations, now, onLocate }: EvidenceL
             >
               <span className="text-sm text-pretty text-foreground">{report.summary}</span>
               <span className={FACTS}>
-                <Fact icon={Id} label="Reference">
+                <Fact icon={Id} label={t("common.reference")}>
                   <span className="font-mono">{report.reference}</span>
                 </Fact>
-                <Fact icon={Clock} label="Reported">
-                  {formatAgo(report.submittedAt, now)}
+                <Fact icon={Clock} label={t("common.reported")}>
+                  {formatAgo(report.submittedAt, now, locale)}
                 </Fact>
-                {!report.observedAt && <span>Time observed unknown</span>}
+                {!report.observedAt && <span>{t("evidence.timeUnknown")}</span>}
               </span>
             </button>
             {report.unit && (
               <span className="mt-2">
-                <InfoHint label="Private detail" icon={Lock}>
-                  {report.unit}. Staff only; never shown on the public map.
+                <InfoHint label={t("evidence.private")} icon={Lock}>
+                  {t("evidence.privateBody", { unit: report.unit })}
                 </InfoHint>
               </span>
             )}
@@ -68,19 +71,19 @@ export function EvidenceList({ reports, observations, now, onLocate }: EvidenceL
                 <span className="text-sm font-medium text-foreground-intense">{item.label}</span>
                 {problem && (
                   <Badge variant={problem.variant} size="xs">
-                    {problem.label}
+                    {t(problem.label)}
                   </Badge>
                 )}
               </div>
               <p className={FACTS}>
-                <Fact icon={Server} label="Source">
+                <Fact icon={Server} label={t("common.source")}>
                   {item.source}
                 </Fact>
-                <Fact icon={Activity} label="Observed">
-                  {item.observedAt ? formatAgo(item.observedAt, now) : "unknown"}
+                <Fact icon={Activity} label={t("evidence.observed")}>
+                  {item.observedAt ? formatAgo(item.observedAt, now, locale) : t("common.unknown")}
                 </Fact>
-                <Fact icon={Refresh} label="Fetched">
-                  {formatAgo(item.retrievedAt, now)}
+                <Fact icon={Refresh} label={t("evidence.fetched")}>
+                  {formatAgo(item.retrievedAt, now, locale)}
                 </Fact>
               </p>
               {item.note && <p className="text-xs text-foreground">{item.note}</p>}

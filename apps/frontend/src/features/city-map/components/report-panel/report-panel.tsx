@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Category } from "@/api/categories/types";
 import type { CityReport } from "@/api/reports/types";
 import { CategoryLabel } from "@/shared/components/category-label/category-label";
+import { useI18n } from "@/shared/i18n/locale";
 import { FloatingPanel } from "@/shared/components/floating-panel/floating-panel";
 import { NearbyReports } from "../nearby-reports/nearby-reports";
 import { ReportDetails } from "../report-details/report-details";
@@ -27,6 +28,7 @@ type ReportPanelProps = {
 };
 
 export function ReportPanel({ report, category, reports, now, onClose, onCenter, onSelect, affected, onConfirm }: ReportPanelProps) {
+  const { t } = useI18n();
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [titleHidden, setTitleHidden] = useState(false);
 
@@ -54,10 +56,10 @@ export function ReportPanel({ report, category, reports, now, onClose, onCenter,
               <CategoryLabel category={category} />
             </div>
             <div className="flex shrink-0 items-center gap-1">
-              <Button variant="ghost" size="icon-md" aria-label="Show on map" onClick={() => onCenter(report)}>
+              <Button variant="ghost" size="icon-md" aria-label={t("common.showOnMap")} onClick={() => onCenter(report)}>
                 <CurrentLocation />
               </Button>
-              <Button variant="ghost" size="icon-md" aria-label="Close details" onClick={onClose}>
+              <Button variant="ghost" size="icon-md" aria-label={t("common.close")} onClick={onClose}>
                 <X />
               </Button>
             </div>

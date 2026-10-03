@@ -25,6 +25,7 @@ import {
 import type { MapArea, MapFocus, MapPoint } from "@/features/city-map/components/city-map-canvas/map-types";
 import { MapSettings } from "@/features/city-map/components/map-settings/map-settings";
 import { useNow } from "@/shared/hooks/use-now";
+import { useI18n } from "@/shared/i18n/locale";
 import { useOperationsData } from "../../hooks/use-operations-data";
 import { buildQueue, incidentKey, institutionName, reportKey, type QueueItem, type QueueTab } from "../../utils/queue";
 import { IncidentPanel } from "../incident-panel/incident-panel";
@@ -36,7 +37,6 @@ const CityMapCanvas = dynamic(() => import("@/features/city-map/components/city-
 
 /** Opens at street level over the centre, where the demo incidents are. */
 const INITIAL_VIEW = { longitude: 19.9425, latitude: 50.0555, zoom: 14.8 };
-const DEMO_NOTICE = "Incidents: demo data";
 /** Desktop panel width (25rem) plus its 0.75rem margin. */
 const PANEL_INSET = 412;
 const EMPTY_QUEUE: Record<QueueTab, QueueItem[]> = { review: [], active: [], done: [] };
@@ -59,6 +59,7 @@ function resolveSelection(workspace: Workspace | undefined, key: string | null):
 
 /** Official workspace: review queue beside the map, details in the same floating panel as the resident map. */
 export function OperationsWorkspace({ onSessionLost, onSignOut }: { onSessionLost: () => void; onSignOut?: () => void }) {
+  const { t } = useI18n();
   const { state, retry, refresh, apply, updatedAt, refreshFailed } = useOperationsData(onSessionLost);
   const toast = useToastManager();
   const now = useNow();
@@ -176,13 +177,13 @@ export function OperationsWorkspace({ onSessionLost, onSignOut }: { onSessionLos
       if (error instanceof OperationsApiError && (error.status === 401 || error.status === 403)) {
         onSessionLost();
       } else if (error instanceof OperationsApiError && STALE_CODES.has(error.code)) {
-        toast.add({ type: "warning", title: "This changed while you were reviewing it", description: `${error.message} The view is now up to date.` });
+        toast.add({ type: "warning", title: t("toast.staleTitle"), description: t("toast.staleBody", { message: error.message }) });
         void refresh();
       } else {
         toast.add({
           type: "error",
-          title: "Your decision was not saved",
-          description: `${error instanceof Error ? error.message : "Unknown error."} Nothing was sent; try again.`,
+          title: t("toast.saveFail"),
+          description: t("toast.saveFailBody", { message: error instanceof Error ? error.message : t("toast.unknownError") }),
         });
       }
       return null;
@@ -195,8 +196,8 @@ export function OperationsWorkspace({ onSessionLost, onSignOut }: { onSessionLos
     const name = institutionName(workspace, proposal.institutionId);
     const result = await run(
       () => decideProposal(proposal.id, decision),
-      decision.decision === "approved" ? `Approved for ${name}` : "Proposal rejected",
-      decision.decision === "approved" ? "The ticket is being sent. Its status appears here once the institution has it." : "No ticket was created.",
+      decision.decision === "approved" ? t("toast.approved", { name }) : t("toast.rejected"),
+      decision.decision === "approved" ? t("toast.approvedBody") : t("toast.rejectedBody"),
     );
     return result !== null;
   }
@@ -206,19 +207,19 @@ export function OperationsWorkspace({ onSessionLost, onSignOut }: { onSessionLos
     if (!proposal) return false;
     const result = await run(
       () => reconcileProposal(proposal.id, { expected_proposal_version: proposal.version, reason }),
-      "Checked with the institution",
-      "The outcome is now recorded. Nothing was sent again.",
+      t("toast.checked"),
+      t("toast.checkedBody"),
     );
     return result !== null;
   }
 
   async function handleCommand(incident: Incident, command: IncidentCommand) {
     const messages: Record<IncidentCommand["type"], string> = {
-      choose_institution: "Proposal prepared. Review it before sending.",
-      verify: "Marked as verified",
-      dispute: "Marked as disputed",
-      close: "Incident closed",
-      reopen: "Incident reopened",
+      choose_institution: t("toast.choose_institution"),
+      verify: t("toast.verify"),
+      dispute: t("toast.dispute"),
+      close: t("toast.close"),
+      reopen: t("toast.reopen"),
     };
     const result = await run(() => runIncidentCommand(incident.id, command), messages[command.type]);
     return result !== null;
@@ -226,10 +227,10 @@ export function OperationsWorkspace({ onSessionLost, onSignOut }: { onSessionLos
 
   async function handleTriage(report: OperationsReport, triage: ReportTriage) {
     const messages: Record<ReportTriage["decision"], string> = {
-      link: `${report.reference} linked`,
-      new_incident: "New incident started",
-      private_issue: `${report.reference} kept private`,
-      out_of_scope: `${report.reference} marked out of scope`,
+      link: t("toast.link", { reference: report.reference }),
+      new_incident: t("toast.new_incident"),
+      private_issue: t("toast.private_issue", { reference: report.reference }),
+      out_of_scope: t("toast.out_of_scope", { reference: report.reference }),
     };
     const result = await run(() => triageReport(report.id, triage), messages[triage.decision]);
     if (!result) return false;
@@ -244,7 +245,7 @@ export function OperationsWorkspace({ onSessionLost, onSignOut }: { onSessionLos
   return (
     <div className="flex h-dvh w-full overflow-hidden">
       <aside
-        aria-label="Review queue"
+        aria-label={t("queue.label")}
         className={`${mobileView === "queue" ? "flex" : "hidden"} w-full shrink-0 flex-col border-e border-border md:flex md:w-96`}
       >
         <OperationsSidebar
@@ -276,7 +277,7 @@ export function OperationsWorkspace({ onSessionLost, onSignOut }: { onSessionLos
           interactive
           onHover={(hover) => setHoverId(hover?.id ?? null)}
           onSelect={selectFromMap}
-          attribution={workspace?.source === "demo" ? DEMO_NOTICE : undefined}
+          attribution={workspace?.source === "demo" ? t("demo.incidents") : undefined}
           tilted={tilted}
           areas={areas}
           heatmap={false}
@@ -286,7 +287,7 @@ export function OperationsWorkspace({ onSessionLost, onSignOut }: { onSessionLos
         <div className="absolute top-3 left-3 z-20 md:hidden">
           <Button variant="outline" className="border-border-strong/50 bg-background shadow-xs" onClick={() => setMobileView("queue")}>
             <ArrowLeft data-icon="start" />
-            Queue
+            {t("common.queue")}
           </Button>
         </div>
 
@@ -294,17 +295,17 @@ export function OperationsWorkspace({ onSessionLost, onSignOut }: { onSessionLos
           <div role="status" className="absolute inset-x-3 top-3 z-20 flex justify-center">
             <div className="flex items-center gap-2 rounded-md border border-border bg-background px-3.5 py-2 text-sm text-foreground shadow-sm">
               <Spinner className="size-4 text-foreground-muted" aria-hidden />
-              Loading the workspace…
+              {t("queue.loading")}
             </div>
           </div>
         )}
         {state.status === "error" && (
           <div className="absolute inset-x-3 top-3 z-20 flex justify-center">
             <Alert variant="error" className="max-w-sm shadow-sm">
-              <AlertTitle>Could not load the workspace</AlertTitle>
+              <AlertTitle>{t("queue.loadError")}</AlertTitle>
               <AlertDescription className="flex flex-col items-start gap-3">
                 {state.message}
-                <Button variant="outline" size="sm" onClick={retry}>Try again</Button>
+                <Button variant="outline" size="sm" onClick={retry}>{t("common.tryAgain")}</Button>
               </AlertDescription>
             </Alert>
           </div>

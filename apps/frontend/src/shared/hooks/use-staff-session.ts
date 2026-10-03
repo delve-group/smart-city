@@ -3,11 +3,13 @@ import { getSession } from "@/api/auth/get-session";
 import { logout } from "@/api/auth/logout";
 import type { SessionActor, StaffRole } from "@/api/auth/types";
 
+export type SessionNotice = "wrong_role" | "session_ended";
+
 export type StaffSessionState =
   | { status: "loading" }
   | { status: "error"; message: string }
   /** No usable staff session; `notice` says why when it is not a plain sign-out. */
-  | { status: "signed_out"; notice: string | null }
+  | { status: "signed_out"; notice: SessionNotice | null }
   | { status: "ready"; actor: SessionActor };
 
 /**
@@ -23,7 +25,7 @@ export function useStaffSession(role: StaffRole) {
     getSession(controller.signal)
       .then((actor) => {
         if (actor?.role === role) setState({ status: "ready", actor });
-        else setState({ status: "signed_out", notice: actor ? "You are signed in with a different kind of account. Sign in with the right one to continue." : null });
+        else setState({ status: "signed_out", notice: actor ? "wrong_role" : null });
       })
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
@@ -40,7 +42,7 @@ export function useStaffSession(role: StaffRole) {
     },
     signedIn: (actor: SessionActor) => setState({ status: "ready", actor }),
     /** The server rejected a request mid-session (expired, revoked or replaced). */
-    sessionLost: () => setState({ status: "signed_out", notice: "Your session ended. Sign in again; nothing you had not saved was sent." }),
+    sessionLost: () => setState({ status: "signed_out", notice: "session_ended" }),
     signOut: async () => {
       await logout().catch(() => undefined);
       setState({ status: "signed_out", notice: null });

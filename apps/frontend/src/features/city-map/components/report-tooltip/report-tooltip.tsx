@@ -2,6 +2,7 @@ import { Clock, MapPin, Users } from "@appica/icons-react";
 import type { Category } from "@/api/categories/types";
 import type { CityReport } from "@/api/reports/types";
 import { CategoryLabel } from "@/shared/components/category-label/category-label";
+import { tCount, useI18n } from "@/shared/i18n/locale";
 import { formatAgo } from "@/shared/utils/format-time";
 import { ReportStatusBadge } from "../report-status-badge/report-status-badge";
 
@@ -20,6 +21,7 @@ type ReportTooltipProps = {
 
 /** Follows the pointer and flips away from the nearest edge. Purely informational. */
 export function ReportTooltip({ report, category, now, x, y, bounds }: ReportTooltipProps) {
+  const { t, locale } = useI18n();
   const flipX = x + OFFSET + WIDTH > bounds.width;
   const flipY = y > bounds.height * 0.6;
 
@@ -42,24 +44,24 @@ export function ReportTooltip({ report, category, now, x, y, bounds }: ReportToo
       </p>
       <dl className="flex flex-col gap-1.5 text-sm text-foreground">
         <div className="flex items-start gap-2">
-          <dt className="sr-only">Where</dt>
+          <dt className="sr-only">{t("common.where")}</dt>
           <MapPin size={16} aria-hidden className="mt-0.5 shrink-0 text-foreground-subtle" />
           <dd className="line-clamp-1">{report.address}{report.district ? `, ${report.district}` : ""}</dd>
         </div>
         <div className="flex items-start gap-2">
-          <dt className="sr-only">Reported</dt>
+          <dt className="sr-only">{t("common.reported")}</dt>
           <Clock size={16} aria-hidden className="mt-0.5 shrink-0 text-foreground-subtle" />
-          <dd>Reported {formatAgo(report.reportedAt, now)}</dd>
+          <dd>{t("report.reportedAgo", { when: formatAgo(report.reportedAt, now, locale) })}</dd>
         </div>
         <div className="flex items-start gap-2">
-          <dt className="sr-only">Confirmations</dt>
+          <dt className="sr-only">{t("common.confirmations")}</dt>
           <Users size={16} aria-hidden className="mt-0.5 shrink-0 text-foreground-subtle" />
           <dd>
-            {report.confirmations === 1 ? "1 resident affected" : `${report.confirmations} residents affected`}
+            {tCount(t, locale, "residents", report.confirmations)}
           </dd>
         </div>
       </dl>
-      <p className="text-xs text-foreground-muted">Click the point for details</p>
+      <p className="text-xs text-foreground-muted">{t("report.click")}</p>
     </div>
   );
 }

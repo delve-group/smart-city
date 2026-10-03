@@ -8,6 +8,8 @@ import { useState, type FormEvent } from "react";
 import { login } from "@/api/auth/login";
 import { AuthApiError, type SessionActor, type StaffRole } from "@/api/auth/types";
 import { AppBrand } from "@/shared/components/app-brand/app-brand";
+import { useI18n } from "@/shared/i18n/locale";
+import type { SessionNotice } from "@/shared/hooks/use-staff-session";
 
 type StaffSignInProps = {
   /** Second word of the lockup, e.g. "Operator". */
@@ -16,12 +18,13 @@ type StaffSignInProps = {
   /** The account kind this screen needs. The server decides the role; this only words the mismatch. */
   role: StaffRole;
   /** Why the form is shown instead of the workspace, if not simply signed out. */
-  notice?: string | null;
+  notice?: SessionNotice | null;
   onSignedIn: (actor: SessionActor) => void;
 };
 
 /** Sign-in for the separately provisioned demo staff accounts. There is no role switch: the account carries the role. */
 export function StaffSignIn({ product, title, role, notice, onSignedIn }: StaffSignInProps) {
+  const { t } = useI18n();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +33,7 @@ export function StaffSignIn({ product, title, role, notice, onSignedIn }: StaffS
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     if (!username.trim() || !password) {
-      setError("Enter the account name and password.");
+      setError(t("auth.missing"));
       return;
     }
     setBusy(true);
@@ -38,17 +41,17 @@ export function StaffSignIn({ product, title, role, notice, onSignedIn }: StaffS
     try {
       const actor = await login(username, password);
       if (actor.role !== role) {
-        setError(`That account is not ${role === "official" ? "an official" : "an institution"} account. Use the right account for this screen.`);
+        setError(t("auth.wrongRole", { role: role === "official" ? t("auth.roleOfficial") : t("auth.roleInstitution") }));
         return;
       }
       onSignedIn(actor);
     } catch (caught) {
       setError(
         caught instanceof AuthApiError && caught.code === "invalid_credentials"
-          ? "The account name or password is not right."
+          ? t("auth.badCredentials")
           : caught instanceof Error
             ? caught.message
-            : "Could not sign in. Try again.",
+            : t("auth.failed"),
       );
     } finally {
       // Keep the account name; clear only the password after a failed attempt.
@@ -64,21 +67,21 @@ export function StaffSignIn({ product, title, role, notice, onSignedIn }: StaffS
         <h2 className="text-xl font-semibold tracking-tight text-foreground-intense">{title}</h2>
         {notice && (
           <Alert variant="warning">
-            <AlertDescription>{notice}</AlertDescription>
+            <AlertDescription>{notice === "wrong_role" ? t("auth.wrongAccount") : t("auth.sessionEnded")}</AlertDescription>
           </Alert>
         )}
         <Field>
-          <FieldLabel>Account</FieldLabel>
+          <FieldLabel>{t("auth.account")}</FieldLabel>
           <Input name="username" autoComplete="username" autoCapitalize="none" spellCheck={false} value={username} onChange={(event) => setUsername(event.target.value)} />
         </Field>
         <Field>
-          <FieldLabel>Password</FieldLabel>
+          <FieldLabel>{t("auth.password")}</FieldLabel>
           <Input name="password" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} />
         </Field>
         {error && (
           <p role="alert" className="text-sm text-error">{error}</p>
         )}
-        <Button type="submit" disabled={busy}>{busy ? "Signing in…" : "Sign in"}</Button>
+        <Button type="submit" disabled={busy}>{busy ? t("common.signingIn") : t("common.signIn")}</Button>
       </form>
     </div>
   );

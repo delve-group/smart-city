@@ -2,8 +2,9 @@ import { AiAgent, Clock, User } from "@appica/icons-react";
 import { Button } from "@appica/ui-react/button";
 import { useState } from "react";
 import type { Incident, Institution, ProposalDecision } from "@/api/operations/types";
+import { translateAssessment, translatePayloadKey, useI18n } from "@/shared/i18n/locale";
+import type { MessageKey } from "@/shared/i18n/messages";
 import { formatAgo } from "@/shared/utils/format-time";
-import { PROPOSAL } from "../../utils/labels";
 import { Fact, FACTS } from "@/shared/components/fact/fact";
 import { ReasonForm } from "../reason-form/reason-form";
 
@@ -19,6 +20,7 @@ type ProposalCardProps = {
  * Approve sends exactly this payload; reject sends nothing.
  */
 export function ProposalCard({ incident, institution, now, onDecide }: ProposalCardProps) {
+  const { t, locale } = useI18n();
   const proposal = incident.proposal;
   const [rejecting, setRejecting] = useState(false);
   const [approving, setApproving] = useState(false);
@@ -39,27 +41,27 @@ export function ProposalCard({ incident, institution, now, onDecide }: ProposalC
     <section aria-labelledby="proposal-title" className="flex flex-col gap-4">
       <header className="flex flex-col gap-1.5">
         <h3 id="proposal-title" className="text-base text-pretty text-foreground">
-          Create a service ticket for{" "}
+          {t("proposal.for", { name: "" })}
           <span className="font-semibold text-foreground-intense">{institution?.name ?? proposal.institutionId}</span>
         </h3>
         <p className={FACTS}>
-          <Fact icon={byAgent ? AiAgent : User} label="Proposed by">
+          <Fact icon={byAgent ? AiAgent : User} label={t("proposal.byLabel")}>
             {proposal.createdBy}
           </Fact>
-          <Fact icon={Clock} label="Proposed">
-            {formatAgo(proposal.createdAt, now)}
+          <Fact icon={Clock} label={t("proposal.when")}>
+            {formatAgo(proposal.createdAt, now, locale)}
           </Fact>
         </p>
       </header>
 
       <dl
-        aria-label="Ticket contents, sent exactly as shown"
+        aria-label={t("proposal.contents")}
         className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 rounded-md border border-border bg-background px-3 py-2.5 font-mono text-xs"
       >
         {proposal.payload.map((field) => (
           <div key={field.key} className="contents">
-            <dt className="text-foreground-muted">{field.key}</dt>
-            <dd className="text-foreground-intense">{field.value}</dd>
+            <dt className="text-foreground-muted">{translatePayloadKey(t, field.key)}</dt>
+            <dd className="text-foreground-intense">{field.key === "City assessment" ? translateAssessment(t, field.value) : field.value}</dd>
           </div>
         ))}
       </dl>
@@ -69,18 +71,18 @@ export function ProposalCard({ incident, institution, now, onDecide }: ProposalC
       {pending && !rejecting && (
         <div className="flex gap-2">
           <Button className="flex-1" disabled={approving} onClick={approve}>
-            {approving ? "Sending…" : "Approve and send"}
+            {approving ? t("common.sending") : t("proposal.approve")}
           </Button>
           <Button variant="outline" disabled={approving} onClick={() => setRejecting(true)}>
-            Reject
+            {t("common.reject")}
           </Button>
         </div>
       )}
       {pending && rejecting && (
         <ReasonForm
-          label="Why reject it?"
-          placeholder="Wrong institution, not enough evidence, duplicate…"
-          submitLabel="Reject proposal"
+          label={t("proposal.rejectWhy")}
+          placeholder={t("proposal.rejectPlaceholder")}
+          submitLabel={t("proposal.rejectSubmit")}
           destructive
           onCancel={() => setRejecting(false)}
           onSubmit={(reason) => onDecide({ decision: "rejected", ...versions, reason })}
@@ -88,9 +90,9 @@ export function ProposalCard({ incident, institution, now, onDecide }: ProposalC
       )}
       {!pending && (
         <p className="text-sm text-foreground-muted">
-          {PROPOSAL[proposal.state]}
-          {proposal.decidedBy && ` by ${proposal.decidedBy}`}
-          {proposal.decidedAt && ` · ${formatAgo(proposal.decidedAt, now)}`}
+          {t(`proposal.${proposal.state}` as MessageKey)}
+          {proposal.decidedBy && ` ${t("proposal.by", { name: proposal.decidedBy })}`}
+          {proposal.decidedAt && ` · ${formatAgo(proposal.decidedAt, now, locale)}`}
           {proposal.reason && ` — “${proposal.reason}”`}
         </p>
       )}

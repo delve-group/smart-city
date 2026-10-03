@@ -11,8 +11,9 @@ import type { Category } from "@/api/categories/types";
 import type { OperationsReport, ReportTriage, Workspace } from "@/api/operations/types";
 import { FloatingPanel } from "@/shared/components/floating-panel/floating-panel";
 import { InfoHint } from "@/shared/components/info-hint/info-hint";
+import { tCount, useI18n } from "@/shared/i18n/locale";
+import type { MessageKey } from "@/shared/i18n/messages";
 import { formatAgo } from "@/shared/utils/format-time";
-import { RESPONSE } from "../../utils/labels";
 import { reportsOf } from "../../utils/queue";
 import { Fact, FACTS } from "@/shared/components/fact/fact";
 import { PanelHeader } from "@/shared/components/panel-header/panel-header";
@@ -34,6 +35,7 @@ const OPTION = "flex cursor-pointer items-start gap-3 rounded-md border border-b
 
 /** A report the system could not place on its own: link it, start an incident, or keep it out. */
 export function ReportReviewPanel({ report, workspace, category, now, onClose, onLocate, onTriage }: ReportReviewPanelProps) {
+  const { t, locale } = useI18n();
   const headingRef = useRef<HTMLHeadingElement>(null);
   const candidates = (report.review?.candidates ?? []).flatMap((candidate) => {
     const incident = workspace.incidents.find((item) => item.id === candidate.incidentId);
@@ -52,11 +54,11 @@ export function ReportReviewPanel({ report, workspace, category, now, onClose, o
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     if (!choice) {
-      setError("Choose what to do with the report.");
+      setError(t("triage.choose"));
       return;
     }
     if (needsReason && reason.trim().length < 3) {
-      setError("Say why, in a few words.");
+      setError(t("validation.why"));
       return;
     }
     const expected_version = report.version;
@@ -95,15 +97,14 @@ export function ReportReviewPanel({ report, workspace, category, now, onClose, o
                 </h2>
                 <p className="text-sm text-foreground-muted">{report.address}</p>
                 <p className={FACTS}>
-                  <Fact icon={Id} label="Reference">
+                  <Fact icon={Id} label={t("common.reference")}>
                     <span className="font-mono">{report.reference}</span>
                   </Fact>
-                  <Fact icon={Clock} label="Reported">
-                    {formatAgo(report.submittedAt, now)}
+                  <Fact icon={Clock} label={t("common.reported")}>
+                    {formatAgo(report.submittedAt, now, locale)}
                   </Fact>
-                  <InfoHint label="Private report" icon={Lock}>
-                    Only staff see this report{report.unit ? `, including “${report.unit}”` : ""}. Nothing about it reaches the public
-                    map until it joins an incident.
+                  <InfoHint label={t("triage.privateReport")} icon={Lock}>
+                    {t("triage.privateBody", { unit: report.unit ? t("triage.unit", { unit: report.unit }) : "" })}
                   </InfoHint>
                 </p>
               </div>
@@ -113,7 +114,7 @@ export function ReportReviewPanel({ report, workspace, category, now, onClose, o
 
             <section aria-labelledby="triage-label" className="flex flex-col gap-3 py-5">
               <h3 id="triage-label" className="text-sm font-semibold text-foreground-intense">
-                What should happen to it?
+                {t("triage.title")}
               </h3>
               <RadioGroup
                 aria-labelledby="triage-label"
@@ -124,7 +125,7 @@ export function ReportReviewPanel({ report, workspace, category, now, onClose, o
                 }}
                 className="gap-2"
               >
-                {candidates.length > 0 && <p className="text-xs font-medium text-foreground-muted">Same problem as</p>}
+                {candidates.length > 0 && <p className="text-xs font-medium text-foreground-muted">{t("triage.same")}</p>}
                 {candidates.map(({ incident, distanceM, minutesApart }) => {
                   const reports = reportsOf(incident, workspace.reports).length;
                   return (
@@ -135,43 +136,43 @@ export function ReportReviewPanel({ report, workspace, category, now, onClose, o
                           <span id={`candidate-${incident.id}`} className="text-sm font-medium text-foreground-intense">
                             {incident.title}
                           </span>
-                          <span className="shrink-0 text-xs text-foreground-muted">{RESPONSE[incident.responseStatus].label}</span>
+                          <span className="shrink-0 text-xs text-foreground-muted">{t(`response.${incident.responseStatus}` as MessageKey)}</span>
                         </span>
                         <span className={FACTS}>
-                          <Fact icon={Ruler} label="Distance">
+                          <Fact icon={Ruler} label={t("common.distance")}>
                             {distanceM} m
                           </Fact>
-                          <Fact icon={Clock} label="Started">
-                            {minutesApart} min earlier
+                          <Fact icon={Clock} label={t("common.started")}>
+                            {t("triage.minutesEarlier", { count: minutesApart })}
                           </Fact>
-                          <Fact icon={Users} label="Reports">
-                            {reports} {reports === 1 ? "report" : "reports"}
+                          <Fact icon={Users} label={t("common.reports")}>
+                            {tCount(t, locale, "countReports", reports)}
                           </Fact>
                         </span>
                       </span>
                     </label>
                   );
                 })}
-                {candidates.length > 0 && <p className="pt-2 text-xs font-medium text-foreground-muted">Or</p>}
+                {candidates.length > 0 && <p className="pt-2 text-xs font-medium text-foreground-muted">{t("common.or")}</p>}
                 <label className={OPTION}>
                   <Radio value="new_incident" aria-labelledby="choice-new" className="mt-0.5" />
                   <span className="flex flex-col gap-0.5">
-                    <span id="choice-new" className="text-sm font-medium text-foreground-intense">Start a new incident</span>
-                    <span className="text-xs text-foreground-muted">A separate problem; you choose who responds next.</span>
+                    <span id="choice-new" className="text-sm font-medium text-foreground-intense">{t("triage.new")}</span>
+                    <span className="text-xs text-foreground-muted">{t("triage.newHint")}</span>
                   </span>
                 </label>
                 <label className={OPTION}>
                   <Radio value="private_issue" aria-labelledby="choice-private" className="mt-0.5" />
                   <span className="flex flex-col gap-0.5">
-                    <span id="choice-private" className="text-sm font-medium text-foreground-intense">Private issue</span>
-                    <span className="text-xs text-foreground-muted">Inside one home or building; never shown on the public map.</span>
+                    <span id="choice-private" className="text-sm font-medium text-foreground-intense">{t("triage.private")}</span>
+                    <span className="text-xs text-foreground-muted">{t("triage.privateHint")}</span>
                   </span>
                 </label>
                 <label className={OPTION}>
                   <Radio value="out_of_scope" aria-labelledby="choice-out" className="mt-0.5" />
                   <span className="flex flex-col gap-0.5">
-                    <span id="choice-out" className="text-sm font-medium text-foreground-intense">Out of scope</span>
-                    <span className="text-xs text-foreground-muted">Not something the city handles.</span>
+                    <span id="choice-out" className="text-sm font-medium text-foreground-intense">{t("triage.out")}</span>
+                    <span className="text-xs text-foreground-muted">{t("triage.outHint")}</span>
                   </span>
                 </label>
               </RadioGroup>
@@ -179,12 +180,12 @@ export function ReportReviewPanel({ report, workspace, category, now, onClose, o
 
             {needsReason && (
               <Field invalid={Boolean(error)} className="pb-5">
-                <FieldLabel>Reason the resident will see</FieldLabel>
+                <FieldLabel>{t("triage.reasonLabel")}</FieldLabel>
                 <Textarea
                   rows={3}
                   maxLength={500}
                   value={reason}
-                  placeholder="This affects only your flat. Contact your building administrator."
+                  placeholder={t("triage.reasonPlaceholder")}
                   onChange={(event) => {
                     setReason(event.target.value);
                     setError(null);
@@ -198,7 +199,7 @@ export function ReportReviewPanel({ report, workspace, category, now, onClose, o
         </ScrollArea>
         <footer className="flex gap-2 border-t border-border-muted px-5 py-4">
           <Button type="submit" size="lg" className="flex-1" disabled={busy}>
-            {busy ? "Saving…" : "Apply decision"}
+            {busy ? t("common.saving") : t("triage.apply")}
           </Button>
         </footer>
       </form>

@@ -39,4 +39,4 @@ For an assigned three-agent workstream or its GitHub Issues, use the repo-local 
 4. After a significant decision or discovery, update the relevant document and add the decision with its rationale to the [decision log](docs/knowledge-base/decisions.md). Keep a single source of truth.
 5. Finish with a short summary of the result, the verification and real limitations. Do not claim deployments, integrations or tests that did not happen.
 
-**Write everything in English**: documentation, code, comments, commit messages, PR descriptions and UI copy. The file name `AGENTS.md` is intentional — it is the instruction file for agent tools.
+**Write documentation, code, comments, commit messages and PR descriptions in English.** Interface copy is English and Polish; each map's settings share one language choice (D054). The file name `AGENTS.md` is intentional — it is the instruction file for agent tools.
