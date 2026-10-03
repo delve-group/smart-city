@@ -52,6 +52,10 @@ type ActorContext = { correlation_id: string } & (
 
 `Actor` is the [foundation type](api-contract.md#backend-foundation-implemented). `anonymous` sees public projections only and can perform no write. `system` principals exist only inside the server (worker, MCP adapter with a scoped server credential). `decision_maker` may read scoped context, suggest triage and create proposals; `executor` may only execute an approved proposal; neither can call an official or institution command. An institution MCP credential maps server-side to one institution and is passed as a `session`-kind institution actor.
 
+### Voice transport
+
+#29 adds the session-bound dispatcher adapter documented in [voice sessions](voice-sessions.md). Its strict operation payloads, ownership and bounded candidate selection delegate to the draft/confirmation/submission services below; there is no second save path. Browser/provider integration remains incomplete, as recorded with the actual local API evidence in that guide.
+
 ## 2. Shared shapes
 
 ### Location result

@@ -75,21 +75,21 @@ export function useIntakeDraft() {
     return () => clearTimeout(timer);
   }, [draft, fields, dirty, busy, saving, needsRecovery]);
 
-  async function start(newReport = false): Promise<IntakeDraft | null> {
+  async function start(newReport = false, channel: "form" | "voice" = "form"): Promise<IntakeDraft | null> {
     if (busy || saving) return null;
     setBusy(true); setError(null);
     try {
       await createGuestSession();
       if (draft && !newReport) {
-        const next = await prepareFormDraft(draft);
+        const next = channel === "form" ? await prepareFormDraft(draft) : await getDraft(draft.id);
         accept(next);
         return next;
       }
       let id: string | null = null;
       try { id = localStorage.getItem(RECOVERY_KEY); } catch { setStorageWarning(true); }
       const next = id && !newReport
-        ? await prepareFormDraft(await getDraft(id))
-        : await createDraft(formDefaults());
+        ? channel === "form" ? await prepareFormDraft(await getDraft(id)) : await getDraft(id)
+        : await createDraft(channel === "form" ? formDefaults() : {});
       accept(next); setNeedsRecovery(false);
       setReport(next.submission ? await getReport(next.submission.report_id) : null);
       return next;
@@ -147,21 +147,37 @@ export function useIntakeDraft() {
     } finally { setBusy(false); }
   }
 
-  async function recover(preserveInput = true) {
+  async function recover(preserveInput = true, signal?: AbortSignal) {
     if (!draft || busy || saving) return;
     setBusy(true); setError(null);
     try {
-      const saved = await getDraft(draft.id);
+      const saved = await getDraft(draft.id, signal);
       accept(saved, preserveInput && !saved.submission);
-      if (saved.submission) setReport(await getReport(saved.submission.report_id));
+      if (saved.submission) setReport(await getReport(saved.submission.report_id, signal));
       else if (preserveInput) setDirty(JSON.stringify(fields) !== JSON.stringify(saved.fields));
       setNeedsRecovery(false);
-    } catch (failure) { setError(message(failure)); setNeedsRecovery(true); }
+      return saved;
+    } catch (failure) { setError(message(failure)); setNeedsRecovery(true); return null; }
     finally { setBusy(false); }
   }
 
+  /** Voice tools replace only this controller's owned draft; never merge a different report. */
+  async function receiveVoiceDraft(next: IntakeDraft | null, committed?: Report) {
+    if (next && next.id !== draft?.id) return false;
+    if (committed) setReport(committed);
+    if (!next) return Boolean(committed);
+    editRevision.current += 1;
+    accept(next);
+    setError(null); setNeedsRecovery(false);
+    if (!committed && next.submission) {
+      try { setReport(await getReport(next.submission.report_id, AbortSignal.timeout(15_000))); }
+      catch { /* The committed reference still exists on the draft. */ }
+    }
+    return true;
+  }
+
   return { draft, fields, report, busy, saving, error, storageWarning, dirty, needsRecovery,
-    start, edit, chooseLocation, send, recover };
+    start, edit, chooseLocation, send, recover, receiveVoiceDraft };
 
   async function prepareFormDraft(current: IntakeDraft) {
     if (current.submission) return current;

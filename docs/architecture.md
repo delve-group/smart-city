@@ -53,16 +53,17 @@ Swapping the map for Google Maps later means replacing only `features/city-map/c
 ```mermaid
 flowchart LR
     C[GET /api/categories] --> H[useCityData]
-    R[GET /api/reports] --> M[mappers: validate DTO, drop unknown categories]
+    I[GET /api/incidents] --> M[Validate public incident projection]
     M --> H
     H --> F[Category filter]
-    F --> V[Visible reports]
-    V --> L[MapLibre heatmap + points]
-    V --> S[Search: reports + Photon places]
-    L -- hover / click --> P[Tooltip / detail panel]
-    N[Report flow: pin + Photon reverse + form] --> W[POST /api/reports]
-    W --> H
-    P -- "I'm affected too" --> A[POST /api/reports/:id/confirmations]
+    F --> V[Visible public incidents]
+    V --> L[MapLibre heatmap and points]
+    Q[Scoped public search and Photon places] --> P[Incident detail or place]
+    L -- hover or click --> P
+    N[Owned draft: exact-pin form or browser voice] --> W[Confirm revision and POST /api/reports]
+    W --> T[Durable triage and incident workflow]
+    T --> I
+    P -- affected too --> A[POST /api/incidents/:id/contributions]
     A --> H
 ```
 
@@ -70,23 +71,24 @@ Features in `apps/frontend/src/features/`:
 
 - `city-map` — the map screen: data loading, map canvas, search, tooltip and report detail panel. Its view composes the other features through their top-level components.
 - `category-filter` — the filter button and category checklist.
-- `report-issue` — the report button, pin placement and report form.
+- `report-issue` — the reporting chooser, pin placement, compact form and guest-owned draft recovery.
+- `voice` — the ElevenLabs browser connection, transient transcript, five session-bound client tools and recovery into the same form draft. Live greeting/mute/end controls are verified locally; scripted spoken report acceptance remains open.
 - `incident-operations` — the official workspace at `/operations`: sign-in gate, review queue, incident and report-review panels, proposal approval, responsibility, verification and reopening. It reuses the city-map canvas (points, areas, muted private markers) and map settings, polls every three seconds while visible and keeps the last data with a stale notice when a refresh fails. Served from PostgreSQL behind an official session.
 - `institution-inbox` — the institution screen at `/institution`: sign-in gate, the signed-in institution's tickets, the approved request, and the next allowed step (acknowledge, start work, resolve with a note, reject with a reason). Same polling and stale notice; an unsaved note survives refreshes and failed saves.
 
-Shared building blocks (category label/tile/appearance, floating panel shell, accordion section, severity labels, time formatting) live in `src/shared/`. The map's mock backend still uses an **in-memory store**: submitted reports live until the app restarts. Its migration to persistent incidents changes the route contracts and `src/api/*` clients together, as defined by the feature plan.
+Shared building blocks (category label/tile/appearance, floating panel shell, accordion section, severity labels, time formatting) live in `src/shared/`. The normal map reads PostgreSQL-backed public incidents. The legacy public report feed and confirmation routes are retired; owned report reads and canonical draft submission remain. The separate `dev:ui` preview uses explicitly labelled browser fixtures and does not represent a live provider integration.
 
 Form state stays local. Search and filter parameters go into the URL when a view must be shareable. Add shared fetching and caching only when there is a real need. The theme belongs to the app shell; it does not change data or permissions.
 
-The API layer maps external data to a small app model, validates the boundary and returns a clear result or error. Server modules validate writes, enforce permissions and hold secrets. The frontend is not a security boundary. The new authentication is not yet applied to the old public report fixtures; persistent report/incident work must use server sessions and migrate its callers as a complete slice.
+The API layer maps external data to a small app model, validates the boundary and returns a clear result or error. Server modules validate writes, enforce permissions and hold secrets. The frontend is not a security boundary. Persistent intake and staff commands enforce server sessions. Public incident/search reads use their own controlled projections; browser fixture membership grants no server authority.
 
-Report/incident/service-ticket retrieval follows the [Qdrant search guide](knowledge-base/qdrant-search.md) (D029, D037, D050). `server/search` implements scoped provider operations with local dense inference and Qdrant BM25/RRF, then hydrates current authorized domain records for `GET /api/search/records`. PostgreSQL remains authoritative. The existing single worker owns source indexing; reconciliation enqueues fresh work instead of writing concurrently. Normal Compose startup includes private Qdrant and a shared model-cache volume, while provider outages leave intake available. MCP transport is implemented with separate server-derived scopes; its real-client checks are recorded with the module. The resident UI cutover remains a separate slice; combined search runtime acceptance is recorded in the search guide.
+Report/incident/service-ticket retrieval follows the [Qdrant search guide](knowledge-base/qdrant-search.md) (D029, D037, D050). `server/search` implements scoped provider operations with local dense inference and Qdrant BM25/RRF, then hydrates current authorized domain records for `GET /api/search/records`. PostgreSQL remains authoritative. The existing single worker owns source indexing; reconciliation enqueues fresh work instead of writing concurrently. Normal Compose startup includes private Qdrant and a shared model-cache volume, while provider outages leave intake available. MCP transport is implemented with separate server-derived scopes; its real-client checks are recorded with the module. The resident UI consumes the anonymous public endpoint and retains labelled local incident matching when search is unavailable; combined provider runtime acceptance is recorded in the search guide.
 
 The [frontend–backend contract](api-contract.md) separates today's resident-report routes, the specified ElevenLabs voice-to-incident PoC, and later interfaces from the platform SPEC. The feature specification and plan govern the next implementation slice; public incident projections, private reports, official commands and institution tickets must not be collapsed into one record or route.
 
 ## Local backend foundation
 
-Docker Compose runs one Next.js web/API process, one worker from the same codebase, and PostgreSQL on a persistent volume. A one-shot setup container waits for database health, applies SQL migrations and seeds fictional staff/institutions before the app and worker start. Root npm shortcuts validate required environment values; the production image checks the same runtime settings and requires an HTTPS application origin. Executable setup, restart and configuration instructions live in the [README](../README.md#running). The [Scaleway runtime](../deploy/README.md) adds Caddy HTTPS on one VM, revision-tagged images and backup-before-migration deployment commands. The Scaleway VM and runtime are provisioned; application rollout, public DNS/TLS and provider integration remain separate acceptance work, tracked in the [deployment record](../deploy/scaleway-release.md).
+Docker Compose runs one Next.js web/API process, one worker from the same codebase, and PostgreSQL on a persistent volume. A one-shot setup container waits for database health, applies SQL migrations and seeds fictional staff/institutions before the app and worker start. Root npm shortcuts validate required environment values; the production image checks the same runtime settings and requires an HTTPS application origin. Executable setup, restart and configuration instructions live in the [README](../README.md#running). The [Scaleway runtime](../deploy/README.md) adds Caddy HTTPS on one VM, revision-tagged images and backup-before-migration deployment commands. The Scaleway backend/search rollout and public DNS/TLS are verified in the [deployment record](../deploy/scaleway-release.md). The final citizen map/search/voice rollout and complete rehearsal remain pending; local integration is completed before deployment.
 
 Authentication routes call `server/auth/`; password hashing is independent of Next.js and reused by the seed script. PostgreSQL holds identities, hashed session tokens and login throttling. Thin HTTP handlers own cookies, origin checks and common response envelopes. Permission guards read role and institution from the database. The new liveness/readiness endpoints distinguish a running process from usable database migrations. See the [implemented API contract](api-contract.md#backend-foundation-implemented) for exact shapes.
 

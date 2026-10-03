@@ -23,7 +23,7 @@ A resident describes a city problem without choosing a department. The system cl
 - Search covers reports, incidents and service tickets using their titles/summaries, descriptions and permitted metadata. Indexing does not make private records public; each caller receives only its authorized projection.
 - Local development starts through one documented command and reports missing or invalid required environment settings before starting dependent services. The eventual Scaleway deployment follows the same validation rule. Plan for roughly 15 concurrent application users, with 30 as the demo planning bound; capacity is unverified.
 - Government identity is simulated. Utility telemetry and institution integration are also explicitly labelled demo data/services.
-- Documentation, code, authored prompts, UI copy and the reference demo's agent responses are English. Preserve Polish place names and accept resident observations spoken in Polish as input; multilingual response copy is outside this slice.
+- Documentation, code and authored agent instructions are English. Interface copy is English and Polish (D054). The voice dispatcher understands Polish observations and responds in Polish, including clarification, confirmation and saved references (D064). Preserve Polish place names. Stored operator summaries remain English; original observations remain private.
 
 ### Specification defaults
 

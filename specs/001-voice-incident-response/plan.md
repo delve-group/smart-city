@@ -65,7 +65,7 @@ For this browser-first slice, register dispatcher operations as ElevenLabs clien
 Session sequence:
 
 1. Create/recover the resident's draft and stable submission key. On “Start voice report,” request microphone permission and obtain a conversation token from our backend.
-2. Start the ElevenLabs conversation. Configure one concise English dispatcher prompt, English reference-demo responses, and recognition of Polish resident input/place names. Agent ID, prompt version, voice ID and LLM configuration are recorded as deployment configuration.
+2. Start the ElevenLabs conversation. Author concise dispatcher instructions in English, configure Polish as the agent language and use a Polish greeting and spoken responses. Understand Polish resident input/place names and faithfully explain English tool summaries in Polish without adding facts. Agent ID, prompt version, voice ID and LLM configuration are recorded as deployment configuration.
 3. Clarify location and scope using tools. Update the draft and display the same revision being read back. Record explicit spoken or button confirmation for that revision. A changed field invalidates confirmation.
 4. Call submission once with that draft revision. The server commits before returning the report reference. Feed its success/error result back to the agent and update the UI from persisted state.
 5. End the provider session and microphone tracks on end, form fallback, navigation or disconnect. Reconcile an in-flight submission before offering retry. Never infer persistence from a transcript event or from the agent saying “done.”

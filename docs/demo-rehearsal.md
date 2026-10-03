@@ -65,6 +65,10 @@ The phone review found a real keyboard defect, tracked with reproduction and DOM
 
 A real institution HTTPS command moved fictional `ELE-26-000422` from acknowledged to work started. Its active operator detail and queue updated without reload. The note was visible **4.889 s after mutation start / 4.766 s after the 123 ms response**, measured using the request and browser-observation timestamps on the deployment computer. Observation/tool overhead is included, so this is an upper bound for that one displayed transition. An earlier acknowledgement also appeared, but its first observation timed out before delivery and supplies no reliable refresh timing. The ticket remains in progress. Resident-screen timing, all reference-journey transitions and representative concurrent browser/voice demand remain unverified.
 
+## Current local integration
+
+The [local response-loop record](local-response-rehearsal.md) adds actual three-guest grouping, proposal rejection/approval/replay, one ticket, permission denials, private-text checks and acknowledgement/work/resolution displayed on the resident screen without reload. It is a local HTTP intake and real browser readback run with the labelled demo proposer/connector, not spoken intake or deployment. Two resident observations were below five seconds; resolution was first observed too late to establish the target. The [voice record](voice-sessions.md) separately covers real WebRTC greeting, speech recognition, mute/end and same-draft form fallback. Full scripted voice acceptance remains open.
+
 ## Specification acceptance matrix
 
 | Criterion | Evidence so far | Remaining before full acceptance |
@@ -80,7 +84,7 @@ A real institution HTTPS command moved fictional `ELE-26-000422` from acknowledg
 | SC-009 — Usability | Persistent citizen form is deployed; operator/institution keyboard and four width/theme combinations reviewed, with retained note and validation error. #58 shared-shell fix passed local checks across all four consumers, both widths/themes. | Deploy/verify the header fix and complete the integrated citizen/voice keyboard flow with usable fallback after actual voice failure. |
 | SC-010 — Search | #32 accepted: real Polish retrieval, all kinds/uncategorized sources, filters, stale mutation/revocation/deletion and outage recovery. | Final deployed resident search UI in #33. |
 
-The final dependencies remain Rafal's #28 incident map, #29 browser voice and #33 resident search UI, plus deployment verification of the #58 mobile keyboard correction. #35 and the agent-3 tracker stay open until the complete acceptance run passes. Lint/typecheck/production build passed for the integrated #56 fix and shared locale integration; the native x64 production build and HTTPS readiness passed at deployed `92bfb90`. The #58 CSS correction passed local lint, typecheck and production build; its manual panel checks are recorded above.
+The incident map (#28 / PR #51) and resident search UI (#33 / PR #62) are now merged into main. Remaining dependencies are #29 browser voice and the final integrated deployment, including verification of the #58 mobile keyboard correction. #35 and the agent-3 tracker stay open until the complete acceptance run passes. Lint/typecheck/production build passed for the integrated #56 fix and shared locale integration; the native x64 production build and HTTPS readiness passed at deployed `92bfb90`. The #58 CSS correction passed local lint, typecheck and production build; its manual panel checks are recorded above.
 
 ## Operator preparation and recovery
 
