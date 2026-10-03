@@ -60,6 +60,9 @@ version conflicts with disposable database records. No automated tests are intro
   committed together; replay and stale versions before/during the provider call were
   superseded. Concurrent non-power intake created one incident and one review item.
   A three-day-old same-type nearby candidate still required review.
+- An official correction bypassed the model even with its credentials removed. Disabled
+  provider mode retained the submitted classification and completed deterministic triage.
+- Lint, typecheck and build passed after integrating current `main` (voice location/end-call changes).
 - Private scope, urgency, missing provider configuration and unclear descriptions
   remained reviewable. Seven category/issue directory lookups each returned one institution.
 - The shared incident-assessment transport returned a valid real-model electricity

@@ -22,6 +22,15 @@ Updated: 2026-10-03.
 - Search clarification (D037): index reports, incidents and service tickets, with server-scoped text projections. The [Qdrant guide](qdrant-search.md) defines identities, visibility and the implemented integration; integrated source update/deletion, access revocation and provider recovery checks passed; the resident map consumes its public endpoint; see [resident search](../resident-search.md).
 - Selected citizen scenarios: broken lift (5), dangerous pothole (3), blocked drain (2) and power outage (1). Canonical report scripts and reuse guidance for manual testing and demo videos are in [Citizen use cases](citizen-use-cases.md). Selection does not imply that the scenarios have been executed or their workflows implemented.
 
+- Report classification and routing (2026-10-04, D078): the existing optional Scaleway
+  provider classifies saved form/voice observations into catalog category/issue pairs;
+  configured rules select fictional institutions, including water/sewer and other city
+  services. Specific non-power reports can start incidents; nearby same-type reports
+  still require a human linking decision. Official corrections take precedence. Live
+  model and disposable-database checks plus desktop/mobile operator UI review are
+  recorded in the [design and verification note](../plans/2026-10-04-report-classification-routing-design.md).
+  This change is not yet deployed; service routing does not establish real ownership.
+
 ## Working assumptions
 
 - Web app, usable on phones and desktops.
