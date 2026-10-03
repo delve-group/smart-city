@@ -5,6 +5,7 @@ import { CategoryLabel } from "@/shared/components/category-label/category-label
 import { useI18n, tCount } from "@/shared/i18n/locale";
 import { formatAgo } from "@/shared/utils/format-time";
 import { IncidentStatus } from "../incident-status/incident-status";
+import { incidentSummary } from "../../utils/incident-summary";
 
 const OFFSET = 16;
 const WIDTH = 288;
@@ -40,7 +41,7 @@ export function IncidentTooltip({ incident, category, now, x, y, bounds }: Incid
         <IncidentStatus incident={incident} />
       </div>
       <p className="line-clamp-2 text-base leading-snug font-semibold text-balance text-foreground-intense">
-        {incident.public_summary}
+        {incidentSummary(t, incident)}
       </p>
       <dl className="flex flex-col gap-1.5 text-sm text-foreground">
         <div className="flex items-start gap-2">

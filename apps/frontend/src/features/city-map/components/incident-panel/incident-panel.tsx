@@ -15,6 +15,7 @@ import { formatDateTime } from "@/shared/utils/format-time";
 import { residentStatus, STATUS_STEPS } from "../../utils/incident-status";
 import { AffectedButton } from "../affected-button/affected-button";
 import { NearbyIncidents } from "../nearby-incidents/nearby-incidents";
+import { incidentSummary } from "../../utils/incident-summary";
 
 type Props = {
   incident: PublicIncident;
@@ -69,7 +70,7 @@ export function IncidentPanel({ incident, incidents, category, now, onClose, onC
           <PanelHeader category={category} onCenter={onCenter} onClose={onClose} />
           {titleHidden && (
             <p aria-hidden className="truncate text-sm font-semibold text-foreground-intense transition-opacity duration-150 starting:opacity-0">
-              {incident.public_summary}
+              {incidentSummary(t, incident)}
             </p>
           )}
         </div>
@@ -83,7 +84,7 @@ export function IncidentPanel({ incident, incidents, category, now, onClose, onC
             tabIndex={-1}
             className="pt-4 pb-1 text-2xl leading-tight font-semibold tracking-tight text-balance text-foreground-intense outline-none"
           >
-            {incident.public_summary}
+            {incidentSummary(t, incident)}
           </h2>
 
           <section className="flex flex-col gap-3 pt-3 pb-5">

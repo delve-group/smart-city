@@ -4,6 +4,7 @@ import type { PublicIncident } from "@/api/incidents/types";
 import { PanelAccordionItem } from "@/shared/components/panel-accordion-item/panel-accordion-item";
 import { CategoryTile } from "@/shared/components/category-tile/category-tile";
 import { nearbyIncidents, formatDistance } from "../../utils/nearby-incidents";
+import { incidentSummary } from "../../utils/incident-summary";
 
 export function NearbyIncidents({ incident, incidents, onSelect }: { incident: PublicIncident; incidents: readonly PublicIncident[]; onSelect: (incident: PublicIncident) => void }) {
   const { t } = useI18n();
@@ -11,7 +12,7 @@ export function NearbyIncidents({ incident, incidents, onSelect }: { incident: P
   return <PanelAccordionItem value="nearby" title={t("report.nearby")} meta={nearby.length}>
     {nearby.length ? <ul className="flex flex-col gap-1">{nearby.map(({ incident: other, meters }) => <li key={other.id}>
       <Button variant="ghost" className="h-auto w-full justify-start gap-3 py-3 text-start" onClick={() => onSelect(other)}>
-        <CategoryTile categoryId={other.category_id} /><span className="min-w-0 flex-1 whitespace-normal">{other.public_summary}</span><span className="text-xs text-foreground-muted">{formatDistance(meters)}</span>
+        <CategoryTile categoryId={other.category_id} /><span className="min-w-0 flex-1 whitespace-normal">{incidentSummary(t, other)}</span><span className="text-xs text-foreground-muted">{formatDistance(meters)}</span>
       </Button>
     </li>)}</ul> : <p className="text-sm text-foreground-muted">{t("incidentMap.nearbyEmpty")}</p>}
   </PanelAccordionItem>;

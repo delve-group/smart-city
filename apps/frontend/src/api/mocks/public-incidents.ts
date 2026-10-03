@@ -1,12 +1,7 @@
 import type { Contribution, PublicIncident } from "@/api/incidents/types";
 import { mockWorkspace } from "./operations-store";
 
-/** Explicit fictional reporter links, never identities fabricated from old numeric counters. */
-const REPORTER_LINKS: Record<string, string> = {
-  "r-311": "demo-dietla-a", "r-312": "demo-dietla-b", "r-318": "demo-dietla-c", "r-320": "demo-starowislna-a",
-  "r-290": "demo-miodowa-a", "r-292": "demo-miodowa-b", "r-301": "demo-bernardynska-a", "r-303": "demo-bernardynska-b",
-  "r-305": "demo-stradomska-a", "r-271": "demo-podgorski-a",
-};
+/** Each linked mock report stands for one fictional resident; there are no real identities behind them. */
 const KEY = "mradar-mock-incident-memberships";
 let memberships: Set<string> | null = null;
 function mySupport() {
@@ -20,16 +15,16 @@ function mySupport() {
 export function mockPublicIncidents(): PublicIncident[] {
   return mockWorkspace().incidents.map((incident) => {
     const membership = mySupport().has(incident.id);
-    const supporters = new Set(incident.report_ids.map((id) => REPORTER_LINKS[id]).filter(Boolean));
+    const supporters = new Set(incident.report_ids);
     return {
       id: incident.id, reference: incident.reference, category_id: incident.category_id, issue_type: incident.issue_type,
-      public_summary: `${incident.category_id === "power" ? "Power outage" : "Reported service issue"} at ${incident.address}.`,
+      public_summary: `${incident.title}.`,
       scope: "street", assessment: incident.assessment, response_status: incident.response_status,
       support_count: supporters.size + Number(membership), severity: incident.urgent ? "high" : "medium", accepts_contributions: !["resolved", "closed"].includes(incident.response_status),
       viewer_support: membership ? "contributor" : null,
       public_location: { lat: incident.lat, lng: incident.lng, label: incident.address, precision: "street" },
       created_at: incident.history[0]?.at ?? incident.updated_at, updated_at: incident.updated_at,
-      timeline: [{ id: `${incident.id}-reported`, kind: "reported", occurred_at: incident.history[0]?.at ?? incident.updated_at, text: "Fictional demo incident reported." }],
+      timeline: [{ id: `${incident.id}-reported`, kind: "reported", occurred_at: incident.history[0]?.at ?? incident.updated_at, text: "Zgłoszono fikcyjne zdarzenie." }],
       provenance: "demo",
     };
   });

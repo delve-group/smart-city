@@ -11,6 +11,8 @@ export function searchIncidents(
   incidents: readonly PublicIncident[],
   categoriesById: ReadonlyMap<string, Category>,
   query: string,
+  /** The summary as shown, so a search in the chosen language finds it. */
+  summaryOf: (incident: PublicIncident) => string = (incident) => incident.public_summary,
   limit = 6,
 ): PublicIncident[] {
   const words = normalize(query).split(/\s+/).filter(Boolean);
@@ -18,9 +20,10 @@ export function searchIncidents(
 
   return incidents
     .map((incident) => {
-      const title = normalize(incident.public_summary);
+      const summary = summaryOf(incident);
+      const title = normalize(summary);
       const haystack = normalize(
-        [incident.public_summary, incident.public_location.label, categoriesById.get(incident.category_id)?.label, incident.reference].join(" "),
+        [summary, incident.public_summary, incident.public_location.label, categoriesById.get(incident.category_id)?.label, incident.reference].join(" "),
       );
       if (!words.every((word) => haystack.includes(word))) return null;
       const titleRank = words.every((word) => title.includes(word)) ? 0 : 1;
