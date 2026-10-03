@@ -1,0 +1,47 @@
+{
+  "id": "mradar-hackyeah-2026-d941b1d5",
+  "title": "mRadar — HackYeah 2026",
+  "lang": "en",
+  "notes": {
+    "cover": {
+      "seconds": 15,
+      "text": "Hi, we're the mRadar team. mRadar is one live map of Kraków where residents report what's broken, officials see the whole picture, and the responsible institution fixes it.\n\nEverything you'll see is running code, on fictional demo data."
+    },
+    "problem": {
+      "seconds": 30,
+      "text": "Today a single failure produces either a flood of duplicate calls or silence. Residents can't see what's already known, officials merge duplicates by hand and guess who's responsible, and institutions hear about it last — and nobody hears back.\n\nForty calls is an illustration, not a measured figure."
+    },
+    "loop": {
+      "seconds": 25,
+      "text": "mRadar closes that loop with three screens that share one data model. Residents report, officials decide, institutions fix — and the status flows back to the resident's map."
+    },
+    "residents": {
+      "seconds": 30,
+      "text": "Residents first. The heatmap shows where problems cluster; at street level each report snaps to the building or road it's about. Before reporting, people see what's already known and can just say \"I'm affected too\", which strengthens the existing report instead of creating a duplicate. The progress tracker shows who is responsible."
+    },
+    "reporting": {
+      "seconds": 25,
+      "text": "Reporting takes three steps and no account: drop the pin, pick a category and severity, send. It works the same on a phone; light or dark follows the system."
+    },
+    "operations": {
+      "seconds": 30,
+      "text": "For the city official, related reports — close in place and time — arrive as one incident with its matching area on the map. A decision-maker agent drafts the service ticket with the evidence attached. Nothing reaches an institution until a person approves exactly what's shown."
+    },
+    "review": {
+      "seconds": 25,
+      "text": "When the system isn't sure, it asks. An uncertain report shows the candidate incidents with distance, time gap and report count. Issues inside one home stay private. Every command carries the version the official saw, so two people can't silently overwrite each other."
+    },
+    "handoff": {
+      "seconds": 25,
+      "text": "Approve, and the ticket appears in the institution's inbox — here the Electricity Operator. They acknowledge, start work and resolve, and each step updates the official's view and the public timeline."
+    },
+    "design": {
+      "seconds": 20,
+      "text": "Design: one calm, neutral theme in light and dark, built on Appica UI and Geist. Colour is reserved for meaning — eight category colours, red for urgency and the heatmap. Every screen works on a phone."
+    },
+    "close": {
+      "seconds": 15,
+      "text": "It's built on open tools: Next.js, MapLibre with OpenStreetMap data, PostgreSQL. You can run every screen with one command on demo data. We used AI coding assistants and say so. Thank you — we're happy to take questions."
+    }
+  }
+}
