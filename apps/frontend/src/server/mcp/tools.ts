@@ -113,7 +113,7 @@ export function createMcpServer(ctx: ActorContext): McpServer {
   }, (input) => callDomain(ctx, () => searchRecords(ctx, input)));
 
   server.registerTool("get_search_record", {
-    description: "Read a current permitted record by type and ID from the primary store, including while search is unavailable. Unauthorized or deleted records appear missing.",
+    description: "Read a current permitted record by type and ID from the primary store, including while search is unavailable. Unauthorized or deleted records appear missing. Its projection version is not a mutation token; read get_service_ticket before updating a ticket.",
     inputSchema: sourceRefSchema, annotations: readOnly,
   }, (input) => callDomain(ctx, () => getSearchRecord(ctx, input)));
 
