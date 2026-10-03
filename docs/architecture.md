@@ -2,7 +2,7 @@
 
 Status: proof of concept, 2026-10-03. The PostgreSQL/authentication foundation, the durable worker and the incident-response server slices with their staff screens are implemented; the resident map and form still use the mock report backend until their cutover.
 
-The [voice and incident specification](../specs/001-voice-incident-response/spec.md) and [ElevenLabs technical plan](../specs/001-voice-incident-response/plan.md) define the remaining domain and data-flow changes. Independent search and decision-provider adapters are available. The official workspace, proposal approval and queued demo ticket execution are implemented; voice and provider workflow integration remain unfinished; institution ticket reads and updates are implemented.
+The [voice and incident specification](../specs/001-voice-incident-response/spec.md) and [ElevenLabs technical plan](../specs/001-voice-incident-response/plan.md) define the remaining domain and data-flow changes. Source-aware search and an independent decision-provider adapter are available. The official workspace, proposal approval and queued demo ticket execution are implemented; voice and decision workflow integration remain unfinished. The institution inbox reads and updates its assigned tickets.
 
 ## Direction
 

@@ -17,7 +17,7 @@ export function ReportImpact({ report, affected, onConfirm }: ReportImpactProps)
     <PanelSection title="Impact">
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1 rounded-md bg-background-muted p-3">
-          <span className="text-2xl font-semibold tracking-tight text-foreground-intense tabular-nums">
+          <span className="text-sm font-semibold text-foreground-intense tabular-nums">
             {count.format(report.confirmations)}
           </span>
           <span className="flex items-center gap-1.5 text-xs text-foreground-muted">
