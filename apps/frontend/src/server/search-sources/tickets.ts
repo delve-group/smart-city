@@ -4,6 +4,7 @@ import type { ActorContext } from "@/server/actor-context";
 import { getPool } from "@/server/db";
 import { isUuid } from "@/server/incidents/incidents";
 import type { SearchHit, SearchSource } from "./types";
+import { searchText, searchTitle } from "./bounds";
 
 interface TicketSourceRow {
   id: string; reference: string; institution_id: string; status: string; version: number; payload: { key: string; value: string }[];
@@ -24,11 +25,11 @@ async function load(ticketId: string): Promise<TicketSourceRow | null> {
 const text = (row: TicketSourceRow) =>
   [...row.payload.map((line) => `${line.key}: ${line.value}`), `Status: ${row.status}`, row.result_note].filter(Boolean).join("\n");
 
-/** Tickets are never public: officials and the assigned institution are the only audiences. */
+/** Tickets are never public: officials, the decision-maker and the assigned institution are the only audiences. */
 export async function getTicketSearchSource(ticketId: string): Promise<SearchSource | null> {
   const row = await load(ticketId);
   if (!row) return null;
-  const title = `${row.reference} · ${row.title}`;
+  const title = searchTitle(`${row.reference} · ${row.title}`);
   return {
     record_type: "service_ticket",
     record_id: row.id,
@@ -38,8 +39,8 @@ export async function getTicketSearchSource(ticketId: string): Promise<SearchSou
     issue_type: row.issue_type,
     location: { lat: row.anchor_lat, lng: row.anchor_lng },
     projections: [
-      { audience: { kind: "official" }, title, text: text(row) },
-      { audience: { kind: "institution", institution_id: row.institution_id }, title, text: text(row) },
+      { audience: { kind: "official" }, title, text: searchText(text(row)) },
+      { audience: { kind: "institution", institution_id: row.institution_id }, title, text: searchText(text(row)) },
     ],
   };
 }
@@ -56,10 +57,12 @@ export async function listTicketSourceRefs(cursor: string | null, limit = 200) {
 }
 
 export async function hydrateTicketHit(ctx: ActorContext, ticketId: string): Promise<SearchHit | null> {
-  if (ctx.kind !== "session") return null;
+  const operational = (ctx.kind === "system" && ctx.principal === "decision_maker")
+    || (ctx.kind === "session" && ctx.actor.role === "official");
+  if (!operational && (ctx.kind !== "session" || ctx.actor.role !== "institution")) return null;
   const row = await load(ticketId);
   if (!row) return null;
-  const allowed = ctx.actor.role === "official" || (ctx.actor.role === "institution" && ctx.actor.institution_id === row.institution_id);
+  const allowed = operational || (ctx.kind === "session" && ctx.actor.role === "institution" && ctx.actor.institution_id === row.institution_id);
   if (!allowed) return null;
   return {
     ref: { record_type: "service_ticket", record_id: row.id },
