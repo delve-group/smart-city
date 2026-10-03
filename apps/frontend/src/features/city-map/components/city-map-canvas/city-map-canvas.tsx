@@ -47,14 +47,16 @@ export type CityMapCanvasProps = {
   draftPin?: { lat: number; lng: number };
   /** The resident's own position, when the browser shares it. */
   userLocation?: { lat: number; lng: number } | null;
-  /** False while the user is placing a pin: no hover or selection. */
+  /** False while the user is placing a pin: clicks do not open a report. */
   interactive: boolean;
+  /** Hover tooltips. Defaults to `interactive`, and stays on while the report form is open. */
+  hoverable?: boolean;
   onHover: (hover: MapHover | null) => void;
   /** `point` is where the user clicked, in map pixels. */
   onSelect: (id: string | null, point?: { x: number; y: number }) => void;
   /** Fires when the camera stops moving, with the map centre. */
   onCenterChange?: (center: { lat: number; lng: number }) => void;
-  /** A resident camera gesture clears an address choice; programmatic focus does not. */
+  /** A resident camera gesture, not a programmatic focus. */
   onUserMove?: () => void;
   /** Extra attribution, e.g. a demo-data notice. */
   attribution?: string;
@@ -79,6 +81,7 @@ export default function CityMapCanvas({
   draftPin,
   userLocation,
   interactive,
+  hoverable,
   onHover,
   onSelect,
   onCenterChange,
@@ -89,6 +92,7 @@ export default function CityMapCanvas({
   heatmap = true,
   initialView = INITIAL_VIEW,
 }: CityMapCanvasProps) {
+  const canHover = hoverable ?? interactive;
   const { t } = useI18n();
   const mapRef = useRef<MapRef>(null);
   /** True while the camera moves (drag, zoom, fly-to); hover is meaningless then. */
@@ -256,9 +260,9 @@ export default function CityMapCanvas({
       mapStyle={mapStyle}
       style={{ width: "100%", height: "100%" }}
       attributionControl={false}
-      interactiveLayerIds={interactive ? [HIT_LAYER] : []}
-      cursor={interactive && hoveredId ? "pointer" : undefined}
-      onMouseMove={interactive ? handleMove : undefined}
+      interactiveLayerIds={interactive || canHover ? [HIT_LAYER] : []}
+      cursor={canHover && hoveredId ? "pointer" : undefined}
+      onMouseMove={canHover ? handleMove : undefined}
       onMouseLeave={() => onHover(null)}
       onClick={interactive ? handleClick : undefined}
       onLoad={handleLoad}
@@ -276,7 +280,7 @@ export default function CityMapCanvas({
         </Marker>
       )}
       {draftPin && (
-        <Marker longitude={draftPin.lng} latitude={draftPin.lat} anchor="bottom">
+        <Marker longitude={draftPin.lng} latitude={draftPin.lat} anchor="bottom" style={{ pointerEvents: "none" }}>
           <MapPinFilled size={40} aria-hidden className="text-foreground-intense drop-shadow-sm" />
         </Marker>
       )}

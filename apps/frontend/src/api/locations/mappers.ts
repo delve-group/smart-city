@@ -4,7 +4,7 @@ import type { LocationCandidate } from "./types";
 export function mapPin(pin: { lat: number; lng: number }): LocationCandidate {
   return {
     candidate_id: null, source: "map_pin",
-    label: "Pinned location (no confirmed street address)", ...pin,
+    label: "Selected location", ...pin,
     street: null, building_number: null, district: null, precision: "point",
   };
 }

@@ -40,7 +40,8 @@ export function mockIntake(path: string, options?: RequestInit): unknown {
     if (input.revision !== draft.revision || draft.confirmation?.revision !== draft.revision) throw new Error("Confirm the current UI mock draft first.");
     const f = draft.fields;
     if (!f.category_id || !f.issue_type || !f.title || !f.location) throw new Error("Complete the UI mock draft first.");
-    const report: Report = { id: crypto.randomUUID(), reference: `MOCK-${Object.keys(store.reports).length + 1}`, channel: "form", category_id: f.category_id, issue_type: f.issue_type, summary: f.title, original_observation: f.description ?? "", severity: f.severity, location: f.location, observed_at: f.observed_at, observed_time_state: f.observed_time_state, submitted_at: stamp(), scope: f.scope, urgent: f.urgent, triage_state: "pending", incident_id: null, resident_next_step: "UI mock only: no server report or triage work was created.", version: 1, provenance: "demo" };
+    const sequence = String(Object.keys(store.reports).length + 1).padStart(6, "0");
+    const report: Report = { id: crypto.randomUUID(), reference: `MR-${sequence}`, channel: "form", category_id: f.category_id, issue_type: f.issue_type, summary: f.title, original_observation: f.description ?? "", severity: f.severity, location: f.location, observed_at: f.observed_at, observed_time_state: f.observed_time_state, submitted_at: stamp(), scope: f.scope, urgent: f.urgent, triage_state: "pending", incident_id: null, resident_next_step: null, version: 1, provenance: "demo" };
     store.reports[report.id] = report;
     draft.submission = { report_id: report.id, reference: report.reference, triage_state: report.triage_state, submitted_at: report.submitted_at };
     save(); return structuredClone(report);
