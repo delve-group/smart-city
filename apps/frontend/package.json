@@ -22,6 +22,7 @@
   "dependencies": {
     "@appica/icons-react": "^1.1.0",
     "@appica/ui-react": "^1.2.0",
+    "@modelcontextprotocol/sdk": "1.32.0",
     "@next/env": "16.3.8",
     "geist": "1.7.2",
     "maplibre-gl": "^6.11.2",
