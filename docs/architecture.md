@@ -50,6 +50,16 @@ Swapping the map for Google Maps later means replacing only `features/city-map/c
 
 ## Data flow
 
+With `DECISION_PROVIDER=scaleway`, durable report triage first classifies the saved
+observation through the bounded provider transport in `server/agents/completion.ts`.
+`server/agents/report-classification.ts` validates one catalog category/issue pair;
+the triage transaction rechecks the report version and serializes using that pair.
+Original classification and provider metadata are stored in private `triage_policy`.
+Configured responsibility rules select the institution. Specific non-power issues may
+start incidents when there is no nearby active same-type candidate; nearby candidates
+remain a manual linking decision. Provider errors and unclear observations stay in
+review without losing intake. See the [classification and routing design](plans/2026-10-04-report-classification-routing-design.md).
+
 ```mermaid
 flowchart LR
     C[GET /api/categories] --> H[useCityData]

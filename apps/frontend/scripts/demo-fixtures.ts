@@ -158,7 +158,7 @@ export async function seedDemoFixtures(client: PoolClient): Promise<boolean> {
     owner: 0, minutesAgo: 15, channel: "form", category_id: "water", issue_type: "blocked_drain", scope: "street",
     lat: 50.057, lng: 19.9446, street: "Starowiślna", number: "30",
     summary: "Blocked drain, water pooling at the crossing", original: "Studzienka zatkana, woda stoi na przejściu dla pieszych.",
-  }, { state: "needs_review", reason: "needs_link", note: "Automatic grouping covers power outages only. Triage this report manually." });
+  }, { state: "needs_review", reason: "needs_link", note: "Seeded review example. Check the affected drain and its responsibility before starting an incident." });
 
   await client.query(
     `INSERT INTO audit_events (actor_kind, actor_role, operation, entity_type, entity_id, outcome, correlation_id)

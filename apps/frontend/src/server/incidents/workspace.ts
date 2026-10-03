@@ -38,6 +38,7 @@ const OPERATION_LABEL: Record<string, string> = {
   "incident.close": "Closed",
   "incident.reopen": "Reopened",
   "report.triage": "Triaged a report",
+  "report.requeue": "Queued a report for updated triage",
   "report.link": "Linked a report",
   "report.new_incident": "Started this incident from a report",
   "proposal.create": "Proposed a ticket",

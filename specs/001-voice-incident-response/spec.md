@@ -187,7 +187,9 @@ Proposal transitions: `pending` → `approved` or `rejected`; `approved` → `ex
 
 ## 5. Matching, routing and publication policy
 
-Automatic grouping is enabled only for the `power` category's `power_outage` issue type in the reference demo. Other issue types can be submitted, searched and manually triaged. The API supplies category IDs; never assume every `power` report describes an outage.
+Automatic linking into an existing incident is enabled only for the `power` category's `power_outage` issue type in the reference demo. Other specific issue types can automatically start a separate incident when their facts are complete and no active same-type incident is within 300 metres. Nearby non-power candidates require manual linking regardless of their age; persistent defects do not expire after the power-outage time window. The API supplies category IDs; never assume every `power` report describes an outage.
+
+When `DECISION_PROVIDER=scaleway`, saved form and voice reports first receive a bounded AI classification using the API's category/issue catalog. A clear classification replaces the submitted category/issue in the version-checked triage transaction; the original pair and provider metadata remain in the private triage policy. Ambiguous observations, unsupported types and provider failures enter manual review. AI never changes resident scope, time, urgency or original observation. Disabled installations retain their submitted classification. Responsibility is then resolved from the configured directory, including fictional water/sewer, roads, transport, waste, building maintenance, greenery and environmental services. This step does not approve or execute a ticket.
 
 An incoming report is eligible for automatic linking only when all of the following hold:
 
