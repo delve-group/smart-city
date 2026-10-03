@@ -313,7 +313,7 @@ Delivered by [#31](https://github.com/delve-group/smart-city/issues/31). Institu
 | `GET /api/institution/tickets/{id}` | — | `200 InstitutionTicket` | `not_found` for another institution's ticket |
 | `PATCH /api/institution/tickets/{id}` | `{ "status": "acknowledged" \| "in_progress" \| "resolved" \| "rejected", "expected_version", "note"?, "expected_resolution_at"? }` | `200 InstitutionTicket`, `version` | `version_conflict`, `invalid_state`, `not_found` |
 
-`note` (3–500 chars) is required for `resolved` and `rejected`. Transitions follow spec §4; anything else is `invalid_state`.
+`note` (3–500 chars) is required for `resolved` and `rejected` and optional otherwise; it is stored on the ticket event and shown to the official, never on the public timeline. Transitions follow spec §4; anything else is `invalid_state`. Acknowledgement leaves the incident `assigned`; `in_progress` and `resolved` move it; `rejected` returns it to `triaged` with review reason `ticket_rejected`, clears the responsible institution and creates no replacement proposal. The same `listTickets` / `getServiceTicket` / `updateServiceTicket` services in `server/institutions/tickets.ts` back the HTTP routes and the later MCP tools.
 
 ```http
 PATCH /api/institution/tickets/tkt_22c   { "status": "resolved", "expected_version": 3, "note": "Feeder repaired, supply restored." }

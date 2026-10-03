@@ -7,7 +7,7 @@ Smart City hackathon project: residents report city problems and follow the resp
 - [Voice and incident feature specification](specs/001-voice-incident-response/spec.md) and [ElevenLabs implementation plan](specs/001-voice-incident-response/plan.md)
 - [System architecture](docs/architecture.md) — includes the [libraries used](docs/architecture.md#libraries)
 - [Design system](docs/design-system.md)
-- [Frontend](apps/frontend) and its [agent rules](apps/frontend/AGENTS.md) — resident map at `/`, official workspace at `/operations` (sign in with the seeded `official` account; fictional demo data)
+- [Frontend](apps/frontend) and its [agent rules](apps/frontend/AGENTS.md) — resident map at `/`, official workspace at `/operations` and institution inbox at `/institution` (sign in with the seeded `official`, `electricity` or `water` account; fictional demo data)
 - [App tokens](apps/frontend/src/shared/styles/appica-theme.css)
 
 ## Running
@@ -52,6 +52,7 @@ The backend lives in `apps/frontend/src/server/` behind thin Next.js route handl
 | `POST /api/auth/logout` | Revoke the session and clear its cookie. |
 | `GET /api/operations/me` | Official-only identity endpoint. |
 | `GET /api/institution/me` | Institution-only identity and assigned demo institution. |
+| `GET /api/institution/tickets`, `GET`/`PATCH /api/institution/tickets/{id}` | The signed-in institution's tickets and their progress updates. |
 | `POST /api/report-drafts`, `GET`/`PATCH /api/report-drafts/{id}` | Resident-owned intake draft with revision checks. |
 | `POST /api/report-drafts/{id}/confirmation` | Confirm exactly the current draft revision. |
 | `POST /api/reports` with `{ draft_id, revision }` | Submit the confirmed draft once; a repeat returns the same report. |
