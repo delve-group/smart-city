@@ -41,6 +41,14 @@ const LAYER_ROLES: Record<string, keyof BaseMapColors> = {
   tunnel_motorway_casing: "roadMotorwayCasing",
 };
 
+/** Road centre-line layers a report can sit on (casings excluded). */
+export const ROAD_LAYER_IDS = Object.entries(LAYER_ROLES)
+  .filter(([, role]) => role === "roadMinor" || role === "roadMajor" || role === "roadMotorway")
+  .map(([id]) => id);
+
+/** Flat and 3D building layers, for finding the building a report is in. */
+export const BUILDING_LAYER_IDS = ["building", "building-3d"];
+
 function recolor(layer: LayerSpecification, color: string): LayerSpecification {
   switch (layer.type) {
     case "background":

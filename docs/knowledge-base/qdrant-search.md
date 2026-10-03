@@ -6,7 +6,7 @@ Updated: 2026-10-03. Status: provider decision accepted; integration, cloud prov
 
 Use **Qdrant** when implementing semantic search for agents, an MCP tool that searches tickets or incidents, related-ticket retrieval, or the shared ticket search backend for users. The user selected Qdrant for a PoC capped at **1,000 tickets**. Categories and tags may be missing; retrieval must work from ticket content alone.
 
-This note is the implementation reference for decision D025. Qdrant is the search index; the authoritative ticket store remains a separate backend decision. The current UI search and mock backend have not been migrated. Search must accept uncategorized records even though the current map/report flow requires API-defined categories; adapt the search boundary without silently dropping these records or changing the map contract.
+This note is the implementation reference for decision D029. Qdrant is the search index; the authoritative ticket store remains a separate backend decision. The current UI search and mock backend have not been migrated. Search must accept uncategorized records even though the current map/report flow requires API-defined categories; adapt the search boundary without silently dropping these records or changing the map contract.
 
 ## Implementation direction
 

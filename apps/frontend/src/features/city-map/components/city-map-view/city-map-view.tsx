@@ -178,7 +178,7 @@ export function CityMapView() {
         tilted={tilted}
       />
 
-      <div className="absolute top-3 right-3 left-3 z-20 flex max-w-110 items-start gap-2">
+      <div className="absolute top-3 right-3 left-3 z-20 flex max-w-140 items-start gap-2">
         <div className="min-w-0 flex-1">
           <MapSearch reports={reports} categoriesById={categoriesById} onPick={handlePick} />
         </div>
@@ -190,6 +190,7 @@ export function CityMapView() {
             onChange={(ids) => setShownCategoryIds(ids.length === categoryIds.length ? null : ids)}
           />
         )}
+        {mode.kind === "browse" && !selected && ready && <ReportFab onClick={startReport} />}
       </div>
 
       {state.status !== "ready" && (
@@ -227,9 +228,8 @@ export function CityMapView() {
       )}
 
       {mode.kind === "browse" && !selected && ready && (
-        <div className="absolute right-3 bottom-3 z-20 flex flex-col items-end gap-2">
+        <div className="absolute right-3 bottom-3 z-20">
           <MapSettings tilted={tilted} onTiltedChange={setTilted} />
-          <ReportFab onClick={startReport} />
         </div>
       )}
 

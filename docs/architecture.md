@@ -2,6 +2,8 @@
 
 Status: proof of concept, 2026-10-03. The domain and the backend wait for the main product scenario.
 
+The [voice and incident discovery draft](plans/2026-10-03-voice-incident-design.md) proposes the next domain and data-flow changes. This architecture describes the implemented baseline; the draft's incidents, actors, persistence and approvals are not implemented yet.
+
 ## Direction
 
 One frontend, modules by feature, and one backend only if the scenario really needs it. Frontend: Next.js (App Router, Turbopack, React Compiler), React 19, TypeScript (strict), Tailwind CSS v4 and Appica UI components. Package manager: npm; versions are pinned by `package-lock.json`. Appica components work in Server Components; move interactivity into small `"use client"` components.
@@ -70,7 +72,7 @@ Form state stays local. Search and filter parameters go into the URL when a view
 
 The API layer maps external data to a small app model, validates the boundary and returns a clear result or error. With server-side integration, the backend validates data again, enforces permissions and holds secrets. The frontend is not a security boundary. For the mock demo, replacing the mock route handlers in `src/app/api/` (and adjusting `src/api/` mappers) should be enough to connect the real API; do not build abstractions for providers that do not exist.
 
-Planned ticket/incident retrieval for agents, MCP tools and shared user search follows the [Qdrant search decision and implementation guide](knowledge-base/qdrant-search.md) (D025). Read it before implementing those paths. This integration is not yet part of the data flow above; the authoritative ticket store remains undecided.
+Planned ticket/incident retrieval for agents, MCP tools and shared user search follows the [Qdrant search decision and implementation guide](knowledge-base/qdrant-search.md) (D029). Read it before implementing those paths. This integration is not yet part of the data flow above; the authoritative ticket store remains undecided.
 
 ## Errors and states
 

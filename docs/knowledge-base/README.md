@@ -11,6 +11,7 @@ This base holds project context and decisions; it is not the app's database or a
 | Map sources, WMS/WFS, buildings, parcels and 3D | [Geospatial data and Geoportal](geospatial-data.md) |
 | Module boundaries, data flow, libraries and scaling | [Architecture](../architecture.md) |
 | Components, colours, typography and accessibility | [Design system](../design-system.md) |
+| Voice intake, reports vs incidents, actor tools and Spec Kit preparation | [Voice and incident discovery draft](../plans/2026-10-03-voice-incident-design.md) |
 | Agreed initial scope | [Foundation plan](../plans/2026-10-03-foundation-design.md) |
 | Coding and verification rules | [AGENTS.md](../../AGENTS.md), [frontend rules](../../apps/frontend/AGENTS.md) |
 
