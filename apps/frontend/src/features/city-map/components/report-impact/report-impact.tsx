@@ -3,9 +3,6 @@ import type { CityReport } from "@/api/reports/types";
 import { tCount, useI18n } from "@/shared/i18n/locale";
 import type { MessageKey } from "@/shared/i18n/messages";
 import { AffectedButton } from "../affected-button/affected-button";
-import { PanelSection } from "../panel-section/panel-section";
-
-const count = new Intl.NumberFormat("en-GB");
 
 type ReportImpactProps = {
   report: CityReport;
@@ -15,8 +12,9 @@ type ReportImpactProps = {
 
 export function ReportImpact({ report, affected, onConfirm }: ReportImpactProps) {
   const { t, locale } = useI18n();
+  const count = new Intl.NumberFormat(locale === "pl" ? "pl-PL" : "en-GB");
   return (
-    <PanelSection title={t("report.impact")}>
+    <section className="flex flex-col gap-3 pt-3 pb-5">
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1 rounded-md bg-background-muted p-3">
           <span className="text-sm font-semibold text-foreground-intense tabular-nums">
@@ -39,10 +37,16 @@ export function ReportImpact({ report, affected, onConfirm }: ReportImpactProps)
       </div>
       {report.affected && (
         <p className="text-sm text-foreground">
-          {t("report.affects", { who: report.affected })}
+          {t("report.affects", { who: affectedText(t, report.affected) })}
         </p>
       )}
       {report.status !== "resolved" && <AffectedButton key={report.id} affected={affected} onConfirm={onConfirm} />}
-    </PanelSection>
+    </section>
   );
+}
+
+function affectedText(t: ReturnType<typeof useI18n>["t"], affected: string): string {
+  if (affected === "about 1,200 households") return t("report.affectedHouseholds1200");
+  if (affected === "about 30 buildings without water") return t("report.affectedBuildings30");
+  return affected;
 }

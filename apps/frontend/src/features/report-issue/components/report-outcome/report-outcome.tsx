@@ -1,25 +1,21 @@
 import { Alert, AlertDescription, AlertTitle } from "@appica/ui-react/alert";
 import { Button } from "@appica/ui-react/button";
 import type { Report } from "@/api/intake/types";
-import { USE_MOCKS } from "@/api/mocks/use-mocks";
+import { useI18n } from "@/shared/i18n/locale";
+import type { MessageKey } from "@/shared/i18n/messages";
 
 export function ReportOutcome({ report, busy, onRefresh, onNew }: { report: Pick<Report, "reference" | "triage_state" | "resident_next_step">; busy: boolean; onRefresh: () => void; onNew: () => void }) {
+  const { t } = useI18n();
   return (
     <div className="flex flex-col gap-4">
-      <Alert variant="success"><AlertTitle>{USE_MOCKS ? "UI mock report saved" : "Report saved"}</AlertTitle><AlertDescription>Reference <strong>{report.reference}</strong>. {USE_MOCKS ? "Stored in this browser only." : "Your observation is recorded."}</AlertDescription></Alert>
-      <p className="text-sm">{STATUS[report.triage_state]}</p>
+      <Alert variant="success">
+        <AlertTitle>{t("report.saved")}</AlertTitle>
+        <AlertDescription>{t("report.savedReference", { reference: report.reference })}</AlertDescription>
+      </Alert>
+      <p className="text-sm">{t(`report.status.${report.triage_state}` as MessageKey)}</p>
       {report.resident_next_step && <p className="text-sm">{report.resident_next_step}</p>}
-      <p className="text-xs text-foreground-muted">Guest identity · unverified. This is a demo workflow. Your original observation stays private; public incidents appear after publication review.</p>
-      <Button variant="outline" disabled={busy} onClick={onRefresh}>Check report status</Button>
-      <Button disabled={busy} onClick={onNew}>Create another report</Button>
+      <Button variant="outline" disabled={busy} onClick={onRefresh}>{t("report.checkStatus")}</Button>
+      <Button disabled={busy} onClick={onNew}>{t("report.createAnother")}</Button>
     </div>
   );
 }
-
-const STATUS: Record<Report["triage_state"], string> = {
-  pending: "Assessment pending. Saving does not mean city review or external dispatch has completed.",
-  linked: "Your observation has been linked to an incident. Public updates appear after publication review.",
-  needs_review: "City review is needed to clarify the location, scope or related incident.",
-  private_issue: "This observation is private and needs scope review; it has no public map marker.",
-  out_of_scope: "This observation is outside the current city reporting scope. Follow the next step below.",
-};
