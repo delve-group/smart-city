@@ -17,15 +17,15 @@ Labels are routing tags, not GitHub assignees or application roles. GitHub Issue
 Pull current `main`, follow the root README for local startup, and use the [repo-local skill](../../.agents/skills/mradar-development/SKILL.md). Give the agent its workstream and Issue number. The skill links the relevant role guide and canonical specification; no other computer's chat history is needed.
 
 - **Franek:** [#21](https://github.com/delve-group/smart-city/issues/21), [#23](https://github.com/delve-group/smart-city/issues/23), [#25](https://github.com/delve-group/smart-city/issues/25), [#27](https://github.com/delve-group/smart-city/issues/27) and [#31](https://github.com/delve-group/smart-city/issues/31) are delivered. Remaining from this workstream: review the server side of Rafal's two cutovers and fix domain issues found in the rehearsal; see [#19](https://github.com/delve-group/smart-city/issues/19).
-- **User's machine / agent-3:** start [#22](https://github.com/delve-group/smart-city/issues/22) after the contracts; Scaleway preparation in [#24](https://github.com/delve-group/smart-city/issues/24) can proceed independently as described there.
-- **Rafal:** prepare the location/form UI in [#26](https://github.com/delve-group/smart-city/issues/26) and provider configuration in [#29](https://github.com/delve-group/smart-city/issues/29); complete integrations after their listed API prerequisites. No fixture-only completion claims.
+- **User's machine / agent-3:** [#22](https://github.com/delve-group/smart-city/issues/22) and [#24](https://github.com/delve-group/smart-city/issues/24) are delivered. Scoped search #32 and decision-maker/MCP #34 have integrated backend acceptance recorded in their module guides. Continue [#35](https://github.com/delve-group/smart-city/issues/35), integrating Rafal’s map, voice and search UI as they land.
+- **Rafal:** [#26](https://github.com/delve-group/smart-city/issues/26) is merged. Private provider setup for [#29](https://github.com/delve-group/smart-city/issues/29) is merged, with account settings read back; live browser voice remains incomplete. Finish #28 incident map, #33 public search and #29 shared-draft voice integration. No fixture-only completion claims.
 
 Example prompts:
 
 ```text
 Use $mradar-development for workstream 1 / Rafal. Implement the next unblocked Issue.
 Use $mradar-development for workstream 2 / Franek. Start with the shared-contract Issue.
-Use $mradar-development for workstream 3 / agent-3 on my machine. Start with the durable-worker Issue when its contract is available.
+Use $mradar-development for workstream 3 / agent-3 on my machine. Continue the integrated rehearsal in Issue #35 after its listed dependencies land.
 ```
 
 If skill discovery has not refreshed after pulling, explicitly ask the agent to read `.agents/skills/mradar-development/SKILL.md`; the root AGENTS.md also links it.
