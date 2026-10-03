@@ -51,6 +51,18 @@ Public HTTPS smoke passed **22 expected HTTP responses/assertions**: health, eig
 
 No microphone/WebRTC conversation, new-model speech-quality/latency comparison or new capacity rehearsal was performed. This rollout does not resolve #66 or complete #29/#35.
 
+## Report classification rollout — 2026-10-04
+
+At the user's explicit request, production was updated to merged [PR #75](https://github.com/delve-group/smart-city/pull/75), revision `7be11ec8c91aa976ce2d54ec99c011f880a1e340`, ready at **2026-10-03T23:29:18.018Z**. The native x64 app and worker are healthy. Image IDs are `sha256:7f60924b105cae2bc6d24628951e4520ae28fe7511a76285c1e9e4539b98f4e6` (app) and `sha256:97ee1598d0fdc3f1755c1335b612cdb540e12771a7d4840ef7816092c8189e65` (worker). This release includes catalog classification, configured institution routing, Polish demo services and the merged v4/v5 voice ending/location changes.
+
+Migration `009_operations_wording.sql` and `010_demo_issue_responsibility.sql` applied; the ledger now contains all ten migrations. No local database or local reports were imported. Idempotent seed preserved existing staff accounts/passwords and added the repository's labelled fictional examples. Migration 010 requeued three existing server reports previously stopped by the exact power-only review message. The configured real Scaleway `qwen3.6-35b-a3b` classifier processed them: `R-26-001024` became `water / burst_pipe`, linked to an incident assigned to `demo-water` through `demo-rule-water-pipe`; `R-26-001025` and `R-26-001031` remained `needs_review` with model outcome `review`. These are demo responsibility rules, not verified real infrastructure ownership. No report was submitted during deployment verification.
+
+The existing private ElevenLabs agent and server-only credential were preserved. Guarded setup updated/read back the immutable **v5** dispatcher pin, retaining GPT-6.1 Sol, five reviewed client tools and the system `end_call`. The provider checker passed. Public HTTPS issued one real voice credential for an owned empty draft, then explicit end returned that same unsubmitted draft. No microphone/WebRTC conversation was started.
+
+HTTPS verification passed health, categories, all three staff logins and their protected workspaces, the public incident list and role isolation. Other-role workspace reads returned 401 because each workspace selects its own role cookie. A hybrid Polish search returned `ready` with five incidents. Reconciliation queued 86 sources and completed; worker health subsequently showed 555 completed items, two pre-existing historical failures and no pending work. The read-only HTTP pass checked 15 expected responses; credential issuance/end were checked separately.
+
+The pre-migration backup `2026-10-03T23-26-25.322Z-7be11ec8c91a.dump` is **196,485 bytes**. It and its release JSON were copied off the VM through SCP, mode 0600. A scratch restore succeeded with the eight preceding migrations, 71 actors and 97 sessions; the disposable database was dropped without attaching an app or worker. The previous `f61c63e` app/worker images were preserved under the rollback tags recorded in that release JSON. Recovery to those writers and the pre-migration schema must also restore the older voice pin from `/var/backups/mradar/env-before-report-classification-2026-10-04.env`. Both that environment and the current environment have private off-VM recovery copies. A full application restore, microphone acceptance and representative browser/voice capacity remain unverified.
+
 ## Verification status
 
 - Confirmed VM image, architecture, 40 GB/5K storage and the dedicated firewall rules through Scaleway APIs.
