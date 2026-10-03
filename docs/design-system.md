@@ -2,6 +2,12 @@
 
 One neutral theme in light and dark mode, on shared [Appica UI](https://appica.dev/ui) components (React, Base UI, Tailwind CSS v4). The source of truth is [appica-theme.css](../apps/frontend/src/shared/styles/appica-theme.css). The old Civic/Signal HTML preview in `design-system/` is obsolete (D020).
 
+## Brand
+
+The product name is **mRadar**. Its mark uses one open radar sweep, one direction line and one rose incident dot. The radar metaphor means awareness of reported city issues and related clusters, not surveillance or emergency response. The map lockup uses live theme foreground colours with `--heat-mid` for the dot; static brand and install assets use near-black `#171717`, warm white `#FAFAFA` and rose `#B4234A`.
+
+Source assets: `apps/frontend/public/brand/`. Browser and install icons use Next.js metadata files in `apps/frontend/src/app/`.
+
 ## Character
 
 Polished and professional: hue-free greys carry the interface, so the map and the report colours do the talking. Small radii (6 px base), thin borders, light shadows (`shadow-xs` on map controls, `shadow-md` at most on floating panels). No blue accent; the primary action is near-black in light mode and near-white in dark mode. Colour appears only where it means something: report categories, status and the heatmap.

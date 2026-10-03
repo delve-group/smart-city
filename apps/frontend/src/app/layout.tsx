@@ -8,8 +8,9 @@ const geist = Geist({ subsets: ["latin", "latin-ext"], variable: "--font-geist" 
 const geistMono = Geist_Mono({ subsets: ["latin", "latin-ext"], variable: "--font-geist-mono" });
 
 export const metadata: Metadata = {
-  title: "Smart City",
-  description: "Smart City hackathon project",
+  applicationName: "mRadar",
+  title: "mRadar — city reports",
+  description: "Report city problems and follow the response.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -5,6 +5,7 @@ Updated: 2026-10-03.
 ## Confirmed
 
 - Project: Smart City, built under hackathon conditions. Current phase: proof of concept.
+- Product name: **mRadar**. Its radar-sweep mark represents detecting and grouping reported city issues; it does not represent surveillance or emergency dispatch.
 - Delivery speed matters a lot. Code should stay modular and easy to maintain and scale.
 - Deployment constraint (2026-10-03, D034): use **Scaleway**, where the team already has billing set up. Prioritize a working demo, simple deployment and simple local development. Expect a peak around **15 concurrent application users**, with **30** as the upper planning bound; capacity has not been measured. Simultaneous voice demand and provider capacity remain to be confirmed. Large-scale infrastructure is outside this PoC.
 - UI base: Appica UI (`@appica/ui-react`). One neutral, professional theme in light and dark mode (2026-10-03, replaced the earlier Civic and Signal themes).
