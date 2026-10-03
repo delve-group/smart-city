@@ -23,6 +23,7 @@ import { DataStatus } from "../data-status/data-status";
 import { MapSearch, type SearchOption } from "../map-search/map-search";
 import { ReportPanel } from "../report-panel/report-panel";
 import { ReportTooltip } from "../report-tooltip/report-tooltip";
+import { TiltToggle } from "../tilt-toggle/tilt-toggle";
 
 // MapLibre needs the browser (WebGL, window), so the map is client-only.
 const CityMapCanvas = dynamic(() => import("../city-map-canvas/city-map-canvas"), { ssr: false });
@@ -58,6 +59,7 @@ export function CityMapView() {
   const pinAddress = useReverseGeocode(mode.kind === "picking" ? center : null);
   /** Category ids to show; null means all (also covers categories the API adds later). */
   const [shownCategoryIds, setShownCategoryIds] = useState<string[] | null>(null);
+  const [tilted, setTilted] = useState(false);
 
   const ready = state.status === "ready" ? state : undefined;
   const categories = ready?.categories ?? NO_CATEGORIES;
@@ -174,6 +176,7 @@ export function CityMapView() {
         onSelect={selectFromMap}
         onCenterChange={setCenter}
         attribution={ready?.result.source === "demo" ? DEMO_NOTICE : undefined}
+        tilted={tilted}
       />
 
       <div className="absolute top-3 right-3 left-3 z-20 flex max-w-110 items-start gap-2">
@@ -226,7 +229,8 @@ export function CityMapView() {
       )}
 
       {mode.kind === "browse" && !selected && ready && (
-        <div className="absolute right-3 bottom-20 z-20 md:right-6 md:bottom-8">
+        <div className="absolute right-3 bottom-20 z-20 flex flex-col items-end gap-2 md:right-6 md:bottom-8">
+          <TiltToggle tilted={tilted} onChange={setTilted} />
           <ReportFab onClick={startReport} />
         </div>
       )}

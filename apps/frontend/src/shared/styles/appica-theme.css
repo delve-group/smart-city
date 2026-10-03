@@ -104,10 +104,23 @@
   --category-greenery: #2F7A3F;
   --category-air: #7D5A4F;
 
-  /* Heatmap ramp, from a few reports to a dense cluster. */
-  --heat-low: #F5B83D;
-  --heat-mid: #EA6A1F;
-  --heat-high: #C0262D;
+  /* Base map in the app's greys; main roads carry a faint warm accent, motorways a little more. */
+  --map-land: #EEEEEE;
+  --map-residential: #EBEBEB;
+  --map-park: #E3E3E3;
+  --map-building: #E0E0E0;
+  --map-water: #D4D4D4;
+  --map-road-minor: #FFFFFF;
+  --map-road-major: #FBF6EC;
+  --map-road-major-casing: #DCCDB0;
+  --map-road-motorway: #F6EAD2;
+  --map-road-motorway-casing: #C9B188;
+  --map-building-3d: #E2E2E2;
+
+  /* Heatmap: one rose hue, from a faint wash to a deep core. */
+  --heat-low: rgba(244, 114, 142, 0.35);
+  --heat-mid: rgba(225, 29, 72, 0.7);
+  --heat-high: #9F1239;
 
   --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -210,9 +223,21 @@
   --category-greenery: #6FCF86;
   --category-air: #C9A497;
 
-  --heat-low: #F5B83D;
-  --heat-mid: #F07A35;
-  --heat-high: #E5484D;
+  --map-land: #141414;
+  --map-residential: #161616;
+  --map-park: #1A1A1A;
+  --map-building: #1D1D1D;
+  --map-water: #0B0B0B;
+  --map-road-minor: #242424;
+  --map-road-major: #34302A;
+  --map-road-major-casing: #403A31;
+  --map-road-motorway: #463E31;
+  --map-road-motorway-casing: #574C3A;
+  --map-building-3d: #262626;
+
+  --heat-low: rgba(251, 113, 133, 0.3);
+  --heat-mid: rgba(244, 63, 94, 0.7);
+  --heat-high: #FDA4AF;
 
   --shadow-color: rgb(0 0 0 / 35%);
   --selection-color: rgb(255 255 255 / 16%);
