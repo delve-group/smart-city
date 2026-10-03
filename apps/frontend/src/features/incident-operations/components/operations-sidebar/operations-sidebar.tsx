@@ -4,6 +4,7 @@ import { Input } from "@appica/ui-react/input";
 import { ScrollArea } from "@appica/ui-react/scroll-area";
 import { Tabs, TabsList, TabsTrigger } from "@appica/ui-react/tabs";
 import type { Category } from "@/api/categories/types";
+import { CategoryFilter } from "@/features/category-filter/components/category-filter/category-filter";
 import { AppBrand } from "@/shared/components/app-brand/app-brand";
 import { useI18n } from "@/shared/i18n/locale";
 import type { MessageKey } from "@/shared/i18n/messages";
@@ -23,6 +24,13 @@ type OperationsSidebarProps = {
   onTabChange: (tab: QueueTab) => void;
   query: string;
   onQueryChange: (query: string) => void;
+  categories: readonly Category[];
+  /** Queue rows per category id, before filtering. */
+  categoryCounts: ReadonlyMap<string, number>;
+  shownCategoryIds: readonly string[];
+  /** Some categories are hidden. */
+  filtered: boolean;
+  onShownCategoriesChange: (ids: string[]) => void;
   selectedKey: string | null;
   onSelect: (item: QueueItemData) => void;
   categoriesById: ReadonlyMap<string, Category>;
@@ -43,6 +51,11 @@ export function OperationsSidebar({
   onTabChange,
   query,
   onQueryChange,
+  categories,
+  categoryCounts,
+  shownCategoryIds,
+  filtered,
+  onShownCategoriesChange,
   selectedKey,
   onSelect,
   categoriesById,
@@ -69,17 +82,29 @@ export function OperationsSidebar({
             {onSignOut && <Button variant="ghost" size="sm" onClick={onSignOut}>{t("common.signOut")}</Button>}
           </div>
         </div>
-        <Input
-          type="search"
-          value={query}
-          onChange={(event) => onQueryChange(event.target.value)}
-          clearable
-          onClear={() => onQueryChange("")}
-          placeholder={t("queue.searchPlaceholder")}
-          aria-label={t("queue.searchLabel")}
-          className="border-border-strong/50 bg-background shadow-xs"
-          startSlot={<Search size={18} aria-hidden className="text-foreground-muted" />}
-        />
+        <div className="flex items-start gap-2">
+          <Input
+            type="search"
+            inputSize="lg"
+            value={query}
+            onChange={(event) => onQueryChange(event.target.value)}
+            clearable
+            onClear={() => onQueryChange("")}
+            placeholder={t("queue.searchPlaceholder")}
+            aria-label={t("queue.searchLabel")}
+            className="min-w-0 flex-1 border-border-strong/50 [&_input::-webkit-search-cancel-button]:appearance-none bg-background shadow-xs"
+            startSlot={<Search size={18} aria-hidden className="text-foreground-muted" />}
+          />
+          {categories.length > 0 && (
+            <CategoryFilter
+              categories={categories}
+              counts={categoryCounts}
+              selected={shownCategoryIds}
+              onChange={onShownCategoriesChange}
+              hint={t("filter.hintList")}
+            />
+          )}
+        </div>
         <Tabs value={tab} onValueChange={(next) => onTabChange(next as QueueTab)} variant="line" size="sm">
           <TabsList className="grid w-full grid-cols-3 gap-0">
             {QUEUE_TABS.map((value) => (
@@ -110,7 +135,13 @@ export function OperationsSidebar({
           </ul>
         ) : (
           <p className="px-5 py-8 text-sm text-pretty text-foreground-muted">
-            {query ? t("queue.noMatch", { tab: tabLabel(tab), query }) : t(EMPTY[tab])}
+            {query.trim() && filtered
+              ? t("filter.noMatchQuery", { query: query.trim() })
+              : query.trim()
+                ? t("queue.noMatch", { tab: tabLabel(tab), query: query.trim() })
+                : filtered
+                  ? t("filter.noMatch")
+                  : t(EMPTY[tab])}
           </p>
         )}
       </ScrollArea>

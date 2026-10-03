@@ -1,4 +1,5 @@
 import type { Incident, OperationsReport, Review, Workspace } from "@/api/operations/types";
+import { matchesQuery } from "@/shared/utils/normalize-text";
 
 export const QUEUE_TABS = ["review", "active", "done"] as const;
 export type QueueTab = (typeof QUEUE_TABS)[number];
@@ -24,9 +25,20 @@ function tabOf(item: QueueItem): QueueTab {
   return item.incident.responseStatus === "resolved" || item.incident.responseStatus === "closed" ? "done" : "active";
 }
 
-function matches(item: QueueItem, query: string, workspace: Workspace): boolean {
-  if (!query) return true;
-  const text =
+/** Search text plus the category checklist; null category ids means every category. */
+export type QueueFilter = {
+  query: string;
+  categoryIds: ReadonlySet<string> | null;
+  categoryLabel: (categoryId: string) => string | undefined;
+};
+
+export const NO_FILTER: QueueFilter = { query: "", categoryIds: null, categoryLabel: () => undefined };
+
+export const categoryOf = (item: QueueItem) => (item.kind === "incident" ? item.incident.categoryId : item.report.categoryId);
+
+function matches(item: QueueItem, filter: QueueFilter, workspace: Workspace): boolean {
+  if (filter.categoryIds && !filter.categoryIds.has(categoryOf(item))) return false;
+  const fields =
     item.kind === "incident"
       ? [
           item.incident.reference,
@@ -37,12 +49,11 @@ function matches(item: QueueItem, query: string, workspace: Workspace): boolean 
           ...workspace.reports.filter((report) => report.incidentId === item.incident.id).flatMap((report) => [report.reference, report.summary]),
         ]
       : [item.report.reference, item.report.summary, item.report.address];
-  return text.filter(Boolean).join(" ").toLocaleLowerCase("pl").includes(query);
+  return matchesQuery([...fields, filter.categoryLabel(categoryOf(item))], filter.query);
 }
 
-/** Queue rows per tab. Review: urgent first, then whoever has waited longest. Others: latest change first. */
-export function buildQueue(workspace: Workspace, rawQuery: string): Record<QueueTab, QueueItem[]> {
-  const query = rawQuery.trim().toLocaleLowerCase("pl");
+/** Queue rows per tab that pass the filter. Review: urgent first, then whoever has waited longest. Others: latest change first. */
+export function buildQueue(workspace: Workspace, filter: QueueFilter = NO_FILTER): Record<QueueTab, QueueItem[]> {
   const items: QueueItem[] = [
     ...workspace.incidents.map((incident) => ({
       kind: "incident" as const,
@@ -65,7 +76,7 @@ export function buildQueue(workspace: Workspace, rawQuery: string): Record<Queue
   ];
 
   const tabs: Record<QueueTab, QueueItem[]> = { review: [], active: [], done: [] };
-  for (const item of items) if (matches(item, query, workspace)) tabs[tabOf(item)].push(item);
+  for (const item of items) if (matches(item, filter, workspace)) tabs[tabOf(item)].push(item);
 
   tabs.review.sort((a, b) => Number(b.urgent) - Number(a.urgent) || a.sortAt.localeCompare(b.sortAt));
   tabs.active.sort((a, b) => b.sortAt.localeCompare(a.sortAt));

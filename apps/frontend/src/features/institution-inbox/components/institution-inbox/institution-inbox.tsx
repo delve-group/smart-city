@@ -1,8 +1,9 @@
 "use client";
 
-import { ArrowLeft, Map as MapIcon } from "@appica/icons-react";
+import { ArrowLeft, Map as MapIcon, Search } from "@appica/icons-react";
 import { Alert, AlertDescription, AlertTitle } from "@appica/ui-react/alert";
 import { Button } from "@appica/ui-react/button";
+import { Input } from "@appica/ui-react/input";
 import { useMediaQuery } from "@appica/ui-react/hooks/use-media-query";
 import { ScrollArea } from "@appica/ui-react/scroll-area";
 import { Spinner } from "@appica/ui-react/spinner";
@@ -12,14 +13,15 @@ import { useEffect, useRef, useState } from "react";
 import { InstitutionApiError, type InstitutionTicket, type TicketUpdate } from "@/api/institution/types";
 import { updateTicket } from "@/api/institution/update-ticket";
 import type { MapFocus, MapPoint } from "@/features/city-map/components/city-map-canvas/map-types";
+import { CategoryFilter } from "@/features/category-filter/components/category-filter/category-filter";
 import { MapSettings } from "@/features/city-map/components/map-settings/map-settings";
 import { AppBrand } from "@/shared/components/app-brand/app-brand";
 import { FreshnessStatus } from "@/shared/components/freshness-status/freshness-status";
 import { useNow } from "@/shared/hooks/use-now";
-import { useI18n } from "@/shared/i18n/locale";
+import { categoryText, useI18n } from "@/shared/i18n/locale";
 import type { MessageKey } from "@/shared/i18n/messages";
 import { useInstitutionData } from "../../hooks/use-institution-data";
-import { isOpen, sortTickets } from "../../utils/labels";
+import { filterTickets, isOpen, sortTickets } from "../../utils/labels";
 import { TicketDetail } from "../ticket-detail/ticket-detail";
 import { TicketRow } from "../ticket-row/ticket-row";
 
@@ -55,16 +57,27 @@ export function InstitutionInbox({ onSessionLost, onSignOut }: InstitutionInboxP
   const [focus, setFocus] = useState<MapFocus | null>(null);
   const [hoverId, setHoverId] = useState<string | null>(null);
   const [tilted, setTilted] = useState(false);
+  const [query, setQuery] = useState("");
+  /** Category ids to show; null means all (also covers categories the API adds later). */
+  const [shownCategoryIds, setShownCategoryIds] = useState<string[] | null>(null);
   /** Unsaved notes per ticket: polling and failed saves leave them alone. */
   const [notes, setNotes] = useState<Record<string, string>>({});
 
   const tickets = state.status === "ready" ? state.tickets : [];
-  const { open, finished } = sortTickets(tickets);
-  const selected = tickets.find((ticket) => ticket.id === selectedId) ?? null;
   const categories = state.status === "ready" ? state.categories : [];
   const categoriesById = new Map(categories.map((category) => [category.id, category]));
-  // Open tickets stand out; finished ones stay on the map, smaller.
-  const points: MapPoint[] = tickets.map((ticket) => ({
+  const categoryIds = categories.map((category) => category.id);
+  const counts = new Map(categoryIds.map((id) => [id, tickets.filter((ticket) => ticket.incident.categoryId === id).length]));
+  const shown = filterTickets(tickets, query, shownCategoryIds ? new Set(shownCategoryIds) : null, (id) => {
+    const category = categoriesById.get(id);
+    return category ? categoryText(t, category).label : undefined;
+  });
+  const { open, finished } = sortTickets(shown);
+  const selected = tickets.find((ticket) => ticket.id === selectedId) ?? null;
+  const trimmedQuery = query.trim();
+  // The map shows what the list shows; the open ticket always stays. Open tickets stand out, finished ones are smaller.
+  const mapped = selected && !shown.includes(selected) ? [...shown, selected] : shown;
+  const points: MapPoint[] = mapped.map((ticket) => ({
     id: ticket.id,
     categoryId: ticket.incident.categoryId,
     location: ticket.incident.location,
@@ -118,24 +131,33 @@ export function InstitutionInbox({ onSessionLost, onSignOut }: InstitutionInboxP
     }
   }
 
-  const list = (title: string, items: InstitutionTicket[], empty: string) => (
-    <section aria-label={title} className="flex flex-col gap-1">
-      <h2 className="px-3 pt-3 text-xs font-medium text-foreground-muted">
-        {title} <span className="tabular-nums">{items.length}</span>
-      </h2>
-      {items.length > 0 ? (
-        <ul className="flex flex-col">
-          {items.map((ticket) => (
-            <li key={ticket.id}>
-              <TicketRow ticket={ticket} selected={ticket.id === selectedId} now={now} onSelect={() => select(ticket)} />
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="px-3 py-2 text-sm text-pretty text-foreground-muted">{empty}</p>
-      )}
-    </section>
-  );
+  const list = (title: string, items: InstitutionTicket[], emptyText: string) => {
+    const empty = trimmedQuery && shownCategoryIds
+      ? t("filter.noMatchQuery", { query: trimmedQuery })
+      : trimmedQuery
+        ? t("inbox.noMatch", { section: title, query: trimmedQuery })
+        : shownCategoryIds
+          ? t("filter.noMatch")
+          : emptyText;
+    return (
+      <section aria-label={title} className="flex flex-col gap-1">
+        <h2 className="px-3 pt-3 text-xs font-medium text-foreground-muted">
+          {title} <span className="tabular-nums">{items.length}</span>
+        </h2>
+        {items.length > 0 ? (
+          <ul className="flex flex-col">
+            {items.map((ticket) => (
+              <li key={ticket.id}>
+                <TicketRow ticket={ticket} selected={ticket.id === selectedId} now={now} onSelect={() => select(ticket)} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="px-3 py-2 text-sm text-pretty text-foreground-muted">{empty}</p>
+        )}
+      </section>
+    );
+  };
 
   return (
     <div className="flex h-dvh w-full overflow-hidden">
@@ -155,7 +177,32 @@ export function InstitutionInbox({ onSessionLost, onSignOut }: InstitutionInboxP
             </div>
           </div>
           {state.status === "ready" && (
-            <p className="text-sm text-foreground">{state.profile.name}</p>
+            <>
+              <p className="text-sm text-foreground">{state.profile.name}</p>
+              <div className="flex items-start gap-2">
+                <Input
+                  type="search"
+                  inputSize="lg"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  clearable
+                  onClear={() => setQuery("")}
+                  placeholder={t("inbox.searchPlaceholder")}
+                  aria-label={t("inbox.searchLabel")}
+                  className="min-w-0 flex-1 border-border-strong/50 [&_input::-webkit-search-cancel-button]:appearance-none bg-background shadow-xs"
+                  startSlot={<Search size={18} aria-hidden className="text-foreground-muted" />}
+                />
+                {categories.length > 0 && (
+                  <CategoryFilter
+                    categories={categories}
+                    counts={counts}
+                    selected={shownCategoryIds ?? categoryIds}
+                    onChange={(ids) => setShownCategoryIds(ids.length === categoryIds.length ? null : ids)}
+                    hint={t("filter.hintList")}
+                  />
+                )}
+              </div>
+            </>
           )}
         </header>
         <ScrollArea className="min-h-0 flex-1">
@@ -194,7 +241,7 @@ export function InstitutionInbox({ onSessionLost, onSignOut }: InstitutionInboxP
       <div ref={mapAreaRef} className={`${mobileView === "map" ? "block" : "hidden"} relative min-w-0 flex-1 overflow-hidden md:block`}>
         <CityMapCanvas
           points={points}
-          categoryIds={categories.map((category) => category.id)}
+          categoryIds={categoryIds}
           selectedIds={selected ? [selected.id] : []}
           hoveredId={hoverId}
           focus={focus}
