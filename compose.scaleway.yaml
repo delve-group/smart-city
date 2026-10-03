@@ -15,6 +15,11 @@ services:
     labels:
       org.opencontainers.image.revision: ${MRADAR_REVISION}
     logging: *log-rotation
+  worker:
+    image: mradar-worker:${MRADAR_REVISION:?Use npm run deploy}
+    labels:
+      org.opencontainers.image.revision: ${MRADAR_REVISION}
+    logging: *log-rotation
   caddy:
     image: caddy:2.11.6-alpine
     environment:

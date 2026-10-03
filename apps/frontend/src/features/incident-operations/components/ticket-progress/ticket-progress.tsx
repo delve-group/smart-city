@@ -1,7 +1,8 @@
-import { Check, X } from "@appica/icons-react";
+import { Check, Ticket as TicketIcon, X } from "@appica/icons-react";
 import type { Ticket } from "@/api/operations/types";
 import { formatAgo, formatDateTime } from "@/shared/utils/format-time";
 import { TICKET, TICKET_STEPS } from "../../utils/labels";
+import { Fact } from "../fact/fact";
 
 type TicketProgressProps = { ticket: Ticket; institutionName: string; now: number };
 
@@ -18,7 +19,11 @@ export function TicketProgress({ ticket, institutionName, now }: TicketProgressP
         <h3 id="ticket-title" className="text-sm font-semibold text-foreground-intense">
           {institutionName}
         </h3>
-        <span className="font-mono text-xs text-foreground-muted">{ticket.reference}</span>
+        <span className="font-mono text-xs text-foreground-muted">
+          <Fact icon={TicketIcon} label="Ticket">
+            {ticket.reference}
+          </Fact>
+        </span>
       </div>
       <ol className="flex flex-col">
         {steps.map((step, index) => {
