@@ -1,0 +1,11 @@
+{
+  "id": "replace-with-unique-deck-id",
+  "title": "A clear story",
+  "lang": "en",
+  "notes": {
+    "opening": {"seconds": 40, "text": "State the promise. Introduce yourself in one sentence.\n\nThese are rehearsal notes, not slide copy."},
+    "evidence": {"seconds": 50, "text": "Explain the concrete change and the evidence behind it.\n\nUse confirmed facts; distinguish observations from assumptions."},
+    "closing": {"seconds": 30, "text": "Make a specific request and stop. Leave this slide on screen for questions."},
+    "backup": {"seconds": 0, "text": "Use only when asked. The main talk does not advance into the appendix."}
+  }
+}
