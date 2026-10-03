@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@appica/ui-react/toolti
 import { useState } from "react";
 import type { Category } from "@/api/categories/types";
 import type { IntakeDraft } from "@/api/intake/types";
+import type { LocationPreview } from "@/api/locations/types";
 import { useI18n } from "@/shared/i18n/locale";
 import type { VoiceDraftController } from "../../types";
 import { useBrowserVoice } from "../../hooks/use-browser-voice";
@@ -14,7 +15,7 @@ import { useBrowserVoice } from "../../hooks/use-browser-voice";
 type Props = {
   intake: VoiceDraftController;
   categories: readonly Category[];
-  onLocate?: (location: { lat: number; lng: number }) => void;
+  onLocate?: (location: LocationPreview | null) => void;
   onClose: () => void;
   onFallback: (draft: IntakeDraft | null) => void;
 };

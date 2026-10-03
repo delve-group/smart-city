@@ -8,6 +8,7 @@ import type { VoiceSession } from "@/api/voice/types";
 import { getIssueTypes } from "@/api/intake/get-issue-types";
 import { IntakeError } from "@/api/intake/request-intake";
 import type { Category } from "@/api/categories/types";
+import type { LocationPreview } from "@/api/locations/types";
 import type { VoiceDraftController } from "../types";
 import { runDispatcherTool } from "../utils/run-dispatcher-tool";
 
@@ -16,13 +17,13 @@ type Phase = "idle" | "starting" | "connected" | "stopping" | "ended";
 export type VoiceMessage = { role: "user" | "agent"; text: string };
 
 /** Owns connection, transient transcript and cleanup; structured writes stay in shared intake. */
-export function useBrowserVoice(intake: VoiceDraftController, categories: readonly Category[], onLocate?: (location: { lat: number; lng: number }) => void) {
+export function useBrowserVoice(intake: VoiceDraftController, categories: readonly Category[], onLocate?: (location: LocationPreview | null) => void) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [errorCode, setErrorCode] = useState<string | null>(null);
   const [messages, setMessages] = useState<VoiceMessage[]>([]);
   const owner = useRef(intake);
   const locationPreview = useRef(onLocate);
-  const lastPreview = useRef<{ lat: number; lng: number } | null>(null);
+  const lastPreview = useRef<LocationPreview | null>(null);
   useEffect(() => { locationPreview.current = onLocate; }, [onLocate]);
   const lease = useRef<VoiceSession | null>(null);
   const providerConversation = useRef<Conversation | null>(null);
@@ -43,9 +44,13 @@ export function useBrowserVoice(intake: VoiceDraftController, categories: readon
       if (!active || stopRequested.current) return Promise.resolve(JSON.stringify({ error: "voice_session_ended", message: "Use the form to recover the same report." }));
       const pending = runDispatcherTool(active.id, active.draft_id, name, parameters, (draft, report) => owner.current.receiveVoiceDraft(draft, report), (location) => {
         if (stopRequested.current || lease.current?.id !== active.id) return;
-        if (lastPreview.current?.lat === location.lat && lastPreview.current.lng === location.lng) return;
-        lastPreview.current = location;
-        locationPreview.current?.(location);
+        const previous = lastPreview.current;
+        // Draft preparation carries no display geometry; retain the actual lookup extent for the same place.
+        const preview = location && !("bounds" in location) && previous?.lat === location.lat && previous.lng === location.lng
+          && previous.label === location.label ? { ...location, bounds: previous.bounds } : location;
+        if (JSON.stringify(previous) === JSON.stringify(preview)) return;
+        lastPreview.current = preview;
+        locationPreview.current?.(preview);
       });
       pendingTools.current.add(pending);
       void pending.finally(() => pendingTools.current.delete(pending));
@@ -132,6 +137,7 @@ export function useBrowserVoice(intake: VoiceDraftController, categories: readon
     const generation = ++startGeneration.current;
     stopRequested.current = false;
     lastPreview.current = null;
+    locationPreview.current?.(null);
     setPhase("starting"); setErrorCode(null); setMessages([]);
     const abort = new AbortController();
     startAbort.current = abort;

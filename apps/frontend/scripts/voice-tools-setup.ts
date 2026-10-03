@@ -36,8 +36,13 @@ async function main() {
     const reviewedModel = process.argv.includes("--update-model")
       && agent.name === DISPATCHER_PROMPT_VERSION && previous.prompt.prompt === DISPATCHER_PROMPT
       && previous.language === DISPATCHER_LANGUAGE && previous.first_message === DISPATCHER_FIRST_MESSAGE;
-    if (agent.version_id !== config.versionId || previous.prompt.llm !== "gpt-4.1-mini"
-      || !(reviewedEnglish || reviewedPolish || reviewedModel)) throw failure;
+    const reviewedVenue = process.argv.includes("--update-prompt")
+      && agent.name === "mradar-dispatcher-v3" && previous.language === DISPATCHER_LANGUAGE
+      && previous.first_message === DISPATCHER_FIRST_MESSAGE
+      && hash === "cb691a6aabdb480a31d89fa799dc3a31c2854a8842b206b537f26f25f57e3513"
+      && ["gpt-4.1-mini", DISPATCHER_MODEL].includes(previous.prompt.llm);
+    if (agent.version_id !== config.versionId
+      || !(reviewedVenue || previous.prompt.llm === "gpt-4.1-mini" && (reviewedEnglish || reviewedPolish || reviewedModel))) throw failure;
     verifyPreparedDispatcher({ ...agent, name: DISPATCHER_PROMPT_VERSION,
       conversation_config: { ...agent.conversation_config, agent: { ...previous,
         language: DISPATCHER_LANGUAGE, first_message: DISPATCHER_FIRST_MESSAGE,
