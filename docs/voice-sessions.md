@@ -2,6 +2,8 @@
 
 Local implementation for #29 includes the browser SDK panel and all five client-tool adapters. Full spoken-conversation acceptance remains unfinished. The configured v3 dispatcher understands and responds in Polish; technical instructions and stored operator summaries remain English (D064/D065). Root Compose forwards the three optional server-only `ELEVENLABS_*` settings to the web application. After dependency or environment changes, rebuild/recreate the development app and apply migrations using the root startup commands. Migration `008_voice_sessions.sql` holds resident/draft reservations, provider conversation identity and the last actual location candidates. It stores no credential, audio or transcript.
 
+As of 2026-10-04, local sessions use a newly verified immutable `gpt-6.1-sol` version of the same Polish v3 dispatcher (D067). Existing spoken acceptance below was performed with `gpt-4.1-mini`; no new-model microphone conversation or production application update is claimed. See [model upgrade](voice-dispatcher.md#model-upgrade--2026-10-04).
+
 All routes require the existing resident session and exact `APP_ORIGIN`; all responses use the common no-store envelope. Obtain/recover a guest and an owned draft through the existing intake API first. Staff sessions cannot obtain resident voice authority.
 
 | Route | Request | Result |

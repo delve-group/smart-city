@@ -5,7 +5,7 @@ import { z } from "zod";
 import { ConfigurationError } from "../src/server/config";
 import { getVoiceConfig } from "../src/server/voice/config";
 import { dispatcherAgentSchema, verifyPreparedDispatcher } from "../src/server/voice/dispatcher-agent";
-import { dispatcherConfiguration, DISPATCHER_FIRST_MESSAGE, DISPATCHER_LANGUAGE, DISPATCHER_PROMPT, DISPATCHER_PROMPT_VERSION } from "../src/server/voice/dispatcher-config";
+import { dispatcherConfiguration, DISPATCHER_FIRST_MESSAGE, DISPATCHER_LANGUAGE, DISPATCHER_MODEL, DISPATCHER_PROMPT, DISPATCHER_PROMPT_VERSION } from "../src/server/voice/dispatcher-config";
 import { DISPATCHER_TOOLS, providerToolSchema, verifyDispatcherTool, verifyDispatcherTools } from "../src/server/voice/dispatcher-tools";
 import { requestProvider, VoiceProviderError } from "../src/server/voice/provider";
 
@@ -19,6 +19,7 @@ async function main() {
   const agent = await requestProvider(path, config.apiKey, dispatcherAgentSchema);
   const currentIds = agent.conversation_config.agent.prompt.tool_ids;
   let configurationUpgrade = false;
+  let modelUpgrade = false;
   try { verifyPreparedDispatcher(agent, currentIds); }
   catch (failure) {
     // Explicitly upgrade only a pinned, exact reviewed predecessor, never an unrelated agent.
@@ -32,12 +33,17 @@ async function main() {
       && agent.name === "mradar-dispatcher-v2" && previous.language === DISPATCHER_LANGUAGE
       && previous.first_message === DISPATCHER_FIRST_MESSAGE
       && hash === "e6aee0a91884d93ab177360f887dc33b0d9ea690b292382196fb509568862454";
-    if (agent.version_id !== config.versionId || !(reviewedEnglish || reviewedPolish)) throw failure;
+    const reviewedModel = process.argv.includes("--update-model")
+      && agent.name === DISPATCHER_PROMPT_VERSION && previous.prompt.prompt === DISPATCHER_PROMPT
+      && previous.language === DISPATCHER_LANGUAGE && previous.first_message === DISPATCHER_FIRST_MESSAGE;
+    if (agent.version_id !== config.versionId || previous.prompt.llm !== "gpt-4.1-mini"
+      || !(reviewedEnglish || reviewedPolish || reviewedModel)) throw failure;
     verifyPreparedDispatcher({ ...agent, name: DISPATCHER_PROMPT_VERSION,
       conversation_config: { ...agent.conversation_config, agent: { ...previous,
         language: DISPATCHER_LANGUAGE, first_message: DISPATCHER_FIRST_MESSAGE,
-        prompt: { ...previous.prompt, prompt: DISPATCHER_PROMPT } } } }, currentIds);
+        prompt: { ...previous.prompt, prompt: DISPATCHER_PROMPT, llm: DISPATCHER_MODEL } } } }, currentIds);
     configurationUpgrade = true;
+    modelUpgrade = reviewedModel;
   }
   if (currentIds.length) await verifyDispatcherTools(config.apiKey, currentIds);
   // If a prior update lost its response, exact definitions/readback can recover the resulting version.
@@ -54,7 +60,12 @@ async function main() {
     ids.push(tool.id);
   }
   if (currentIds.length && JSON.stringify([...currentIds].sort()) !== JSON.stringify([...ids].sort())) throw new ConfigurationError("Existing dispatcher tool IDs differ. No agent update performed.");
-  if (!currentIds.length || configurationUpgrade) await requestProvider(path, config.apiKey, dispatcherAgentSchema, { method: "PATCH", body: dispatcherConfiguration(ids) });
+  if (!currentIds.length || configurationUpgrade) await requestProvider(path, config.apiKey, dispatcherAgentSchema, {
+    method: "PATCH",
+    body: modelUpgrade && currentIds.length
+      ? { conversation_config: { agent: { prompt: { llm: DISPATCHER_MODEL } } } }
+      : dispatcherConfiguration(ids),
+  });
   const integrated = await requestProvider(path, config.apiKey, dispatcherAgentSchema);
   verifyPreparedDispatcher(integrated, ids);
   await verifyDispatcherTools(config.apiKey, ids);
