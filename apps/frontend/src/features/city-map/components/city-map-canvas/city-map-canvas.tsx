@@ -7,6 +7,7 @@ import { MapPinFilled } from "@appica/icons-react";
 import Map, { AttributionControl, Layer, Marker, Source, type MapLayerMouseEvent, type MapRef, type ViewStateChangeEvent } from "react-map-gl/maplibre";
 import type { CityReport } from "@/api/reports/types";
 import { useColorScheme } from "../../hooks/use-color-scheme";
+import { useMapStyle } from "../../hooks/use-map-style";
 import { readMapColors } from "../../utils/read-map-colors";
 import { toFeatureCollection } from "../../utils/to-feature-collection";
 
@@ -77,6 +78,7 @@ export default function CityMapCanvas({
   // Re-read tokens when the theme changes; `scheme` is the cache key.
   const colors = useMemo(() => ({ scheme, ...readMapColors(categoryIds) }), [scheme, categoryIds]);
   const data = useMemo(() => toFeatureCollection(reports), [reports]);
+  const mapStyle = useMapStyle(MAP_STYLE, colors.scheme, colors.roads);
 
   useEffect(() => {
     if (!focus) return;
@@ -121,11 +123,14 @@ export default function CityMapCanvas({
     onSelect(typeof id === "string" ? id : null, event.point);
   }
 
+  // Wait for the themed style rather than flashing the untouched one.
+  if (!mapStyle) return null;
+
   return (
     <Map
       ref={mapRef}
       initialViewState={INITIAL_VIEW}
-      mapStyle={MAP_STYLE[colors.scheme]}
+      mapStyle={mapStyle}
       style={{ width: "100%", height: "100%" }}
       attributionControl={false}
       interactiveLayerIds={interactive ? [HIT_LAYER] : []}

@@ -11,7 +11,6 @@ import { NearbyReports } from "../nearby-reports/nearby-reports";
 import { ReportDetails } from "../report-details/report-details";
 import { ReportImpact } from "../report-impact/report-impact";
 import { ReportProgress } from "../report-progress/report-progress";
-import { ReportStatusBadge } from "../report-status-badge/report-status-badge";
 
 type ReportPanelProps = {
   report: CityReport;
@@ -50,9 +49,8 @@ export function ReportPanel({ report, category, reports, now, onClose, onCenter,
       header={
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-2.5">
+            <div className="flex min-w-0 items-center">
               <CategoryLabel category={category} />
-              <ReportStatusBadge status={report.status} />
             </div>
             <div className="flex shrink-0 items-center gap-1">
               <Button variant="ghost" size="icon-md" aria-label="Show on map" onClick={() => onCenter(report)}>

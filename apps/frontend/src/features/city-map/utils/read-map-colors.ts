@@ -9,5 +9,12 @@ export function readMapColors(categoryIds: readonly string[]) {
     category: Object.fromEntries(categoryIds.map((id) => [id, token(categoryAppearance(id).token)])),
     fallback: token("--foreground-muted"),
     surface: token("--background"),
+    roads: {
+      minor: token("--map-road-minor"),
+      major: token("--map-road-major"),
+      majorCasing: token("--map-road-major-casing"),
+      motorway: token("--map-road-motorway"),
+      motorwayCasing: token("--map-road-motorway-casing"),
+    },
   };
 }

@@ -104,6 +104,13 @@
   --category-greenery: #2F7A3F;
   --category-air: #7D5A4F;
 
+  /* Base map roads, weighted by class: white streets, pale sand main roads, deeper sand motorways. */
+  --map-road-minor: #FFFFFF;
+  --map-road-major: #FAEBC4;
+  --map-road-major-casing: #DCC48C;
+  --map-road-motorway: #F2D488;
+  --map-road-motorway-casing: #C9A452;
+
   /* Heatmap ramp, from a few reports to a dense cluster. */
   --heat-low: #F5B83D;
   --heat-mid: #EA6A1F;
@@ -209,6 +216,12 @@
   --category-accessibility: #B49AE6;
   --category-greenery: #6FCF86;
   --category-air: #C9A497;
+
+  --map-road-minor: #262626;
+  --map-road-major: #3A3326;
+  --map-road-major-casing: #4D4433;
+  --map-road-motorway: #554529;
+  --map-road-motorway-casing: #6B5833;
 
   --heat-low: #F5B83D;
   --heat-mid: #F07A35;

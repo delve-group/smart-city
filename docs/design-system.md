@@ -19,6 +19,7 @@ Polished and professional: hue-free greys carry the interface, so the map and th
 | Error | `#B42318` | `#F97066` | Errors, urgent severity |
 | Warning | `#A15C07` | `#F5B83D` | "In progress" status |
 | Success | `#067647` | `#47CD89` | "Resolved" status |
+| Main roads | `#FAEBC4` / casing `#DCC48C` | `#3A3326` / `#4D4433` | `--map-road-*`; motorways deeper, streets white / dark grey |
 | Heatmap | `#F5B83D → #EA6A1F → #C0262D` | `#F5B83D → #F07A35 → #E5484D` | `--heat-low/mid/high` |
 
 Typeface: [Geist](https://vercel.com/font) and Geist Mono via `next/font` (self-hosted at build time, Latin Extended for Polish).
@@ -66,6 +67,7 @@ App: [apps/frontend](../apps/frontend). As of 2026-10-03, `@appica/ui-react` 1.2
 - **Floating chrome over a full-bleed map.** Search (top left) with the filter and light/dark buttons beside it; the primary "Report an issue" button bottom right; attribution bottom left. No toolbars or frames around the map.
 - **Detail and form panel:** one non-modal shell (`shared/components/floating-panel`), inset from the right edge on desktop and a bottom sheet on phones. The header stays visible; when the title scrolls away it repeats in the header.
 - **Category colour:** eight `--category-*` tokens per theme (power, water, roads, transit, waste, accessibility, greenery, air), all ≥ 4.5:1 as text on their surfaces. Colour is always paired with the category icon and label; unknown API categories get a neutral style.
+- **Panel header:** category label and actions only; status lives in the progress timeline (the hover tooltip keeps a status badge).
 - **Report status:** Reported (outline), Confirmed (soft), In progress (warning, pulsing dot), Resolved (success). The panel shows the full progress timeline.
 - **I'm affected too:** an outline button under the impact numbers; after use it becomes a quiet "You are counted as affected" note. Hidden on resolved reports.
 - **Pin placement:** a fixed centre pin over the moving map, with a bottom card showing the live address, "Use my location", Cancel and Confirm.
