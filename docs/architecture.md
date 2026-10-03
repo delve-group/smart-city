@@ -23,7 +23,7 @@ Each app in `apps/` is a standalone project with its own dependencies; a shared 
 
 | Library | Version | Role | Why |
 | --- | --- | --- | --- |
-| [Next.js](https://nextjs.org) | 16.3 | React framework: routing (App Router), server rendering, API route handlers, build (Turbopack). | Recommended way to build React apps; gives us a mock `/api/events` endpoint without a separate backend. |
+| [Next.js](https://nextjs.org) | 16.3 | React framework: routing (App Router), server rendering, API route handlers, build (Turbopack). | Recommended way to build React apps; gives us mock `/api/categories` and `/api/reports` endpoints without a separate backend. |
 | [React](https://react.dev) | 19.2 | UI library. The React Compiler memoises components automatically. | Required by Next.js and Appica UI. |
 | [TypeScript](https://www.typescriptlang.org) | 5 | Static types (strict mode). | Catches contract errors between API, mappers and components early. |
 | [Tailwind CSS](https://tailwindcss.com) | 4 | Utility-first CSS; configuration lives in CSS (`@theme`). | Required by Appica UI; our theme tokens map to Tailwind classes. |
@@ -33,11 +33,11 @@ Each app in `apps/` is a standalone project with its own dependencies; a shared 
 | [OpenFreeMap](https://openfreemap.org) | service | Free hosted vector tiles and map styles (`positron` for Civic, `dark` for Signal) built from [OpenStreetMap](https://www.openstreetmap.org) data. | No key, no registration, no request limits, commercial use allowed; attribution is shown automatically by MapLibre. |
 | [Photon](https://photon.komoot.io) | service | Free geocoder over OpenStreetMap data: street and place search, and reverse geocoding for the report pin (`src/api/photon/`). | No key; CORS enabled; biased to Kraków. Public instance is fair-use only — self-host or swap for production. |
 | [Appica Icons](https://appica.dev/ui/icons) (`@appica/icons-react`) | 1.1 | Icon set matching Appica UI. | One consistent stroke style for category, time, place and action icons. |
-| [Zod](https://zod.dev) | 4 | Runtime schema validation. | Validates API responses at the boundary (`src/api/events/types.ts`) so bad records are dropped instead of breaking the map. |
+| [Zod](https://zod.dev) | 4 | Runtime schema validation. | Validates API responses at the boundary (`src/api/*/types.ts`), drops bad or uncategorised records instead of breaking the map, and validates new reports on both client and server. |
 | `@types/geojson` | dev | TypeScript types for GeoJSON. | Types the feature collection passed to the heatmap source. |
 | ESLint + `eslint-config-next` | 9 / 16.3 | Linting with Next.js and React rules. | Run with `npm run lint`. |
 
-Swapping the map for Google Maps later means replacing only `features/event-map/components/event-map-canvas/event-map-canvas.tsx` with an implementation based on `@vis.gl/react-google-maps` and a deck.gl `HeatmapLayer` (see D013 in the [decision log](knowledge-base/decisions.md)).
+Swapping the map for Google Maps later means replacing only `features/city-map/components/city-map-canvas/city-map-canvas.tsx` with an implementation based on `@vis.gl/react-google-maps` and a deck.gl `HeatmapLayer` (see D013 in the [decision log](knowledge-base/decisions.md)).
 
 ## Data flow
 
@@ -65,7 +65,7 @@ Shared building blocks (category label/tile/appearance, floating panel shell, se
 
 Form state stays local. Search and filter parameters go into the URL when a view must be shareable. Add shared fetching and caching only when there is a real need. The theme belongs to the app shell; it does not change data or permissions.
 
-The API layer maps external data to a small app model, validates the boundary and returns a clear result or error. With server-side integration, the backend validates data again, enforces permissions and holds secrets. The frontend is not a security boundary. For the mock demo, replacing the files in `src/api/events/` and the mock route should be enough to connect the real API; do not build abstractions for providers that do not exist.
+The API layer maps external data to a small app model, validates the boundary and returns a clear result or error. With server-side integration, the backend validates data again, enforces permissions and holds secrets. The frontend is not a security boundary. For the mock demo, replacing the mock route handlers in `src/app/api/` (and adjusting `src/api/` mappers) should be enough to connect the real API; do not build abstractions for providers that do not exist.
 
 ## Errors and states
 
