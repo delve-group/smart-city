@@ -78,7 +78,7 @@ export default function CityMapCanvas({
   // Re-read tokens when the theme changes; `scheme` is the cache key.
   const colors = useMemo(() => ({ scheme, ...readMapColors(categoryIds) }), [scheme, categoryIds]);
   const data = useMemo(() => toFeatureCollection(reports), [reports]);
-  const mapStyle = useMapStyle(MAP_STYLE, colors.scheme, colors.roads);
+  const mapStyle = useMapStyle(MAP_STYLE, colors.scheme, colors.baseMap);
 
   useEffect(() => {
     if (!focus) return;

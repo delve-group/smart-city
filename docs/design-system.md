@@ -19,7 +19,7 @@ Polished and professional: hue-free greys carry the interface, so the map and th
 | Error | `#B42318` | `#F97066` | Errors, urgent severity |
 | Warning | `#A15C07` | `#F5B83D` | "In progress" status |
 | Success | `#067647` | `#47CD89` | "Resolved" status |
-| Main roads | `#FAEBC4` / casing `#DCC48C` | `#3A3326` / `#4D4433` | `--map-road-*`; motorways deeper, streets white / dark grey |
+| Base map | land `#EEEEEE`, roads `#FFFFFF`, casings `#CACACA`/`#A6A6A6` | land `#141414`, roads `#242424`–`#3D3D3D` | `--map-*`; the map uses the app greys, roads stand out by contrast |
 | Heatmap | `#F5B83D → #EA6A1F → #C0262D` | `#F5B83D → #F07A35 → #E5484D` | `--heat-low/mid/high` |
 
 Typeface: [Geist](https://vercel.com/font) and Geist Mono via `next/font` (self-hosted at build time, Latin Extended for Polish).

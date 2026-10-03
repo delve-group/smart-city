@@ -55,7 +55,7 @@ Component index (fetch a component's `.md` page before using it for the first ti
 - MapLibre 6 loads its worker as a separate module. `scripts/copy-maplibre-worker.mjs` copies it to `public/maplibre/` before `dev` and `build`; do not commit those files.
 - Mount heatmap layers conditionally instead of hiding them with `visibility: "none"` — a heatmap layer added while hidden does not draw once shown.
 - Use `offset`, not `padding`, in `flyTo`: MapLibre keeps padding for all later camera moves and tile loading, which leaves an empty strip after the panel closes.
-- Map layers need literal colours: read them from theme tokens at runtime (`utils/read-map-colors.ts`), never hard-code hex values. Base-map roads are recoloured by `utils/style-roads.ts` (OpenMapTiles layer ids) with the `--map-road-*` tokens; the style JSON is fetched and patched in `hooks/use-map-style.ts`.
+- Map layers need literal colours: read them from theme tokens at runtime (`utils/read-map-colors.ts`), never hard-code hex values. The base map (land, parks, buildings, water, roads) is recoloured by `utils/style-base-map.ts` (OpenMapTiles layer ids) with the `--map-*` tokens; the style JSON is fetched and patched in `hooks/use-map-style.ts`.
 - Place search and reverse geocoding use the public Photon instance (fair use, no key). Replace it with a self-hosted or commercial geocoder before real traffic.
 - Categories are API data. Style known ids in `shared/utils/category-appearance.ts` and the `--category-*` tokens; unknown ids fall back to a neutral style, never break.
 - `src/app/api/*` is a demo backend with an in-memory store. Validate request bodies there with the same Zod schema the client uses (`src/api/reports/types.ts`).

@@ -104,12 +104,17 @@
   --category-greenery: #2F7A3F;
   --category-air: #7D5A4F;
 
-  /* Base map roads, weighted by class: white streets, pale sand main roads, deeper sand motorways. */
+  /* Base map in the app's greys; roads stand out by contrast, motorways by a heavier casing. */
+  --map-land: #EEEEEE;
+  --map-residential: #EBEBEB;
+  --map-park: #E3E3E3;
+  --map-building: #E0E0E0;
+  --map-water: #D4D4D4;
   --map-road-minor: #FFFFFF;
-  --map-road-major: #FAEBC4;
-  --map-road-major-casing: #DCC48C;
-  --map-road-motorway: #F2D488;
-  --map-road-motorway-casing: #C9A452;
+  --map-road-major: #FFFFFF;
+  --map-road-major-casing: #CACACA;
+  --map-road-motorway: #FFFFFF;
+  --map-road-motorway-casing: #A6A6A6;
 
   /* Heatmap ramp, from a few reports to a dense cluster. */
   --heat-low: #F5B83D;
@@ -217,11 +222,16 @@
   --category-greenery: #6FCF86;
   --category-air: #C9A497;
 
-  --map-road-minor: #262626;
-  --map-road-major: #3A3326;
-  --map-road-major-casing: #4D4433;
-  --map-road-motorway: #554529;
-  --map-road-motorway-casing: #6B5833;
+  --map-land: #141414;
+  --map-residential: #161616;
+  --map-park: #1A1A1A;
+  --map-building: #1D1D1D;
+  --map-water: #0B0B0B;
+  --map-road-minor: #242424;
+  --map-road-major: #303030;
+  --map-road-major-casing: #3A3A3A;
+  --map-road-motorway: #3D3D3D;
+  --map-road-motorway-casing: #4C4C4C;
 
   --heat-low: #F5B83D;
   --heat-mid: #F07A35;

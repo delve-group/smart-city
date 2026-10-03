@@ -1,7 +1,7 @@
 import type { StyleSpecification } from "maplibre-gl";
 import { useEffect, useState } from "react";
 import type { ColorScheme } from "./use-color-scheme";
-import { styleRoads, type RoadColors } from "../utils/style-roads";
+import { styleBaseMap, type BaseMapColors } from "../utils/style-base-map";
 
 const cache = new Map<string, Promise<StyleSpecification>>();
 
@@ -19,24 +19,24 @@ function loadStyle(url: string): Promise<StyleSpecification> {
 }
 
 /**
- * The base map style for the colour scheme, with themed roads. Falls back to the plain
+ * The base map style for the colour scheme, in the app palette. Falls back to the plain
  * style URL if the JSON cannot be loaded, so the map still renders.
  */
-export function useMapStyle(urls: Record<ColorScheme, string>, scheme: ColorScheme, roads: RoadColors) {
+export function useMapStyle(urls: Record<ColorScheme, string>, scheme: ColorScheme, colors: BaseMapColors) {
   const [style, setStyle] = useState<StyleSpecification | string | null>(null);
-  const roadsKey = JSON.stringify(roads);
+  const colorsKey = JSON.stringify(colors);
 
   useEffect(() => {
     let active = true;
     loadStyle(urls[scheme])
-      .then((base) => active && setStyle(styleRoads(base, roads)))
+      .then((base) => active && setStyle(styleBaseMap(base, colors)))
       .catch(() => active && setStyle(urls[scheme]));
     return () => {
       active = false;
     };
-    // `roadsKey` stands in for `roads`, which is a new object on every render.
+    // `colorsKey` stands in for `colors`, which is a new object on every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [urls, scheme, roadsKey]);
+  }, [urls, scheme, colorsKey]);
 
   return style;
 }
