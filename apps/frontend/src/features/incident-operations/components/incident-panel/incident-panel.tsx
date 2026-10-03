@@ -66,7 +66,7 @@ export function IncidentPanel({ incident, workspace, category, now, onClose, onL
       <ScrollArea className="min-h-0 flex-1">
         <div key={incident.id} className="flex flex-col px-5 pb-6 transition-opacity duration-200 ease-out starting:opacity-0 motion-reduce:transition-none">
           <div className="flex flex-col gap-3 pt-4 pb-5">
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-2">
               <h2
                 id="incident-panel-title"
                 ref={headingRef}
