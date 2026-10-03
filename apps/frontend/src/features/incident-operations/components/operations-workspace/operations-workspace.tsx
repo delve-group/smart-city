@@ -301,7 +301,6 @@ export function OperationsWorkspace({ onSessionLost, onSignOut }: { onSessionLos
           interactive
           onHover={(hover) => setHoverId(hover?.id ?? null)}
           onSelect={selectFromMap}
-          attribution={workspace?.source === "demo" ? t("demo.incidents") : undefined}
           tilted={tilted}
           areas={areas}
           heatmap={false}

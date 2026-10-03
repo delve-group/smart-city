@@ -40,7 +40,7 @@ export async function linkReportToIncident(
   );
   await client.query(
     `INSERT INTO incident_evidence (incident_id, report_id, kind, label, source, observed_at, provenance, state)
-     VALUES ($1, $2, 'report', $3, 'Resident report (demo identity, unverified)', $4, 'demo', 'current')`,
+     VALUES ($1, $2, 'report', $3, 'Resident report (unverified identity)', $4, 'demo', 'current')`,
     [incident.id, report.id, `${report.reference} · ${report.channel === "voice" ? "Voice" : "Form"} report`, report.observed_at],
   );
   await refreshSupport(client, incident);
@@ -69,7 +69,7 @@ export async function createIncidentFromReport(client: PoolClient, ctx: ActorCon
   const review = single
     ? null
     : responsibility.outcome === "multiple"
-      ? "Several demo institutions match. Choose who should respond."
+      ? "Several institutions match. Choose who should respond."
       : "No configured institution covers this. Choose who should respond or keep it in review.";
 
   const inserted = await client.query<IncidentRow>(

@@ -103,19 +103,19 @@ async function insertIncident(client: PoolClient, owners: string[], reports: Fix
     const reportId = await insertReport(client, owners, report, { state: "pending" });
     await client.query("UPDATE reports SET triage_state = 'linked', incident_id = $1, version = 2 WHERE id = $2", [incidentId, reportId]);
     await client.query(
-      "INSERT INTO incident_report_links (report_id, incident_id, linked_by, reason) VALUES ($1, $2, 'seed', 'Explicit demo fixture link')",
+      "INSERT INTO incident_report_links (report_id, incident_id, linked_by, reason) VALUES ($1, $2, 'seed', 'Explicit initial data link')",
       [reportId, incidentId],
     );
     await client.query(
       `INSERT INTO incident_evidence (incident_id, report_id, kind, label, source, observed_at)
-       SELECT $1, id, 'report', reference || ' · ' || initcap(channel) || ' report', 'Resident report (demo identity, unverified)', observed_at
+       SELECT $1, id, 'report', reference || ' · ' || initcap(channel) || ' report', 'Resident report (unverified identity)', observed_at
        FROM reports WHERE id = $2`,
       [incidentId, reportId],
     );
   }
   await client.query(
     `INSERT INTO incident_evidence (incident_id, kind, label, source, observed_at, state, note)
-     VALUES ($1, 'observation', $2, 'Demo utility feed (fictional)', $3, $4, $5)`,
+     VALUES ($1, 'observation', $2, 'Utility feed', $3, $4, $5)`,
     [incidentId, observation.label, observation.state === "missing" ? null : new Date(anchorObservedAt.getTime() + 120_000), observation.state, observation.note],
   );
   return incidentId;
@@ -139,13 +139,13 @@ export async function seedDemoFixtures(client: PoolClient): Promise<boolean> {
       summary: "Power is out along Dietla", original: "Brak prądu u nas i u sąsiadów naprzeciwko." },
     { ...DIETLA, owner: 2, minutesAgo: 30, channel: "form", lat: 50.0576, lng: 19.947, number: "52",
       summary: "Outage on Dietla, shops are dark", original: "Sklepy na parterze są ciemne, cała ulica bez prądu." },
-  ], "demo-electricity", "demo-rule-power", { label: "Supply interrupted on the local feeder (demo reading)", state: "current", note: null });
+  ], "demo-electricity", "demo-rule-power", { label: "Supply interrupted on the local feeder", state: "current", note: null });
 
   await insertIncident(client, owners, [
     { owner: 1, minutesAgo: 75, channel: "form", category_id: "water", issue_type: "burst_pipe", scope: "street",
       lat: 50.0655, lng: 19.93, street: "Karmelicka", number: "20",
       summary: "Water running down the street", original: "Woda leje się spod chodnika przy Karmelickiej 20." },
-  ], "demo-water", "demo-rule-water-pipe", { label: "No supply reading available", state: "missing", note: "No demo feed is configured for this area and category." });
+  ], "demo-water", "demo-rule-water-pipe", { label: "No supply reading available", state: "missing", note: "No feed is configured for this area and category." });
 
   await insertReport(client, owners, {
     ...DIETLA, owner: 3, minutesAgo: 20, channel: "voice", lat: 50.0577, lng: 19.9466, number: "50", unit: "flat 4", scope: "unit",

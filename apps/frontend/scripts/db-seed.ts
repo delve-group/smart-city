@@ -19,8 +19,8 @@ async function seed(): Promise<void> {
       await client.query("SELECT pg_advisory_xact_lock(736142001)");
       await client.query(`
         INSERT INTO institutions (id, name, is_demo)
-        VALUES ('demo-electricity', 'Demo Electricity Service', true),
-               ('demo-water', 'Demo Water Service', true)
+        VALUES ('demo-electricity', 'Electricity Service', true),
+               ('demo-water', 'Water Service', true)
         ON CONFLICT (id) DO NOTHING
       `);
       let created = 0;
@@ -70,11 +70,11 @@ async function seed(): Promise<void> {
                  jsonb_build_array(
                    jsonb_build_object('key', 'Issue', 'value', r.title),
                    jsonb_build_object('key', 'Area', 'value', concat_ws(', ', r.public_label, r.district)),
-                   jsonb_build_object('key', 'Residents reporting', 'value', r.support_count || ' (demo identities, unverified)'),
+                   jsonb_build_object('key', 'Residents reporting', 'value', r.support_count || ' (unverified identities)'),
                    jsonb_build_object('key', 'City assessment', 'value', r.assessment)),
                  ARRAY(SELECT e.id FROM incident_evidence e WHERE e.incident_id = r.id AND e.removed_at IS NULL AND e.state <> 'missing'),
-                 'Prepared from the configured demo responsibility rule, without a language model.',
-                 'Rule-based proposer (demo)', 'execute:proposal:' || r.proposal_id
+                 'Prepared from the configured responsibility rule, without a language model.',
+                 'Rule-based proposer', 'execute:proposal:' || r.proposal_id
           FROM ready r
           RETURNING incident_id
         )

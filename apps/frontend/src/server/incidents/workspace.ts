@@ -19,13 +19,13 @@ const REPORT_LIMIT = 600;
 const PENDING_REVIEW_MS = 60_000;
 
 const ACTOR_LABEL: Record<string, string> = {
-  official: "Official (demo account)",
-  institution: "Institution (demo account)",
+  official: "Official",
+  institution: "Institution",
   resident: "Resident",
   triage: "Automatic triage",
   decision_maker: "Decision-maker agent",
   executor: "Executor",
-  seed: "Demo fixture",
+  seed: "Initial data",
 };
 
 const OPERATION_LABEL: Record<string, string> = {
@@ -46,7 +46,7 @@ const OPERATION_LABEL: Record<string, string> = {
   "proposal.execute": "Sent the ticket",
   "proposal.reconcile": "Reconciled the ticket outcome",
   "ticket.update": "Institution updated the ticket",
-  "demo.fixtures": "Seeded as demo data",
+  "demo.fixtures": "Loaded initial data",
   "assessment.review": "Decision assessment requested review",
 };
 
