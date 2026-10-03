@@ -280,7 +280,7 @@ async function seedSetOne(client: PoolClient) {
     owner: 0, minutesAgo: 15, channel: "form", category_id: "water", issue_type: "blocked_drain", scope: "street",
     lat: 50.057, lng: 19.9446, street: "Starowiślna", number: "30", district: "Kazimierz",
     summary: "Zatkana studzienka, woda stoi na przejściu", original: "Studzienka zatkana, woda stoi na przejściu dla pieszych.",
-  }, { state: "needs_review", reason: "needs_link", note: "Automatyczne grupowanie obejmuje tylko awarie prądu. Przypisz to zgłoszenie ręcznie." });
+  }, { state: "needs_review", reason: "needs_link", note: "Przykład ręcznego przeglądu: sprawdź studzienkę i odpowiedzialność przed utworzeniem zdarzenia." });
 
   await markSet(client, "demo.fixtures", outage);
 }
@@ -390,7 +390,7 @@ async function seedSetTwo(client: PoolClient) {
     owner: 0, minutesAgo: 8, channel: "form", category_id: "waste", issue_type: "illegal_dumping", scope: "street", district: "Podgórze",
     lat: 50.04408, lng: 19.95596, street: "Kalwaryjska", number: "40",
     summary: "Gruz wyrzucony przy chodniku", original: "Ktoś w nocy wyrzucił worki z gruzem przy chodniku na Kalwaryjskiej.",
-  }, { state: "needs_review", reason: "needs_link", note: "Automatyczne grupowanie obejmuje tylko awarie prądu. Przypisz to zgłoszenie ręcznie." });
+  }, { state: "needs_review", reason: "needs_link", note: "Przykład ręcznego przeglądu: sprawdź lokalizację i odpowiedzialność przed utworzeniem zdarzenia." });
   await markSet(client, "demo.fixtures.v2", first);
 }
 
@@ -404,7 +404,7 @@ async function localizeSetOne(client: PoolClient) {
     ["reports", "summary", "No power in one flat only|Brak prądu tylko w jednym mieszkaniu"],
     ["reports", "summary", "Blocked drain, water pooling at the crossing|Zatkana studzienka, woda stoi na przejściu"],
     ["reports", "review_note", "One flat or unit only. Kept private until the scope is reviewed.|Dotyczy tylko jednego mieszkania. Zostaje prywatne do czasu przeglądu zakresu."],
-    ["reports", "review_note", "Automatic grouping covers power outages only. Triage this report manually.|Automatyczne grupowanie obejmuje tylko awarie prądu. Przypisz to zgłoszenie ręcznie."],
+    ["reports", "review_note", "Automatic grouping covers power outages only. Triage this report manually.|Przykład ręcznego przeglądu: sprawdź lokalizację i odpowiedzialność przed utworzeniem zdarzenia."],
     ["incidents", "title", "Power outage on ul. Józefa Dietla|Awaria prądu na ul. Józefa Dietla"],
     ["incidents", "title", "Burst pipe or leak on ul. Karmelicka|Wyciek wody na ul. Karmelickiej"],
     ["incident_evidence", "source", "Resident report (unverified identity)|" + REPORT_SOURCE],

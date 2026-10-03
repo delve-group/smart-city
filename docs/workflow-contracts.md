@@ -338,6 +338,17 @@ The ticket change, incident status/version, public timeline event, audit event a
 
 ## 8. Transactional work interface
 
+The existing `triage` report job also performs optional AI category/issue classification
+when `DECISION_PROVIDER=scaleway`. It runs outside the database transaction, then the
+handler rechecks the source version before applying it. Any recorded official report
+classification takes precedence. The worker payload and resident draft/submission wire
+shapes are unchanged. Classification metadata is private in `reports.triage_policy`;
+provider failure completes triage into visible manual review. Specific non-power reports
+can create incidents without a nearby candidate; existing-incident linking remains
+power-only. Responsibility is still resolved from configured rules. Migration 010
+requeues only reports blocked by the retired gate, with new versions and audit/work.
+
+
 Workstream 3 owns the work schema (`002_jobs.sql`, no foreign keys to domain tables), the worker and `server/jobs`; workstream 2 calls `enqueueWork` inside its own transactions and supplies domain handlers. Delivered by [#22](https://github.com/delve-group/smart-city/issues/22); final names may differ only if this section is updated in that PR.
 
 ```ts

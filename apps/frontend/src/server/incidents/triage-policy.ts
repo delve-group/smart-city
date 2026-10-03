@@ -7,7 +7,7 @@ import { buildingKey, metresBetween, serviceAreaId, streetKey, type LatLng } fro
  */
 
 export const TRIAGE_POLICY = {
-  version: 1,
+  version: 2,
   auto_category_id: "power",
   auto_issue_type: "power_outage",
   radius_m: 300,
@@ -61,14 +61,18 @@ export function decideTriage(report: TriageReportFacts, candidates: TriageCandid
       && candidate.issue_type === report.issue_type,
   );
 
-  // Everything near enough in space and time to be the same event, eligible or not.
+  const usesTimeWindow = report.category_id === TRIAGE_POLICY.auto_category_id && report.issue_type === TRIAGE_POLICY.auto_issue_type;
+  // Power outages use the reference time window. Persistent defects stay plausible
+  // nearby candidates regardless of age, so an old pothole cannot cause a duplicate.
   const near = report.observed_at
     ? sameIssue.flatMap((candidate) => {
-        if (!candidate.anchor_observed_at) return [];
+        if (!candidate.anchor_observed_at && usesTimeWindow) return [];
         const distance = metresBetween(report.location, candidate.anchor);
-        const minutes = Math.abs(report.observed_at!.getTime() - candidate.anchor_observed_at.getTime()) / 60_000;
+        const minutes = candidate.anchor_observed_at
+          ? Math.abs(report.observed_at!.getTime() - candidate.anchor_observed_at.getTime()) / 60_000
+          : 0;
         // Both limits are inclusive and measured from the incident's fixed anchor, never from later reports.
-        return distance <= TRIAGE_POLICY.radius_m && minutes <= TRIAGE_POLICY.window_minutes
+        return distance <= TRIAGE_POLICY.radius_m && (!usesTimeWindow || minutes <= TRIAGE_POLICY.window_minutes)
           ? [{ candidate, distance_m: Math.round(distance), minutes_apart: Math.round(minutes) }]
           : [];
       })
@@ -84,9 +88,6 @@ export function decideTriage(report: TriageReportFacts, candidates: TriageCandid
 
   if (report.urgent) return review("urgent", "Reported as immediate danger. Review first; this ticket does not dispatch emergency services.");
   if (report.scope === "unit") return review("private_scope", "One flat or unit only. Kept private until the scope is reviewed.");
-  if (report.category_id !== TRIAGE_POLICY.auto_category_id || report.issue_type !== TRIAGE_POLICY.auto_issue_type) {
-    return review("needs_link", "Automatic grouping covers power outages only. Triage this report manually.");
-  }
   if (report.scope === "unknown") return review("needs_link", "The affected extent is unknown.");
   if (!report.observed_at) return review("needs_link", "The observation time is unknown.");
 
@@ -94,6 +95,12 @@ export function decideTriage(report: TriageReportFacts, candidates: TriageCandid
   const reportBuilding = buildingKey(report.street, report.building_number);
   if (!reportStreet) return review("needs_link", "The street is unknown, so the report cannot be matched safely.");
   if (report.scope === "building" && !reportBuilding) return review("needs_link", "The building is unknown.");
+
+  if (report.category_id !== TRIAGE_POLICY.auto_category_id || report.issue_type !== TRIAGE_POLICY.auto_issue_type) {
+    if (report.issue_type === "other") return review("needs_link", "The problem type needs clarification before routing.");
+    if (near.length === 0) return { outcome: "new_incident", note: "No active incident of this type nearby. Started a separate incident for responsibility routing." };
+    return review("needs_link", "A nearby incident may describe the same problem. Review the link before combining these reports.");
+  }
 
   const area = serviceAreaId(report.location);
   const eligible = near.filter(({ candidate }) => {

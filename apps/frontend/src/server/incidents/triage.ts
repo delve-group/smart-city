@@ -3,9 +3,10 @@ import "server-only";
 import type { PoolClient } from "pg";
 import type { ActorContext } from "@/server/actor-context";
 import { recordAudit } from "@/server/audit/audit";
-import { withTransaction } from "@/server/db";
+import { classifyReport, type ReportClassification } from "@/server/agents/report-classification";
+import { getPool, withTransaction } from "@/server/db";
 import { ApiError } from "@/server/http/api";
-import { REPORT_COLUMNS, type ReportRow } from "@/server/reports/reports";
+import { findReportRow, REPORT_COLUMNS, type ReportRow } from "@/server/reports/reports";
 import { enqueueReportWork } from "@/server/reports/work";
 import { buildingKey, serviceAreaId, streetKey } from "./geo";
 import {
@@ -135,7 +136,7 @@ async function loadCandidates(client: PoolClient, report: ReportRow) {
 }
 
 /**
- * Automatic triage of one report at one version. The deterministic policy decides; a caller's
+ * Automatic triage of one report at one version. AI classifies before deterministic triage; a caller's
  * suggestion is recorded but can never widen eligibility. The search-and-create decision is
  * serialised per category/issue, and candidates are re-read from the primary store inside the
  * transaction, so two simultaneous reports cannot both open an incident.
@@ -149,11 +150,24 @@ export async function triageReport(
   }
   if (!isUuid(input.report_id)) throw new ApiError(404, "not_found", "This report does not exist.");
 
+  const preview = await findReportRow(getPool(), input.report_id);
+  if (!preview) throw new ApiError(404, "not_found", "This report does not exist.");
+  if (preview.version !== input.expected_version || preview.triage_state !== "pending") {
+    return { status: "superseded", detail: "The report changed or has already been triaged." };
+  }
+  const officialClassification = await getPool().query(
+    `SELECT 1 FROM audit_events WHERE entity_type = 'report' AND entity_id = $1
+       AND operation = 'report.classify' AND actor_role = 'official' LIMIT 1`,
+    [preview.id],
+  );
+  const classification: ReportClassification = officialClassification.rowCount
+    ? { outcome: "official" }
+    : await classifyReport(preview);
+  const classifiedCategory = classification.outcome === "classified" ? classification.category_id! : preview.category_id;
+  const classifiedIssue = classification.outcome === "classified" ? classification.issue_type! : preview.issue_type;
+
   return withTransaction(async (client) => {
-    const locked = await client.query<ReportRow>(`SELECT ${REPORT_COLUMNS} FROM reports WHERE id = $1`, [input.report_id]);
-    const preview = locked.rows[0];
-    if (!preview) throw new ApiError(404, "not_found", "This report does not exist.");
-    await client.query("SELECT pg_advisory_xact_lock(hashtext($1))", [`triage:${preview.category_id}:${preview.issue_type}`]);
+    await client.query("SELECT pg_advisory_xact_lock(hashtext($1))", [`triage:${classifiedCategory}:${classifiedIssue}`]);
 
     const current = await client.query<ReportRow>(`SELECT ${REPORT_COLUMNS} FROM reports WHERE id = $1 FOR UPDATE`, [input.report_id]);
     const report = current.rows[0];
@@ -161,8 +175,14 @@ export async function triageReport(
     if (report.version !== input.expected_version) return { status: "superseded", detail: "The report changed; this triage was discarded." };
     if (report.triage_state !== "pending") return { status: "superseded", detail: `The report is already ${report.triage_state}.` };
 
+    if (classification.outcome === "classified") {
+      await client.query("UPDATE reports SET category_id = $2, issue_type = $3 WHERE id = $1", [report.id, classifiedCategory, classifiedIssue]);
+      report.category_id = classifiedCategory;
+      report.issue_type = classifiedIssue;
+    }
+
     const candidates = await loadCandidates(client, report);
-    const decision: TriageDecision = decideTriage(
+    const deterministicDecision = decideTriage(
       {
         category_id: report.category_id,
         issue_type: report.issue_type,
@@ -186,6 +206,12 @@ export async function triageReport(
         assessment: incident.assessment,
       })),
     );
+    // Immediate danger and private scope keep precedence over any model outcome.
+    const decision: TriageDecision = (classification.outcome === "review" || classification.outcome === "unavailable")
+      && !report.urgent && report.scope !== "unit"
+      ? { outcome: "review", reason: "needs_link", note: classification.explanation,
+          candidates: deterministicDecision.outcome === "review" ? deterministicDecision.candidates : [] }
+      : deterministicDecision;
     const policy = {
       policy_version: TRIAGE_POLICY.version,
       radius_m: TRIAGE_POLICY.radius_m,
@@ -194,6 +220,7 @@ export async function triageReport(
       outcome: decision.outcome,
       note: decision.note,
       suggested_incident_id: input.suggestion?.incident_id ?? null,
+      classification: { ...classification, submitted_category_id: preview.category_id, submitted_issue_type: preview.issue_type },
     };
 
     if (decision.outcome === "review") {

@@ -7,14 +7,14 @@ export interface IssueType {
   label: string;
 }
 
-/** DEMO CONFIGURATION. Only `power_outage` is grouped automatically; `other` fits every category. */
+/** DEMO CONFIGURATION. Specific issues can start incidents; only power outages auto-link. */
 export const ISSUE_TYPES: IssueType[] = [
   { id: "power_outage", category_id: "power", label: "Power outage" },
   { id: "street_light_fault", category_id: "power", label: "Street light fault" },
   { id: "exposed_cable", category_id: "power", label: "Exposed cable" },
   { id: "water_outage", category_id: "water", label: "No water" },
   { id: "burst_pipe", category_id: "water", label: "Burst pipe or leak" },
-  { id: "blocked_drain", category_id: "water", label: "Blocked drain" },
+  { id: "blocked_drain", category_id: "water", label: "Blocked drain or sewer" },
   { id: "pothole", category_id: "roads", label: "Pothole or road damage" },
   { id: "traffic_signal_fault", category_id: "roads", label: "Traffic signal fault" },
   { id: "transit_disruption", category_id: "transit", label: "Stop or service disruption" },
