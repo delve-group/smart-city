@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import type { Category } from "@/api/categories/types";
 import type { CityReport } from "@/api/reports/types";
+import { CategoryFilter } from "@/features/category-filter/components/category-filter/category-filter";
 import { useCityData } from "../../hooks/use-city-data";
 import { useNow } from "../../hooks/use-now";
 import type { MapFocus, MapHover } from "../city-map-canvas/city-map-canvas";
@@ -31,12 +32,18 @@ export function CityMapView() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hover, setHover] = useState<MapHover | null>(null);
   const [focus, setFocus] = useState<MapFocus | null>(null);
+  /** Category ids to show; null means all (also covers categories the API adds later). */
+  const [shownCategoryIds, setShownCategoryIds] = useState<string[] | null>(null);
 
   const ready = state.status === "ready" ? state : undefined;
   const categories = ready?.categories ?? NO_CATEGORIES;
-  const reports = ready?.result.reports ?? NO_REPORTS;
+  const allReports = ready?.result.reports ?? NO_REPORTS;
   const categoriesById = new Map(categories.map((category) => [category.id, category]));
   const categoryIds = categories.map((category) => category.id);
+  const shownIds = shownCategoryIds ?? categoryIds;
+  // Filtered-out reports are neither drawn nor searchable nor listed as nearby.
+  const reports = allReports.filter((report) => shownIds.includes(report.categoryId));
+  const counts = new Map(categoryIds.map((id) => [id, allReports.filter((report) => report.categoryId === id).length]));
 
   const selected = reports.find((report) => report.id === selectedId);
   const hovered = hover ? reports.find((report) => report.id === hover.id) : undefined;
@@ -104,8 +111,18 @@ export function CityMapView() {
         attribution={ready?.result.source === "demo" ? DEMO_NOTICE : undefined}
       />
 
-      <div className="absolute top-3 left-3 z-20 w-[min(24rem,calc(100%-1.5rem))]">
-        <MapSearch reports={reports} categoriesById={categoriesById} onPick={handlePick} />
+      <div className="absolute top-3 right-3 left-3 z-20 flex max-w-110 items-start gap-2">
+        <div className="min-w-0 flex-1">
+          <MapSearch reports={reports} categoriesById={categoriesById} onPick={handlePick} />
+        </div>
+        {categories.length > 0 && (
+          <CategoryFilter
+            categories={categories}
+            counts={counts}
+            selected={shownIds}
+            onChange={(ids) => setShownCategoryIds(ids.length === categoryIds.length ? null : ids)}
+          />
+        )}
       </div>
 
       {state.status !== "ready" && (
