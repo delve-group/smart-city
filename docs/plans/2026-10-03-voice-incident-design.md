@@ -2,7 +2,7 @@
 
 Date: 2026-10-03. Repository inspected at `5d9957c`; relevant contracts rechecked against `09c4ca9` after concurrent map and specification updates.
 
-Status: research and a proposed PoC scope, ready for discussion and later Spec Kit input. This is not an approved implementation specification. No voice, institution or identity integration has been built by this change.
+Status: historical discovery, superseded for implementation by the [feature specification](../../specs/001-voice-incident-response/spec.md) and [technical plan](../../specs/001-voice-incident-response/plan.md). The user subsequently selected **ElevenLabs Agents** (D030). Provider alternatives below record the earlier research; they are not pending choices. No voice, institution or identity integration has been built by these documents.
 
 ## Product promise and confirmed direction
 
@@ -110,13 +110,13 @@ Every write validates its input and authenticated scope server-side. Identity an
 
 Start with one MCP server only if the chosen voice/agent integration benefits from it. Give roles narrow tool lists, while enforcing the same restrictions inside handlers. MCP discovery and approval UI do not replace application authorisation. The [official MCP TypeScript SDK documentation](https://github.com/modelcontextprotocol/typescript-sdk/blob/main/docs/serving/authorization.md) describes server token verification and per-operation scopes.
 
-## Technology choices to validate
+## Historical technology comparison
 
 | Need | Proposed choice | What remains to verify |
 | --- | --- | --- |
-| Browser conversation | **GPT-Live over WebRTC**, with a backend handling domain work | Account access, Polish address recognition, interruptions, backend tool completion and session cost. This is a recommendation, not a selected provider. |
-| Alternative voice platform | **ElevenLabs Agents + `@elevenlabs/react`** | Same voice scenarios and account limits; use Appica for controls, retaining the provider SDK underneath. |
-| OpenAI alternative | Realtime API with function tools or remote MCP | Choose if its session/tool model or available account access fits better. Do not mix Live and Realtime event formats. |
+| Browser conversation | GPT-Live over WebRTC — considered, not selected | Account access, Polish address recognition, interruptions, backend tool completion and session cost. This earlier recommendation was superseded by D030. |
+| Selected voice platform (D030) | **ElevenLabs Agents + `@elevenlabs/react`** | Same voice scenarios and account limits; use Appica for controls, retaining the provider SDK underneath. |
+| Historical OpenAI alternative | Realtime API with function tools or remote MCP — not selected | Considered during discovery; D030 selects ElevenLabs. |
 | Related-record retrieval | Qdrant, as selected in D029 | Integration, Polish retrieval quality, scoped access and index freshness; keep source records in the primary database. |
 | Reasoning | One backend LLM with structured outputs and a bounded tool workflow | Model quality on the actual triage cases. Use ordinary TypeScript for permission checks and state transitions. |
 | Map and geocoding | Existing MapLibre/OpenFreeMap and Photon adapters | Voice address confirmation and service failure fallback. No map replacement needed. |
@@ -132,7 +132,7 @@ ElevenLabs provides a [React SDK](https://elevenlabs.io/docs/eleven-agents/libra
 
 [Official login.gov.pl guidance](https://www.gov.pl/web/login/jak-korzystac) distinguishes access to public services and identity methods, including the mObywatel flow. In this PoC, use a demo session with invented data and an explicit simulated-identity label; do not collect real identity documents or credentials.
 
-Before choosing a provider, spend a short, fixed trial on the same utterances: ambiguous Jarzębinowa address, corrected building number, interruption, apartment-only outage, repeated submission, tool timeout and recovery. Record task completion, address correctness and perceived delay. This is a manual evaluation, not a new automated test suite. Use one provider for the first implementation.
+For the selected ElevenLabs integration, validate the following utterances: ambiguous Jarzębinowa address, corrected building number, interruption, apartment-only outage, repeated submission, tool timeout and recovery. Record task completion, address correctness and perceived delay. This is a manual evaluation, not a new automated test suite. Use one provider for the first implementation.
 
 ## Proposed application shape
 
@@ -167,7 +167,7 @@ Server restart must preserve reports, approvals and tickets. Keep processing bou
 | 4. Agent-assisted triage | Candidate matching, evidence lookup, routing and explained proposal | The proposal cites stored evidence; unknown jurisdiction/ambiguous matching goes to review. |
 | 5. Public feedback and rehearsal | Incident map, cross-screen refresh, demo login and failure paths | The resident sees acknowledgement, work progress and resolution without personal report details leaking. |
 
-The optional voice-provider trial can happen before slice 1; production voice integration follows a functioning report service. Stop adding features when the full loop works. Defer outbound calls, real phone intake, X ingestion, civic-budget voting, 3D city simulation, general-purpose RAG beyond the selected Qdrant retrieval scope, multi-city support and production identity/utility integrations.
+An ElevenLabs configuration check can happen before slice 1; production voice integration follows a functioning report service. Stop adding features when the full loop works. Defer outbound calls, real phone intake, X ingestion, civic-budget voting, 3D city simulation, general-purpose RAG beyond the selected Qdrant retrieval scope, multi-city support and production identity/utility integrations.
 
 Geoportal/MSIP remains a possible asset-context source, as described in the [geospatial note](../knowledge-base/geospatial-data.md). A parcel map alone is not a validated maintenance-responsibility registry. No Geoportal endpoint, real utility telemetry feed or private-road ownership integration was exercised in this research.
 
@@ -196,7 +196,7 @@ Seed for the future feature specification:
 
 > A resident can report a city service disruption through a browser voice conversation or form without choosing a department. The system clarifies and confirms the location and scope, records the report once, and links related reports to a separately tracked incident. An authorised official reviews evidence and approves or rejects a proposed institution ticket. Only an approved action can create that ticket. A demo institution records acknowledgement, work progress and resolution, and residents can follow a public incident timeline. Ambiguous responsibility remains in a review queue. Government identity, utility observations and institution integration are clearly labelled simulations.
 
-Before implementation, resolve the scenario, provider access and deployment ownership. Browser-first intake is already confirmed. Power outage, one district, PostgreSQL, GPT-Live and polling remain recommendations. The user has not approved those choices by receiving this draft.
+Subsequent resolution: browser-first ElevenLabs is confirmed. The feature specification now defines the demo and behavior defaults; its plan records persistence and refresh defaults. Provider setup and deployment ownership remain implementation inputs. Use those documents rather than this historical draft for new tasks.
 
 ## Research verification
 
