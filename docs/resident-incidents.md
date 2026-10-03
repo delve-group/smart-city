@@ -22,5 +22,6 @@ Real local PostgreSQL (migrations 001–007), authenticated fictional resident, 
 - A controlled 503 retained the selected incident/status with stale/retry feedback. No incident requests occurred during 6.6 seconds of hidden-tab visibility; visible refresh resumed. Private unsaved title/observation survived incoming refresh.
 - A resolved incident stayed in detail/history and a new identity received `409 incident_closed`. Both obsolete routes returned `410 endpoint_retired`.
 - Keyboard search selection and 390/1440 px light/dark views were reviewed; mobile had no page overflow. Early selection now waits for map load before applying focus.
+- After integrating the bilingual UI and mobile brand, the real-data mobile smoke check passed retained stale details, category counts/filtering and live geographic search (two Photon results and keyboard selection). The mock preview made no backend requests, restored fictional membership on reload, and passed English/Polish controls at 390 px without overflow.
 
 Lint, typecheck and production build pass. The final cross-screen institution acknowledgement → work → resolution timing and deployed capacity rehearsal remain [#35](https://github.com/delve-group/smart-city/issues/35). No automated tests were added. Search backend integration follows in #33; this slice preserves local incident/place matching.
