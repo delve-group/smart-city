@@ -4,7 +4,7 @@ Recorded: 2026-10-03. Tracking: [#35](https://github.com/delve-group/smart-city/
 
 ## Environment and result
 
-The run used public HTTPS at [mradar.delvengine.com](https://mradar.delvengine.com), deployed revision `4b8405a`. PostgreSQL, Qdrant/local multilingual embeddings and the single worker were real. The default rule-based proposer, utility observations and ticket connector were explicitly fictional demo integrations. The opt-in live Qwen workflow was checked separately on the local stack; production AI/MCP credentials and live browser voice were not enabled.
+The run used public HTTPS at [mradar.delvengine.com](https://mradar.delvengine.com), deployed revision `4b8405a`. PostgreSQL, Qdrant/local multilingual embeddings and the single worker were real. The default rule-based proposer, utility observations and ticket connector were explicitly fictional demo integrations. That first run used disabled decision mode; the subsequent release `2354b82` enables real Scaleway Qwen assessment. Production MCP credentials and live browser voice remain unconfigured.
 
 Three separate guest sessions submitted confirmed form drafts describing the same fictional street outage. Observation time was deliberately seven days earlier to isolate the rehearsal from existing demo incidents. The descriptions and location label explicitly identified a fictional rehearsal; this was not a reported real outage. Saved references `R-26-001009`, `R-26-001010` and `R-26-001011` grouped into one incident, `INC-26-000203`, with three distinct supporters. Replaying each submission returned its original report. Repeating affected contributions from those reporters kept support at three.
 
@@ -33,22 +33,44 @@ Fifteen separate resident sessions each read the incident, performed one hybrid 
 
 This single short run measures backend reads/search on the current small deployed corpus. It does not establish sustained 15-user capacity, concurrent submissions, complete browser journeys or simultaneous voice-provider capacity. The separate 1,000-source indexing/retrieval observations remain in the [search guide](knowledge-base/qdrant-search.md). No load framework or automated tests were added.
 
+## Additional deployed recovery and model checks
+
+A backup preceded the failure rehearsal. With Qdrant stopped, search returned 503 while fictional report `R-26-001012` committed and index retries remained stored. The guest session, saved report and submitted draft/reference survived an app/worker restart during that outage. Starting Qdrant and running provider setup/rebuild restored retrieval of the saved private source.
+
+| Fictional connector fault | Actual deployed result |
+| --- | --- |
+| Known failure, `R-26-001013` | Same-key stored retry created exactly one request/ticket, `ELE-26-000422`. |
+| Timeout before delivery, `R-26-001014` | Unknown state survived app/worker restart; exact-key reconciliation confirmed no request and created zero tickets. |
+| Timeout after delivery, `R-26-001015` | Unknown state survived restart; lookup recovered the already delivered request as `ELE-26-000423`, with no resend. |
+
+Temporary connector fault rows were removed and services restarted. These use the designed fictional connector fault mechanism, not a real utility outage.
+
+The deployed three-report medium-reasoning snapshot exhausted all 2,048 output tokens on reasoning and produced no answer; low reasoning did the same. Diagnostic replay with the supported `none` setting returned a validated proposal in 1.253 s/234 tokens. The one-line fix is merged as #56 and deployed at `2354b82`, preserving validation, timeout and official approval. Live injected-instruction and unknown-responsibility checks returned review with reasoning disabled.
+
+The next automatic three-report attempt still returned invalid output and safely left `INC-26-000208` in visible review, with no ticket. A new affected contribution changed its version. A one-shot process using the actual deployed worker image, with the ordinary worker paused, traced `handleAssessmentWork` through a real Qwen call: the response was stored as a pending proposal, cited two evidence records and took **1.572 s**, with **170 completion tokens / zero reasoning tokens**. The worker resumed and recovered the queued assessment from that stored result. Three reports plus the extra affected resident made four supporters. Official approval and replay through public HTTPS created exactly one `ELE-26-000424`; institution acknowledgement/work/resolution reached the public API in **150/117/117 ms**. This is real deployed reasoning/proposal/domain evidence, not a claim that the first unattended model request always succeeds.
+
+The same deployed-image check preserved the executed live assessment on replay. Controlled model 503 responses exhausted three stored attempts and retained `R-26-001022` in visible review, with zero tickets. An official dispute during a simulated delayed valid response remained authoritative; the old assessment was superseded with zero proposals/tickets. These two model failure/concurrency responses were simulated; storage and domain services were real. The normal worker was restarted afterward.
+
+Nearby water (`R-26-001024`), street-light (`R-26-001025`), apartment-only (`R-26-001026`) and unknown-scope (`R-26-001027`) deployed submissions all remained `needs_review`, with no incident link. Public search did not return their private reports. These are HTTP counterexamples; the final citizen UI/voice journey is still pending.
+
+Missing (`R-26-001028`), stale (`R-26-001029`) and contradictory (`R-26-001030`) configured observation fixtures each created visible assessment review with zero proposals/tickets. Their stored observation state matched the configured feed; unavailable data was never treated as a zero reading or evidence for dispatch.
+
 ## Specification acceptance matrix
 
 | Criterion | Evidence so far | Remaining before full acceptance |
 | --- | --- | --- |
 | SC-001 — Voice intake | Private ElevenLabs agent setup/settings read-back in #29; three form submissions saved in this deployed run. | Three live scripted conversations, address correction and saved-reference announcements. |
-| SC-002 — Grouping | Three deployed form reports linked to one incident; local deterministic checks cover nearby water/street-light/unit cases and inclusive 300 m/60 min boundaries. | Repeat the complete voice/reference/counterexample journey on deployed integrated UI. |
-| SC-003 — Approval/execution | Deployed rejection creates zero tickets; stale approval denied; approval/replay yields one ticket. Local stored assessment replay preserves execution. | Deployed interrupted connector/executor recovery and final integrated operator journey. |
+| SC-002 — Grouping | Three deployed form reports linked to one incident; deployed water/street-light/unit/unknown-scope reports stay in review with no link. Local deterministic checks cover inclusive 300 m/60 min boundaries. | Repeat the complete voice/reference/counterexample journey on deployed integrated UI. |
+| SC-003 — Approval/execution | Deployed rejection creates zero tickets; stale approval denied; approval/replay yields one ticket. Local stored assessment replay preserves execution. | Final integrated operator/browser journey; deployed connector retry and unknown-outcome restart/reconciliation now pass. |
 | SC-004 — Public progress | Deployed acknowledgement/work/resolution and public API changes observed within 213 ms. | Five-second target measured on active resident/operator screens after #28. |
 | SC-005 — Isolation | Deployed resident approval 403 and Water foreign ticket read/update 404; local real MCP checks also deny authority injection and unauthorized records. | Final integrated direct/browser checks after remaining cutovers. |
 | SC-006 — Distinct support | Three deployed report owners count once each; repeated contributions leave three. | Final linked-report/contribution UI journey. |
-| SC-007 — Recovery | Deployment record covers guest/report persistence and stopped-worker recovery. Local real search outage and controlled AI failure/stale-response checks preserve intake and bounded work. | Deployed voice/search/AI/observation/connector interruption and full browser draft recovery. |
+| SC-007 — Recovery | Deployment record covers guest/report persistence and stopped-worker recovery. Local real search outage and controlled AI failure/stale-response checks preserve intake and bounded work. | Voice failure integration and full browser draft recovery. Missing/stale/contradictory deployed observation fixtures also pass. Deployed search/connector failures and controlled AI failure/stale checks now pass. |
 | SC-008 — Public data | Scoped search and current-source hydration passed backend isolation checks; public incident uses controlled projection. | Inspect final map/search/voice UI and all public payloads together for private/unit/transcript leakage. |
 | SC-009 — Usability | Persistent citizen form is deployed. | Keyboard-only review at 390/1440 px in both themes and usable fallback after actual voice failure. |
 | SC-010 — Search | #32 accepted: real Polish retrieval, all kinds/uncategorized sources, filters, stale mutation/revocation/deletion and outage recovery. | Final deployed resident search UI in #33. |
 
-The final dependencies remain Rafal's #28 incident map, #29 browser voice and #33 resident search UI. #35 and the agent-3 tracker stay open until the complete acceptance run passes. Lint/typecheck/production build passed at `2833d2d`; subsequent acceptance changes are documentation only and pass `git diff --check`.
+The final dependencies remain Rafal's #28 incident map, #29 browser voice and #33 resident search UI. #35 and the agent-3 tracker stay open until the complete acceptance run passes. Lint/typecheck/production build passed for the integrated #56 fix; the native x64 production build and HTTPS readiness passed at deployed `2354b82`. Subsequent evidence changes are documentation only and pass `git diff --check`.
 
 ## Operator preparation and recovery
 
