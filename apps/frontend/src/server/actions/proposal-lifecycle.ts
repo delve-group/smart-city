@@ -15,7 +15,7 @@ export type ProposalState =
 
 export type PayloadLine = { key: string; value: string };
 
-export const RULE_BASED_PROPOSER = "Rule-based proposer (demo)";
+export const RULE_BASED_PROPOSER = "Rule-based proposer";
 
 interface IncidentFacts {
   id: string;
@@ -55,7 +55,7 @@ function buildPayload(incident: IncidentFacts, evidenceCount: number): PayloadLi
   return [
     { key: "Issue", value: incident.title },
     { key: "Area", value: [incident.public_label, incident.district].filter(Boolean).join(", ") },
-    { key: "Residents reporting", value: `${incident.support_count} (demo identities, unverified)` },
+    { key: "Residents reporting", value: `${incident.support_count} (unverified identities)` },
     { key: "City assessment", value: incident.assessment },
     { key: "Evidence items", value: String(evidenceCount) },
   ];
@@ -150,7 +150,7 @@ export async function afterIncidentChange(client: PoolClient, incidentId: string
     institution_id: incident.responsible_institution_id,
     created_by: RULE_BASED_PROPOSER,
     explanation: superseded
-      ? "Updated after the incident changed; replaces the earlier proposal. Prepared from the configured demo responsibility rule, without a language model."
-      : `Prepared from the configured demo responsibility rule${incident.responsibility_rule_id ? ` ${incident.responsibility_rule_id}` : ""}, without a language model.`,
+      ? "Updated after the incident changed; replaces the earlier proposal. Prepared from the configured responsibility rule, without a language model."
+      : `Prepared from the configured responsibility rule${incident.responsibility_rule_id ? ` ${incident.responsibility_rule_id}` : ""}, without a language model.`,
   });
 }

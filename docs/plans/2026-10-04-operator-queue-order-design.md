@@ -6,4 +6,4 @@ The review queue currently puts urgent incidents first, then sorts by the oldest
 
 Use the existing pure queue helper, which runs after initial loading, polling, commands and filtering in both persistent and mock modes. No API, data model, component or dependency changes are needed. In incident evidence, sort linked reports by descending submission time as well; the incident's start time continues to be derived independently from its earliest report.
 
-Verify ordering, filtering, refresh, linked-report details and keyboard use with a short manual review, then run lint, typecheck and build. Do not introduce tests during the PoC phase. D074 and the design system record the resulting behavior.
+Verify ordering, filtering, refresh, linked-report details and keyboard use with a short manual review, then run lint, typecheck and build. Do not introduce tests during the PoC phase. D075 and the design system record the resulting behavior.

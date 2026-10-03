@@ -45,7 +45,7 @@ export async function resolveResponsibility(
       rule_id: row.id,
       ruleset_version: row.ruleset_version,
       institution: { id: row.institution_id, name: row.name, is_demo: row.is_demo },
-      reason: `Demo rule ${row.id}: ${input.category_id}/${row.issue_type ?? "any issue"} in ${row.service_area_id ?? "any area"}.`,
+      reason: `Rule ${row.id}: ${input.category_id}/${row.issue_type ?? "any issue"} in ${row.service_area_id ?? "any area"}.`,
     });
   }
   const matches = [...byInstitution.values()];

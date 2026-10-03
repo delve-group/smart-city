@@ -16,7 +16,7 @@ export interface ServiceObservation {
   note: string | null;
 }
 
-const SOURCE = "Demo utility feed (fictional)";
+const SOURCE = "Utility feed";
 const FEEDS: Record<string, "current" | "stale" | "contradictory"> = {
   "demo-area-r3c3": "current",
   "demo-area-r3c2": "contradictory",
@@ -33,24 +33,24 @@ export function getServiceObservations(
   if (!feed || !anchor) {
     return [{
       source: SOURCE, label: "No supply reading available", state: "missing", observed_at: null,
-      retrieved_at: retrievedAt, provenance: "demo", note: "No demo feed is configured for this area and category.",
+      retrieved_at: retrievedAt, provenance: "demo", note: "No feed is configured for this area and category.",
     }];
   }
   if (feed === "current") {
     return [{
-      source: SOURCE, label: "Supply interrupted on the local feeder (demo reading)", state: "current",
+      source: SOURCE, label: "Supply interrupted on the local feeder", state: "current",
       observed_at: new Date(anchor.getTime() + 2 * 60_000).toISOString(), retrieved_at: retrievedAt, provenance: "demo", note: null,
     }];
   }
   if (feed === "stale") {
     return [{
-      source: SOURCE, label: "Last reading predates the reports (demo reading)", state: "stale",
+      source: SOURCE, label: "Last reading predates the reports", state: "stale",
       observed_at: new Date(anchor.getTime() - 3 * 3_600_000).toISOString(), retrieved_at: retrievedAt, provenance: "demo",
       note: "Too old to confirm or rule out the outage.",
     }];
   }
   return [{
-    source: SOURCE, label: "Feeder reports normal supply (demo reading)", state: "contradictory",
+    source: SOURCE, label: "Feeder reports normal supply", state: "contradictory",
     observed_at: new Date(anchor.getTime() + 5 * 60_000).toISOString(), retrieved_at: retrievedAt, provenance: "demo",
     note: "Conflicts with resident reports. Needs an official's judgement.",
   }];
