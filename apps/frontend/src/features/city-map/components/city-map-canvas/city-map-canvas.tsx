@@ -79,6 +79,8 @@ export default function CityMapCanvas({
   tilted = false,
 }: CityMapCanvasProps) {
   const mapRef = useRef<MapRef>(null);
+  /** True while the camera moves (drag, zoom, fly-to); hover is meaningless then. */
+  const movingRef = useRef(false);
   const scheme = useColorScheme();
   // Re-read tokens when the theme changes; `scheme` is the cache key.
   const colors = useMemo(() => ({ scheme, ...readMapColors(categoryIds) }), [scheme, categoryIds]);
@@ -126,12 +128,19 @@ export default function CityMapCanvas({
     17, ["+", base * 2, ["*", ["get", "weight"], 12]],
   ];
 
+  function handleMoveStart() {
+    movingRef.current = true;
+    onHover(null);
+  }
+
   function handleMove(event: MapLayerMouseEvent) {
+    if (movingRef.current) return;
     const id = event.features?.[0]?.properties?.id;
     onHover(typeof id === "string" ? { id, x: event.point.x, y: event.point.y } : null);
   }
 
   function handleMoveEnd(event: ViewStateChangeEvent) {
+    movingRef.current = false;
     onCenterChange?.({ lat: event.viewState.latitude, lng: event.viewState.longitude });
   }
 
@@ -156,6 +165,7 @@ export default function CityMapCanvas({
       onMouseMove={interactive ? handleMove : undefined}
       onMouseLeave={() => onHover(null)}
       onClick={interactive ? handleClick : undefined}
+      onMoveStart={handleMoveStart}
       onMoveEnd={handleMoveEnd}
     >
       {/* Bottom-left: the detail panel owns the right edge, and attribution must stay visible. */}
