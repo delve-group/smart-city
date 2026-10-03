@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import "@appica/ui-react/styles.css";
-@import "../../design-system/appica-theme.css";
+@import "../styles/appica-theme.css";
 
 /* Path is relative to this file; without it Appica components render unstyled. */
 @source "../../node_modules/@appica/ui-react/dist";

@@ -1,6 +1,6 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "web", "runtimeExecutable": "npm", "runtimeArgs": ["run", "dev"], "port": 3000 }
+    { "name": "frontend", "runtimeExecutable": "npm", "runtimeArgs": ["--prefix", "apps/frontend", "run", "dev"], "port": 3000 }
   ]
 }

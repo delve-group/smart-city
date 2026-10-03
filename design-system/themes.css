@@ -1,4 +1,4 @@
-/* Tokens for the dependency-free preview.html only. The app uses appica-theme.css. */
+/* Tokens for the dependency-free preview.html only. The app uses apps/frontend/src/styles/appica-theme.css. */
 :root, :root[data-theme="civic"] {
   color-scheme: light;
   --background: #F5F7FA;
