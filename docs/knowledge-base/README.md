@@ -12,6 +12,7 @@ This base holds project context and decisions; it is not the app's database or a
 | Citizen report scripts for manual testing, voice rehearsals and demo videos | [Selected citizen use cases](citizen-use-cases.md) |
 | Implementing agent search, MCP ticket/incident search tools, related-ticket retrieval or shared user search | [Qdrant search decision and implementation guide](qdrant-search.md) — read before implementation |
 | Resident search controls, public results and map/place fallback | [Resident search](../resident-search.md) |
+| Private voice provider setup and owned session/tool API | [Dispatcher setup](../voice-dispatcher.md), [voice sessions](../voice-sessions.md) |
 | Map sources, WMS/WFS, buildings, parcels and 3D | [Geospatial data and Geoportal](geospatial-data.md) |
 | Module boundaries, data flow, libraries and scaling | [Architecture](../architecture.md) |
 | Frontend–backend contract: implemented demo, specified voice-to-incident PoC and future platform | [API contract](../api-contract.md) |

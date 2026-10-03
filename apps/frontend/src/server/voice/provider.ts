@@ -30,7 +30,7 @@ export async function requestProvider<T>(path: string, apiKey: string, schema: z
   return result.data;
 }
 
-/** Preparation only: final HTTP session service must enforce owner/limits before calling this. */
+/** Called only after the owned session service reserves the resident's bounded lease. */
 export function getConversationCredential(config: { apiKey: string; agentId: string; versionId: string }, signal?: AbortSignal) {
   const query = new URLSearchParams({ agent_id: config.agentId, version_id: config.versionId });
   return requestProvider(`/v1/convai/conversation/token?${query}`, config.apiKey,

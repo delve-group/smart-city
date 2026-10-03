@@ -89,6 +89,9 @@ services:
       context: ./apps/frontend
       target: production
     environment:
+      ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:-}
+      ELEVENLABS_AGENT_ID: ${ELEVENLABS_AGENT_ID:-}
+      ELEVENLABS_AGENT_VERSION_ID: ${ELEVENLABS_AGENT_VERSION_ID:-}
       <<: [*application-environment, *search-environment]
       NODE_ENV: production
       MCP_DECISION_TOKEN: ${MCP_DECISION_TOKEN:-}

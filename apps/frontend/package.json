@@ -25,6 +25,7 @@
   "dependencies": {
     "@appica/icons-react": "^1.1.0",
     "@appica/ui-react": "^1.2.0",
+    "@elevenlabs/react": "1.16.0",
     "@huggingface/transformers": "4.3.0",
     "@modelcontextprotocol/sdk": "1.32.0",
     "@next/env": "16.3.8",
