@@ -38,7 +38,7 @@ export async function requireSession(token: string | null, role?: ActorRole): Pr
 
 export async function insertSession(client: PoolClient, actor: Actor): Promise<IssuedSession> {
   const token = randomBytes(32).toString("base64url");
-  const durationSeconds = actor.identity_kind === "guest" ? 7 * 24 * 60 * 60 : 8 * 60 * 60;
+  const durationSeconds = 30 * 24 * 60 * 60;
   const result = await client.query<{ expires_at: Date }>(
     `INSERT INTO sessions (token_hash, actor_id, expires_at)
      VALUES ($1, $2, now() + $3 * interval '1 second') RETURNING expires_at`,

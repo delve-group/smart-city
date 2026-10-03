@@ -53,7 +53,7 @@ The backend lives in `apps/frontend/src/server/` behind thin Next.js route handl
 | `GET /api/operations/me` | Official-only identity endpoint. |
 | `GET /api/institution/me` | Institution-only identity and assigned demo institution. |
 
-Seeded usernames are `official`, `electricity` and `water`. Their passwords come from the corresponding `DEMO_*_PASSWORD` values in your ignored `.env`; there is no built-in password. Sessions use an HttpOnly cookie, with Secure enabled for HTTPS. Guest sessions last seven days; staff sessions last eight hours. Staff login replaces the current session, and logout or cookie loss ends guest recovery. Use separate browser profiles for resident and staff demonstrations. A public request cannot choose a staff role or institution.
+Seeded usernames are `official`, `electricity` and `water`. Their passwords come from the corresponding `DEMO_*_PASSWORD` values in your ignored `.env`; there is no built-in password. Sessions use an HttpOnly cookie, with Secure enabled for HTTPS. New guest and staff sessions last 30 days from creation, without automatic renewal. Previously issued sessions keep their original expiry; sign in again to receive the longer staff session. Staff login replaces the current session, and logout or cookie loss ends guest recovery. Use separate browser profiles for resident and staff demonstrations. A public request cannot choose a staff role or institution.
 
 All auth writes require an `Origin` header matching `APP_ORIGIN`. For example:
 
