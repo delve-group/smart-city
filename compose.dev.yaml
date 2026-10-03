@@ -1,0 +1,14 @@
+services:
+  setup:
+    environment:
+      NODE_ENV: development
+  app:
+    build:
+      target: development
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./apps/frontend/src:/app/src
+      - ./apps/frontend/scripts:/app/scripts
+      - ./apps/frontend/db:/app/db
+    command: ["npm", "run", "dev", "--", "--hostname", "0.0.0.0"]

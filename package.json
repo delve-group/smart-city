@@ -1,0 +1,15 @@
+{
+  "name": "smart-city",
+  "private": true,
+  "engines": { "node": ">=22.14" },
+  "scripts": {
+    "dev": "node scripts/stack.mjs dev",
+    "start": "node scripts/stack.mjs production",
+    "config:check": "node scripts/stack.mjs check",
+    "stack:down": "node scripts/stack.mjs down",
+    "stack:logs": "node scripts/stack.mjs logs",
+    "lint": "npm --prefix apps/frontend run lint",
+    "typecheck": "npm --prefix apps/frontend run typecheck",
+    "build": "npm --prefix apps/frontend run build"
+  }
+}

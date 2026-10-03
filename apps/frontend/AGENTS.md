@@ -1,6 +1,6 @@
 # Frontend — agent rules
 
-The [root rules](../../AGENTS.md) apply too. Run commands in this directory: `npm run dev`, `npm run lint`, `npm run typecheck`, `npm run build`.
+The [root rules](../../AGENTS.md) apply too. Start the local stack using the root [README](../../README.md#running). Run app checks in this directory: `npm run lint`, `npm run typecheck`, `npm run build`.
 
 ## Code structure
 
@@ -22,6 +22,7 @@ src/
   shared/                       # code used by more than one feature
     components/<component>/     # shared components
     hooks/, utils/, theme/, styles/
+  server/                       # server-only feature services, auth and data access
 ```
 
 - Split code by business feature, not by file type. Do not dump everything into one folder.
@@ -59,7 +60,7 @@ Component index (fetch a component's `.md` page before using it for the first ti
 - Report places: `city-map-canvas/use-report-places.ts` matches each report in view (street zoom) to the building it is in or the road within 30 m, from rendered tile features. Tiles merge neighbouring buildings into one feature with one id, so never colour buildings by id or feature state — copy the single footprint (`utils/building-footprint.ts`) into the report-buildings source instead.
 - Place search and reverse geocoding use the public Photon instance (fair use, no key). Replace it with a self-hosted or commercial geocoder before real traffic.
 - Categories are API data. Style known ids in `shared/utils/category-appearance.ts` and the `--category-*` tokens; unknown ids fall back to a neutral style, never break.
-- `src/app/api/*` is a demo backend with an in-memory store. Validate request bodies there with the same Zod schema the client uses (`src/api/reports/types.ts`).
+- The category/report routes remain an in-memory demo; validate report input with `src/api/reports/types.ts`. Persistent auth/health routes are thin adapters to `src/server/`. Before adding persistent API operations, read [the API contract](../../docs/api-contract.md); reuse its session, origin, permission and response boundaries. Add database changes as new numbered SQL migrations in `db/migrations/`.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

@@ -22,7 +22,7 @@ Polished and professional: hue-free greys carry the interface, so the map and th
 | Base map | land `#EEEEEE`, streets `#FFFFFF`, main roads `#FBF6EC`/`#F6EAD2` | land `#141414`, streets `#242424`, main roads `#34302A`/`#463E31` | `--map-*`; app greys with a faint warm accent on main roads; 3D buildings `--map-building-3d` |
 | Heatmap | rose wash → `#E11D48` → `#9F1239` | rose wash → `#F43F5E` → `#FDA4AF` core | `--heat-low/mid/high`; one hue, translucent edges |
 
-Typeface: [Geist](https://vercel.com/font) and Geist Mono via `next/font` (self-hosted at build time, Latin Extended for Polish).
+Typeface: [Geist](https://vercel.com/font) and Geist Mono from the pinned `geist` package via `next/font/local` (bundled variable fonts with Polish diacritics; no Google font download during development or builds).
 
 ## Shared foundations
 
