@@ -9,8 +9,9 @@ import { getReport } from "@/api/intake/get-report";
 import { createReport } from "@/api/reports/create-report";
 import { draftFieldsSchema, EMPTY_DRAFT_FIELDS, type DraftFields, type IntakeDraft, type IssueType, type Report } from "@/api/intake/types";
 import type { LocationCandidate } from "@/api/locations/types";
+import { USE_MOCKS } from "@/api/mocks/use-mocks";
 
-const RECOVERY_KEY = "mradar-resident-draft";
+const RECOVERY_KEY = USE_MOCKS ? "mradar-mock-resident-draft" : "mradar-resident-draft";
 
 /** Owned server state survives picker/form remounts. Browser storage holds only its ID. */
 export function useIntakeDraft() {

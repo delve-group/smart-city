@@ -151,7 +151,7 @@ type TimelineKind = "reported" | "corroborated" | "verified" | "disputed" | "ass
 
 ### Official and institution shapes
 
-The official workspace keeps the wire types already in [`src/api/operations/types.ts`](../apps/frontend/src/api/operations/types.ts) (`WorkspaceDto`, `IncidentDto`, `OperationsReportDto`, `ProposalDto`, `TicketDto`, evidence and history). Persistence replaces the store behind them; additive changes made by [#25](https://github.com/delve-group/smart-city/issues/25)/[#27](https://github.com/delve-group/smart-city/issues/27) are recorded here when they land. Known additions: reports gain `issue_type`, `scope`, `urgent` and `processing: { state: "idle" | "queued" | "retrying" | "failed", detail: string | null }`; proposals gain `execution: { state, attempts, last_error } | null`; tickets gain `version`.
+The official workspace keeps the wire types already in [`src/api/operations/types.ts`](../apps/frontend/src/api/operations/types.ts) (`WorkspaceDto`, `IncidentDto`, `OperationsReportDto`, `ProposalDto`, `TicketDto`, evidence and history). Persistence replaces the store behind them; additive changes made by [#25](https://github.com/delve-group/smart-city/issues/25)/[#27](https://github.com/delve-group/smart-city/issues/27) are recorded here when they land. Additions made with #27: reports carry `issue_type`, `scope` and `urgent`; proposals carry `execution_error: string | null`; tickets carry `version`. A report still `pending` a minute after submission appears in the queue with review reason `pending_triage`, so a stopped worker never hides it.
 
 ```ts
 type InstitutionTicket = {
@@ -259,7 +259,7 @@ Delivered by [#27](https://github.com/delve-group/smart-city/issues/27); the dom
 | --- | --- | --- | --- |
 | `GET /api/operations/review` | — | — | Workspace: queue, incidents, staff-visible reports, institutions. |
 | `GET /api/operations/incidents/{id}` | — | — | One `IncidentDto` with linked reports, evidence, proposals, history. |
-| `POST /api/operations/reports/{id}/triage` | `{ "decision": "link", "expected_version", "incident_id", "expected_incident_version", "reason"? }` | Report + target incident version. `reason` required when the report is already linked (**link correction**) or automatic eligibility is being overridden. | Links/relinks; history keeps the earlier link; support recomputed on both incidents; both incident versions +1. |
+| `POST /api/operations/reports/{id}/triage` | `{ "decision": "link", "expected_version", "incident_id", "expected_incident_version", "reason"? }` | Report + target incident version. `reason` required when the report is already linked (**link correction**); a human link may override automatic eligibility. | Links/relinks; history keeps the earlier link; support recomputed on both incidents; both incident versions +1. |
 | | `{ "decision": "new_incident", "expected_version", "reason"? }` | Report version. | New `suspected` incident anchored at the report. |
 | | `{ "decision": "private_issue" \| "out_of_scope", "expected_version", "reason" }` | Report version; `reason` required and becomes `resident_next_step`. | Disposition; unlinks if linked. |
 | `POST /api/operations/reports/{id}/classification` | `{ "expected_version", "category_id"?, "issue_type"?, "scope"?, "reason" }` | Report version; `reason` required. | Corrects classification; the original observation is untouched; triage is re-queued unless the report is linked. |
@@ -297,7 +297,11 @@ POST /api/operations/incidents/inc_0142/commands   { "type": "verify", "expected
 
 ## 6. Execution identity
 
-Delivered by [#27](https://github.com/delve-group/smart-city/issues/27). The execution key is `execute:proposal:{proposal_id}`, stored with the proposal. `service_tickets.proposal_id` is unique, and a partial unique index allows one non-terminal ticket per incident. The executor claims `approved → executing` atomically, rechecks proposal and incident versions (except for an already `executed` proposal, which returns its ticket first), calls the demo connector with the key, and records `executed`, `failed` (known no effect; retry allowed after revalidation) or `unknown` (resend blocked until reconciliation). The connector is idempotent by key and supports lookup by key. Execution records its own `triaged → assigned` transition and does not invalidate itself. There is no public execute route.
+Delivered by [#27](https://github.com/delve-group/smart-city/issues/27). The execution key is `execute:proposal:{proposal_id}`, stored with the proposal and used both as the `execute` work idempotency key and as the connector's request key. `service_tickets.proposal_id` is unique, and a partial unique index allows one non-terminal ticket per incident. The executor claims `approved → executing` atomically, rechecks proposal and incident versions (except for an already `executed` proposal, which returns its ticket first), calls the demo connector with the key, and records `executed`, `failed` (known no effect; retry allowed after revalidation) or `unknown` (resend blocked until reconciliation). The connector is idempotent by key and supports lookup by key. Execution records its own `triaged → assigned` transition and does not invalidate itself. There is no public execute route.
+
+The `execute` handler answers `retry` for a known no-effect failure (the same key is sent again after revalidation, within the worker's bounded retries) and `failed` with reason `execution_unknown` for an unknown outcome, which is never resent automatically. Reconciliation looks the key up at the connector: a found request becomes the ticket; otherwise the proposal is `failed` and the official prepares a fresh proposal. While a proposal is `executing` or `unknown`, new proposals and approvals for that incident are refused with `execution_unknown`.
+
+Until the decision-maker ([#34](https://github.com/delve-group/smart-city/issues/34)) exists, a labelled **rule-based proposer (demo)** prepares the pending proposal whenever an active incident with exactly one configured institution changes materially. It uses no model, follows the same `propose_action` rules and is superseded by any later proposal. `proposeAction` (decision-maker only) requires the single configured institution and evidence IDs stored on the incident.
 
 ## 7. Institution tickets
 
@@ -309,7 +313,7 @@ Delivered by [#31](https://github.com/delve-group/smart-city/issues/31). Institu
 | `GET /api/institution/tickets/{id}` | — | `200 InstitutionTicket` | `not_found` for another institution's ticket |
 | `PATCH /api/institution/tickets/{id}` | `{ "status": "acknowledged" \| "in_progress" \| "resolved" \| "rejected", "expected_version", "note"?, "expected_resolution_at"? }` | `200 InstitutionTicket`, `version` | `version_conflict`, `invalid_state`, `not_found` |
 
-`note` (3–500 chars) is required for `resolved` and `rejected`. Transitions follow spec §4; anything else is `invalid_state`.
+`note` (3–500 chars) is required for `resolved` and `rejected` and optional otherwise; it is stored on the ticket event and shown to the official, never on the public timeline. Transitions follow spec §4; anything else is `invalid_state`. Acknowledgement leaves the incident `assigned`; `in_progress` and `resolved` move it; `rejected` returns it to `triaged` with review reason `ticket_rejected`, clears the responsible institution and creates no replacement proposal. The same `listTickets` / `getServiceTicket` / `updateServiceTicket` services in `server/institutions/tickets.ts` back the HTTP routes and the later MCP tools.
 
 ```http
 PATCH /api/institution/tickets/tkt_22c   { "status": "resolved", "expected_version": 3, "note": "Feeder repaired, supply restored." }

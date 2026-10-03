@@ -1,5 +1,5 @@
 /**
- * DEMO DATA. Fictional incidents, reports and institutions at real Kraków streets, covering
+ * MOCK DATA for `npm run dev:ui` (see use-mocks.ts). Fictional incidents, reports and institutions at real Kraków streets, covering
  * every review-queue case: a ready proposal, an urgent report, an uncertain link, an
  * apartment-only report, failed triage, an institution rejection and finished work.
  * Times are relative to "now". Institutions are fictional demo services, not real companies.

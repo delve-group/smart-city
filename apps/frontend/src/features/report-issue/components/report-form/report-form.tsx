@@ -13,6 +13,7 @@ import { CategoryField } from "../category-field/category-field";
 import { SeverityField } from "../severity-field/severity-field";
 import { ObservationFields } from "../observation-fields/observation-fields";
 import { ReportOutcome } from "../report-outcome/report-outcome";
+import { USE_MOCKS } from "@/api/mocks/use-mocks";
 
 type Props = { categories: readonly Category[]; intake: IntakeController; onChangeLocation: () => void; onCancel: () => void; onNew: () => void };
 
@@ -42,7 +43,7 @@ export function ReportForm({ categories, intake, onChangeLocation, onCancel, onN
                   <Button variant="ghost" size="sm" disabled={blocked} onClick={onChangeLocation}><ArrowLeft data-icon="start" />Change</Button>
                 </div>
                 <p aria-live="polite" className="text-xs text-foreground-muted">
-                  Guest · unverified. {saving ? "Saving draft…" : dirty ? "Unsaved edits — review to save, or wait for automatic save." : "Draft saved; it can be recovered after refresh."}
+                  {USE_MOCKS ? "UI mock · stored in this browser." : "Guest · unverified."} {saving ? "Saving draft…" : dirty ? "Unsaved edits — review to save, or wait for automatic save." : "Draft saved; it can be recovered after refresh."}
                 </p>
                 <Fieldset disabled={busy} className="gap-5">
                   <CategoryField categories={categories} value={fields.category_id ?? ""} autoFocus onChange={(category_id) => edit({ category_id, issue_type: null })} />

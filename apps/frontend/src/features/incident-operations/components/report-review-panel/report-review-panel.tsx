@@ -14,7 +14,7 @@ import { InfoHint } from "@/shared/components/info-hint/info-hint";
 import { formatAgo } from "@/shared/utils/format-time";
 import { RESPONSE } from "../../utils/labels";
 import { reportsOf } from "../../utils/queue";
-import { Fact, FACTS } from "../fact/fact";
+import { Fact, FACTS } from "@/shared/components/fact/fact";
 import { PanelHeader } from "../panel-header/panel-header";
 import { ReviewNotice } from "../review-notice/review-notice";
 
@@ -61,7 +61,12 @@ export function ReportReviewPanel({ report, workspace, category, now, onClose, o
     }
     const expected_version = report.version;
     const triage: ReportTriage = choice.startsWith("link:")
-      ? { decision: "link", expected_version, incident_id: choice.slice(5) }
+      ? {
+          decision: "link",
+          expected_version,
+          incident_id: choice.slice(5),
+          expected_incident_version: workspace.incidents.find((incident) => incident.id === choice.slice(5))?.version ?? 1,
+        }
       : choice === "new_incident"
         ? { decision: "new_incident", expected_version }
         : { decision: choice as "private_issue" | "out_of_scope", expected_version, reason: reason.trim() };

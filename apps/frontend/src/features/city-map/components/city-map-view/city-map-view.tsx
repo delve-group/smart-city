@@ -21,6 +21,7 @@ import { AppBrand } from "@/shared/components/app-brand/app-brand";
 import { useAffectedReports } from "../../hooks/use-affected-reports";
 import { heatWeight } from "../../utils/heat-weight";
 import { useCityData } from "../../hooks/use-city-data";
+import { useUserLocation } from "../../hooks/use-user-location";
 import { useNow } from "@/shared/hooks/use-now";
 import { INITIAL_VIEW, type MapFocus, type MapHover, type MapPoint } from "../city-map-canvas/map-types";
 import { DataStatus } from "../data-status/data-status";
@@ -49,6 +50,7 @@ export function CityMapView() {
   const { isAffected, markAffected } = useAffectedReports();
   const toast = useToastManager();
   const now = useNow();
+  const userLocation = useUserLocation();
   const isDesktop = useMediaQuery("(min-width: 768px)", { defaultValue: true });
   const containerRef = useRef<HTMLDivElement>(null);
   const [bounds, setBounds] = useState({ width: 0, height: 0 });
@@ -166,6 +168,7 @@ export function CityMapView() {
           bottom: selected && !isDesktop ? bounds.height * 0.72 : 0,
         }}
         draftPin={mode.kind === "form" ? intake.fields.location ?? undefined : undefined}
+        userLocation={userLocation}
         interactive={mode.kind === "browse"}
         onHover={setHover}
         onSelect={selectFromMap}

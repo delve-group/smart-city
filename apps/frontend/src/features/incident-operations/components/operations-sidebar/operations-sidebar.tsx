@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger } from "@appica/ui-react/tabs";
 import type { Category } from "@/api/categories/types";
 import { AppBrand } from "@/shared/components/app-brand/app-brand";
 import { QUEUE_TABS, TAB_LABEL, type QueueItem as QueueItemData, type QueueTab } from "../../utils/queue";
-import { FreshnessStatus } from "../freshness-status/freshness-status";
+import { FreshnessStatus } from "@/shared/components/freshness-status/freshness-status";
 import { QueueItem } from "../queue-item/queue-item";
 
 const EMPTY: Record<QueueTab, string> = {
@@ -28,6 +28,8 @@ type OperationsSidebarProps = {
   updatedAt: number | null;
   refreshFailed: boolean;
   onRefresh: () => void;
+  /** Absent in demo mode, where there is no sign-in. */
+  onSignOut?: () => void;
   /** Phones only: switch from the list to the map. */
   onShowMap: () => void;
 };
@@ -46,6 +48,7 @@ export function OperationsSidebar({
   updatedAt,
   refreshFailed,
   onRefresh,
+  onSignOut,
   onShowMap,
 }: OperationsSidebarProps) {
   const items = queue[tab];
@@ -54,10 +57,13 @@ export function OperationsSidebar({
       <header className="flex flex-col gap-4 border-b border-border-muted px-4 pt-4 pb-3">
         <div className="flex items-center justify-between gap-2">
           <AppBrand variant="plain" product="Operator" />
-          <Button variant="outline" size="sm" className="md:hidden" onClick={onShowMap}>
-            <MapIcon data-icon="start" />
-            Map
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="md:hidden" onClick={onShowMap}>
+              <MapIcon data-icon="start" />
+              Map
+            </Button>
+            {onSignOut && <Button variant="ghost" size="sm" onClick={onSignOut}>Sign out</Button>}
+          </div>
         </div>
         <Input
           type="search"

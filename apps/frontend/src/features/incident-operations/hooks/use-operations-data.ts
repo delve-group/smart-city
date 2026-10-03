@@ -1,11 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { getCategories } from "@/api/categories/get-categories";
 import type { Category } from "@/api/categories/types";
 import { getWorkspace } from "@/api/operations/get-workspace";
-import type { Workspace } from "@/api/operations/types";
+import { OperationsApiError, type Workspace } from "@/api/operations/types";
 
-/** Other screens (institutions, other officials) change the data; the spec targets 5 s. */
-const REFRESH_MS = 5_000;
+/** Other screens (institutions, residents, other officials) change the data; polling at 3 s aims at the 5 s target. */
+const REFRESH_MS = 3_000;
+
+const sessionLost = (error: unknown) => error instanceof OperationsApiError && (error.status === 401 || error.status === 403);
 
 type OperationsState =
   | { status: "loading" }
@@ -16,13 +18,14 @@ type OperationsState =
  * Loads the workspace and keeps it fresh. A failed refresh keeps the last good data and
  * reports when it was fetched, so the official can tell the view is stale.
  */
-export function useOperationsData() {
+export function useOperationsData(onSessionLost: () => void) {
   const [state, setState] = useState<OperationsState>({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
   const [updatedAt, setUpdatedAt] = useState<number | null>(null);
   const [refreshFailed, setRefreshFailed] = useState(false);
   /** Bumped by every local write, so an older poll response cannot overwrite a newer result. */
   const generation = useRef(0);
+  const reportSessionLost = useEffectEvent(onSessionLost);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -33,6 +36,7 @@ export function useOperationsData() {
       })
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
+        if (sessionLost(error)) return reportSessionLost();
         setState({ status: "error", message: error instanceof Error ? error.message : "Unknown error." });
       });
     return () => controller.abort();
@@ -48,16 +52,20 @@ export function useOperationsData() {
       setState((current) => (current.status === "ready" ? { ...current, workspace } : current));
       setUpdatedAt(Date.now());
       setRefreshFailed(false);
-    } catch {
+    } catch (error) {
+      if (sessionLost(error)) return onSessionLost();
       setRefreshFailed(true);
     }
   }
 
+  /** Hidden tabs do not poll; the next visible tick catches up. */
+  const pollWhileVisible = useEffectEvent(() => {
+    if (document.visibilityState === "visible") void refresh();
+  });
+
   useEffect(() => {
     if (!ready) return;
-    const id = setInterval(() => {
-      if (document.visibilityState === "visible") void refresh();
-    }, REFRESH_MS);
+    const id = setInterval(() => pollWhileVisible(), REFRESH_MS);
     return () => clearInterval(id);
   }, [ready]);
 

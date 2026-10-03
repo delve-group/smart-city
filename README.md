@@ -7,7 +7,7 @@ Smart City hackathon project: residents report city problems and follow the resp
 - [Voice and incident feature specification](specs/001-voice-incident-response/spec.md) and [ElevenLabs implementation plan](specs/001-voice-incident-response/plan.md)
 - [System architecture](docs/architecture.md) — includes the [libraries used](docs/architecture.md#libraries)
 - [Design system](docs/design-system.md)
-- [Frontend](apps/frontend) and its [agent rules](apps/frontend/AGENTS.md) — resident map at `/`, official workspace (demo data, no sign-in yet) at `/operations`
+- [Frontend](apps/frontend) and its [agent rules](apps/frontend/AGENTS.md) — resident map at `/`, official workspace at `/operations` and institution inbox at `/institution` (sign in with the seeded `official`, `electricity` or `water` account; fictional demo data)
 - [App tokens](apps/frontend/src/shared/styles/appica-theme.css)
 
 ## Running
@@ -21,6 +21,8 @@ npm run dev
 ```
 
 The app runs at http://localhost:3000. This command validates configuration, builds the containers, starts PostgreSQL, runs migrations and seeds fictional staff accounts, then starts the app with hot reload. It returns after readiness succeeds. Missing configuration is reported by variable name, without printing credentials. No ElevenLabs or Qdrant account is needed for this slice.
+
+**Frontend only, all mocks** (no Docker, database or `.env`): `cd apps/frontend && npm run dev:ui`. Every view (`/`, `/operations`, `/institution`) runs on in-browser mock data and the app makes no backend request; staff pages open without sign-in. Mock state is kept in `localStorage`, so approving on `/operations` shows the ticket on `/institution` (signed in as the Electricity Operator). Clear site data to reset it. Map tiles and place search still load from their public services.
 
 ```bash
 npm run config:check
@@ -52,6 +54,7 @@ The backend lives in `apps/frontend/src/server/` behind thin Next.js route handl
 | `POST /api/auth/logout` | Revoke the session and clear its cookie. |
 | `GET /api/operations/me` | Official-only identity endpoint. |
 | `GET /api/institution/me` | Institution-only identity and assigned demo institution. |
+| `GET /api/institution/tickets`, `GET`/`PATCH /api/institution/tickets/{id}` | The signed-in institution's tickets and their progress updates. |
 | `POST /api/report-drafts`, `GET`/`PATCH /api/report-drafts/{id}` | Resident-owned intake draft with revision checks. |
 | `POST /api/report-drafts/{id}/confirmation` | Confirm exactly the current draft revision. |
 | `POST /api/reports` with `{ draft_id, revision }` | Submit the confirmed draft once; a repeat returns the same report. |
@@ -59,8 +62,11 @@ The backend lives in `apps/frontend/src/server/` behind thin Next.js route handl
 | `GET /api/issue-types` | Issue types a draft may name (demo configuration). |
 | `GET /api/incidents`, `GET /api/incidents/{id}` | Public incident cards and timeline (allowlisted projection). |
 | `POST /api/incidents/{id}/contributions` | "I'm affected too" for the current resident, counted once. |
+| `GET /api/operations/review`, `POST /api/operations/…`, `POST /api/action-proposals/{id}/decision` | Official-only review queue, triage and incident commands, and proposal approval/rejection. |
 
 Seeded usernames are `official`, `electricity` and `water`. Their passwords come from the corresponding `DEMO_*_PASSWORD` values in your ignored `.env`; there is no built-in password. Sessions use an HttpOnly cookie, with Secure enabled for HTTPS. New guest and staff sessions last 30 days from creation, without automatic renewal. Previously issued sessions keep their original expiry; sign in again to receive the longer staff session. Staff login replaces the current session, and logout or cookie loss ends guest recovery. Use separate browser profiles for resident and staff demonstrations. A public request cannot choose a staff role or institution.
+
+**Demo mode.** Set `DEMO_MODE=true` in `.env` and restart to switch staff sign-in off: `/operations` opens as `official` and `/institution` as `electricity`, and staff API routes without a staff session act as those seeded accounts. Run the seed first. Only for fictional demo data; anyone who can reach the app gets staff access.
 
 All auth writes require an `Origin` header matching `APP_ORIGIN`. For example:
 

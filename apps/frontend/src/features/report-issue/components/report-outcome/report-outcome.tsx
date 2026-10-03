@@ -1,11 +1,12 @@
 import { Alert, AlertDescription, AlertTitle } from "@appica/ui-react/alert";
 import { Button } from "@appica/ui-react/button";
 import type { Report } from "@/api/intake/types";
+import { USE_MOCKS } from "@/api/mocks/use-mocks";
 
 export function ReportOutcome({ report, busy, onRefresh, onNew }: { report: Pick<Report, "reference" | "triage_state" | "resident_next_step">; busy: boolean; onRefresh: () => void; onNew: () => void }) {
   return (
     <div className="flex flex-col gap-4">
-      <Alert variant="success"><AlertTitle>Report saved</AlertTitle><AlertDescription>Reference <strong>{report.reference}</strong>. Your observation is recorded.</AlertDescription></Alert>
+      <Alert variant="success"><AlertTitle>{USE_MOCKS ? "UI mock report saved" : "Report saved"}</AlertTitle><AlertDescription>Reference <strong>{report.reference}</strong>. {USE_MOCKS ? "Stored in this browser only." : "Your observation is recorded."}</AlertDescription></Alert>
       <p className="text-sm">{STATUS[report.triage_state]}</p>
       {report.resident_next_step && <p className="text-sm">{report.resident_next_step}</p>}
       <p className="text-xs text-foreground-muted">Guest identity · unverified. This is a demo workflow. Your original observation stays private; public incidents appear after publication review.</p>

@@ -1,10 +1,13 @@
 import { z } from "zod";
+import { fromMock, USE_MOCKS } from "../mocks/use-mocks";
+import { mockIntake } from "../mocks/intake";
 
 export class IntakeError extends Error {
   constructor(readonly code: string, message: string) { super(message); }
 }
 
 export async function requestIntake<T>(path: string, schema: z.ZodType<T>, options?: RequestInit): Promise<T> {
+  if (USE_MOCKS) return fromMock(() => schema.parse(mockIntake(path, options)));
   let response: Response;
   try { response = await fetch(path, { credentials: "same-origin", ...options }); }
   catch { throw new IntakeError("network_error", "The connection was lost. Your input is still here; check the draft before retrying."); }

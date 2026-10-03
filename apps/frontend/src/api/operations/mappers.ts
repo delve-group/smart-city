@@ -28,6 +28,7 @@ function mapProposal(dto: ProposalDto): Proposal {
     decidedBy: dto.decided_by,
     decidedAt: dto.decided_at,
     reason: dto.reason,
+    executionError: dto.execution_error ?? null,
   };
 }
 
@@ -37,6 +38,7 @@ function mapTicket(dto: TicketDto): Ticket {
     reference: dto.reference,
     institutionId: dto.institution_id,
     status: dto.status,
+    version: dto.version ?? 1,
     expectedResolutionAt: dto.expected_resolution_at,
     events: dto.events,
   };
@@ -88,6 +90,9 @@ function mapReport(dto: OperationsReportDto): OperationsReport {
     reference: dto.reference,
     channel: dto.channel,
     categoryId: dto.category_id,
+    issueType: dto.issue_type ?? null,
+    scope: dto.scope ?? "unknown",
+    urgent: dto.urgent ?? false,
     summary: dto.summary,
     observedAt: dto.observed_at,
     submittedAt: dto.submitted_at,

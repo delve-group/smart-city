@@ -4,7 +4,7 @@ import { categoryAppearance } from "@/shared/utils/category-appearance";
 import { formatAgo } from "@/shared/utils/format-time";
 import { REVIEW, RESPONSE, TICKET } from "../../utils/labels";
 import type { QueueItem as QueueItemData } from "../../utils/queue";
-import { Fact } from "../fact/fact";
+import { Fact } from "@/shared/components/fact/fact";
 
 type QueueItemProps = {
   item: QueueItemData;

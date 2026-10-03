@@ -38,6 +38,8 @@ The resident explicitly confirms the server readback for the current revision be
 
 Raw-create POST compatibility is retired with `400 legacy_contract_retired`; existing labelled public mock reads/contributions remain until the complete #28 map cutover. No persistent private report is added to that mock feed. The isolated local PostgreSQL manual review does not verify Docker startup, deployment or live voice switching.
 
+`npm run dev:ui` keeps the incoming database-free preview: intake uses explicitly labelled browser fixtures and `MOCK-*` references, with a separate recovery key/store. That development mode stores fictional form data in the browser, reuses the same pure draft rules, and calls public Photon directly. It cannot authenticate or create server reports. Normal development/production stores only the recovery draft ID in browser storage and uses the authenticated application endpoints; all persistence acceptance evidence comes from that mode.
+
 ## Manual review
 
 Use Find with a broad address and then a corrected building number. Verify choices show unknown building numbers honestly, selection moves the map, and a moved pin does not retain an old address. Review unsuccessful queries, provider failure, out-of-bounds pin, cancelled/out-of-order responses, keyboard navigation, 390/1440 px layouts and both themes. The pin must remain usable when the provider fails. Run lint, typecheck and build. Actual evidence and remaining integration gaps are recorded on #26 and its PR; this document is not an end-to-end completion claim.

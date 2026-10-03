@@ -1,7 +1,14 @@
+import type { NextRequest } from "next/server";
 import { handleApi, success } from "@/server/http/api";
-import { snapshot } from "../operations-store";
+import { requireActorContext } from "@/server/http/context";
+import { getWorkspace } from "@/server/incidents/workspace";
 
-/** Demo endpoint (in-memory, no staff session check yet): the official's whole workspace. */
-export async function GET() {
-  return handleApi((correlationId) => success(snapshot(), correlationId));
+export const runtime = "nodejs";
+
+/** The official's workspace: review queue, incidents, staff-visible reports and institutions. */
+export async function GET(request: NextRequest) {
+  return handleApi(async (correlationId) => {
+    const ctx = await requireActorContext(request, correlationId, "official");
+    return success(await getWorkspace(ctx), correlationId);
+  });
 }

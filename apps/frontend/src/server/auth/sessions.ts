@@ -2,6 +2,7 @@ import "server-only";
 
 import { createHash, randomBytes } from "node:crypto";
 import type { PoolClient } from "pg";
+import { isDemoMode } from "@/server/config";
 import { getPool } from "@/server/db";
 import { ApiError } from "@/server/http/api";
 import type { Actor, ActorRole, IssuedSession, Session } from "./types";
@@ -27,8 +28,25 @@ export async function findSession(token: string | null): Promise<Session | null>
   return row ? { actor: projectActor(row), expires_at: row.expires_at.toISOString() } : null;
 }
 
+/** Seeded demo account that stands in for each staff role when demo mode is on. */
+const DEMO_ACCOUNTS: Partial<Record<ActorRole, string>> = { official: "official", institution: "electricity" };
+
+async function demoSession(role: ActorRole): Promise<Session | null> {
+  const username = DEMO_ACCOUNTS[role];
+  if (!username) return null;
+  const result = await getPool().query<Actor>(
+    `SELECT id, role, identity_kind, institution_id FROM actors
+     WHERE username = $1 AND role = $2 AND identity_kind = 'demo_staff'`,
+    [username, role],
+  );
+  const row = result.rows[0];
+  return row ? { actor: projectActor(row), expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString() } : null;
+}
+
 export async function requireSession(token: string | null, role?: ActorRole): Promise<Session> {
-  const session = await findSession(token);
+  let session = await findSession(token);
+  // Demo mode: no sign-in for staff pages. A missing or other-role session acts as the demo account.
+  if (role && isDemoMode() && session?.actor.role !== role) session = (await demoSession(role)) ?? session;
   if (!session) throw new ApiError(401, "unauthenticated", "An active session is required.");
   if (role && session.actor.role !== role) {
     throw new ApiError(403, "forbidden", "This account cannot access this resource.");

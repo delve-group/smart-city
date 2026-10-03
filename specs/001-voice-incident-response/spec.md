@@ -1,12 +1,14 @@
 # Feature specification: voice reporting and incident response
 
-Feature: `001-voice-incident-response` · Created: 2026-10-03 · Status: backend foundation implemented; response workflow specified, not implemented.
+Feature: `001-voice-incident-response` · Created: 2026-10-03 · Status: backend foundation, durable worker and the server-side response workflow implemented; citizen UI cutover, voice, search and the decision-maker pending.
 
 Input: the resident-to-institution workflow in the [discovery brief](../../docs/plans/2026-10-03-voice-incident-design.md), followed by the user's confirmation of browser-first intake and **ElevenLabs** as the voice provider.
 
 This is the current PoC requirements baseline for this feature. It supersedes the discovery draft's provider comparison and narrows the broader [platform vision](../../spec.md) to one working response loop. [AGENTS.md](../../AGENTS.md) remains the source of working rules. Technical implementation constraints are in [plan.md](plan.md). These documents are prepared for Spec Kit; the toolkit has not been installed or run.
 
 The first implementation deliberately stops at local PostgreSQL startup, migrations, fictional demo staff accounts, persistent guest/staff sessions and health/access-check APIs. The existing report map still uses its in-memory demo routes. Persistent reports, versioned report commands, incidents, ElevenLabs, Qdrant, background processing and Scaleway deployment remain subsequent slices; the foundation does not satisfy the full user stories below. [The API contract](../../docs/api-contract.md#backend-foundation-implemented) identifies the available routes.
+
+Later slices have since landed on `main`: owned drafts with idempotent submission, deterministic triage into incidents with a public projection and contributions, the official workspace with versioned approval and exactly-once demo ticket execution, and the institution inbox. The resident form and map still use the in-memory demo routes until their coordinated cutover; ElevenLabs, Qdrant, the LLM decision-maker, deployment rehearsal and the acceptance scenarios as a whole remain open. Route-by-route state is in the [API contract](../../docs/api-contract.md) and exact payloads in the [shared workflow contracts](../../docs/workflow-contracts.md).
 
 ## 1. Outcome and scope
 

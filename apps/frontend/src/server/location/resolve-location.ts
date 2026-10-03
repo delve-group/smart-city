@@ -1,5 +1,3 @@
-import "server-only";
-
 import type { LocationResolution, ResolveLocationInput } from "@/api/locations/types";
 import { mapPin } from "@/api/locations/mappers";
 import { photonResponseSchema } from "@/api/photon/types";
@@ -8,6 +6,7 @@ import { mapLocationCandidates } from "./map-candidates";
 
 const PHOTON_ORIGIN = "https://photon.komoot.io";
 
+/** Public geography adapter, also used directly by the explicit database-free dev:ui mode. */
 export async function resolveLocation(input: ResolveLocationInput, signal: AbortSignal): Promise<LocationResolution> {
   const pin = "pin" in input ? mapPin(input.pin) : null;
   if (pin && !insideKrakow(pin)) return { status: "outside_city", candidates: [], pin: null };

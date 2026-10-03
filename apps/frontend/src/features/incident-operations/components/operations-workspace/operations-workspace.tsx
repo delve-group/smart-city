@@ -10,6 +10,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import type { Category } from "@/api/categories/types";
 import { decideProposal } from "@/api/operations/decide-proposal";
+import { reconcileProposal } from "@/api/operations/reconcile-proposal";
 import { runIncidentCommand } from "@/api/operations/run-incident-command";
 import { triageReport } from "@/api/operations/triage-report";
 import {
@@ -41,7 +42,7 @@ const PANEL_INSET = 412;
 const EMPTY_QUEUE: Record<QueueTab, QueueItem[]> = { review: [], active: [], done: [] };
 const NO_CATEGORIES: Category[] = [];
 /** Codes that mean "the record moved on while you looked at it", not a failure. */
-const STALE_CODES = new Set(["version_conflict", "proposal_closed", "invalid_state"]);
+const STALE_CODES = new Set(["version_conflict", "stale_approval", "proposal_closed", "invalid_state"]);
 
 type Selection = { kind: "incident"; incident: Incident } | { kind: "report"; report: OperationsReport } | null;
 
@@ -57,8 +58,8 @@ function resolveSelection(workspace: Workspace | undefined, key: string | null):
 }
 
 /** Official workspace: review queue beside the map, details in the same floating panel as the resident map. */
-export function OperationsWorkspace() {
-  const { state, retry, refresh, apply, updatedAt, refreshFailed } = useOperationsData();
+export function OperationsWorkspace({ onSessionLost, onSignOut }: { onSessionLost: () => void; onSignOut?: () => void }) {
+  const { state, retry, refresh, apply, updatedAt, refreshFailed } = useOperationsData(onSessionLost);
   const toast = useToastManager();
   const now = useNow();
   const isDesktop = useMediaQuery("(min-width: 768px)", { defaultValue: true });
@@ -172,7 +173,9 @@ export function OperationsWorkspace() {
       toast.add({ title: success, description });
       return next;
     } catch (error) {
-      if (error instanceof OperationsApiError && STALE_CODES.has(error.code)) {
+      if (error instanceof OperationsApiError && (error.status === 401 || error.status === 403)) {
+        onSessionLost();
+      } else if (error instanceof OperationsApiError && STALE_CODES.has(error.code)) {
         toast.add({ type: "warning", title: "This changed while you were reviewing it", description: `${error.message} The view is now up to date.` });
         void refresh();
       } else {
@@ -192,8 +195,19 @@ export function OperationsWorkspace() {
     const name = institutionName(workspace, proposal.institutionId);
     const result = await run(
       () => decideProposal(proposal.id, decision),
-      decision.decision === "approved" ? `Ticket sent to ${name}` : "Proposal rejected",
-      decision.decision === "approved" ? "The institution’s progress appears here and on the public map." : "No ticket was created.",
+      decision.decision === "approved" ? `Approved for ${name}` : "Proposal rejected",
+      decision.decision === "approved" ? "The ticket is being sent. Its status appears here once the institution has it." : "No ticket was created.",
+    );
+    return result !== null;
+  }
+
+  async function handleReconcile(incident: Incident, reason: string) {
+    const proposal = incident.proposal;
+    if (!proposal) return false;
+    const result = await run(
+      () => reconcileProposal(proposal.id, { expected_proposal_version: proposal.version, reason }),
+      "Checked with the institution",
+      "The outcome is now recorded. Nothing was sent again.",
     );
     return result !== null;
   }
@@ -246,6 +260,7 @@ export function OperationsWorkspace() {
           updatedAt={updatedAt}
           refreshFailed={refreshFailed}
           onRefresh={() => void refresh()}
+          onSignOut={onSignOut}
           onShowMap={() => setMobileView("map")}
         />
       </aside>
@@ -309,6 +324,7 @@ export function OperationsWorkspace() {
             onClose={() => setSelectedKey(null)}
             onLocate={(location) => flyTo(location, 17)}
             onDecide={handleDecide}
+            onReconcile={handleReconcile}
             onCommand={handleCommand}
           />
         )}

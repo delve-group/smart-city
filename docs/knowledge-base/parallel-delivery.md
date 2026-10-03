@@ -16,7 +16,7 @@ Labels are routing tags, not GitHub assignees or application roles. GitHub Issue
 
 Pull current `main`, follow the root README for local startup, and use the [repo-local skill](../../.agents/skills/mradar-development/SKILL.md). Give the agent its workstream and Issue number. The skill links the relevant role guide and canonical specification; no other computer's chat history is needed.
 
-- **Franek:** start [#21](https://github.com/delve-group/smart-city/issues/21), the shared-contract slice, then [#23](https://github.com/delve-group/smart-city/issues/23) after the worker interface lands.
+- **Franek:** [#21](https://github.com/delve-group/smart-city/issues/21), [#23](https://github.com/delve-group/smart-city/issues/23), [#25](https://github.com/delve-group/smart-city/issues/25), [#27](https://github.com/delve-group/smart-city/issues/27) and [#31](https://github.com/delve-group/smart-city/issues/31) are delivered. Remaining from this workstream: review the server side of Rafal's two cutovers and fix domain issues found in the rehearsal; see [#19](https://github.com/delve-group/smart-city/issues/19).
 - **User's machine / agent-3:** start [#22](https://github.com/delve-group/smart-city/issues/22) after the contracts; Scaleway preparation in [#24](https://github.com/delve-group/smart-city/issues/24) can proceed independently as described there.
 - **Rafal:** prepare the location/form UI in [#26](https://github.com/delve-group/smart-city/issues/26) and provider configuration in [#29](https://github.com/delve-group/smart-city/issues/29); complete integrations after their listed API prerequisites. No fixture-only completion claims.
 
