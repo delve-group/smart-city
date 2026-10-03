@@ -1,6 +1,6 @@
 # Scaleway demo deployment
 
-Status: runtime preparation for [Issue #24](https://github.com/delve-group/smart-city/issues/24). The repository supplies a production Compose override, HTTPS proxy and deployment/recovery commands. This document does not establish a deployed URL, provider connectivity or measured user capacity. The worker is added when [#22](https://github.com/delve-group/smart-city/issues/22) lands; the deployment command includes it when the base Compose file defines it.
+Status: runtime preparation for [Issue #24](https://github.com/delve-group/smart-city/issues/24). The repository supplies a production Compose override, HTTPS proxy and deployment/recovery commands. See the [Scaleway deployment record](scaleway-release.md) for actual resources and verification status. This runbook does not establish a deployed URL, provider connectivity or measured user capacity. The worker is added when [#22](https://github.com/delve-group/smart-city/issues/22) lands; the deployment command includes it when the base Compose file defines it.
 
 ## Runtime and cost basis
 
