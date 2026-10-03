@@ -11,6 +11,7 @@ This base holds project context and decisions; it is not the app's database or a
 | Why we chose a given solution | [Decisions](decisions.md) |
 | Citizen report scripts for manual testing, voice rehearsals and demo videos | [Selected citizen use cases](citizen-use-cases.md) |
 | Implementing agent search, MCP ticket/incident search tools, related-ticket retrieval or shared user search | [Qdrant search decision and implementation guide](qdrant-search.md) — read before implementation |
+| Resident search controls, public results and map/place fallback | [Resident search](../resident-search.md) |
 | Map sources, WMS/WFS, buildings, parcels and 3D | [Geospatial data and Geoportal](geospatial-data.md) |
 | Module boundaries, data flow, libraries and scaling | [Architecture](../architecture.md) |
 | Frontend–backend contract: implemented demo, specified voice-to-incident PoC and future platform | [API contract](../api-contract.md) |

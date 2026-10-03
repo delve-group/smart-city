@@ -223,7 +223,7 @@ export function CityMapView() {
 
       <div className="absolute top-3 right-3 left-3 z-20 flex items-start gap-2 md:right-auto md:w-140">
         <div className="min-w-0 flex-1">
-          <MapSearch incidents={incidents} categoriesById={categoriesById} onPick={handlePick} />
+          <MapSearch incidents={incidents} categoryIds={shownIds} categoriesById={categoriesById} onPick={handlePick} />
         </div>
         {categories.length > 0 && (
           <CategoryFilter

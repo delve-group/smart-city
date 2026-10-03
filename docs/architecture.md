@@ -1,8 +1,8 @@
 # System architecture
 
-Status: proof of concept, 2026-10-03. The PostgreSQL/authentication foundation, the durable worker and the incident-response server slices with their staff screens are implemented; the resident map and form still use the mock report backend until their cutover.
+Status: proof of concept, 2026-10-03. PostgreSQL/authentication, the durable worker and the incident-response server slices with their staff screens are implemented. Resident forms persist owned drafts/reports; the resident map reads public incidents and uses shared scoped search, with labelled local map matching during search failures.
 
-The [voice and incident specification](../specs/001-voice-incident-response/spec.md) and [ElevenLabs technical plan](../specs/001-voice-incident-response/plan.md) define the remaining domain and data-flow changes. Source-aware search and an independent decision-provider adapter are available. The official workspace, proposal approval and queued demo ticket execution are implemented; voice and decision workflow integration remain unfinished. The institution inbox reads and updates its assigned tickets.
+The [voice and incident specification](../specs/001-voice-incident-response/spec.md) and [ElevenLabs technical plan](../specs/001-voice-incident-response/plan.md) define the response loop. Source-aware search and the durable decision workflow are implemented. The official workspace, proposal approval and queued demo ticket execution are implemented; browser voice and final integrated rehearsal remain unfinished. The institution inbox reads and updates its assigned tickets.
 
 ## Direction
 

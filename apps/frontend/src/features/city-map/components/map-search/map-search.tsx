@@ -13,15 +13,20 @@ import {
   ComboboxList,
 } from "@appica/ui-react/combobox";
 import { Spinner } from "@appica/ui-react/spinner";
+import { Button } from "@appica/ui-react/button";
 import { useState } from "react";
 import { useI18n } from "@/shared/i18n/locale";
 import type { Category } from "@/api/categories/types";
 import type { PublicIncident } from "@/api/incidents/types";
 import type { Place } from "@/api/photon/types";
+import type { SearchMode } from "@/api/search/types";
+import { USE_MOCKS } from "@/api/mocks/use-mocks";
 import { usePlaceSearch } from "../../hooks/use-place-search";
+import { useIncidentSearch } from "../../hooks/use-incident-search";
 import { searchIncidents, topIncidents } from "../../utils/search-incidents";
 import { SearchPlaceOption } from "../search-place-option/search-place-option";
 import { SearchIncidentOption } from "../search-incident-option/search-incident-option";
+import { SearchModeSelect } from "../search-mode-select/search-mode-select";
 
 export type SearchOption =
   | { kind: "incident"; id: string; label: string; incident: PublicIncident }
@@ -32,6 +37,7 @@ type OptionGroup = { value: string; items: SearchOption[] };
 type MapSearchProps = {
   /** Only the incidents visible under the current filter are searchable. */
   incidents: readonly PublicIncident[];
+  categoryIds: readonly string[];
   categoriesById: ReadonlyMap<string, Category>;
   onPick: (option: SearchOption) => void;
 };
@@ -39,20 +45,35 @@ type MapSearchProps = {
 const toIncidentOption = (incident: PublicIncident): SearchOption => ({ kind: "incident", id: incident.id, label: incident.public_summary, incident });
 const toPlaceOption = (place: Place): SearchOption => ({ kind: "place", id: place.id, label: place.name, place });
 
-export function MapSearch({ incidents, categoriesById, onPick }: MapSearchProps) {
+export function MapSearch({ incidents, categoryIds, categoriesById, onPick }: MapSearchProps) {
   const { t } = useI18n();
   const [query, setQuery] = useState("");
+  const [mode, setMode] = useState<SearchMode>("hybrid");
   const places = usePlaceSearch(query);
+  const search = useIncidentSearch(query, mode, categoryIds);
   const typed = query.trim().length > 0;
+  const incidentsById = new Map(incidents.map((incident) => [incident.id, incident]));
+  // Preserve server ordering; details always come from the map's strict public DTO.
+  const matches = (search.page?.items ?? []).flatMap((hit) => {
+    const incident = incidentsById.get(hit.record_id);
+    return incident ? [incident] : [];
+  });
+  const missingCurrentDetails = search.page?.items.some((hit) => !incidentsById.has(hit.record_id));
+  const outdated = search.page?.status === "index_stale" || missingCurrentDetails;
+  const fallback = search.status === "error" || outdated || query.trim().length < 3;
+  const matchedIds = new Set(matches.map((incident) => incident.id));
+  const localMatches = fallback ? searchIncidents(incidents, categoriesById, query).filter((incident) => !matchedIds.has(incident.id)) : [];
 
   const groups: OptionGroup[] = typed
     ? [
-        { value: t("search.reports"), items: searchIncidents(incidents, categoriesById, query).map(toIncidentOption) },
+        { value: t("search.reports"), items: matches.map(toIncidentOption) },
+        { value: t("search.local"), items: localMatches.map(toIncidentOption) },
         { value: t("search.places"), items: places.places.map(toPlaceOption) },
       ].filter((group) => group.items.length > 0)
     : [{ value: t("search.top"), items: topIncidents(incidents).map(toIncidentOption) }];
 
   const searchingPlaces = places.status === "loading";
+  const searching = searchingPlaces || search.status === "loading";
 
   return (
     <Combobox
@@ -65,25 +86,38 @@ export function MapSearch({ incidents, categoriesById, onPick }: MapSearchProps)
       inputValue={query}
       onInputValueChange={setQuery}
       itemToStringLabel={(option) => (option as SearchOption).label}
-      isItemEqualToValue={(a, b) => (a as SearchOption).id === (b as SearchOption).id}
+      isItemEqualToValue={(a, b) => (a as SearchOption).kind === (b as SearchOption).kind && (a as SearchOption).id === (b as SearchOption).id}
       icon={false}
       clearable
       autoHighlight
       size="lg"
     >
       <ComboboxInput
+        maxLength={1000}
         aria-label={t("search.label")}
         placeholder={t("search.placeholder")}
         className="border-border-strong/50 bg-background shadow-xs"
         startSlot={<Search size={18} aria-hidden className="text-foreground-muted" />}
-        endSlot={searchingPlaces ? <Spinner className="size-4 text-foreground-muted" aria-label={t("search.searching")} /> : null}
+        endSlot={searching ? <Spinner className="size-4 text-foreground-muted" aria-label={t("search.searching")} /> : null}
       />
-      <ComboboxContent className="w-(--anchor-width) min-w-0 max-w-[calc(100vw-1.5rem)]">
+      <ComboboxContent className="w-[min(32rem,calc(100vw-1.5rem))] min-w-0">
+        <div className="flex items-center justify-between gap-3 border-b border-border-muted px-3 py-2 text-xs text-foreground-muted">
+          <span>{t("search.modeLabel")}</span><SearchModeSelect mode={mode} onChange={setMode} />
+        </div>
+        {typed && (searching || search.status === "error" || outdated || places.status === "error" || USE_MOCKS) && <div role="status" className="flex flex-col gap-2 border-b border-border-muted px-3 py-2 text-xs text-foreground-muted">
+          {searching && <span>{t("search.searching")}</span>}
+          {(search.status === "error" || outdated) && <div className="flex items-center justify-between gap-2">
+            <span>{t(search.status === "error" ? "search.incidentsUnavailable" : "search.indexStale")}</span>
+            <Button variant="ghost" size="sm" onClick={search.retry}>{t("common.retry")}</Button>
+          </div>}
+          {places.status === "error" && <div className="flex items-center justify-between gap-2"><span>{t("search.placesUnavailable")}</span><Button variant="ghost" size="sm" onClick={places.retry}>{t("common.retry")}</Button></div>}
+          {USE_MOCKS && <span>{t("search.preview")}</span>}
+        </div>}
         <ComboboxEmpty>
-          {searchingPlaces
-            ? t("search.searchingPlaces")
-            : places.status === "error"
-              ? t("search.unavailable")
+          {searching
+            ? t("search.searching")
+            : search.status === "error" || outdated || places.status === "error"
+              ? t("search.keepBrowsing")
               : typed
                 ? t("search.noMatch", { query: query.trim() })
                 : t("search.noReports")}
