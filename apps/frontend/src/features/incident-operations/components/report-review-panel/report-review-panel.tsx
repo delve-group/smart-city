@@ -1,5 +1,4 @@
-import { Lock, Microphone, Forms } from "@appica/icons-react";
-import { Badge } from "@appica/ui-react/badge";
+import { Clock, Lock, Ruler } from "@appica/icons-react";
 import { Button } from "@appica/ui-react/button";
 import { Field, FieldError, FieldLabel } from "@appica/ui-react/field";
 import { Radio } from "@appica/ui-react/radio";
@@ -11,8 +10,10 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { Category } from "@/api/categories/types";
 import type { OperationsReport, ReportTriage, Workspace } from "@/api/operations/types";
 import { FloatingPanel } from "@/shared/components/floating-panel/floating-panel";
+import { InfoHint } from "@/shared/components/info-hint/info-hint";
 import { formatAgo } from "@/shared/utils/format-time";
 import { RESPONSE } from "../../utils/labels";
+import { reportsOf } from "../../utils/queue";
 import { PanelHeader } from "../panel-header/panel-header";
 import { ReviewNotice } from "../review-notice/review-notice";
 
@@ -42,7 +43,6 @@ export function ReportReviewPanel({ report, workspace, category, now, onClose, o
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const needsReason = choice === "private_issue" || choice === "out_of_scope";
-  const ChannelIcon = report.channel === "voice" ? Microphone : Forms;
 
   useEffect(() => {
     headingRef.current?.focus({ preventScroll: true });
@@ -87,37 +87,26 @@ export function ReportReviewPanel({ report, workspace, category, now, onClose, o
                 >
                   {report.summary}
                 </h2>
-                <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-foreground-muted">
-                  <span>{report.address}</span>
-                  {report.unit && (
-                    <span className="inline-flex items-center gap-1">
-                      <Lock size={12} aria-hidden />
-                      {report.unit} · staff only
-                    </span>
-                  )}
-                </p>
-                <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-foreground-muted">
-                  <span className="font-mono">{report.reference}</span>
-                  <span aria-hidden>·</span>
-                  <span className="inline-flex items-center gap-1">
-                    <ChannelIcon size={14} aria-hidden />
-                    {report.channel === "voice" ? "Voice" : "Form"} report
+                <p className="text-sm text-foreground-muted">{report.address}</p>
+                <p className="flex items-center gap-1 text-xs text-foreground-muted">
+                  <span>
+                    <span className="font-mono">{report.reference}</span> · {report.channel === "voice" ? "Voice" : "Form"} report ·{" "}
+                    {formatAgo(report.submittedAt, now)}
                   </span>
-                  <span aria-hidden>·</span>
-                  <span>{formatAgo(report.submittedAt, now)}</span>
-                  <Badge variant="outline" size="xs">
-                    Private until reviewed
-                  </Badge>
+                  <InfoHint label="Private report" icon={Lock}>
+                    Only staff see this report{report.unit ? `, including “${report.unit}”` : ""}. Nothing about it reaches the public
+                    map until it joins an incident.
+                  </InfoHint>
                 </p>
               </div>
               {report.review && <ReviewNotice review={report.review} />}
             </div>
             <Separator />
 
-            <fieldset className="flex flex-col gap-2 py-5">
-              <legend id="triage-label" className="mb-3 text-sm font-semibold text-foreground-intense">
+            <section aria-labelledby="triage-label" className="flex flex-col gap-3 py-5">
+              <h3 id="triage-label" className="text-sm font-semibold text-foreground-intense">
                 What should happen to it?
-              </legend>
+              </h3>
               <RadioGroup
                 aria-labelledby="triage-label"
                 value={choice}
@@ -127,19 +116,39 @@ export function ReportReviewPanel({ report, workspace, category, now, onClose, o
                 }}
                 className="gap-2"
               >
-                {candidates.map(({ incident, distanceM, minutesApart }) => (
-                  <label key={incident.id} className={OPTION}>
-                    <Radio value={`link:${incident.id}`} aria-labelledby={`candidate-${incident.id}`} className="mt-0.5" />
-                    <span className="flex min-w-0 flex-col gap-0.5">
-                      <span id={`candidate-${incident.id}`} className="text-sm font-medium text-foreground-intense">
-                        Link to {incident.title}
+                {candidates.length > 0 && <p className="text-xs font-medium text-foreground-muted">Same problem as</p>}
+                {candidates.map(({ incident, distanceM, minutesApart }) => {
+                  const reports = reportsOf(incident, workspace.reports).length;
+                  return (
+                    <label key={incident.id} className={OPTION}>
+                      <Radio value={`link:${incident.id}`} aria-labelledby={`candidate-${incident.id}`} className="mt-0.5" />
+                      <span className="flex min-w-0 flex-1 flex-col gap-1.5">
+                        <span className="flex items-baseline justify-between gap-3">
+                          <span id={`candidate-${incident.id}`} className="text-sm font-medium text-foreground-intense">
+                            {incident.title}
+                          </span>
+                          <span className="shrink-0 text-xs text-foreground-muted">{RESPONSE[incident.responseStatus].label}</span>
+                        </span>
+                        <span className="flex items-center gap-3 text-xs text-foreground-muted tabular-nums">
+                          <span className="inline-flex items-center gap-1">
+                            <Ruler size={14} aria-hidden />
+                            <span className="sr-only">Distance: </span>
+                            {distanceM} m
+                          </span>
+                          <span className="inline-flex items-center gap-1">
+                            <Clock size={14} aria-hidden />
+                            <span className="sr-only">Started </span>
+                            {minutesApart} min earlier
+                          </span>
+                          <span>
+                            {reports} {reports === 1 ? "report" : "reports"}
+                          </span>
+                        </span>
                       </span>
-                      <span className="text-xs text-foreground-muted">
-                        {incident.reference} · {distanceM} m away · {minutesApart} min apart · {RESPONSE[incident.responseStatus].label}
-                      </span>
-                    </span>
-                  </label>
-                ))}
+                    </label>
+                  );
+                })}
+                {candidates.length > 0 && <p className="pt-2 text-xs font-medium text-foreground-muted">Or</p>}
                 <label className={OPTION}>
                   <Radio value="new_incident" aria-labelledby="choice-new" className="mt-0.5" />
                   <span className="flex flex-col gap-0.5">
@@ -162,7 +171,7 @@ export function ReportReviewPanel({ report, workspace, category, now, onClose, o
                   </span>
                 </label>
               </RadioGroup>
-            </fieldset>
+            </section>
 
             {needsReason && (
               <Field invalid={Boolean(error)} className="pb-5">

@@ -1,6 +1,7 @@
-import { Forms, Lock, Microphone } from "@appica/icons-react";
+import { Lock } from "@appica/icons-react";
 import { Badge } from "@appica/ui-react/badge";
 import type { Evidence, OperationsReport } from "@/api/operations/types";
+import { InfoHint } from "@/shared/components/info-hint/info-hint";
 import { PanelAccordionItem } from "@/shared/components/panel-accordion-item/panel-accordion-item";
 import { formatAgo } from "@/shared/utils/format-time";
 
@@ -32,40 +33,32 @@ export function EvidenceList({ reports, observations, now, onLocate }: EvidenceL
 
   return (
     <PanelAccordionItem value="evidence" title="Evidence" meta={meta}>
-      <ul className="flex flex-col">
-        {reports.map((report) => {
-          const ChannelIcon = report.channel === "voice" ? Microphone : Forms;
-          return (
-            <li key={report.id} className="border-b border-border-muted">
-              <button
-                type="button"
-                onClick={() => onLocate(report)}
-                className="-mx-2 flex w-[calc(100%+1rem)] flex-col gap-1 rounded-md px-2 py-3 text-start transition-colors outline-none hover:bg-background-subtle focus-visible:ring-2 focus-visible:ring-focus-ring"
-              >
-                <span className="flex items-center gap-2 text-xs text-foreground-muted">
-                  <span className="font-mono text-foreground-intense">{report.reference}</span>
-                  <span aria-hidden>·</span>
-                  <span>{formatAgo(report.submittedAt, now)}</span>
-                  {!report.observedAt && <span>· time observed unknown</span>}
-                </span>
-                <span className="text-sm text-pretty text-foreground">{report.summary}</span>
-                <span className="flex items-center gap-1.5 text-xs text-foreground-muted">
-                  <ChannelIcon size={14} aria-hidden />
-                  {report.channel === "voice" ? "Voice report" : "Form report"}
-                  {report.unit && (
-                    <>
-                      <span aria-hidden>·</span>
-                      <Lock size={12} aria-hidden />
-                      {report.unit}, staff only
-                    </>
-                  )}
-                </span>
-              </button>
-            </li>
-          );
-        })}
+      <ul className="flex flex-col divide-y divide-border-muted">
+        {reports.map((report) => (
+          <li key={report.id} className="flex items-start gap-1 py-1 first:pt-0">
+            <button
+              type="button"
+              onClick={() => onLocate(report)}
+              className="-mx-2 flex min-w-0 flex-1 flex-col gap-1 rounded-md px-2 py-2 text-start transition-colors outline-none hover:bg-background-subtle focus-visible:ring-2 focus-visible:ring-focus-ring"
+            >
+              <span className="text-sm text-pretty text-foreground">{report.summary}</span>
+              <span className="text-xs text-foreground-muted">
+                <span className="font-mono">{report.reference}</span> · {report.channel === "voice" ? "Voice" : "Form"} report ·{" "}
+                {formatAgo(report.submittedAt, now)}
+                {!report.observedAt && " · time observed unknown"}
+              </span>
+            </button>
+            {report.unit && (
+              <span className="mt-2">
+                <InfoHint label="Private detail" icon={Lock}>
+                  {report.unit}. Staff only; never shown on the public map.
+                </InfoHint>
+              </span>
+            )}
+          </li>
+        ))}
         {observations.map((item) => (
-          <li key={item.id} className="flex flex-col gap-1 border-b border-border-muted py-3 last:border-0">
+          <li key={item.id} className="flex flex-col gap-1 py-3 last:pb-0">
             <div className="flex items-center justify-between gap-2">
               <span className="text-sm font-medium text-foreground-intense">{item.label}</span>
               <Badge variant={STATE[item.state].variant} size="xs">

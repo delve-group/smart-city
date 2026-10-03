@@ -1,4 +1,3 @@
-import { Badge } from "@appica/ui-react/badge";
 import { Button } from "@appica/ui-react/button";
 import { useState } from "react";
 import type { Incident, Institution, ProposalDecision } from "@/api/operations/types";
@@ -46,11 +45,6 @@ export function ProposalCard({ incident, institution, now, onDecide }: ProposalC
       <p className="text-sm text-foreground">
         Create a service ticket for{" "}
         <span className="font-semibold text-foreground-intense">{institution?.name ?? proposal.institutionId}</span>
-        {institution?.isDemo && (
-          <Badge variant="outline" size="xs" className="ms-2 align-middle">
-            Demo institution
-          </Badge>
-        )}
       </p>
 
       <div>

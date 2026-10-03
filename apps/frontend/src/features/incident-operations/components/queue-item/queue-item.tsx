@@ -34,7 +34,7 @@ export function QueueItem({ item, category, selected, now, onSelect }: QueueItem
       type="button"
       onClick={onSelect}
       aria-current={selected ? "true" : undefined}
-      className={`flex w-full flex-col gap-1 rounded-md px-3 py-2.5 text-start transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-focus-ring ${
+      className={`flex w-full flex-col gap-1 rounded-md px-3 py-3 text-start transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-focus-ring ${
         selected ? "bg-background-muted" : "hover:bg-background-subtle"
       }`}
     >
