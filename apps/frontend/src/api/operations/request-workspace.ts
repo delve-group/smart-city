@@ -9,6 +9,9 @@ const envelopeSchema = z.object({ data: workspaceDtoSchema });
 export async function requestWorkspace(url: string, init?: RequestInit): Promise<Workspace> {
   const response = await fetch(url, {
     ...init,
+    signal: init?.signal
+      ? AbortSignal.any([init.signal, AbortSignal.timeout(15_000)])
+      : AbortSignal.timeout(15_000),
     headers: init?.body ? { "Content-Type": "application/json" } : undefined,
   });
   const body: unknown = await response.json().catch(() => null);

@@ -5,7 +5,13 @@ const problemSchema = z.object({ code: z.string(), message: z.string() });
 
 /** Shared fetch for the inbox: common envelope in, typed error out. */
 export async function requestInstitution<T>(url: string, schema: z.ZodType<T>, init?: RequestInit): Promise<T> {
-  const response = await fetch(url, { ...init, headers: init?.body ? { "Content-Type": "application/json" } : undefined });
+  const response = await fetch(url, {
+    ...init,
+    signal: init?.signal
+      ? AbortSignal.any([init.signal, AbortSignal.timeout(15_000)])
+      : AbortSignal.timeout(15_000),
+    headers: init?.body ? { "Content-Type": "application/json" } : undefined,
+  });
   const body: unknown = await response.json().catch(() => null);
   if (!response.ok) {
     const problem = problemSchema.safeParse(body);
