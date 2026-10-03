@@ -241,8 +241,9 @@ export function CityMapView() {
         />
       )}
 
-      {mode.kind === "browse" && !selected && ready && (
-        <div className="absolute right-3 bottom-3 z-20">
+      {mode.kind === "browse" && ready && (
+        // Stays reachable: moves beside the panel on desktop, above the sheet on phones.
+        <div className={`absolute right-3 bottom-3 z-20 transition-[right,bottom] duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${selected ? "bottom-[calc(72dvh+0.75rem)] md:right-[26.25rem] md:bottom-3" : ""}`}>
           <MapSettings tilted={tilted} onTiltedChange={setTilted} />
         </div>
       )}

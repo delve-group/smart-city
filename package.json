@@ -8,6 +8,12 @@
     "config:check": "node scripts/stack.mjs check",
     "stack:down": "node scripts/stack.mjs down",
     "stack:logs": "node scripts/stack.mjs logs",
+    "deploy": "node scripts/deploy.mjs up",
+    "deploy:check": "node scripts/deploy.mjs check",
+    "deploy:status": "node scripts/deploy.mjs status",
+    "deploy:logs": "node scripts/deploy.mjs logs",
+    "deploy:backup": "node scripts/deploy.mjs backup",
+    "deploy:restore-check": "node scripts/deploy.mjs restore-check",
     "lint": "npm --prefix apps/frontend run lint",
     "typecheck": "npm --prefix apps/frontend run typecheck",
     "build": "npm --prefix apps/frontend run build"
