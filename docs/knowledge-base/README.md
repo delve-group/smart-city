@@ -13,6 +13,7 @@ This base holds project context and decisions; it is not the app's database or a
 | Map sources, WMS/WFS, buildings, parcels and 3D | [Geospatial data and Geoportal](geospatial-data.md) |
 | Module boundaries, data flow, libraries and scaling | [Architecture](../architecture.md) |
 | Frontend–backend contract: implemented demo, specified voice-to-incident PoC and future platform | [API contract](../api-contract.md) |
+| Exact payloads, errors, command signatures and cross-workstream handoffs for the PoC | [Shared workflow contracts](../workflow-contracts.md) |
 | Components, colours, typography and accessibility | [Design system](../design-system.md) |
 | Current PoC requirements, user stories and acceptance criteria | [Voice and incident specification](../../specs/001-voice-incident-response/spec.md) |
 | ElevenLabs integration, actor tools, persistence and delivery slices | [Technical implementation plan](../../specs/001-voice-incident-response/plan.md) |

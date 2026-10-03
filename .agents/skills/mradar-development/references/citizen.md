@@ -2,7 +2,7 @@
 
 Own the resident browser experience and ElevenLabs/location adapters: `features/city-map`, `features/report-issue`, new voice features, their `src/api/` clients, `server/voice`, location resolution and corresponding thin routes. Follow the specific Issue for shared components and application-page changes. A navigation/view control does not grant staff permissions.
 
-Franek supplies the owned draft/confirmation/submission and public-incident services. Both form and ElevenLabs tools call the same service contract. Keep the draft ID, revision and submission identity across reconnection and form fallback. Only a committed server reference is success. A confirmation is invalidated when the draft changes.
+Franek supplies the owned draft/confirmation/submission and public-incident services; their request, response and error examples, the `LocationResult` shape and the two migration stages are in the [shared workflow contracts](../../../../docs/workflow-contracts.md) (sections 2–4 and 10). Both form and ElevenLabs tools call the same service contract. Keep the draft ID, revision and submission identity across reconnection and form fallback. Only a committed server reference is success. A confirmation is invalidated when the draft changes.
 
 Read the ElevenLabs section of the technical plan before selecting SDK calls or credential types. Provider credentials stay server-side; the browser uses the configured private agent. Voice teardown must stop microphone capture. Keep provider-unavailable and microphone-denied form paths usable. Read current provider documentation when implementing; the plan's provider observations are not a live integration result.
 

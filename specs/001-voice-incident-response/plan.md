@@ -80,7 +80,7 @@ Telephony can later reuse the same domain services through authenticated server 
 
 ## 3. Application and tool contracts
 
-Names below are our planned interfaces, not existing endpoints or ElevenLabs APIs. Use the same Zod-backed business schemas across route/tool boundaries. Context such as resident, role, institution and correlation ID is injected by the authenticated adapter, never accepted as model authority.
+Names below are our planned interfaces, not existing endpoints or ElevenLabs APIs. Their exact request/response/error shapes, domain-command signatures and the work/search handoffs between workstreams are fixed in the [shared workflow contracts](../../docs/workflow-contracts.md). Use the same Zod-backed business schemas across route/tool boundaries. Context such as resident, role, institution and correlation ID is injected by the authenticated adapter, never accepted as model authority.
 
 | Operation | Input → result | Surface / permission |
 | --- | --- | --- |
