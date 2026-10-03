@@ -118,7 +118,7 @@ export async function assessIncident(value: unknown, options: { signal?: AbortSi
         stream: false,
         n: 1,
         max_completion_tokens: MAX_COMPLETION_TOKENS,
-        ...(config.SCW_DECISION_MODEL === "qwen3.6-35b-a3b" ? { reasoning_effort: "medium" } : {}),
+        ...(config.SCW_DECISION_MODEL === "qwen3.6-35b-a3b" ? { reasoning_effort: "none" } : {}),
         messages: [
           { role: "system", content: ASSESSMENT_SYSTEM_PROMPT },
           { role: "user", content: snapshot },
