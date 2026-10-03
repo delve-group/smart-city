@@ -1,10 +1,6 @@
 import type { Category } from "@/api/categories/types";
 import type { CityReport } from "@/api/reports/types";
-
-/** Lowercase and strip diacritics, so "grzegorzecka" finds "Grzegórzecka". */
-export function normalize(text: string): string {
-  return text.normalize("NFD").replace(/\p{Diacritic}/gu, "").replace(/ł/g, "l").toLowerCase();
-}
+import { normalizeText as normalize } from "@/shared/utils/normalize-text";
 
 /** Every word must appear in the title, address, district, category or reference. Title matches first. */
 export function searchReports(
