@@ -59,7 +59,15 @@ These commands use the same project/Compose files/environment validation. `deplo
 docker compose -p mradar restart app worker
 ```
 
-Use your configured project name if overridden. Inspect the worker with `docker compose -p mradar exec worker npm run worker:status`; its JSON reports heartbeat health, registered handlers and queue counts. Check health and pending work after a restart; a process restart alone does not establish job recovery. Existing database containers are intentionally not replaced by `deploy`; plan database image maintenance separately, with a backup and a restore rehearsal first. Never run `down -v` or volume-pruning commands against the demo stack.
+Use your configured project name if overridden. If the app and worker were **stopped** and need an explicit `up`, supply the deployed revision; Compose uses it in their image tags:
+
+```bash
+MRADAR_REVISION=$(git rev-parse HEAD) docker compose -p mradar \
+  -f compose.yaml -f compose.scaleway.yaml \
+  up -d --no-deps --no-build --wait app worker
+```
+
+Use the revision of the images actually deployed if the checkout has since moved ahead. Omitting `MRADAR_REVISION` from this `up` attempts an empty image tag. Inspect the worker with `docker compose -p mradar exec worker npm run worker:status`; its JSON reports heartbeat health, registered handlers and queue counts. Check health and pending work after a restart; a process restart alone does not establish job recovery. Existing database containers are intentionally not replaced by `deploy`; plan database image maintenance separately, with a backup and a restore rehearsal first. Never run `down -v` or volume-pruning commands against the demo stack.
 
 ## Search recovery and local startup
 

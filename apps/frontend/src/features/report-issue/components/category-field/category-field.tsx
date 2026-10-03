@@ -8,10 +8,11 @@ type CategoryFieldProps = {
   value: string;
   error?: string;
   onChange: (categoryId: string) => void;
+  autoFocus?: boolean;
 };
 
 /** Required: every report belongs to exactly one API-defined category. */
-export function CategoryField({ categories, value, error, onChange }: CategoryFieldProps) {
+export function CategoryField({ categories, value, error, onChange, autoFocus = false }: CategoryFieldProps) {
   return (
     <Field invalid={Boolean(error)}>
       <FieldLabel>Category</FieldLabel>
@@ -21,7 +22,7 @@ export function CategoryField({ categories, value, error, onChange }: CategoryFi
         onValueChange={(next) => onChange(typeof next === "string" ? next : "")}
         size="lg"
       >
-        <SelectTrigger>
+        <SelectTrigger autoFocus={autoFocus}>
           <SelectValue placeholder="What kind of problem is it?" />
         </SelectTrigger>
         <SelectContent>

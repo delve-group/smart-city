@@ -3,13 +3,13 @@ import { RadioGroup } from "@appica/ui-react/radio-group";
 import { REPORT_SEVERITIES, type ReportSeverity } from "@/api/reports/types";
 import { SEVERITY_HINT, SEVERITY_LABEL } from "@/shared/utils/severity";
 
-type SeverityFieldProps = { value: ReportSeverity; onChange: (severity: ReportSeverity) => void };
+type SeverityFieldProps = { value: ReportSeverity | null; onChange: (severity: ReportSeverity) => void };
 
 export function SeverityField({ value, onChange }: SeverityFieldProps) {
   return (
     <fieldset className="flex flex-col gap-2">
       <legend id="severity-label" className="mb-2 text-sm font-medium text-foreground-intense">How serious is it?</legend>
-      <RadioGroup aria-labelledby="severity-label" value={value} onValueChange={(next) => onChange(next as ReportSeverity)} className="gap-2">
+      <RadioGroup aria-labelledby="severity-label" value={value ?? ""} onValueChange={(next) => onChange(next as ReportSeverity)} className="gap-2">
         {REPORT_SEVERITIES.map((severity) => (
           <label
             key={severity}

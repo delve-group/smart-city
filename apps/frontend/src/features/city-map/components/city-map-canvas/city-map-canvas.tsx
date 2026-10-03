@@ -53,6 +53,8 @@ export type CityMapCanvasProps = {
   onSelect: (id: string | null, point?: { x: number; y: number }) => void;
   /** Fires when the camera stops moving, with the map centre. */
   onCenterChange?: (center: { lat: number; lng: number }) => void;
+  /** A resident camera gesture clears an address choice; programmatic focus does not. */
+  onUserMove?: () => void;
   /** Extra attribution, e.g. a demo-data notice. */
   attribution?: string;
   /** Tilted view that shows buildings in 3D. */
@@ -79,6 +81,7 @@ export default function CityMapCanvas({
   onHover,
   onSelect,
   onCenterChange,
+  onUserMove,
   attribution,
   tilted = false,
   areas = NO_AREAS,
@@ -218,9 +221,10 @@ export default function CityMapCanvas({
     }
   }
 
-  function handleMoveStart() {
+  function handleMoveStart(event: ViewStateChangeEvent) {
     movingRef.current = true;
     onHover(null);
+    if (event.originalEvent) onUserMove?.();
   }
 
   function handleMove(event: MapLayerMouseEvent) {
