@@ -4,7 +4,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import { ticketUpdateSchema, TICKET_STATUSES } from "@/api/institution/types";
-import { KRAKOW_BOUNDS } from "@/api/reports/types";
+import { KRAKOW_BOUNDS } from "@/shared/utils/krakow";
 import type { ActorContext } from "@/server/actor-context";
 import { proposalSuggestionSchema, proposeAction } from "@/server/actions/proposals";
 import { ApiError } from "@/server/http/api";

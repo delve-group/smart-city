@@ -1,7 +1,7 @@
-import type { CategoriesResponseDto } from "@/api/categories/types";
+import { handleApi, success } from "@/server/http/api";
 import { CATEGORIES } from "./categories";
 
-/** Mock endpoint (demo data). */
+/** API-defined demo catalogue, using the common response boundary. */
 export function GET() {
-  return Response.json({ categories: CATEGORIES } satisfies CategoriesResponseDto);
+  return handleApi((correlationId) => success(CATEGORIES, correlationId));
 }

@@ -1,16 +1,16 @@
 import { Clock, MapPin, Users } from "@appica/icons-react";
 import type { Category } from "@/api/categories/types";
-import type { CityReport } from "@/api/reports/types";
+import type { PublicIncident } from "@/api/incidents/types";
 import { CategoryLabel } from "@/shared/components/category-label/category-label";
-import { tCount, useI18n } from "@/shared/i18n/locale";
+import { useI18n, tCount } from "@/shared/i18n/locale";
 import { formatAgo } from "@/shared/utils/format-time";
-import { ReportStatusBadge } from "../report-status-badge/report-status-badge";
+import { IncidentStatus } from "../incident-status/incident-status";
 
 const OFFSET = 16;
 const WIDTH = 288;
 
-type ReportTooltipProps = {
-  report: CityReport;
+type IncidentTooltipProps = {
+  incident: PublicIncident;
   category: Category;
   now: number;
   /** Pointer position relative to the map. */
@@ -20,7 +20,7 @@ type ReportTooltipProps = {
 };
 
 /** Follows the pointer and flips away from the nearest edge. Purely informational. */
-export function ReportTooltip({ report, category, now, x, y, bounds }: ReportTooltipProps) {
+export function IncidentTooltip({ incident, category, now, x, y, bounds }: IncidentTooltipProps) {
   const { t, locale } = useI18n();
   const flipX = x + OFFSET + WIDTH > bounds.width;
   const flipY = y > bounds.height * 0.6;
@@ -37,27 +37,27 @@ export function ReportTooltip({ report, category, now, x, y, bounds }: ReportToo
     >
       <div className="flex items-center justify-between gap-2">
         <CategoryLabel category={category} />
-        <ReportStatusBadge status={report.status} />
+        <IncidentStatus incident={incident} />
       </div>
       <p className="line-clamp-2 text-base leading-snug font-semibold text-balance text-foreground-intense">
-        {report.title}
+        {incident.public_summary}
       </p>
       <dl className="flex flex-col gap-1.5 text-sm text-foreground">
         <div className="flex items-start gap-2">
           <dt className="sr-only">{t("common.where")}</dt>
           <MapPin size={16} aria-hidden className="mt-0.5 shrink-0 text-foreground-subtle" />
-          <dd className="line-clamp-1">{report.address}{report.district ? `, ${report.district}` : ""}</dd>
+          <dd className="line-clamp-1">{incident.public_location.label}</dd>
         </div>
         <div className="flex items-start gap-2">
           <dt className="sr-only">{t("common.reported")}</dt>
           <Clock size={16} aria-hidden className="mt-0.5 shrink-0 text-foreground-subtle" />
-          <dd>{t("report.reportedAgo", { when: formatAgo(report.reportedAt, now, locale) })}</dd>
+          <dd>{t("report.reportedAgo", { when: formatAgo(incident.created_at, now, locale) })}</dd>
         </div>
         <div className="flex items-start gap-2">
-          <dt className="sr-only">{t("common.confirmations")}</dt>
+          <dt className="sr-only">{t("incidentMap.supportersLabel")}</dt>
           <Users size={16} aria-hidden className="mt-0.5 shrink-0 text-foreground-subtle" />
           <dd>
-            {tCount(t, locale, "residents", report.confirmations)}
+            {tCount(t, locale, "incidentMap.supporters", incident.support_count)}
           </dd>
         </div>
       </dl>

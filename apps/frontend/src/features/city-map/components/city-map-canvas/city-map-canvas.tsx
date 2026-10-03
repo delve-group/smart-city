@@ -157,7 +157,7 @@ export default function CityMapCanvas({
   }, [icons]);
 
   useEffect(() => {
-    if (!focus) return;
+    if (!loaded || !focus) return;
     mapRef.current?.flyTo({
       center: [focus.lng, focus.lat],
       zoom: Math.max(focus.zoom ?? 15, mapRef.current.getZoom()),
@@ -168,7 +168,7 @@ export default function CityMapCanvas({
     });
     // Only a new focus request should move the map, not inset changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [focus]);
+  }, [focus, loaded]);
 
   useEffect(() => {
     const map = mapRef.current;

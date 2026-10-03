@@ -9,7 +9,7 @@ export const categoryDtoSchema = z.object({
 
 export type CategoryDto = z.infer<typeof categoryDtoSchema>;
 
-export const categoriesResponseSchema = z.object({ categories: z.array(categoryDtoSchema).min(1) });
+export const categoriesResponseSchema = z.object({ data: z.array(categoryDtoSchema).min(1), correlation_id: z.string() });
 
 export type CategoriesResponseDto = z.infer<typeof categoriesResponseSchema>;
 

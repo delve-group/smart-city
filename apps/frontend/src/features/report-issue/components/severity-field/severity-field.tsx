@@ -2,7 +2,7 @@
 
 import { Radio } from "@appica/ui-react/radio";
 import { RadioGroup } from "@appica/ui-react/radio-group";
-import { REPORT_SEVERITIES, type ReportSeverity } from "@/api/reports/types";
+import { REPORT_SEVERITIES, type ReportSeverity } from "@/shared/utils/severity";
 import { useI18n } from "@/shared/i18n/locale";
 import type { MessageKey } from "@/shared/i18n/messages";
 
