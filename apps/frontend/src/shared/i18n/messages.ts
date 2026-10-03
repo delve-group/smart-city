@@ -292,8 +292,8 @@ const en = {
   "auth.sessionEnded": "Your session ended. Sign in again; nothing you had not saved was sent.",
   "auth.checking": "Checking your session…",
   "auth.checkFailed": "Could not check your session",
-  "auth.demoTitle": "Demo account unavailable",
-  "auth.demoBody": "Demo mode is on, but the demo accounts are not set up. Run the database seed and reload.",
+  "auth.demoTitle": "Account unavailable",
+  "auth.demoBody": "Sign-in is off, but the staff accounts are not set up. Run the database seed and reload.",
 
   "freshness.stale": "Can’t refresh · data from {age}",
   "freshness.earlier": "earlier",
@@ -817,8 +817,8 @@ const pl: { [K in keyof typeof en]: string } = {
   "auth.sessionEnded": "Sesja wygasła. Zaloguj się ponownie; nic niezapisane nie zostało wysłane.",
   "auth.checking": "Sprawdzanie sesji…",
   "auth.checkFailed": "Nie udało się sprawdzić sesji",
-  "auth.demoTitle": "Konto demonstracyjne niedostępne",
-  "auth.demoBody": "Tryb demonstracyjny jest włączony, ale konta nie są przygotowane. Uruchom seed bazy i odśwież stronę.",
+  "auth.demoTitle": "Konto niedostępne",
+  "auth.demoBody": "Logowanie jest wyłączone, ale konta pracowników nie są przygotowane. Uruchom seed bazy i odśwież stronę.",
 
   "freshness.stale": "Nie można odświeżyć · dane z {age}",
   "freshness.earlier": "wcześniej",

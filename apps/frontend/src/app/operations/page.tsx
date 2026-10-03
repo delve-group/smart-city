@@ -7,7 +7,7 @@ import { ScreenTitle } from "@/shared/components/screen-title/screen-title";
 
 export const metadata: Metadata = {
   title: "mRadar — operations",
-  description: "Review incidents, approve responses and follow institution work. Demo accounts and fictional data.",
+  description: "Review incidents, approve responses and follow institution work.",
 };
 
 export default async function OperationsPage() {
