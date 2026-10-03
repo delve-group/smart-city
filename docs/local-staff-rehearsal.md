@@ -65,3 +65,15 @@ No concrete staff/domain defect was found in these completed cases, so this slic
 - The browser interruption prevented confirming viewport-reset cleanup. Only agent-created mock tabs were used; the primary resident tab was not operated or authenticated as staff.
 
 The primary thread owns final integration, browser/deployed rehearsal and merges. Keep #19 and #35 open for the remaining acceptance; this evidence alone does not complete them.
+
+## Local recovery follow-up — staff request deadlines
+
+A later local-only slice on `fix/staff-request-timeouts`, based on integrated main `884f046`, found that the operations and institution request clients had no timeout. Both now abort after 15 seconds, including response-body consumption, and preserve caller cancellation. Writes are never automatically retried. Generic failure copy in English and Polish now describes an unconfirmed outcome and asks the user to check current status before retrying; a lost response cannot prove that nothing was sent.
+
+A one-off manual transport probe used the actual two client modules and an HTTP server bound only to `127.0.0.1`, holding headers or an unfinished JSON response. Operations aborted after **15,008 ms / 15,014 ms**; institution after **15,014 ms / 15,015 ms**. Already-aborted caller signals rejected in **1 ms / 0 ms**. Actual HTTP 403 responses retained the typed `forbidden` code. The temporary probe is outside the repository; no automated tests were added.
+
+Chrome used the real Docker localhost backend and an official session. With a fictional pending Water proposal open, a typed reason was submitted while only the local app container was stopped. The browser showed the failure toast, retained the exact reason, returned the save button to enabled and kept the stale workspace visible with a retry action. No rejection reached the stopped server. The final Polish copy was repeated at 390 × 844; lower Cancel remained reachable and the fixed header's outer scroll position stayed zero. The local app was restored using `up -d --no-deps app`; readiness returned 200. Development HMR reloaded the page after restart, so this is input retention across a failed request, not persistence across a development reload. The unknown-outcome copy is intentionally conservative even though this particular stopped-server request could not commit.
+
+Scope limits: no complete delayed-write browser scenario, forced stale-save UI case or institution-note failure case was added by this follow-up. The transport deadlines apply to both clients; the browser input-retention observation covers the official reason only. Production was left for the user's manual testing: no additional production requests, commands, rollout or restart after that instruction.
+
+Final local verification: `npm run lint`, `npm run typecheck`, `npm run build` and `git diff --check` passed after the timeout and bilingual-copy changes. Current `origin/main` was fetched and already integrated; no payload, permission, migration, provider or dependency changed. Local readiness passed after restoring the app. No production build or deployment of this follow-up was performed.
