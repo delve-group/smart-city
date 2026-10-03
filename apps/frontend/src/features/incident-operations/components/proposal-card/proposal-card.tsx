@@ -1,8 +1,10 @@
+import { AiAgent, Clock, User } from "@appica/icons-react";
 import { Button } from "@appica/ui-react/button";
 import { useState } from "react";
 import type { Incident, Institution, ProposalDecision } from "@/api/operations/types";
 import { formatAgo } from "@/shared/utils/format-time";
 import { PROPOSAL } from "../../utils/labels";
+import { Fact, FACTS } from "../fact/fact";
 import { ReasonForm } from "../reason-form/reason-form";
 
 type ProposalCardProps = {
@@ -23,6 +25,8 @@ export function ProposalCard({ incident, institution, now, onDecide }: ProposalC
   if (!proposal) return null;
 
   const pending = proposal.state === "pending";
+  // The API names actors, not their kind; agents are named as such.
+  const byAgent = /agent/i.test(proposal.createdBy);
   const versions = { expected_proposal_version: proposal.version, expected_incident_version: incident.version };
 
   async function approve() {
@@ -32,20 +36,21 @@ export function ProposalCard({ incident, institution, now, onDecide }: ProposalC
   }
 
   return (
-    <section aria-labelledby="proposal-title" className="flex flex-col gap-4 rounded-md border border-border bg-background-subtle p-4">
-      <header className="flex items-baseline justify-between gap-3">
-        <h3 id="proposal-title" className="text-sm font-semibold text-foreground-intense">
-          Proposal v{proposal.version}
+    <section aria-labelledby="proposal-title" className="flex flex-col gap-4">
+      <header className="flex flex-col gap-1.5">
+        <h3 id="proposal-title" className="text-base text-pretty text-foreground">
+          Create a service ticket for{" "}
+          <span className="font-semibold text-foreground-intense">{institution?.name ?? proposal.institutionId}</span>
         </h3>
-        <span className="text-xs text-foreground-muted">
-          {proposal.createdBy} · {formatAgo(proposal.createdAt, now)}
-        </span>
+        <p className={FACTS}>
+          <Fact icon={byAgent ? AiAgent : User} label="Proposed by">
+            {proposal.createdBy}
+          </Fact>
+          <Fact icon={Clock} label="Proposed">
+            {formatAgo(proposal.createdAt, now)}
+          </Fact>
+        </p>
       </header>
-
-      <p className="text-sm text-foreground">
-        Create a service ticket for{" "}
-        <span className="font-semibold text-foreground-intense">{institution?.name ?? proposal.institutionId}</span>
-      </p>
 
       <div>
         <p id="payload-label" className="mb-1.5 text-xs font-medium text-foreground-muted">

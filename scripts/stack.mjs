@@ -47,6 +47,6 @@ if (result.error) console.error("Could not start Docker Compose. Install and sta
 if (result.status === 0 && ["dev", "production"].includes(mode)) {
   console.log(`Stack is ready. Browser origin: ${env.APP_ORIGIN}. Use npm run stack:logs to view logs, npm run stack:down to stop (data is retained).`);
 } else if (result.status !== 0 && ["dev", "production"].includes(mode)) {
-  console.error("Stack startup did not complete. Run npm run stack:logs to inspect application, setup and database errors.");
+  console.error("Stack startup did not complete. Run npm run stack:logs to inspect application, worker, setup and database errors. For a running worker, use docker compose exec worker npm run worker:status to inspect its heartbeat, registered handlers and queue counts.");
 }
 process.exit(result.status ?? 1);
