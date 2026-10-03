@@ -64,13 +64,15 @@ export function useBrowserVoice(intake: VoiceDraftController, categories: readon
       providerConversation.current?.sendContextualUpdate(initialContext.current);
     },
     onMessage: ({ role, message }) => setMessages((current) => [...current, { role, text: message }].slice(-100)),
-    onDisconnect: ({ reason }) => {
+    onDisconnect: (details) => {
       clearConnectionTimer();
+      providerConversation.current = null; // SDK teardown has already stopped the microphone tracks.
       startPending.current = false;
-      if (!stopRequested.current && reason !== "user") setErrorCode("connection_lost");
+      const agentEndedCall = details.reason === "agent" && details.context?.type === "end_call";
+      if (!stopRequested.current && details.reason !== "user" && !agentEndedCall) setErrorCode("connection_lost");
       stopRequested.current = true;
-      setPhase("ended");
-      void finishLease();
+      setPhase("stopping");
+      void finishLease().finally(() => setPhase("ended"));
     },
     onError: (message, context: unknown) => {
       const denied = context instanceof Error && context.name === "NotAllowedError" || /permission denied|notallowederror/i.test(message);

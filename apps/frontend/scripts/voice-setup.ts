@@ -6,7 +6,7 @@ import { dispatcherAgentSchema, verifyPreparedDispatcher } from "../src/server/v
 import { dispatcherConfiguration, DISPATCHER_PROMPT_VERSION } from "../src/server/voice/dispatcher-config";
 import { requestProvider, VoiceProviderError } from "../src/server/voice/provider";
 
-/** Explicit setup command: creates only the private, tool-free agent, never a conversation. */
+/** Explicit setup command: creates the private agent without client tools, never a conversation. */
 async function main() {
   const key = process.env.ELEVENLABS_API_KEY?.trim();
   if (!key) throw new ConfigurationError("Set ELEVENLABS_API_KEY in the ignored root .env.");
