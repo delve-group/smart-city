@@ -15,6 +15,7 @@ This base holds project context and decisions; it is not the app's database or a
 | Frontend–backend contract: implemented demo, specified voice-to-incident PoC and future platform | [API contract](../api-contract.md) |
 | Exact payloads, errors, command signatures and cross-workstream handoffs for the PoC | [Shared workflow contracts](../workflow-contracts.md) |
 | Components, colours, typography and accessibility | [Design system](../design-system.md) |
+| Creating or editing HTML decks with speaker notes, presenter mode and offline export | [HTML presentations skill](../../.agents/skills/html-presentations/SKILL.md) |
 | Current PoC requirements, user stories and acceptance criteria | [Voice and incident specification](../../specs/001-voice-incident-response/spec.md) |
 | ElevenLabs integration, actor tools, persistence and delivery slices | [Technical implementation plan](../../specs/001-voice-incident-response/plan.md) |
 | Background research and considered alternatives | [Historical discovery draft](../plans/2026-10-03-voice-incident-design.md) |
