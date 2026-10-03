@@ -14,7 +14,7 @@ interface TicketSourceRow {
 async function load(ticketId: string): Promise<TicketSourceRow | null> {
   if (!isUuid(ticketId)) return null;
   const result = await getPool().query<TicketSourceRow>(
-    `SELECT t.id, t.reference, t.institution_id, t.status, t.version, t.payload, t.result_note, t.updated_at,
+    `SELECT t.id, t.reference, t.institution_id, t.status, (t.version + i.version) AS version, t.payload, t.result_note, greatest(t.updated_at, i.updated_at) AS updated_at,
             i.category_id, i.issue_type, i.anchor_lat, i.anchor_lng, i.title
      FROM service_tickets t JOIN incidents i ON i.id = t.incident_id WHERE t.id = $1`,
     [ticketId],
@@ -25,7 +25,8 @@ async function load(ticketId: string): Promise<TicketSourceRow | null> {
 const text = (row: TicketSourceRow) =>
   [...row.payload.map((line) => `${line.key}: ${line.value}`), `Status: ${row.status}`, row.result_note].filter(Boolean).join("\n");
 
-/** Tickets are never public: officials, the decision-maker and the assigned institution are the only audiences. */
+/** Search version combines ticket and joined incident versions; it is not a command token.
+ * Tickets are never public: officials, the decision-maker and the assigned institution are the only audiences. */
 export async function getTicketSearchSource(ticketId: string): Promise<SearchSource | null> {
   const row = await load(ticketId);
   if (!row) return null;
@@ -47,7 +48,7 @@ export async function getTicketSearchSource(ticketId: string): Promise<SearchSou
 
 export async function listTicketSourceRefs(cursor: string | null, limit = 200) {
   const result = await getPool().query<{ id: string; version: number }>(
-    "SELECT id, version FROM service_tickets WHERE ($1::uuid IS NULL OR id > $1::uuid) ORDER BY id LIMIT $2",
+    "SELECT t.id, (t.version + i.version) AS version FROM service_tickets t JOIN incidents i ON i.id = t.incident_id WHERE ($1::uuid IS NULL OR t.id > $1::uuid) ORDER BY t.id LIMIT $2",
     [cursor, limit],
   );
   return {
