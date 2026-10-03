@@ -1,0 +1,66 @@
+name: smart-city
+
+x-application-environment: &application-environment
+  APP_ORIGIN: ${APP_ORIGIN:?Set APP_ORIGIN in .env}
+  PGHOST: db
+  PGPORT: "5432"
+  PGUSER: smart_city
+  PGDATABASE: smart_city
+  PGPASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+  NEXT_TELEMETRY_DISABLED: "1"
+
+services:
+  db:
+    image: postgres:17-bookworm
+    environment:
+      POSTGRES_USER: smart_city
+      POSTGRES_DB: smart_city
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U smart_city -d smart_city"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  setup:
+    build:
+      context: ./apps/frontend
+      target: development
+    environment:
+      <<: *application-environment
+      NODE_ENV: production
+      DEMO_OFFICIAL_PASSWORD: ${DEMO_OFFICIAL_PASSWORD:?Set DEMO_OFFICIAL_PASSWORD in .env}
+      DEMO_ELECTRICITY_PASSWORD: ${DEMO_ELECTRICITY_PASSWORD:?Set DEMO_ELECTRICITY_PASSWORD in .env}
+      DEMO_WATER_PASSWORD: ${DEMO_WATER_PASSWORD:?Set DEMO_WATER_PASSWORD in .env}
+    command: ["npm", "run", "db:setup"]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  app:
+    build:
+      context: ./apps/frontend
+      target: production
+    environment:
+      <<: *application-environment
+      NODE_ENV: production
+    ports:
+      - "127.0.0.1:${APP_PORT:-3000}:3000"
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      start_period: 30s
+      retries: 20
+    init: true
+    restart: unless-stopped
+
+volumes:
+  postgres-data:

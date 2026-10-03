@@ -1,10 +1,12 @@
 # Feature specification: voice reporting and incident response
 
-Feature: `001-voice-incident-response` · Created: 2026-10-03 · Status: specified, not implemented.
+Feature: `001-voice-incident-response` · Created: 2026-10-03 · Status: backend foundation implemented; response workflow specified, not implemented.
 
 Input: the resident-to-institution workflow in the [discovery brief](../../docs/plans/2026-10-03-voice-incident-design.md), followed by the user's confirmation of browser-first intake and **ElevenLabs** as the voice provider.
 
 This is the current PoC requirements baseline for this feature. It supersedes the discovery draft's provider comparison and narrows the broader [platform vision](../../spec.md) to one working response loop. [AGENTS.md](../../AGENTS.md) remains the source of working rules. Technical implementation constraints are in [plan.md](plan.md). These documents are prepared for Spec Kit; the toolkit has not been installed or run.
+
+The first implementation deliberately stops at local PostgreSQL startup, migrations, fictional demo staff accounts, persistent guest/staff sessions and health/access-check APIs. The existing report map still uses its in-memory demo routes. Persistent reports, versioned report commands, incidents, ElevenLabs, Qdrant, background processing and Scaleway deployment remain subsequent slices; the foundation does not satisfy the full user stories below. [The API contract](../../docs/api-contract.md#backend-foundation-implemented) identifies the available routes.
 
 ## 1. Outcome and scope
 
@@ -16,6 +18,8 @@ A resident describes a city problem without choosing a department. The system cl
 - Reports and incidents are separate entities. Dispatcher, decision-maker and institution are distinct roles with different authority.
 - An official approves a specific action before the system contacts an institution or creates its ticket.
 - Keep the existing Next.js, Appica, map, category and form foundations. Qdrant is the selected search index; see [D029 and its implementation guide](../../docs/knowledge-base/qdrant-search.md).
+- Search covers reports, incidents and service tickets using their titles/summaries, descriptions and permitted metadata. Indexing does not make private records public; each caller receives only its authorized projection.
+- Local development starts through one documented command and reports missing or invalid required environment settings before starting dependent services. The eventual Scaleway deployment follows the same validation rule. Plan for roughly 15 concurrent application users, with 30 as the demo planning bound; capacity is unverified.
 - Government identity is simulated. Utility telemetry and institution integration are also explicitly labelled demo data/services.
 - Documentation, code, authored prompts, UI copy and the reference demo's agent responses are English. Preserve Polish place names and accept resident observations spoken in Polish as input; multilingual response copy is outside this slice.
 
@@ -107,8 +111,8 @@ As a demo resident, I can choose a fictional identity without confusing the prot
 | FR-003 | Before submission, the resident confirms the current location and summary. Any correction invalidates the previous confirmation. A confirmation can be spoken or made with a button; save it with the draft revision and confirmation channel. |
 | FR-004 | Form and voice submit through the same validated report operation. Require a city-supported category, issue description and confirmed location; allow unknown observation time and scope. Uncertain category is clarified or selected in the form before submission. |
 | FR-005 | Persist each submission once per identity and submission key; retain the same reference across retries. The same key with a different payload produces a conflict, not an overwrite. |
-| FR-006 | Store reports independently of incidents, with at most one current incident link per report. Reassignment preserves history, authorship, original observation and reason. |
-| FR-007 | Retrieve related candidates using Qdrant and authoritative current records. Ranking scores are not confidence probabilities and do not authorise grouping. Preserve uncategorized search records as required by D029. |
+| FR-006 | Store reports independently of incidents, with at most one current incident link per report. Each report has a positive integer version, starting at 1. Every mutation checks the expected version atomically and increments it; a stale write has no effect and returns a version conflict. Reassignment preserves history, authorship, original observation and reason. |
+| FR-007 | Retrieve related candidates using Qdrant and authoritative current records. Index reports, incidents and service tickets using access-scoped text projections and stable record type/ID pairs. Ranking scores are not confidence probabilities and do not authorise grouping. Preserve uncategorized search records as required by D029. |
 | FR-008 | Apply the grouping rules in section 5. Ambiguous or failed triage creates a visible review item; report persistence does not depend on AI or search availability. |
 | FR-009 | Keep incident assessment separate from response progress. Distinct resident support can corroborate, but never automatically verify, a report. |
 | FR-010 | Resolve responsibility using configured category/issue, territory and optional asset rules. Zero or multiple applicable institutions require human review. Record the mapping source/version. |
@@ -136,7 +140,7 @@ IDs are opaque stable identifiers; human references are unique display values. T
 | --- | --- |
 | Resident/session | Server identity, identity kind (`guest`/`demo_profile`), session expiry; no real government identity. |
 | Intake draft | Owning identity, revision, current fields, stable submission key, confirmed revision/channel/time; unsubmitted draft is not a report. |
-| Report | ID/reference, owner, channel (`voice`/`form`), category ID, issue type, English operator summary, restricted original observation, location and location source, observed/submitted times, scope, triage state, nullable incident ID and demo flag. |
+| Report | ID/reference, owner, channel (`voice`/`form`), category ID, issue type, English operator summary, restricted original observation, location and location source, observed/submitted times, scope, triage state, nullable incident ID, positive integer version (initially 1) and demo flag. |
 | Incident | ID/reference, category and issue type, fixed matching anchor, public location/summary, scope, assessment, response status, version, institution assignment, evidence links, timestamps and provenance. |
 | Contribution | Incident ID plus supporting identity and source; unique membership defines support. Several reports by the same identity remain separate observations without increasing that membership count. |
 | Evidence | ID, incident/report link, kind, source reference, value/summary, observed/retrieved times, validity/freshness, demo flag and access scope. |
@@ -148,6 +152,8 @@ IDs are opaque stable identifiers; human references are unique display values. T
 ### Report triage state
 
 `pending` → `linked` or `needs_review`. An operator can move `needs_review` to `linked` after correction/selection, or to `private_issue` / `out_of_scope` with a reason and resident-visible next step. Failed processing leaves the report pending with a retryable error; it does not change the observation into a failed report.
+
+An AI decision computed from report version 4 cannot change version 5. The command supplies `expected_version`; one database operation checks that version and increments it together with the accepted change. A conflict returns `409 version_conflict` with no partial mutation. Human callers refresh and review again; automated triage discards its stale suggestion and recomputes from current report and candidate state within its bounded retry policy.
 
 ### Incident assessment
 
@@ -251,6 +257,6 @@ Run available lint, type check and build for implementation changes; record manu
 
 Before live implementation verification, the team needs an ElevenLabs account with a configured agent and voice, a deployed backend with session handling, a persistent primary store, Qdrant access and the fixture data. Exact account limits, selected voice/model, deployment owner and retention settings are setup inputs. They do not reopen the choice of ElevenLabs.
 
-The plan uses PostgreSQL and polling as reversible implementation defaults. The backend reasoning model is selected during implementation from available team access and recorded with its prompt/version; it does not change the report, permission or approval contracts. No cloud resource or paid service has been provisioned by this specification.
+The foundation uses PostgreSQL for identities and sessions; the response workflow will extend that store. Polling remains the planned refresh mechanism. The backend reasoning model is selected during implementation from available team access and recorded with its prompt/version; it does not change the report, permission or approval contracts. No cloud resource or paid service has been provisioned by this specification.
 
 Spec Kit handoff: use this file for requirements/clarification, [plan.md](plan.md) for the technical plan, and derive dependency-ordered tasks for its delivery slices. Preserve the existing no-tests-unless-requested and branch/PR policies when generating tasks. The remaining setup inputs above must be resolved before their dependent integration is claimed complete.

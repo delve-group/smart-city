@@ -1,12 +1,12 @@
 # System architecture
 
-Status: proof of concept, 2026-10-03. The domain and the backend wait for the main product scenario.
+Status: proof of concept, 2026-10-03. The local PostgreSQL/authentication foundation is implemented; the map still uses its mock report backend.
 
-The [voice and incident specification](../specs/001-voice-incident-response/spec.md) and [ElevenLabs technical plan](../specs/001-voice-incident-response/plan.md) define the next domain and data-flow changes. This architecture describes the implemented baseline; the specified voice, incidents, actors, persistence and approvals are not implemented yet.
+The [voice and incident specification](../specs/001-voice-incident-response/spec.md) and [ElevenLabs technical plan](../specs/001-voice-incident-response/plan.md) define the next domain and data-flow changes. The baseline now includes durable identities/sessions and fictional institutions. Voice, persistent reports/incidents, actor workflows and approvals are not implemented yet.
 
 ## Direction
 
-One frontend, modules by feature, and one backend only if the scenario really needs it. Frontend: Next.js (App Router, Turbopack, React Compiler), React 19, TypeScript (strict), Tailwind CSS v4 and Appica UI components. Package manager: npm; versions are pinned by `package-lock.json`. Appica components work in Server Components; move interactivity into small `"use client"` components.
+One Next.js application with feature modules on the server and browser. Frontend: Next.js (App Router, Turbopack, React Compiler), React 19, TypeScript (strict), Tailwind CSS v4 and Appica UI components. Package manager: npm; versions are pinned by `package-lock.json`. Appica components work in Server Components; move interactivity into small `"use client"` components.
 
 ```text
 apps/
@@ -16,10 +16,12 @@ apps/
       api/<service>/        # one endpoint = one file; types.ts and mappers.ts per service
       features/<feature>/   # components/<component>/, hooks/, utils/ for that feature only
       shared/               # code used by several features: components/, theme/, styles/
-  backend/                  # only if the scenario needs a server (does not exist yet)
+      server/               # server-only auth, HTTP boundary, database/configuration
+    db/migrations/          # numbered SQL migrations
+    scripts/                # configuration checks, migrations and demo seeding
 ```
 
-Each app in `apps/` is a standalone project with its own dependencies; a shared workspace will be added once a second app needs to share code. Create folders only together with code. Detailed frontend structure rules are in [apps/frontend/AGENTS.md](../apps/frontend/AGENTS.md). Features do not import other features' private files; logic (mappers, calculations) does not depend on React. Base components come from the `@appica/ui-react` package and are not copied into the repo. Do not build generic repositories, DI containers or internal libraries in advance.
+Each app in `apps/` is a standalone project with its own dependencies. The root `package.json` contains command shortcuts only; it is not a shared workspace. Create folders only together with code. Detailed frontend structure rules are in [apps/frontend/AGENTS.md](../apps/frontend/AGENTS.md). Features do not import other features' private files; logic (mappers, calculations) does not depend on React. Base components come from the `@appica/ui-react` package and are not copied into the repo. Do not build generic repositories, DI containers or internal libraries in advance.
 
 ## Libraries
 
@@ -29,16 +31,18 @@ Each app in `apps/` is a standalone project with its own dependencies; a shared 
 | [React](https://react.dev) | 19.2 | UI library. The React Compiler memoises components automatically. | Required by Next.js and Appica UI. |
 | [TypeScript](https://www.typescriptlang.org) | 5 | Static types (strict mode). | Catches contract errors between API, mappers and components early. |
 | [Tailwind CSS](https://tailwindcss.com) | 4 | Utility-first CSS; configuration lives in CSS (`@theme`). | Required by Appica UI; our theme tokens map to Tailwind classes. |
-| [Appica UI](https://appica.dev/ui) (`@appica/ui-react`) | 1.2 | 70+ accessible React components built on [Base UI](https://base-ui.com), styled with Tailwind tokens; includes `ThemeProvider`. | Ready-made components (Alert, Button, Dialog, …) so we do not hand-roll UI; one token set drives both Civic and Signal. |
+| [Appica UI](https://appica.dev/ui) (`@appica/ui-react`) | 1.2 | 70+ accessible React components built on [Base UI](https://base-ui.com), styled with Tailwind tokens; includes `ThemeProvider`. | Ready-made components (Alert, Button, Dialog, …) so we do not hand-roll UI; one token set drives the neutral light and dark modes. |
 | [MapLibre GL JS](https://maplibre.org) (`maplibre-gl`) | 6.11 | Open-source WebGL map renderer for vector tiles; native `heatmap` layer type. | Free, no API key, built-in GPU heatmap. Fork of Mapbox GL JS before its licence change. |
 | [react-map-gl](https://visgl.github.io/react-map-gl/) (`react-map-gl/maplibre`) | 8.1 | React components for MapLibre: `<Map>`, `<Source>`, `<Layer>`. Maintained by vis.gl (the deck.gl team). | Declarative map layers in React instead of imperative MapLibre calls. |
 | [OpenFreeMap](https://openfreemap.org) | service | Free hosted vector tiles and map styles (`positron` in light mode, `dark` in dark mode) built from [OpenStreetMap](https://www.openstreetmap.org) data. | No key, no registration, no request limits, commercial use allowed; attribution is shown automatically by MapLibre. |
 | [Photon](https://photon.komoot.io) | service | Free geocoder over OpenStreetMap data: street and place search, and reverse geocoding for the report pin (`src/api/photon/`). | No key; CORS enabled; biased to Kraków. Public instance is fair-use only — self-host or swap for production. |
-| [Geist](https://vercel.com/font) (`next/font/google`) | — | Sans and mono typeface, self-hosted at build time by `next/font`. | Neutral, precise UI face with Polish diacritics; no runtime request to Google. |
+| [Geist](https://vercel.com/font) (`geist`, `next/font/local`) | 1.7.2 | Bundled sans and mono variable fonts served by the application. | Preserves Polish diacritics and removes the Google font download from development and builds. |
 | [Appica Icons](https://appica.dev/ui/icons) (`@appica/icons-react`) | 1.1 | Icon set matching Appica UI. | One consistent stroke style for category, time, place and action icons. |
 | [Zod](https://zod.dev) | 4 | Runtime schema validation. | Validates API responses at the boundary (`src/api/*/types.ts`), drops bad or uncategorised records instead of breaking the map, and validates new reports on both client and server. |
 | `@types/geojson` | dev | TypeScript types for GeoJSON. | Types the feature collection passed to the heatmap source. |
 | ESLint + `eslint-config-next` | 9 / 16.3 | Linting with Next.js and React rules. | Run with `npm run lint`. |
+| PostgreSQL / `pg` | 17 / pinned in app lockfile | Durable identities, sessions, fictional institutions and login throttling. | One relational store with explicit SQL and transactions; later workflow tables use new migrations. |
+| `tsx`, `@next/env`, Node crypto | pinned in app lockfile / Node runtime | Run TypeScript setup scripts, load host development settings and hash staff passwords. | Reuse the app's types/configuration; avoid a separate backend framework or authentication service. |
 
 Swapping the map for Google Maps later means replacing only `features/city-map/components/city-map-canvas/city-map-canvas.tsx` with an implementation based on `@vis.gl/react-google-maps` and a deck.gl `HeatmapLayer` (see D013 in the [decision log](knowledge-base/decisions.md)).
 
@@ -66,15 +70,23 @@ Features in `apps/frontend/src/features/`:
 - `category-filter` — the filter button and category checklist.
 - `report-issue` — the report button, pin placement and report form.
 
-Shared building blocks (category label/tile/appearance, floating panel shell, severity labels) live in `src/shared/`. The mock backend is a set of Next route handlers with an **in-memory store**: submitted reports live until the dev server restarts. Replacing `src/app/api/*` with a real backend and keeping the `src/api/*` contracts is the intended path.
+Shared building blocks (category label/tile/appearance, floating panel shell, severity labels) live in `src/shared/`. The map's mock backend still uses an **in-memory store**: submitted reports live until the app restarts. Its migration to persistent incidents changes the route contracts and `src/api/*` clients together, as defined by the feature plan.
 
 Form state stays local. Search and filter parameters go into the URL when a view must be shareable. Add shared fetching and caching only when there is a real need. The theme belongs to the app shell; it does not change data or permissions.
 
-The API layer maps external data to a small app model, validates the boundary and returns a clear result or error. With server-side integration, the backend validates data again, enforces permissions and holds secrets. The frontend is not a security boundary. For the mock demo, replacing the mock route handlers in `src/app/api/` (and adjusting `src/api/` mappers) should be enough to connect the real API; do not build abstractions for providers that do not exist.
+The API layer maps external data to a small app model, validates the boundary and returns a clear result or error. Server modules validate writes, enforce permissions and hold secrets. The frontend is not a security boundary. The new authentication is not yet applied to the old public report fixtures; persistent report/incident work must use server sessions and migrate its callers as a complete slice.
 
-Planned ticket/incident retrieval for agents, MCP tools and shared user search follows the [Qdrant search decision and implementation guide](knowledge-base/qdrant-search.md) (D029). Read it before implementing those paths. This integration is not yet part of the data flow above; the authoritative ticket store remains undecided.
+Planned report/incident/service-ticket retrieval for agents, MCP tools and shared user search follows the [Qdrant search decision and implementation guide](knowledge-base/qdrant-search.md) (D029, D037). Read it before implementing those paths. PostgreSQL is the authoritative store; Qdrant remains an unimplemented derived search index.
 
 The [frontend–backend contract](api-contract.md) separates today's resident-report routes, the specified ElevenLabs voice-to-incident PoC, and later interfaces from the platform SPEC. The feature specification and plan govern the next implementation slice; public incident projections, private reports, official commands and institution tickets must not be collapsed into one record or route.
+
+## Local backend foundation
+
+Docker Compose runs one Next.js web/API process and PostgreSQL on a persistent volume. A one-shot setup container waits for database health, applies SQL migrations and seeds fictional staff/institutions before the app starts. Root npm shortcuts validate required environment values; the production image checks the same runtime settings and requires an HTTPS application origin. Executable setup, restart and configuration instructions live in the [README](../README.md#running). Scaleway provisioning and the HTTPS proxy are separate delivery work.
+
+Authentication routes call `server/auth/`; password hashing is independent of Next.js and reused by the seed script. PostgreSQL holds identities, hashed session tokens and login throttling. Thin HTTP handlers own cookies, origin checks and common response envelopes. Permission guards read role and institution from the database. The new liveness/readiness endpoints distinguish a running process from usable database migrations. See the [implemented API contract](api-contract.md#backend-foundation-implemented) for exact shapes.
+
+The first durable triage/indexing slice will introduce a supervised worker from this same codebase and transactional work records. There is no job schema or idle worker in the foundation. Optimistic report version checks are specified for that domain slice; the foundation does not create unused report/incident tables.
 
 ## Errors and states
 
