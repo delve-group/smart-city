@@ -4,27 +4,25 @@ Status: projekt startowy, 2026-10-03. Konkretna domena i backend czekają na pie
 
 ## Kierunek
 
-Jeden frontend, moduły według funkcji i jeden backend, jeśli scenariusz rzeczywiście go wymaga. Proponowany frontend: React + TypeScript (strict), Vite i Tailwind CSS, komponenty shadcn/ui. Wersje i menedżer pakietów zostaną utrwalone w konfiguracji i lockfile podczas inicjalizacji aplikacji.
+Jeden frontend, moduły według funkcji i jeden backend, jeśli scenariusz rzeczywiście go wymaga. Frontend: Next.js (App Router, Turbopack, React Compiler), React 19, TypeScript (strict), Tailwind CSS v4 i komponenty Appica UI. Menedżer pakietów: npm; wersje utrwala `package-lock.json`. Komponenty Appica działają w Server Components; interaktywność przenoś do małych komponentów z `"use client"`.
 
 ```text
 src/
-  app/                    # składanie ekranów, routing, dostawcy stanu
+  app/                    # routing Next.js, layout, providers.tsx, globals.css
   features/<feature>/
-    components/           # UI funkcji
+    components/           # UI funkcji złożone z komponentów Appica UI
     domain/               # czyste reguły, typy, ważne jednostki obok kodu
     api/                  # operacje danych i mapowanie odpowiedzi
-  components/ui/          # komponenty shadcn/ui współdzielone przez motywy
   lib/                    # tylko faktycznie wspólne narzędzia
-  styles/                 # wejście CSS importujące design-system/
 ```
 
-To plan struktury: twórz katalogi dopiero wraz z kodem. Moduł udostępnia małe publiczne API; inne funkcje nie importują jego prywatnych plików. `domain` nie zależy od komponentów ani transportu. `components/ui` nie zna funkcji biznesowych. Nie buduj generycznego repozytorium, kontenera DI ani biblioteki wewnętrznej na zapas.
+To plan struktury: twórz katalogi dopiero wraz z kodem. Moduł udostępnia małe publiczne API; inne funkcje nie importują jego prywatnych plików. `domain` nie zależy od komponentów ani transportu. Komponenty bazowe pochodzą z pakietu `@appica/ui-react`; nie kopiujemy ich do repozytorium. Nie buduj generycznego repozytorium, kontenera DI ani biblioteki wewnętrznej na zapas.
 
 ## Przepływ danych
 
 ```mermaid
 flowchart LR
-    U[Użytkownik] --> V[Widok + shadcn/ui]
+    U[Użytkownik] --> V[Widok + Appica UI]
     V --> D[Reguły funkcji]
     V --> A[Adapter danych funkcji]
     A --> M[Jawne dane demonstracyjne]
