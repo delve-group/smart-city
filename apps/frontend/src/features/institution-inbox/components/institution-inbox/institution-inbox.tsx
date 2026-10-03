@@ -16,6 +16,8 @@ import { MapSettings } from "@/features/city-map/components/map-settings/map-set
 import { AppBrand } from "@/shared/components/app-brand/app-brand";
 import { FreshnessStatus } from "@/shared/components/freshness-status/freshness-status";
 import { useNow } from "@/shared/hooks/use-now";
+import { useI18n } from "@/shared/i18n/locale";
+import type { MessageKey } from "@/shared/i18n/messages";
 import { useInstitutionData } from "../../hooks/use-institution-data";
 import { isOpen, sortTickets } from "../../utils/labels";
 import { TicketDetail } from "../ticket-detail/ticket-detail";
@@ -26,21 +28,21 @@ const CityMapCanvas = dynamic(() => import("@/features/city-map/components/city-
 
 /** Same opening view as the operations workspace. */
 const INITIAL_VIEW = { longitude: 19.9425, latitude: 50.0555, zoom: 14.8 };
-const DEMO_NOTICE = "Tickets: demo data";
 /** Desktop panel width (25rem) plus its 0.75rem margin. */
 const PANEL_INSET = 412;
 const STALE_CODES = new Set(["version_conflict", "invalid_state"]);
-const SAVED: Record<TicketUpdate["status"], string> = {
-  acknowledged: "Ticket acknowledged",
-  in_progress: "Work marked as started",
-  resolved: "Reported as resolved",
-  rejected: "Ticket rejected",
+const SAVED: Record<TicketUpdate["status"], MessageKey> = {
+  acknowledged: "inboxSaved.acknowledged",
+  in_progress: "inboxSaved.in_progress",
+  resolved: "inboxSaved.resolved",
+  rejected: "inboxSaved.rejected",
 };
 
 type InstitutionInboxProps = { onSessionLost: () => void; onSignOut?: () => void };
 
 /** The institution's assigned tickets beside the map; details open in the same floating panel as /operations. The account decides the institution. */
 export function InstitutionInbox({ onSessionLost, onSignOut }: InstitutionInboxProps) {
+  const { t } = useI18n();
   const { state, retry, refresh, apply, updatedAt, refreshFailed } = useInstitutionData(onSessionLost);
   const toast = useToastManager();
   const now = useNow();
@@ -101,16 +103,16 @@ export function InstitutionInbox({ onSessionLost, onSignOut }: InstitutionInboxP
     try {
       apply(await updateTicket(ticket.id, update));
       setNotes((current) => ({ ...current, [ticket.id]: "" }));
-      toast.add({ title: SAVED[update.status], description: "The city official and the public timeline are updated." });
+      toast.add({ title: t(SAVED[update.status]), description: t("inbox.savedBody") });
       return true;
     } catch (error) {
       if (error instanceof InstitutionApiError && (error.status === 401 || error.status === 403)) {
         onSessionLost();
       } else if (error instanceof InstitutionApiError && STALE_CODES.has(error.code)) {
-        toast.add({ type: "warning", title: "This ticket changed while you were looking at it", description: `${error.message} The view is now up to date; your note is kept.` });
+        toast.add({ type: "warning", title: t("inbox.conflictTitle"), description: t("inbox.conflictBody", { message: error.message }) });
         void refresh();
       } else {
-        toast.add({ type: "error", title: "Your update was not saved", description: `${error instanceof InstitutionApiError ? error.message : "The inbox could not be reached."} Your note is kept; try again.` });
+        toast.add({ type: "error", title: t("inbox.saveFail"), description: t("inbox.saveFailBody", { message: error instanceof InstitutionApiError ? error.message : t("inbox.unreachable") }) });
       }
       return false;
     }
@@ -138,18 +140,18 @@ export function InstitutionInbox({ onSessionLost, onSignOut }: InstitutionInboxP
   return (
     <div className="flex h-dvh w-full overflow-hidden">
       <aside
-        aria-label="Assigned tickets"
+        aria-label={t("inbox.assigned")}
         className={`${mobileView === "list" ? "flex" : "hidden"} w-full shrink-0 flex-col border-e border-border bg-background md:flex md:w-96`}
       >
         <header className="flex flex-col gap-3 border-b border-border-muted px-4 pt-4 pb-3">
           <div className="flex items-center justify-between gap-2">
-            <AppBrand variant="plain" product="Institution" />
+            <AppBrand variant="plain" product={t("brand.institution")} />
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" className="md:hidden" onClick={() => setMobileView("map")}>
                 <MapIcon data-icon="start" />
-                Map
+                {t("common.map")}
               </Button>
-              {onSignOut && <Button variant="ghost" size="sm" onClick={onSignOut}>Sign out</Button>}
+              {onSignOut && <Button variant="ghost" size="sm" onClick={onSignOut}>{t("common.signOut")}</Button>}
             </div>
           </div>
           {state.status === "ready" && (
@@ -161,22 +163,22 @@ export function InstitutionInbox({ onSessionLost, onSignOut }: InstitutionInboxP
             {state.status === "loading" && (
               <div role="status" className="flex items-center gap-2 px-3 py-4 text-sm text-foreground">
                 <Spinner className="size-4 text-foreground-muted" aria-hidden />
-                Loading your tickets…
+                {t("inbox.loading")}
               </div>
             )}
             {state.status === "error" && (
               <Alert variant="error" className="m-2">
-                <AlertTitle>Could not load your tickets</AlertTitle>
+                <AlertTitle>{t("inbox.loadError")}</AlertTitle>
                 <AlertDescription className="flex flex-col items-start gap-3">
                   {state.message}
-                  <Button variant="outline" size="sm" onClick={retry}>Try again</Button>
+                  <Button variant="outline" size="sm" onClick={retry}>{t("common.tryAgain")}</Button>
                 </AlertDescription>
               </Alert>
             )}
             {state.status === "ready" && (
               <>
-                {list("Open", open, "No open tickets. New requests approved by the city appear here.")}
-                {list("Finished", finished, "Resolved and rejected tickets appear here.")}
+                {list(t("inbox.open"), open, t("inbox.emptyOpen"))}
+                {list(t("inbox.finished"), finished, t("inbox.emptyFinished"))}
               </>
             )}
           </div>
@@ -200,7 +202,7 @@ export function InstitutionInbox({ onSessionLost, onSignOut }: InstitutionInboxP
           interactive
           onHover={(hover) => setHoverId(hover?.id ?? null)}
           onSelect={setSelectedId}
-          attribution={state.status === "ready" ? DEMO_NOTICE : undefined}
+          attribution={state.status === "ready" ? t("demo.tickets") : undefined}
           tilted={tilted}
           areas={[]}
           heatmap={false}
@@ -210,7 +212,7 @@ export function InstitutionInbox({ onSessionLost, onSignOut }: InstitutionInboxP
         <div className="absolute top-3 left-3 z-20 md:hidden">
           <Button variant="outline" className="border-border-strong/50 bg-background shadow-xs" onClick={() => setMobileView("list")}>
             <ArrowLeft data-icon="start" />
-            Tickets
+            {t("common.tickets")}
           </Button>
         </div>
 

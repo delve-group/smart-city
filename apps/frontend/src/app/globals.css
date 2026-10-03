@@ -24,3 +24,10 @@ html .maplibregl-ctrl-attrib a {
 .dark .maplibregl-ctrl-attrib-button {
   filter: invert(1);
 }
+
+/* Phones: the plain lockup owns the bottom-left corner; keep the compact credit beside it. */
+@media (width < 48rem) {
+  html .resident-map .maplibregl-ctrl-bottom-left {
+    left: 7.5rem;
+  }
+}

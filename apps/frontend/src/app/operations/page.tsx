@@ -3,6 +3,7 @@ import { connection } from "next/server";
 import { USE_MOCKS } from "@/api/mocks/use-mocks";
 import { isDemoMode } from "@/server/config";
 import { OperationsGate } from "@/features/incident-operations/components/operations-gate/operations-gate";
+import { ScreenTitle } from "@/shared/components/screen-title/screen-title";
 
 export const metadata: Metadata = {
   title: "mRadar — operations",
@@ -14,7 +15,7 @@ export default async function OperationsPage() {
   await connection();
   return (
     <main className="h-dvh w-full">
-      <h1 className="sr-only">Operations workspace</h1>
+      <ScreenTitle title="meta.operations" heading="page.operations" />
       <OperationsGate demoMode={isDemoMode() || USE_MOCKS} />
     </main>
   );

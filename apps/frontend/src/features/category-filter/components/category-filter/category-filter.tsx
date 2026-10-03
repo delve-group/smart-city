@@ -7,6 +7,7 @@ import { CheckboxGroup } from "@appica/ui-react/checkbox-group";
 import { Popover, PopoverContent, PopoverDescription, PopoverTitle, PopoverTrigger } from "@appica/ui-react/popover";
 import type { Category } from "@/api/categories/types";
 import { CategoryTile } from "@/shared/components/category-tile/category-tile";
+import { categoryText, useI18n } from "@/shared/i18n/locale";
 
 type CategoryFilterProps = {
   /** API-defined categories; every report belongs to exactly one. */
@@ -20,11 +21,12 @@ type CategoryFilterProps = {
 
 /** Square button next to the search field; opens a category checklist. */
 export function CategoryFilter({ categories, counts, selected, onChange }: CategoryFilterProps) {
+  const { t } = useI18n();
   const allIds = categories.map((category) => category.id);
   const filtered = selected.length < allIds.length;
   const label = filtered
-    ? `Filter categories, ${selected.length} of ${allIds.length} shown`
-    : "Filter categories";
+    ? t("filter.openCount", { shown: selected.length, total: allIds.length })
+    : t("filter.open");
 
   return (
     <Popover>
@@ -50,8 +52,8 @@ export function CategoryFilter({ categories, counts, selected, onChange }: Categ
       </PopoverTrigger>
       <PopoverContent align="end" sideOffset={8} className="w-80">
         <div className="flex flex-col gap-1">
-          <PopoverTitle>Show categories</PopoverTitle>
-          <PopoverDescription>Hidden categories disappear from the map and from search.</PopoverDescription>
+          <PopoverTitle>{t("filter.title")}</PopoverTitle>
+          <PopoverDescription>{t("filter.hint")}</PopoverDescription>
         </div>
         <CheckboxGroup
           aria-labelledby="category-filter-all"
@@ -63,7 +65,7 @@ export function CategoryFilter({ categories, counts, selected, onChange }: Categ
           <label className="flex min-h-11 items-center gap-3 rounded-md px-2 text-sm font-medium select-none hover:bg-background-muted">
             {/* Base UI renders role="checkbox" on a span, so a wrapping label does not name it. */}
             <Checkbox parent aria-labelledby="category-filter-all" />
-            <span id="category-filter-all" className="flex-1 text-foreground-intense">All categories</span>
+            <span id="category-filter-all" className="flex-1 text-foreground-intense">{t("filter.all")}</span>
             <span className="text-xs text-foreground-muted tabular-nums">
               {[...counts.values()].reduce((sum, count) => sum + count, 0)}
             </span>
@@ -77,16 +79,16 @@ export function CategoryFilter({ categories, counts, selected, onChange }: Categ
               <CategoryTile categoryId={category.id} size="sm" />
               <span className="flex min-w-0 flex-1 flex-col">
                 <span id={`category-filter-${category.id}`} className="truncate text-foreground-intense">
-                  {category.label}
+                  {categoryText(t, category).label}
                 </span>
-                <span className="truncate text-xs text-foreground-muted">{category.description}</span>
+                <span className="truncate text-xs text-foreground-muted">{categoryText(t, category).description}</span>
               </span>
               <span className="text-xs text-foreground-muted tabular-nums">{counts.get(category.id) ?? 0}</span>
             </label>
           ))}
         </CheckboxGroup>
         {selected.length === 0 && (
-          <p className="mt-2 px-2 text-sm text-foreground-muted">Nothing is shown. Pick at least one category.</p>
+          <p className="mt-2 px-2 text-sm text-foreground-muted">{t("filter.empty")}</p>
         )}
       </PopoverContent>
     </Popover>

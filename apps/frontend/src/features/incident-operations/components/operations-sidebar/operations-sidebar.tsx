@@ -5,14 +5,16 @@ import { ScrollArea } from "@appica/ui-react/scroll-area";
 import { Tabs, TabsList, TabsTrigger } from "@appica/ui-react/tabs";
 import type { Category } from "@/api/categories/types";
 import { AppBrand } from "@/shared/components/app-brand/app-brand";
-import { QUEUE_TABS, TAB_LABEL, type QueueItem as QueueItemData, type QueueTab } from "../../utils/queue";
+import { useI18n } from "@/shared/i18n/locale";
+import type { MessageKey } from "@/shared/i18n/messages";
+import { QUEUE_TABS, type QueueItem as QueueItemData, type QueueTab } from "../../utils/queue";
 import { FreshnessStatus } from "@/shared/components/freshness-status/freshness-status";
 import { QueueItem } from "../queue-item/queue-item";
 
-const EMPTY: Record<QueueTab, string> = {
-  review: "Nothing is waiting for you. New reports and proposals appear here.",
-  active: "No institution is working on an incident right now.",
-  done: "Resolved and closed incidents appear here.",
+const EMPTY: Record<QueueTab, MessageKey> = {
+  review: "queue.emptyReview",
+  active: "queue.emptyActive",
+  done: "queue.emptyDone",
 };
 
 type OperationsSidebarProps = {
@@ -51,18 +53,20 @@ export function OperationsSidebar({
   onSignOut,
   onShowMap,
 }: OperationsSidebarProps) {
+  const { t } = useI18n();
   const items = queue[tab];
+  const tabLabel = (value: QueueTab) => t(`queue.${value}` as MessageKey);
   return (
     <div className="flex h-full min-h-0 flex-col bg-background">
       <header className="flex flex-col gap-4 border-b border-border-muted px-4 pt-4 pb-3">
         <div className="flex items-center justify-between gap-2">
-          <AppBrand variant="plain" product="Operator" />
+          <AppBrand variant="plain" product={t("brand.operator")} />
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" className="md:hidden" onClick={onShowMap}>
               <MapIcon data-icon="start" />
-              Map
+              {t("common.map")}
             </Button>
-            {onSignOut && <Button variant="ghost" size="sm" onClick={onSignOut}>Sign out</Button>}
+            {onSignOut && <Button variant="ghost" size="sm" onClick={onSignOut}>{t("common.signOut")}</Button>}
           </div>
         </div>
         <Input
@@ -71,8 +75,8 @@ export function OperationsSidebar({
           onChange={(event) => onQueryChange(event.target.value)}
           clearable
           onClear={() => onQueryChange("")}
-          placeholder="Search incidents, reports, tickets"
-          aria-label="Search incidents, reports and tickets"
+          placeholder={t("queue.searchPlaceholder")}
+          aria-label={t("queue.searchLabel")}
           className="border-border-strong/50 bg-background shadow-xs"
           startSlot={<Search size={18} aria-hidden className="text-foreground-muted" />}
         />
@@ -80,7 +84,7 @@ export function OperationsSidebar({
           <TabsList className="grid w-full grid-cols-3 gap-0">
             {QUEUE_TABS.map((value) => (
               <TabsTrigger key={value} value={value} className="w-full justify-center gap-1.5">
-                {TAB_LABEL[value]}
+                {tabLabel(value)}
                 <span className="text-xs font-normal text-foreground-muted tabular-nums">{queue[value].length}</span>
               </TabsTrigger>
             ))}
@@ -90,7 +94,7 @@ export function OperationsSidebar({
 
       <ScrollArea className="min-h-0 flex-1">
         {items.length > 0 ? (
-          <ul className="flex flex-col p-2" aria-label={TAB_LABEL[tab]}>
+          <ul className="flex flex-col p-2" aria-label={tabLabel(tab)}>
             {items.map((item) => (
               // Hairline between rows, inset to the text; the hover fill covers it.
               <li key={item.key} className="relative not-last:after:absolute not-last:after:inset-x-3 not-last:after:-bottom-px not-last:after:h-px not-last:after:bg-border-muted has-[:hover]:after:opacity-0">
@@ -106,7 +110,7 @@ export function OperationsSidebar({
           </ul>
         ) : (
           <p className="px-5 py-8 text-sm text-pretty text-foreground-muted">
-            {query ? `Nothing in “${TAB_LABEL[tab]}” matches “${query}”.` : EMPTY[tab]}
+            {query ? t("queue.noMatch", { tab: tabLabel(tab), query }) : t(EMPTY[tab])}
           </p>
         )}
       </ScrollArea>

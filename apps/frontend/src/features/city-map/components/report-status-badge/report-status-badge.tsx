@@ -1,6 +1,9 @@
+"use client";
+
 import { Badge } from "@appica/ui-react/badge";
 import type { ReportStatus } from "@/api/reports/types";
-import { STATUS_LABEL } from "../../utils/report-status";
+import { useI18n } from "@/shared/i18n/locale";
+import type { MessageKey } from "@/shared/i18n/messages";
 
 const VARIANT = {
   reported: "outline",
@@ -10,6 +13,7 @@ const VARIANT = {
 } as const satisfies Record<ReportStatus, string>;
 
 export function ReportStatusBadge({ status }: { status: ReportStatus }) {
+  const { t } = useI18n();
   return (
     <Badge variant={VARIANT[status]} size="sm" className="gap-1.5">
       {status === "in_progress" && (
@@ -18,7 +22,7 @@ export function ReportStatusBadge({ status }: { status: ReportStatus }) {
           <span className="relative size-1.5 rounded-full bg-current" />
         </span>
       )}
-      {STATUS_LABEL[status]}
+      {t(`status.${status}` as MessageKey)}
     </Badge>
   );
 }

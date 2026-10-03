@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { Category } from "@/api/categories/types";
 import type { Incident, Institution } from "@/api/operations/types";
 import { InfoHint } from "@/shared/components/info-hint/info-hint";
+import { categoryText, useI18n } from "@/shared/i18n/locale";
 
 type ResponsibilityPickerProps = {
   incident: Incident;
@@ -15,6 +16,7 @@ type ResponsibilityPickerProps = {
 
 /** Pick the institution when routing found none, or the previous one rejected the work. */
 export function ResponsibilityPicker({ incident, category, institutions, onChoose }: ResponsibilityPickerProps) {
+  const { t } = useI18n();
   // Mapped institutions first; the others stay selectable for cases the mapping does not cover.
   const sorted = [...institutions].sort(
     (a, b) => Number(b.categoryIds.includes(incident.categoryId)) - Number(a.categoryIds.includes(incident.categoryId)),
@@ -41,11 +43,10 @@ export function ResponsibilityPicker({ incident, category, institutions, onChoos
     <section aria-labelledby="responsibility-title" className="flex flex-col gap-3">
       <div className="flex items-center gap-1">
         <h3 id="responsibility-title" className="text-sm font-semibold text-foreground-intense">
-          Who should respond?
+          {t("respond.title")}
         </h3>
-        <InfoHint label="How choosing works">
-          Your choice becomes a proposal; nothing is sent until you approve it. If none of them is responsible, leave the
-          incident in review.
+        <InfoHint label={t("respond.hint")}>
+          {t("respond.body")}
         </InfoHint>
       </div>
       <RadioGroup aria-labelledby="responsibility-title" value={value} onValueChange={(next) => {
@@ -56,10 +57,10 @@ export function ResponsibilityPicker({ incident, category, institutions, onChoos
           const mapped = institution.categoryIds.includes(incident.categoryId);
           const hint =
             institution.id === rejectedBy
-              ? "Rejected this incident before"
+              ? t("respond.rejectedBefore")
               : mapped
-                ? `Handles ${category?.label ?? incident.categoryId}`
-                : "Not mapped to this category";
+                ? t("respond.handles", { category: category ? categoryText(t, category).label : incident.categoryId })
+                : t("respond.unmapped");
           return (
             <label
               key={institution.id}
@@ -78,11 +79,11 @@ export function ResponsibilityPicker({ incident, category, institutions, onChoos
       </RadioGroup>
       {error && (
         <p role="alert" className="text-sm text-error">
-          Choose an institution first.
+          {t("respond.choose")}
         </p>
       )}
       <Button onClick={prepare} disabled={busy}>
-        {busy ? "Preparing…" : "Prepare ticket proposal"}
+        {busy ? t("respond.preparing") : t("respond.prepare")}
       </Button>
     </section>
   );

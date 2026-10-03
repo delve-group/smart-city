@@ -1,14 +1,18 @@
+"use client";
+
 import { Radio } from "@appica/ui-react/radio";
 import { RadioGroup } from "@appica/ui-react/radio-group";
 import { REPORT_SEVERITIES, type ReportSeverity } from "@/api/reports/types";
-import { SEVERITY_HINT, SEVERITY_LABEL } from "@/shared/utils/severity";
+import { useI18n } from "@/shared/i18n/locale";
+import type { MessageKey } from "@/shared/i18n/messages";
 
 type SeverityFieldProps = { value: ReportSeverity | null; onChange: (severity: ReportSeverity) => void };
 
 export function SeverityField({ value, onChange }: SeverityFieldProps) {
+  const { t } = useI18n();
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend id="severity-label" className="mb-2 text-sm font-medium text-foreground-intense">How serious is it?</legend>
+      <legend id="severity-label" className="mb-2 text-sm font-medium text-foreground-intense">{t("severity.legend")}</legend>
       <RadioGroup aria-labelledby="severity-label" value={value ?? ""} onValueChange={(next) => onChange(next as ReportSeverity)} className="gap-2">
         {REPORT_SEVERITIES.map((severity) => (
           <label
@@ -17,8 +21,8 @@ export function SeverityField({ value, onChange }: SeverityFieldProps) {
           >
             <Radio value={severity} aria-labelledby={`severity-${severity}`} className="mt-0.5" />
             <span className="flex flex-col gap-0.5">
-              <span id={`severity-${severity}`} className="text-sm font-medium text-foreground-intense">{SEVERITY_LABEL[severity]}</span>
-              <span className="text-xs text-foreground-muted">{SEVERITY_HINT[severity]}</span>
+              <span id={`severity-${severity}`} className="text-sm font-medium text-foreground-intense">{t(`severity.${severity}` as MessageKey)}</span>
+              <span className="text-xs text-foreground-muted">{t(`severity.${severity}Hint` as MessageKey)}</span>
             </span>
           </label>
         ))}

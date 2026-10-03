@@ -1,7 +1,9 @@
 import { CurrentLocation, MapPin } from "@appica/icons-react";
 import { Button } from "@appica/ui-react/button";
+import type { Ref } from "react";
 import { mapPin } from "@/api/locations/mappers";
 import type { LocationCandidate } from "@/api/locations/types";
+import { useI18n } from "@/shared/i18n/locale";
 import { usePinResolution } from "../../hooks/use-pin-resolution";
 import { useCurrentLocation } from "../../hooks/use-current-location";
 import { AddressSearch } from "../address-search/address-search";
@@ -15,10 +17,12 @@ type LocationPickerProps = {
   onCancel: () => void;
   onSelect: (candidate: LocationCandidate) => void;
   onConfirm: (candidate: LocationCandidate) => void;
+  ref?: Ref<HTMLElement>;
 };
 
 /** Bottom card shown while the user moves the map under the centre pin. */
-export function LocationPicker({ pin, selected, busy = false, insideCity, onLocate, onSelect, onCancel, onConfirm }: LocationPickerProps) {
+export function LocationPicker({ pin, selected, busy = false, insideCity, onLocate, onSelect, onCancel, onConfirm, ref }: LocationPickerProps) {
+  const { t } = useI18n();
   const location = useCurrentLocation(onLocate);
   const lookup = usePinResolution(pin);
   // Explicit selection remains authoritative while the camera animates to it.
@@ -28,23 +32,24 @@ export function LocationPicker({ pin, selected, busy = false, insideCity, onLoca
   const nearby = lookup.status === "done" ? lookup.result.candidates[0] : null;
 
   let line: string;
-  if (chosen) line = `${chosen.label}, Kraków${chosen.building_number ? "" : " — building number unknown"}`;
-  else if (!insideCity) line = "This spot is outside Kraków. Move the pin into the city.";
-  else if (nearby) line = `Pin near ${nearby.label}. This nearby address is not confirmed.`;
-  else if (lookup.status === "loading") line = "Finding nearby addresses… You can confirm the exact pin now.";
-  else line = "Address lookup unavailable or no match — you can confirm the exact pin.";
+  if (chosen) line = `${chosen.label}, Kraków${chosen.building_number ? "" : t("report.buildingUnknown")}`;
+  else if (!insideCity) line = t("report.outside");
+  else if (nearby) line = t("report.pinNear", { label: nearby.label });
+  else if (lookup.status === "loading") line = t("report.findingNearby");
+  else line = t("report.lookupUnavailable");
 
   return (
     <section
+      ref={ref}
       aria-labelledby="location-picker-title"
       className="absolute inset-x-3 bottom-3 z-30 flex max-h-[calc(50dvh-2rem)] flex-col gap-4 overflow-hidden rounded-lg border border-border bg-background p-5 shadow-md md:inset-x-auto md:bottom-6 md:left-1/2 md:max-h-[75dvh] md:w-[32rem] md:-translate-x-1/2"
     >
       <div className="flex min-h-0 flex-col gap-4 overflow-y-auto">
         <div className="flex flex-col gap-1">
           <h2 id="location-picker-title" className="text-lg font-semibold text-foreground-intense">
-            Where is the problem?
+            {t("report.whereTitle")}
           </h2>
-          <p className="text-sm text-foreground-muted">Find an address or move the map so the pin sits on the exact spot.</p>
+          <p className="text-sm text-foreground-muted">{t("report.whereHint")}</p>
         </div>
 
         <AddressSearch onSelect={onSelect} />
@@ -55,12 +60,13 @@ export function LocationPicker({ pin, selected, busy = false, insideCity, onLoca
         </p>
 
         <p className="text-xs text-foreground-muted">
-          {chosen ? `Selected address: ${chosen.lat.toFixed(5)}, ${chosen.lng.toFixed(5)}. Check it on the map.`
-            : `Exact pin: ${pin.lat.toFixed(5)}, ${pin.lng.toFixed(5)}. Street and building remain unknown.`}
+          {chosen
+            ? t("report.selectedAddress", { coords: `${chosen.lat.toFixed(5)}, ${chosen.lng.toFixed(5)}` })
+            : t("report.exactPin", { coords: `${pin.lat.toFixed(5)}, ${pin.lng.toFixed(5)}` })}
         </p>
 
         {location.state.status === "error" && (
-          <p role="alert" className="text-sm text-error-emphasis">{location.state.message}</p>
+          <p role="alert" className="text-sm text-error-emphasis">{location.state.code === "denied" ? t("report.locateDenied") : t("report.locateFailed")}</p>
         )}
       </div>
 
@@ -74,15 +80,15 @@ export function LocationPicker({ pin, selected, busy = false, insideCity, onLoca
             className="px-2 text-sm"
           >
             <CurrentLocation data-icon="start" />
-            {location.state.status === "locating" ? "Locating…" : "Use my location"}
+            {location.state.status === "locating" ? t("report.locating") : t("report.useLocation")}
           </Button>
         )}
         <div className="ml-auto flex shrink-0 gap-1.5 md:gap-2">
           <Button variant="outline" size="lg" onClick={onCancel} className="px-3 text-sm">
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button size="lg" onClick={() => onConfirm(chosen ?? mapPin(pin))} disabled={!canConfirm || busy} className="px-3 text-sm">
-            {busy ? "Saving location…" : "Confirm location"}
+            {busy ? t("report.savingLocation") : t("report.confirmLocation")}
           </Button>
         </div>
       </div>

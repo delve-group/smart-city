@@ -17,6 +17,7 @@ import { useState } from "react";
 import type { Category } from "@/api/categories/types";
 import type { CityReport } from "@/api/reports/types";
 import type { Place } from "@/api/photon/types";
+import { useI18n } from "@/shared/i18n/locale";
 import { usePlaceSearch } from "../../hooks/use-place-search";
 import { searchReports, topReports } from "../../utils/search-reports";
 import { SearchPlaceOption } from "../search-place-option/search-place-option";
@@ -39,16 +40,17 @@ const toReportOption = (report: CityReport): SearchOption => ({ kind: "report", 
 const toPlaceOption = (place: Place): SearchOption => ({ kind: "place", id: place.id, label: place.name, place });
 
 export function MapSearch({ reports, categoriesById, onPick }: MapSearchProps) {
+  const { t } = useI18n();
   const [query, setQuery] = useState("");
   const places = usePlaceSearch(query);
   const typed = query.trim().length > 0;
 
   const groups: OptionGroup[] = typed
     ? [
-        { value: "Reports", items: searchReports(reports, categoriesById, query).map(toReportOption) },
-        { value: "Places", items: places.places.map(toPlaceOption) },
+        { value: t("search.reports"), items: searchReports(reports, categoriesById, query).map(toReportOption) },
+        { value: t("search.places"), items: places.places.map(toPlaceOption) },
       ].filter((group) => group.items.length > 0)
-    : [{ value: "Most affected", items: topReports(reports).map(toReportOption) }];
+    : [{ value: t("search.top"), items: topReports(reports).map(toReportOption) }];
 
   const searchingPlaces = places.status === "loading";
 
@@ -70,21 +72,21 @@ export function MapSearch({ reports, categoriesById, onPick }: MapSearchProps) {
       size="lg"
     >
       <ComboboxInput
-        aria-label="Search reports and places"
-        placeholder="Search reports, streets and places"
+        aria-label={t("search.label")}
+        placeholder={t("search.placeholder")}
         className="border-border-strong/50 bg-background shadow-xs"
         startSlot={<Search size={18} aria-hidden className="text-foreground-muted" />}
-        endSlot={searchingPlaces ? <Spinner className="size-4 text-foreground-muted" aria-label="Searching places" /> : null}
+        endSlot={searchingPlaces ? <Spinner className="size-4 text-foreground-muted" aria-label={t("search.searching")} /> : null}
       />
       <ComboboxContent className="w-(--anchor-width) min-w-96 max-w-[calc(100vw-1.5rem)]">
         <ComboboxEmpty>
           {searchingPlaces
-            ? "Searching places…"
+            ? t("search.searchingPlaces")
             : places.status === "error"
-              ? "Place search is unavailable right now. Report search still works."
+              ? t("search.unavailable")
               : typed
-                ? `No reports or places match “${query.trim()}”.`
-                : "No open reports. Search for a street to move the map."}
+                ? t("search.noMatch", { query: query.trim() })
+                : t("search.noReports")}
         </ComboboxEmpty>
         <ComboboxList className="max-h-[min(28rem,60dvh)]">
           {(group: OptionGroup) => (

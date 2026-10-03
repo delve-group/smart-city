@@ -18,6 +18,7 @@ import { ReportForm } from "@/features/report-issue/components/report-form/repor
 import { useIntakeDraft } from "@/features/report-issue/hooks/use-intake-draft";
 import { insideKrakow } from "@/shared/utils/krakow";
 import { AppBrand } from "@/shared/components/app-brand/app-brand";
+import { useI18n } from "@/shared/i18n/locale";
 import { useAffectedReports } from "../../hooks/use-affected-reports";
 import { heatWeight } from "../../utils/heat-weight";
 import { useCityData } from "../../hooks/use-city-data";
@@ -33,7 +34,6 @@ import { ReportTooltip } from "../report-tooltip/report-tooltip";
 // MapLibre needs the browser (WebGL, window), so the map is client-only.
 const CityMapCanvas = dynamic(() => import("../city-map-canvas/city-map-canvas"), { ssr: false });
 
-const DEMO_NOTICE = "Reports: demo data";
 const NO_REPORTS: CityReport[] = [];
 const NO_CATEGORIES: Category[] = [];
 /** Desktop panel width (25rem) plus its 0.75rem margin. */
@@ -45,6 +45,7 @@ type LatLng = { lat: number; lng: number };
 type Mode = { kind: "browse" } | { kind: "picking" } | { kind: "form" };
 
 export function CityMapView() {
+  const { t } = useI18n();
   const { state, retry, replaceReport } = useCityData();
   const intake = useIntakeDraft();
   const { isAffected, markAffected } = useAffectedReports();
@@ -53,6 +54,8 @@ export function CityMapView() {
   const userLocation = useUserLocation();
   const isDesktop = useMediaQuery("(min-width: 768px)", { defaultValue: true });
   const containerRef = useRef<HTMLDivElement>(null);
+  const pickerRef = useRef<HTMLElement>(null);
+  const [pickerHeight, setPickerHeight] = useState(0);
   const [bounds, setBounds] = useState({ width: 0, height: 0 });
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hover, setHover] = useState<MapHover | null>(null);
@@ -92,6 +95,15 @@ export function CityMapView() {
     observer.observe(element);
     return () => observer.disconnect();
   }, []);
+
+  // The location card is only as tall as its content; the lockup sits one gap above it.
+  useEffect(() => {
+    const element = pickerRef.current;
+    if (mode.kind !== "picking" || !element) return;
+    const observer = new ResizeObserver(([entry]) => setPickerHeight(entry.borderBoxSize[0]?.blockSize ?? entry.contentRect.height));
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [mode.kind]);
 
   // Escape closes the detail panel or cancels pin placement; it never discards a half-filled form.
   useEffect(() => {
@@ -142,21 +154,23 @@ export function CityMapView() {
     try {
       replaceReport(await confirmReport(report.id));
       markAffected(report.id);
-      toast.add({ title: "Thanks — you are counted", description: "More affected residents move the report up the city's list." });
+      toast.add({ title: t("report.toastCounted"), description: t("report.toastCountedBody") });
     } catch (error) {
       toast.add({
         type: "error",
-        title: "Could not add you",
-        description: error instanceof Error ? error.message : "Try again in a moment.",
+        title: t("report.toastFail"),
+        description: error instanceof Error ? error.message : t("report.toastFailBody"),
       });
     }
   }
 
   const selectedCategory = selected ? categoriesById.get(selected.categoryId) : undefined;
   const hoveredCategory = hovered ? categoriesById.get(hovered.categoryId) : undefined;
+  // Same lift as the bottom-right settings control: clear the 72dvh sheet, plus its margin.
+  const sheetCoversMap = (mode.kind === "browse" && Boolean(selected)) || mode.kind === "form";
 
   return (
-    <div ref={containerRef} className="relative size-full overflow-hidden">
+    <div ref={containerRef} className="resident-map relative size-full overflow-hidden">
       <CityMapCanvas
         points={points}
         categoryIds={categoryIds}
@@ -174,15 +188,24 @@ export function CityMapView() {
         onSelect={selectFromMap}
         onCenterChange={setCenter}
         onUserMove={() => setSelectedLocation(null)}
-        attribution={ready?.result.source === "demo" ? DEMO_NOTICE : undefined}
+        attribution={ready?.result.source === "demo" ? t("demo.reports") : undefined}
         tilted={tilted}
       />
 
-      <div className="absolute top-3 right-3 z-20">
+      <div className="absolute top-3 right-3 z-20 hidden md:block">
         <AppBrand />
       </div>
 
-      <div className="absolute top-16 right-3 left-3 z-20 flex items-start gap-2 md:top-3 md:right-auto md:w-140">
+      <div
+        className={`pointer-events-none absolute left-3 z-20 flex h-12 items-center transition-[bottom] duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none md:hidden ${
+          sheetCoversMap ? "bottom-[calc(72dvh+0.75rem)]" : "bottom-3"
+        }`}
+        style={mode.kind === "picking" && pickerHeight > 0 ? { bottom: `calc(${pickerHeight}px + 1.5rem)` } : undefined}
+      >
+        <AppBrand variant="plain" />
+      </div>
+
+      <div className="absolute top-3 right-3 left-3 z-20 flex items-start gap-2 md:right-auto md:w-140">
         <div className="min-w-0 flex-1">
           <MapSearch reports={reports} categoriesById={categoriesById} onPick={handlePick} />
         </div>
@@ -202,7 +225,7 @@ export function CityMapView() {
       {mode.kind === "browse" && intake.draft && !intake.error && (
         <div className="absolute top-30 left-3 z-20 md:top-18">
           <Button variant="outline" disabled={intake.busy} onClick={() => void startReport()}>
-            {intake.report ? `View saved report ${intake.report.reference}` : "Resume your saved draft"}
+            {intake.report ? t("intake.viewSaved", { reference: intake.report.reference }) : t("intake.resume")}
           </Button>
         </div>
       )}
@@ -210,8 +233,8 @@ export function CityMapView() {
         <div className="absolute inset-x-3 top-30 z-30 md:inset-x-auto md:left-3 md:w-96">
           <Alert variant="error"><AlertDescription>{intake.error}</AlertDescription></Alert>
           <div className="mt-2 flex gap-2">
-            <Button variant="outline" disabled={intake.busy} onClick={() => void startReport()}>Retry recovery</Button>
-            {!intake.draft && <Button variant="outline" disabled={intake.busy} onClick={() => void startReport(true)}>Start a new report</Button>}
+            <Button variant="outline" disabled={intake.busy} onClick={() => void startReport()}>{t("intake.retry")}</Button>
+            {!intake.draft && <Button variant="outline" disabled={intake.busy} onClick={() => void startReport(true)}>{t("intake.startNew")}</Button>}
           </div>
         </div>
       )}
@@ -230,6 +253,7 @@ export function CityMapView() {
         <>
           <CenterPin />
           <LocationPicker
+            ref={pickerRef}
             pin={center}
             selected={selectedLocation}
             insideCity={insideKrakow(center)}
