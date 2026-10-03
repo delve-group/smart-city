@@ -6,6 +6,12 @@ import { SearchError } from "../src/server/search/errors";
 
 loadEnvConfig(process.cwd());
 
+// Exit the owning process if a cold download/native runtime never settles.
+const deadline = setTimeout(() => {
+  console.error("Search setup timed out. Core services may continue with search degraded; retry setup after checking provider availability.");
+  process.exit(1);
+}, 120_000);
+
 async function main() {
   const index = new SearchIndex();
   for (let attempt = 1; ; attempt += 1) {
@@ -24,8 +30,9 @@ async function main() {
   console.log("The pinned multilingual embedding model is ready.");
 }
 
-main().catch((error: unknown) => {
+main().then(() => clearTimeout(deadline)).catch((error: unknown) => {
   console.error(error instanceof SearchError || error instanceof ConfigurationError
     ? error.message : "Search setup failed. Check provider availability and model-cache permissions.");
-  process.exitCode = error instanceof ConfigurationError || (error instanceof SearchError && !error.retryable) ? 2 : 1;
+  // A timed-out native operation can still own handles; do not let it block startup.
+  process.exit(error instanceof ConfigurationError || (error instanceof SearchError && !error.retryable) ? 2 : 1);
 });

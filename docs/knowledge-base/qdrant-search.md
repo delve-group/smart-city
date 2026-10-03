@@ -43,7 +43,7 @@ Pinned runtime: Qdrant server `1.19.1`, `@qdrant/js-client-rest` `1.19.0`, `@hug
 
 Qdrant performs native [`qdrant/bm25`](https://qdrant.tech/documentation/inference/inference-bm25/) inference. Ingestion/query use identical language-neutral settings: no stemming, no stopword removal, multilingual tokenizer and ASCII folding. This supports the checked `pradu`/`prądu` example but does not promise Polish inflection, typo or autocomplete handling.
 
-Each process lazily loads its model, serializes inference with at most 30 pending requests, uses two intra-op CPU threads and caches up to 100 query vectors for five minutes. No per-query LLM call is involved. E5 truncates input to 512 tokens; current projection bounds are a 200-character title and 8,000-character text. BM25 sees the full bounded text, but dense retrieval may miss material beyond the model window. Assess shortening/chunking against real aggregated incident content during source integration.
+Each process lazily loads its model, serializes inference with at most 30 pending requests, uses two intra-op CPU threads and caches up to 100 query vectors for five minutes. Calls have a 60-second cold-model or 30-second warm-operation deadline, including queue wait. A timed-out native operation retains its serialization slot until it settles; no second inference starts alongside it and its late result cannot write the index. Further inference fails promptly while that operation remains stuck, so the worker can continue triage/execution. Restart the app/worker process if the native operation never settles, then run setup and rebuild to recover exhausted work. No per-query LLM call is involved. E5 truncates input to 512 tokens; current projection bounds are a 200-character title and 8,000-character text. BM25 sees the full bounded text, but dense retrieval may miss material beyond the model window. Assess shortening/chunking against real aggregated incident content during source integration.
 
 ## Source-aware API and reconciliation
 
@@ -67,7 +67,7 @@ npm run search:rebuild
 docker compose exec worker npm run worker:status
 ```
 
-For the deployed stack, add `-- --production` to the search commands. The [Scaleway runbook](../../deploy/README.md) defines build/setup/backup ordering and exact recovery commands. The root scripts fix the internal Qdrant URL and model-cache mount; `QDRANT_COLLECTION` is the only optional root search setting. App/worker readiness does not certify search availability. Search setup exits 1 on transient provider failure; a successful setup must be followed by reconciliation after exhausted index retries.
+For the deployed stack, add `-- --production` to the search commands. The [Scaleway runbook](../../deploy/README.md) defines build/setup/backup ordering and exact recovery commands. The root scripts fix the internal Qdrant URL and model-cache mount; `QDRANT_COLLECTION` is the only optional root search setting. App/worker readiness does not certify search availability. The one-shot setup process has a 120-second overall deadline and exits 1 on transient provider failure or timeout; a successful setup must be followed by reconciliation after exhausted index retries.
 
 The independent `compose.search.yaml` remains available for isolated provider fixtures, with its own volumes and loopback port 6333. It does not synchronize the application database. For direct host development, configure the existing ignored `apps/frontend/.env.local` with the normal database/application settings plus:
 
