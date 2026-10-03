@@ -1,9 +1,10 @@
-import { AlertTriangle } from "@appica/icons-react";
+import { AlertTriangle, Clock } from "@appica/icons-react";
 import type { Category } from "@/api/categories/types";
 import { categoryAppearance } from "@/shared/utils/category-appearance";
 import { formatAgo } from "@/shared/utils/format-time";
 import { REVIEW, RESPONSE, TICKET } from "../../utils/labels";
 import type { QueueItem as QueueItemData } from "../../utils/queue";
+import { Fact } from "../fact/fact";
 
 type QueueItemProps = {
   item: QueueItemData;
@@ -51,7 +52,9 @@ export function QueueItem({ item, category, selected, now, onSelect }: QueueItem
           </span>
         )}
         <span className="shrink-0 text-foreground-muted tabular-nums">
-          {age}
+          <Fact icon={Clock} label={item.review ? "Waiting" : "Updated"}>
+            {age}
+          </Fact>
         </span>
       </span>
       <span className="line-clamp-2 text-sm font-medium text-foreground-intense">{title}</span>
