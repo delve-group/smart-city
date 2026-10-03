@@ -48,7 +48,6 @@ export function TicketDetail({ ticket, now, note, onNoteChange, onUpdate, onBack
             </Fact>
           )}
           <Badge variant={STATUS[ticket.status].variant} size="xs">{STATUS[ticket.status].label}</Badge>
-          <Badge variant="outline" size="xs">Demo ticket</Badge>
         </p>
       </header>
 
