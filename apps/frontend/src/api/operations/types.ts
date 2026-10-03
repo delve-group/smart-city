@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 /*
- * Staff workspace contract (official side). Demo: served from an in-memory store until the
- * persistent incident slice exists. Shapes follow specs/001-voice-incident-response.
+ * Staff workspace contract (official side), served from PostgreSQL behind an official session.
+ * Shapes follow docs/workflow-contracts.md; the data itself is fictional demo data.
  */
 
 export const ASSESSMENTS = ["suspected", "corroborated", "verified", "disputed"] as const;
@@ -52,6 +52,9 @@ const reportDtoSchema = z.object({
   reference: z.string().min(1),
   channel: z.enum(["voice", "form"]),
   category_id: z.string().min(1),
+  issue_type: z.string().optional(),
+  scope: z.enum(["unit", "building", "street", "unknown"]).optional(),
+  urgent: z.boolean().optional(),
   /** English operator summary; the original narrative stays restricted. */
   summary: z.string(),
   observed_at: isoDate.nullable(),
@@ -99,6 +102,8 @@ const proposalDtoSchema = z.object({
   decided_by: z.string().nullable(),
   decided_at: isoDate.nullable(),
   reason: z.string().nullable(),
+  /** Why sending failed or is unknown; null while nothing went wrong. */
+  execution_error: z.string().nullable().optional(),
 });
 
 const ticketDtoSchema = z.object({
@@ -106,6 +111,7 @@ const ticketDtoSchema = z.object({
   reference: z.string(),
   institution_id: z.string(),
   status: z.enum(TICKET_STATUSES),
+  version: z.number().int().positive().optional(),
   expected_resolution_at: isoDate.nullable(),
   events: z.array(z.object({ status: z.enum(TICKET_STATUSES), at: isoDate, note: z.string().nullable() })),
 });
@@ -163,40 +169,51 @@ export type EvidenceDto = z.infer<typeof evidenceDtoSchema>;
 
 /* Commands. Every write names the version the official was looking at. */
 
-/** Body of POST /api/action-proposals/{id}/decision, as in docs/api-contract.md. */
+const version = z.number().int().positive();
+const reason = z.string().trim().min(3, "Say why, in a few words.").max(500);
+
+/** Body of POST /api/action-proposals/{id}/decision, as in docs/workflow-contracts.md §5. Unknown properties are rejected. */
 export const proposalDecisionSchema = z.discriminatedUnion("decision", [
-  z.object({
-    decision: z.literal("approved"),
-    expected_proposal_version: z.number().int().positive(),
-    expected_incident_version: z.number().int().positive(),
-  }),
-  z.object({
-    decision: z.literal("rejected"),
-    expected_proposal_version: z.number().int().positive(),
-    expected_incident_version: z.number().int().positive(),
-    reason: z.string().trim().min(3, "Say why, in a few words."),
-  }),
+  z.strictObject({ decision: z.literal("approved"), expected_proposal_version: version, expected_incident_version: version }),
+  z.strictObject({ decision: z.literal("rejected"), expected_proposal_version: version, expected_incident_version: version, reason }),
 ]);
 export type ProposalDecision = z.infer<typeof proposalDecisionSchema>;
 
-const reason = z.string().trim().min(3, "Say why, in a few words.").max(500);
+/** Body of POST /api/action-proposals/{id}/reconciliation. */
+export const reconciliationSchema = z.strictObject({ expected_proposal_version: version, reason });
+export type Reconciliation = z.infer<typeof reconciliationSchema>;
+
+const evidenceIds = z.array(z.uuid()).max(50);
 
 export const incidentCommandSchema = z.discriminatedUnion("type", [
-  z.object({ type: z.literal("choose_institution"), expected_version: z.number().int(), institution_id: z.string().min(1) }),
-  z.object({ type: z.literal("verify"), expected_version: z.number().int(), reason }),
-  z.object({ type: z.literal("dispute"), expected_version: z.number().int(), reason }),
-  z.object({ type: z.literal("close"), expected_version: z.number().int() }),
-  z.object({ type: z.literal("reopen"), expected_version: z.number().int(), reason }),
+  z.strictObject({ type: z.literal("choose_institution"), expected_version: version, institution_id: z.string().min(1).max(64) }),
+  z.strictObject({ type: z.literal("verify"), expected_version: version, evidence_ids: evidenceIds.min(1, "Choose the evidence that verifies it."), reason }),
+  z.strictObject({ type: z.literal("dispute"), expected_version: version, reason, evidence_ids: evidenceIds.optional() }),
+  z.strictObject({ type: z.literal("close"), expected_version: version }),
+  z.strictObject({ type: z.literal("reopen"), expected_version: version, reason }),
 ]);
 export type IncidentCommand = z.infer<typeof incidentCommandSchema>;
 
 export const reportTriageSchema = z.discriminatedUnion("decision", [
-  z.object({ decision: z.literal("link"), expected_version: z.number().int(), incident_id: z.string().min(1) }),
-  z.object({ decision: z.literal("new_incident"), expected_version: z.number().int() }),
-  z.object({ decision: z.literal("private_issue"), expected_version: z.number().int(), reason }),
-  z.object({ decision: z.literal("out_of_scope"), expected_version: z.number().int(), reason }),
+  z.strictObject({
+    decision: z.literal("link"), expected_version: version, incident_id: z.uuid(),
+    expected_incident_version: version, reason: reason.optional(),
+  }),
+  z.strictObject({ decision: z.literal("new_incident"), expected_version: version, reason: reason.optional() }),
+  z.strictObject({ decision: z.literal("private_issue"), expected_version: version, reason }),
+  z.strictObject({ decision: z.literal("out_of_scope"), expected_version: version, reason }),
 ]);
 export type ReportTriage = z.infer<typeof reportTriageSchema>;
+
+/** Body of POST /api/operations/reports/{id}/classification. */
+export const reportClassificationSchema = z.strictObject({
+  expected_version: version,
+  category_id: z.string().min(1).max(64).optional(),
+  issue_type: z.string().min(1).max(64).optional(),
+  scope: z.enum(["unit", "building", "street", "unknown"]).optional(),
+  reason,
+});
+export type ReportClassification = z.infer<typeof reportClassificationSchema>;
 
 /* App model. */
 
@@ -211,6 +228,9 @@ export type OperationsReport = {
   reference: string;
   channel: "voice" | "form";
   categoryId: string;
+  issueType: string | null;
+  scope: "unit" | "building" | "street" | "unknown";
+  urgent: boolean;
   summary: string;
   observedAt: string | null;
   submittedAt: string;
@@ -250,6 +270,7 @@ export type Proposal = {
   decidedBy: string | null;
   decidedAt: string | null;
   reason: string | null;
+  executionError: string | null;
 };
 
 export type Ticket = {
@@ -257,6 +278,7 @@ export type Ticket = {
   reference: string;
   institutionId: string;
   status: TicketStatus;
+  version: number;
   expectedResolutionAt: string | null;
   events: { status: TicketStatus; at: string; note: string | null }[];
 };

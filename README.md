@@ -7,7 +7,7 @@ Smart City hackathon project: residents report city problems and follow the resp
 - [Voice and incident feature specification](specs/001-voice-incident-response/spec.md) and [ElevenLabs implementation plan](specs/001-voice-incident-response/plan.md)
 - [System architecture](docs/architecture.md) — includes the [libraries used](docs/architecture.md#libraries)
 - [Design system](docs/design-system.md)
-- [Frontend](apps/frontend) and its [agent rules](apps/frontend/AGENTS.md) — resident map at `/`, official workspace (demo data, no sign-in yet) at `/operations`
+- [Frontend](apps/frontend) and its [agent rules](apps/frontend/AGENTS.md) — resident map at `/`, official workspace at `/operations` (sign in with the seeded `official` account; fictional demo data)
 - [App tokens](apps/frontend/src/shared/styles/appica-theme.css)
 
 ## Running
@@ -59,6 +59,7 @@ The backend lives in `apps/frontend/src/server/` behind thin Next.js route handl
 | `GET /api/issue-types` | Issue types a draft may name (demo configuration). |
 | `GET /api/incidents`, `GET /api/incidents/{id}` | Public incident cards and timeline (allowlisted projection). |
 | `POST /api/incidents/{id}/contributions` | "I'm affected too" for the current resident, counted once. |
+| `GET /api/operations/review`, `POST /api/operations/…`, `POST /api/action-proposals/{id}/decision` | Official-only review queue, triage and incident commands, and proposal approval/rejection. |
 
 Seeded usernames are `official`, `electricity` and `water`. Their passwords come from the corresponding `DEMO_*_PASSWORD` values in your ignored `.env`; there is no built-in password. Sessions use an HttpOnly cookie, with Secure enabled for HTTPS. New guest and staff sessions last 30 days from creation, without automatic renewal. Previously issued sessions keep their original expiry; sign in again to receive the longer staff session. Staff login replaces the current session, and logout or cookie loss ends guest recovery. Use separate browser profiles for resident and staff demonstrations. A public request cannot choose a staff role or institution.
 
