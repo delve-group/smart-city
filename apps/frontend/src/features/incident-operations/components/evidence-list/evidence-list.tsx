@@ -4,7 +4,7 @@ import type { Evidence, OperationsReport } from "@/api/operations/types";
 import { InfoHint } from "@/shared/components/info-hint/info-hint";
 import { PanelAccordionItem } from "@/shared/components/panel-accordion-item/panel-accordion-item";
 import { formatAgo } from "@/shared/utils/format-time";
-import { Fact, FACTS } from "../fact/fact";
+import { Fact, FACTS } from "@/shared/components/fact/fact";
 
 /** Only a problem gets a badge; current data is the norm. */
 const PROBLEM: Record<Exclude<Evidence["state"], "current">, { label: string; variant: "warning" | "error" }> = {

@@ -12,7 +12,7 @@ import { institutionName, reportsOf } from "../../utils/queue";
 import { ASSESSMENT } from "../../utils/labels";
 import { EvidenceList } from "../evidence-list/evidence-list";
 import { ExecutionStatus } from "../execution-status/execution-status";
-import { Fact, FACTS } from "../fact/fact";
+import { Fact, FACTS } from "@/shared/components/fact/fact";
 import { IncidentActions } from "../incident-actions/incident-actions";
 import { IncidentHistory } from "../incident-history/incident-history";
 import { PanelHeader } from "../panel-header/panel-header";
