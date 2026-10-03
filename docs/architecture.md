@@ -87,7 +87,7 @@ Docker Compose runs one Next.js web/API process and PostgreSQL on a persistent v
 
 Authentication routes call `server/auth/`; password hashing is independent of Next.js and reused by the seed script. PostgreSQL holds identities, hashed session tokens and login throttling. Thin HTTP handlers own cookies, origin checks and common response envelopes. Permission guards read role and institution from the database. The new liveness/readiness endpoints distinguish a running process from usable database migrations. See the [implemented API contract](api-contract.md#backend-foundation-implemented) for exact shapes.
 
-The first durable triage/indexing slice will introduce a supervised worker from this same codebase and transactional work records. There is no job schema or idle worker in the foundation. Optimistic report version checks are specified for that domain slice; the foundation does not create unused report/incident tables.
+Resident intake lives in `server/reports/`: pure draft rules (`draft-rules.ts`, `contracts.ts`) apart from data access (`drafts.ts`, `submission.ts`, `reports.ts`). Submission locks the draft row and commits the report, the draft's submitted state, an audit event (`server/audit/`) and pending triage/index work (`server/jobs`, owned by the search/worker workstream) in one transaction. `server/search-sources/` exposes the per-audience text the search index may hold. Route handlers build an `ActorContext` from the session and pass strict, schema-validated bodies; unknown properties are rejected. Incident, proposal and ticket tables arrive with their slices.
 
 ## Errors and states
 

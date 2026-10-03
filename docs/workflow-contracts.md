@@ -183,7 +183,7 @@ Delivered by [#23](https://github.com/delve-group/smart-city/issues/23). All rou
 | `POST /api/reports` | `{ "draft_id": string, "revision": number }` | `201 Report` first time, `200` same `Report` on replay; `version` = report version | `not_confirmed`, `idempotency_conflict` |
 | `GET /api/reports/{id}` | — | `200 Report` (owner or official) | — |
 
-A `PATCH` merges the given fields; `null` clears one. Any accepted edit drops the confirmation. Confirming an already confirmed revision returns the existing confirmation. The server derives the submission identity `(owner, submission_key)` from the draft; clients never send a key.
+A `PATCH` merges the given fields; `null` clears one. Sending `observed_at` without a state sets `observed_time_state: "known"`; sending `"unknown"` (or `observed_at: null`) clears the time; a time more than five minutes in the future is rejected. A category/issue-type pair that does not match the catalogue is `400 invalid_request`. Any accepted edit drops the confirmation. Confirming an already confirmed revision returns the existing confirmation. The server derives the submission identity `(owner, submission_key)` from the draft; clients never send a key.
 
 **Edit, confirm, submit.**
 
