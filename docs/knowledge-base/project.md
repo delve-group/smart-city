@@ -6,7 +6,7 @@ Updated: 2026-10-03.
 
 - Project: Smart City, built under hackathon conditions. Current phase: proof of concept.
 - Delivery speed matters a lot. Code should stay modular and easy to maintain and scale.
-- UI base: Appica UI (`@appica/ui-react`). Two themes: a futuristic one inspired by agent.sh and a calm, official one inspired by mObywatel/gov.pl.
+- UI base: Appica UI (`@appica/ui-react`). One neutral, professional theme in light and dark mode (2026-10-03, replaced the earlier Civic and Signal themes).
 - Verification rules are defined only in [AGENTS.md](../../AGENTS.md). No tests during the PoC phase.
 - All documentation, code and UI copy are written in English.
 - Kraków has publicly published official map services (MSIP and GUGiK). The identified sources and pre-integration checks are described in the [geospatial data note](geospatial-data.md).
@@ -16,7 +16,7 @@ Updated: 2026-10-03.
 ## Working assumptions
 
 - Web app, usable on phones and desktops.
-- Civic is the default theme; it can be changed with a single attribute. Signal remains an equal alternative.
+- Light or dark follows the OS setting; a toggle next to search overrides it.
 - City reports shown in the HTML preview are only a presentation example, not an approved product scope.
 
 ## To be decided
@@ -28,4 +28,4 @@ Updated: 2026-10-03.
 
 ## Delivery status
 
-Done: agent rules, knowledge base, architecture, design system, HTML preview and a Next.js PoC — a full-screen map of events in Kraków (MapLibre + OpenFreeMap) with a heatmap of resident reports, category filter, search (reports + places via Photon), hover tooltips, a detail panel and a report flow (pin placement + form), fed by a mock backend (`/api/categories`, `/api/reports`, in-memory store). Missing: backend, real events API and integration with city services.
+Done: agent rules, knowledge base, architecture, design system, HTML preview and a Next.js PoC — a full-screen map of events in Kraków (MapLibre + OpenFreeMap) with a heatmap of resident reports, category filter, search (reports + places via Photon), hover tooltips, a detail panel and a report flow (pin placement + form), "I'm affected too" confirmations, fed by a mock backend (`/api/categories`, `/api/reports`, in-memory store). Missing: backend, real events API and integration with city services.

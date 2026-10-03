@@ -10,7 +10,7 @@ We are building a Smart City project for a hackathon. The current phase is a **p
 - Keep module responsibilities narrow and dependencies explicit. Business logic should work without React, the DOM and the network.
 - Choose the simplest solution that meets the current requirements. A new abstraction must solve an existing problem; a little duplication beats a premature framework.
 - Prefer readable names, explicit types at boundaries and composition. Validate data from external sources and handle errors where you can react to them.
-- Use Appica UI (`@appica/ui-react`) as the component base; frontend rules are in [apps/frontend/AGENTS.md](apps/frontend/AGENTS.md). Colours and shapes come from theme tokens; do not duplicate components for Signal and Civic.
+- Use Appica UI (`@appica/ui-react`) as the component base; frontend rules are in [apps/frontend/AGENTS.md](apps/frontend/AGENTS.md). Colours and shapes come from theme tokens; one theme with light and dark mode; do not duplicate components per mode.
 - Limit dependencies and the scope of each change. Microservices, custom frameworks and optimisations without a concrete problem are postponed.
 - Keep secrets out of the repository. Label demo data unambiguously; never present mocks as production integrations.
 

@@ -1,54 +1,38 @@
 # Design system — Smart City
 
-Two themes, shared [Appica UI](https://appica.dev/ui) components (React, Base UI, Tailwind CSS v4). The app's source of truth is [appica-theme.css](../apps/frontend/src/shared/styles/appica-theme.css). The dependency-free [preview](../design-system/preview.html) uses [themes.css](../design-system/themes.css) with the same base colours. These are original palettes inspired by references, not the official visual identities of those services.
+One neutral theme in light and dark mode, on shared [Appica UI](https://appica.dev/ui) components (React, Base UI, Tailwind CSS v4). The source of truth is [appica-theme.css](../apps/frontend/src/shared/styles/appica-theme.css). The old Civic/Signal HTML preview in `design-system/` is obsolete (D020).
 
-## Signal — futuristic
+## Character
 
-Dark surfaces, violet accents, a precise grid, sharp corners and a geometric mark. A large headline paired with small monospace labels. Inspired by the technical composition of [Agent Conf](https://www.agent.sh/): dark background, grid and violet outlines. Decoration belongs in the header, outside reading areas and forms. No background video, shaders or mandatory animation.
+Polished and professional: hue-free greys carry the interface, so the map and the report colours do the talking. Small radii (6 px base), thin borders, light shadows (`shadow-xs` on map controls, `shadow-md` at most on floating panels). No blue accent; the primary action is near-black in light mode and near-white in dark mode. Colour appears only where it means something: report categories, status and the heatmap.
 
-| Role | Colour | Use |
-| --- | --- | --- |
-| Background | `#090A0F` | Main surface |
-| Card | `#13151E` | Content and forms |
-| Text | `#F3F4FA` | Body text |
-| Secondary text | `#A6ADC2` | Descriptions and metadata |
-| Primary | `#B79AFF` | Main actions, text `#140B2B` |
-| Decorative violet | `#8652FF` | Geometry; not small text |
-| Info | `#78DBF0` | Informational messages |
-| Success | `#64DDB1` | Confirmations with a label |
-| Warning | `#FFD176` | Needs attention |
-| Error | `#FF8995` | Errors and destructive actions |
+| Role | Light | Dark | Use |
+| --- | --- | --- | --- |
+| Page | `#FAFAFA` | `#171717` | `background-subtle` / map surround |
+| Surface | `#FFFFFF` | `#171717` | Panels, popovers, controls (`background`) |
+| Muted fill | `#F4F4F4` | `#232323` | Stat tiles, hover rows |
+| Border | `#E4E4E4` | `#2C2C2C` | Dividers; controls use `border-strong` |
+| Text | `#3F3F3F` | `#CFCFCF` | Body |
+| Strong text | `#111111` | `#FAFAFA` | Headings, values |
+| Secondary text | `#6B6B6B` | `#9C9C9C` | Metadata |
+| Primary | `#171717` | `#F2F2F2` | Main action, inverted text |
+| Error | `#B42318` | `#F97066` | Errors, urgent severity |
+| Warning | `#A15C07` | `#F5B83D` | "In progress" status |
+| Success | `#067647` | `#47CD89` | "Resolved" status |
+| Heatmap | `#F5B83D → #EA6A1F → #C0262D` | `#F5B83D → #F07A35 → #E5484D` | `--heat-low/mid/high` |
 
-Base radius 2 px. Thin dividers, no card shadow. Strong contrast instead of glass effects; cyan is the info colour, not a second dominant CTA.
-
-## Civic — official
-
-Light background, white surfaces, navy typography and clear, calm actions. Inspired by [gov.pl](https://www.gov.pl/web/gov) and the character of mObywatel named by the user: a readable hierarchy of services and messages. The red identity accent is used sparingly and is independent of the error colour. No national emblem, office marks or claims of official affiliation.
-
-| Role | Colour | Use |
-| --- | --- | --- |
-| Background | `#F5F7FA` | Main surface |
-| Card | `#FFFFFF` | Content and forms |
-| Text | `#172B4D` | Body text |
-| Secondary text | `#526175` | Descriptions and metadata |
-| Primary | `#123D75` | Main actions, white text |
-| Identity accent | `#C62842` | Small mark or line |
-| Info | `#175EA8` | Informational messages |
-| Success | `#176B45` | Confirmations with a label |
-| Warning | `#885400` | Needs attention |
-| Error | `#B42335` | Errors and destructive actions |
-
-Base radius 10 px, soft shadow and plenty of space. Copy in plain language: a concrete action and its result. Avoid all caps in longer labels and technical messages.
+Typeface: [Geist](https://vercel.com/font) and Geist Mono via `next/font` (self-hosted at build time, Latin Extended for Polish).
 
 ## Shared foundations
 
-- Typography: system sans-serif with Polish diacritics support, monospace for identifiers and technical metadata. No external fonts required. The font token can be swapped later without changing components.
+- Typography: Geist for UI text, Geist Mono for identifiers and technical metadata. The font token can be swapped without changing components.
 - Body text 16 px / 1.5; secondary 14 px / 1.5; headings 24, 32, 48–64 px. Large sizes only in a short main headline. Paragraphs up to about 65 characters wide.
 - Spacing scale: 4, 8, 12, 16, 24, 32, 48, 64 px. Content up to 1200 px; 20 px gutter on phones and 32 px on desktop.
 - Layout: one column on phones, two from 768 px, wider navigation from 1024 px. Tables may scroll horizontally locally; the page itself should not.
 - Touch targets at least 44 × 44 px. Icons from one family, usually 20 px (add `@appica/icons-react` when the first icon is needed). Icon buttons always have an accessible name.
 - Visible focus: 2 px outline with the `ring` token, 3 px offset. Status always has text; colour is additional information. Respect `prefers-reduced-motion`.
 - Contrast targets: body text at least 4.5:1; essential control boundaries and focus 3:1 against the adjacent background. The `border` token is for decorative dividers; controls use the stronger `border-strong`. Full-screen accessibility needs a manual review after implementation.
+- Page overscroll is disabled (`overscroll-behavior: none` on `html` and `body`): the page is a fixed map, so rubber-banding and pull-to-refresh only get in the way.
 
 ## Appica UI components
 
@@ -71,18 +55,19 @@ App: [apps/frontend](../apps/frontend). As of 2026-10-03, `@appica/ui-react` 1.2
 
 1. `src/app/globals.css` imports, in order: `tailwindcss`, `@appica/ui-react/styles.css` (library base tokens), `src/shared/styles/appica-theme.css` (our values). Same selectors and a later source mean our values win.
 2. `@source` points to `node_modules/@appica/ui-react/dist` with a relative path; without it component classes are not generated.
-3. `ThemeProvider` (`src/app/providers.tsx`) has the themes `civic` and `signal`, mapped to the `light` and `dark` classes on `<html>`. Civic is the default and `enableSystem` is off, so the OS dark mode does not change the theme. The choice is stored in `localStorage` (`smart-city-theme`); the provider's script sets the class before first paint.
-4. Appica's token model is role-based: `foreground-*`, `background-*`, `border-*` and the accent scales `primary`, `secondary`, `error`, `success`, `warning`, `info` (`subtle`, `soft`, `muted`, base, `strong`, `emphasis`, `intense`, `foreground`). The `dark:` variant means Signal.
-5. `background` is the card surface. The Civic page uses `background-subtle` (#F5F7FA), the Signal page `background` (#090A0F); the layout's `body` sets this.
-6. `*-foreground` is the text colour on both the base and the `*-muted` fill, e.g. in Badge. That is why in Civic `muted` is a dark solid shade with white text and in Signal a light pastel with dark text. Pairs were checked with the WCAG formula: all ≥ 5:1, field border ≥ 3:1.
-7. Semantic classes: `bg-background`, `text-foreground-intense`, `border-border-strong`, `bg-primary text-primary-foreground`, `bg-brand-accent`. No hex values in components.
+3. `ThemeProvider` (`src/app/providers.tsx`) uses Appica's default `light` / `dark` classes on `<html>`, follows the OS (`defaultTheme="system"`) and stores a manual choice in `localStorage` (`smart-city-mode`). The toggle sits next to search (`shared/components/theme-toggle`).
+4. Appica's token model is role-based: `foreground-*`, `background-*`, `border-*` and the accent scales `primary`, `secondary`, `error`, `success`, `warning`, `info` (`subtle`, `soft`, `muted`, base, `strong`, `emphasis`, `intense`, `foreground`). `info` is set to neutral grey so library components do not reintroduce blue.
+5. `background` is the card surface; the layout's `body` uses `background-subtle`.
+6. `*-foreground` is the text colour on both the base and the `*-muted` fill, e.g. in Badge: in light mode `muted` is a dark solid with white text, in dark mode a light pastel with dark text.
+7. Semantic classes: `bg-background`, `text-foreground-intense`, `border-border-strong`, `bg-primary text-primary-foreground`. No hex values in components.
 
 ## Map screen patterns
 
-- **Floating chrome over a full-bleed map.** Search (top left) with the filter button beside it; the primary "Report an issue" button bottom right; attribution bottom left. No toolbars or frames around the map.
+- **Floating chrome over a full-bleed map.** Search (top left) with the filter and light/dark buttons beside it; the primary "Report an issue" button bottom right; attribution bottom left. No toolbars or frames around the map.
 - **Detail and form panel:** one non-modal shell (`shared/components/floating-panel`), inset from the right edge on desktop and a bottom sheet on phones. The header stays visible; when the title scrolls away it repeats in the header.
 - **Category colour:** eight `--category-*` tokens per theme (power, water, roads, transit, waste, accessibility, greenery, air), all ≥ 4.5:1 as text on their surfaces. Colour is always paired with the category icon and label; unknown API categories get a neutral style.
-- **Report status:** Reported (outline), Confirmed (soft), In progress (info, pulsing dot), Resolved (success). The panel shows the full progress timeline.
+- **Report status:** Reported (outline), Confirmed (soft), In progress (warning, pulsing dot), Resolved (success). The panel shows the full progress timeline.
+- **I'm affected too:** an outline button under the impact numbers; after use it becomes a quiet "You are counted as affected" note. Hidden on resolved reports.
 - **Pin placement:** a fixed centre pin over the moving map, with a bottom card showing the live address, "Use my location", Cancel and Confirm.
 
-Map layers need literal colours, so the heatmap reads `--info`, `--warning` and `--error` from the active theme at runtime. Charts need labels or patterns; a palette alone does not guarantee readable data. A chart palette has not been added yet — add it with the first chart.
+Map layers need literal colours, so the heatmap reads `--heat-low`, `--heat-mid` and `--heat-high` from the active mode at runtime. MapLibre's attribution box is restyled in `globals.css` to match the mode. Charts need labels or patterns; a palette alone does not guarantee readable data. A chart palette has not been added yet — add it with the first chart.
