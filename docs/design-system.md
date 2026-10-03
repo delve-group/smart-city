@@ -4,7 +4,7 @@ One neutral theme in light and dark mode, on shared [Appica UI](https://appica.d
 
 ## Brand
 
-The product name is **mRadar**. Its mark uses one open radar sweep, one direction line and one rose incident dot. The radar metaphor means awareness of reported city issues and related clusters, not surveillance or emergency response. The map lockup uses live theme foreground colours with `--heat-mid` for the dot; static brand and install assets use near-black `#171717`, warm white `#FAFAFA` and rose `#B4234A`.
+The product name is **mRadar**. Its mark uses one open radar sweep, one direction line and one rose incident dot. The radar metaphor means awareness of reported city issues and related clusters, not surveillance or emergency response. The map lockup uses live theme foreground colours with `--heat-mid` for the dot, plus a light drop shadow so the mark stays readable over the map; static brand and install assets use near-black `#171717`, warm white `#FAFAFA` and rose `#B4234A`.
 
 Source assets: `apps/frontend/public/brand/`. Browser and install icons use Next.js metadata files in `apps/frontend/src/app/`.
 
