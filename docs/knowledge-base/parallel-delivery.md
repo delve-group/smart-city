@@ -16,15 +16,15 @@ Labels are routing tags, not GitHub assignees or application roles. GitHub Issue
 
 Pull current `main`, follow the root README for local startup, and use the [repo-local skill](../../.agents/skills/mradar-development/SKILL.md). Give the agent its workstream and Issue number. The skill links the relevant role guide and canonical specification; no other computer's chat history is needed.
 
-- **Franek:** [#21](https://github.com/delve-group/smart-city/issues/21), [#23](https://github.com/delve-group/smart-city/issues/23), [#25](https://github.com/delve-group/smart-city/issues/25), [#27](https://github.com/delve-group/smart-city/issues/27) and [#31](https://github.com/delve-group/smart-city/issues/31) are delivered. Remaining from this workstream: review the server side of Rafal's two cutovers and fix domain issues found in the rehearsal; see [#19](https://github.com/delve-group/smart-city/issues/19).
+- **Franek:** [#21](https://github.com/delve-group/smart-city/issues/21), [#23](https://github.com/delve-group/smart-city/issues/23), [#25](https://github.com/delve-group/smart-city/issues/25), [#27](https://github.com/delve-group/smart-city/issues/27) and [#31](https://github.com/delve-group/smart-city/issues/31) are delivered. Independent server/category cutover review and local staff HTTP/fixture UI evidence are merged in [#65](https://github.com/delve-group/smart-city/pull/65). Remaining: forced stale-save/error retention, real-backend staff browser transitions/display timing and defects found in the integrated rehearsal; see [#19](https://github.com/delve-group/smart-city/issues/19) and the [staff evidence](../local-staff-rehearsal.md).
 - **User's machine / agent-3:** [#22](https://github.com/delve-group/smart-city/issues/22) and [#24](https://github.com/delve-group/smart-city/issues/24) are delivered. Scoped search #32 and decision-maker/MCP #34 have integrated backend acceptance recorded in their module guides. Continue [#35](https://github.com/delve-group/smart-city/issues/35), integrating Rafal’s map, voice and search UI as they land.
-- **Rafal:** [#26](https://github.com/delve-group/smart-city/issues/26) is merged. Private provider setup for [#29](https://github.com/delve-group/smart-city/issues/29) is merged, with account settings read back; live browser voice remains incomplete. Finish #28 incident map, #33 public search and #29 shared-draft voice integration. No fixture-only completion claims.
+- **Rafal:** [#26](https://github.com/delve-group/smart-city/issues/26), [#28](https://github.com/delve-group/smart-city/issues/28) and [#33](https://github.com/delve-group/smart-city/issues/33) are merged and closed. [#29](https://github.com/delve-group/smart-city/issues/29) remains open: draft [#63](https://github.com/delve-group/smart-city/pull/63) implements browser voice and five owned tools, with local Polish speech/clarification evidence after D064. Complete scripted saved reports and remaining lifecycle/failure acceptance still need verification. No fixture-only completion claims.
 
 Example prompts:
 
 ```text
 Use $mradar-development for workstream 1 / Rafal. Implement the next unblocked Issue.
-Use $mradar-development for workstream 2 / Franek. Start with the shared-contract Issue.
+Use $mradar-development for workstream 2 / Franek. Continue the remaining staff acceptance in Issue #19; its implementation children are delivered.
 Use $mradar-development for workstream 3 / agent-3 on my machine. Continue the integrated rehearsal in Issue #35 after its listed dependencies land.
 ```
 
@@ -62,4 +62,4 @@ Exact payloads, signatures, migration stages and reserved migration filenames li
 - Franek supplies permitted source projections. Agent-3 indexes all reports/incidents/tickets by type/ID/version and rechecks current access; Rafal consumes public search.
 - Reserve migration filenames and shared config/contract edits in the Issue before work. Follow the skill and AGENTS.md for branches, integration, checks, PRs and handoffs.
 
-The complete deployed response loop is verified in [#35](https://github.com/delve-group/smart-city/issues/35). The optional identity simulation in [#30](https://github.com/delve-group/smart-city/issues/30) follows the P1 work and is not a gate for the demo. Creating this backlog does not provision Scaleway or validate provider capacity.
+The complete deployed response loop is tracked, and remains incomplete, in [#35](https://github.com/delve-group/smart-city/issues/35). [Local capacity evidence](../local-capacity-rehearsal.md) covers bounded keyword HTTP reads, not full browser/voice or deployed capacity. The optional identity simulation in [#30](https://github.com/delve-group/smart-city/issues/30) follows the P1 work and is not a gate for the demo. Creating this backlog does not provision Scaleway or validate provider capacity.
