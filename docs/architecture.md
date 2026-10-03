@@ -2,7 +2,7 @@
 
 Status: proof of concept, 2026-10-03. The domain and the backend wait for the main product scenario.
 
-The [voice and incident discovery draft](plans/2026-10-03-voice-incident-design.md) proposes the next domain and data-flow changes. This architecture describes the implemented baseline; the draft's incidents, actors, persistence and approvals are not implemented yet.
+The [voice and incident specification](../specs/001-voice-incident-response/spec.md) and [ElevenLabs technical plan](../specs/001-voice-incident-response/plan.md) define the next domain and data-flow changes. This architecture describes the implemented baseline; the specified voice, incidents, actors, persistence and approvals are not implemented yet.
 
 ## Direction
 

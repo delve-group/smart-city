@@ -4,6 +4,7 @@ Hackathon project: knowledge base, working rules, design system and a Next.js ap
 
 - [Agent rules](AGENTS.md)
 - [Knowledge base](docs/knowledge-base/README.md)
+- [Voice and incident feature specification](specs/001-voice-incident-response/spec.md) and [ElevenLabs implementation plan](specs/001-voice-incident-response/plan.md)
 - [System architecture](docs/architecture.md) — includes the [libraries used](docs/architecture.md#libraries)
 - [Design system](docs/design-system.md)
 - [Frontend](apps/frontend) and its [agent rules](apps/frontend/AGENTS.md)
