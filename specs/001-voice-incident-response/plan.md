@@ -165,7 +165,7 @@ Reuse the foundation's role-bound staff sessions configured server-side for the 
 
 Use the requirement IDs when generating `tasks.md` through Spec Kit. Start with [AGENTS.md](../../AGENTS.md) as the project principles; no framework-generated test-first policy, new UI library or branch convention may replace it. Setup choices such as voice ID, LLM ID, hosting and retention are recorded during implementation. Rehearse the same fixture in voice and form before adding any deferred integrations.
 
-The foundation is the handoff point for later GitHub Issues. Incident/report work owns its migrations and versioned commands; ElevenLabs work reuses the session and shared intake contract; Qdrant work reuses the source IDs and scoped projections; Scaleway work reuses startup/environment validation and adds deployed HTTPS/persistence. These streams can prepare in parallel, with live voice/search integration depending on the relevant report/incident APIs. Creating those issues and implementing their workflows are outside this foundation slice.
+The foundation is the handoff point for the [three-workstream GitHub backlog](../../docs/knowledge-base/parallel-delivery.md). Incident/report work owns its migrations and versioned commands; ElevenLabs work reuses the session and shared intake contract; Qdrant work reuses the source IDs and scoped projections; Scaleway work reuses startup/environment validation and adds deployed HTTPS/persistence. These streams prepare in parallel, with live voice/search integration depending on the relevant report/incident APIs. The backlog and repo-local skill now define ownership and handoffs; the workflows remain unimplemented until their Issues are delivered.
 
 ## 7. Validation status
 

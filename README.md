@@ -75,9 +75,11 @@ Runtime secrets are passed into containers, not baked into the image. Only the o
 
 ## Checks and next work
 
+The remaining work is assigned across three computers: **Rafal** handles citizen/ElevenLabs, **Franek** handles incident response/staff, and **agent-3** is reserved for the user's machine for search, decision-maker and deployment. See the [live backlog and starting tasks](docs/knowledge-base/parallel-delivery.md) and use the [repo-local development skill](.agents/skills/mradar-development/SKILL.md) for implementation and PR handoffs.
+
 Install host dependencies once with `npm --prefix apps/frontend ci`, then run `npm run lint`, `npm run typecheck` and `npm run build` from the repository root. Follow [AGENTS.md](AGENTS.md) for manual checks; no test suite is introduced.
 
-This is the shared starting point for later GitHub Issues: persistent report/incident APIs, ElevenLabs intake, Qdrant search across reports/incidents/service tickets, and Scaleway deployment. The [feature plan](specs/001-voice-incident-response/plan.md) defines their boundaries. Add a supervised worker when triage/indexing introduces durable work; the foundation has no idle placeholder worker. Version checks are specified for future report mutations, but no report/incident tables or workflow endpoints are created yet.
+This is the shared starting point for the assigned GitHub Issues: persistent report/incident APIs, ElevenLabs intake, Qdrant search across reports/incidents/service tickets, and Scaleway deployment. The [feature plan](specs/001-voice-incident-response/plan.md) defines their boundaries. Add a supervised worker when triage/indexing introduces durable work; the foundation has no idle placeholder worker. Version checks are specified for future report mutations, but no report/incident tables or workflow endpoints are created yet.
 
 ## Status
 

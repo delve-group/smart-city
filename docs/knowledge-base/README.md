@@ -5,6 +5,7 @@ This base holds project context and decisions; it is not the app's database or a
 | Need | Source |
 | --- | --- |
 | Goal, constraints, status and unknowns | [Project context](project.md) |
+| Three-computer ownership, GitHub backlog and repo-local development skill | [Parallel delivery](parallel-delivery.md) |
 | Competition rules, judging stages and criteria | [Smart City competition judging](hackathon-evaluation.md) |
 | Why we chose a given solution | [Decisions](decisions.md) |
 | Citizen report scripts for manual testing, voice rehearsals and demo videos | [Selected citizen use cases](citizen-use-cases.md) |
