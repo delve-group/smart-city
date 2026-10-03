@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="pl" data-theme="civic">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smart City — wzornik Signal / Civic</title>
+  <link rel="stylesheet" href="themes.css">
+  <link rel="stylesheet" href="preview.css">
+</head>
+<body>
+  <a class="skip" href="#main">Przejdź do treści</a>
+  <header class="topbar">
+    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">S</span> Smart City <span class="edition">/ design system 01</span></a>
+    <fieldset class="theme-picker">
+      <legend>Motyw interfejsu</legend>
+      <label><input type="radio" name="theme" value="civic" checked> Civic</label>
+      <label><input type="radio" name="theme" value="signal"> Signal</label>
+    </fieldset>
+  </header>
+  <main id="main">
+    <section class="hero" aria-labelledby="headline">
+      <div class="hero-copy">
+        <p class="eyebrow">Smart City / system interfejsu</p>
+        <h1 id="headline">Twoje miasto.<br><span>Bliżej Ciebie.</span></h1>
+        <p class="lead">Czytelne informacje. Proste działania. Wspólny język usług miejskich w dwóch odsłonach.</p>
+        <div class="actions"><a class="button primary" href="#components">Zobacz komponenty <span aria-hidden="true">↗</span></a><a class="button secondary" href="#palette">Poznaj paletę</a></div>
+        <p class="theme-note" id="theme-note" aria-live="polite">Civic — jasny, spokojny, urzędowy.</p>
+      </div>
+      <div class="visual" aria-hidden="true">
+        <div class="visual-top"><span>SC / 01</span><span>CONNECTED CITY</span></div>
+        <svg viewBox="0 0 420 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g stroke="currentColor" stroke-width="1.5">
+            <path d="M30 210 210 110 390 210 210 310Z" opacity=".25"/>
+            <path d="M80 176 148 136 216 176 148 216Z M80 176V98L148 58 216 98V176 M80 98 148 138 216 98 M148 138V216"/>
+            <path d="M209 206 277 166 345 206 277 246Z M209 206V140L277 100 345 140V206 M209 140 277 180 345 140 M277 180V246"/>
+            <path d="M161 101 210 73 259 101 210 129Z M161 101V54L210 26 259 54V101 M161 54 210 82 259 54 M210 82V129"/>
+            <path d="M30 236 80 264H176 M314 86H364V159" stroke-dasharray="4 5"/>
+          </g>
+          <g fill="currentColor"><circle cx="80" cy="98" r="5"/><circle cx="277" cy="180" r="5"/><circle cx="210" cy="26" r="5"/><rect x="173" y="261" width="6" height="6"/></g>
+        </svg>
+        <div class="visual-bottom"><span>JEDEN SYSTEM</span><span>DWA CHARAKTERY ↗</span></div>
+      </div>
+    </section>
+
+    <section id="palette" class="palette-section" aria-labelledby="palette-title">
+      <div class="section-title"><div><p class="eyebrow">01 / Fundament</p><h2 id="palette-title">Paleta z konkretną rolą.</h2></div><p>Wspólne tokeny. Spójne decyzje.</p></div>
+      <div class="palette" id="swatches"></div>
+    </section>
+
+    <section id="components" aria-labelledby="components-title">
+      <div class="section-title"><div><p class="eyebrow">02 / Komponenty</p><h2 id="components-title">Od informacji do działania.</h2></div><p>Przykładowe dane demonstracyjne</p></div>
+      <div class="component-grid">
+        <article class="panel">
+          <div class="panel-heading"><span class="eyebrow">Karta / status / akcje</span><span class="badge success">● W realizacji</span></div>
+          <h3>Naprawa oświetlenia</h3><p class="muted">Przykładowa sprawa nr SC-0248</p>
+          <dl><div><dt>Kategoria</dt><dd>Infrastruktura</dd></div><div><dt>Lokalizacja</dt><dd>Park Miejski</dd></div><div><dt>Ostatnia aktualizacja</dt><dd>Dzisiaj, 09:42</dd></div></dl>
+          <div class="notice"><strong>Informacja dla mieszkańca</strong><p>Ekipa otrzymała zgłoszenie. O zmianie statusu poinformujemy w szczegółach sprawy.</p></div>
+          <div class="actions"><button class="button primary" id="details-button" type="button" aria-expanded="false" aria-controls="details">Szczegóły sprawy <span aria-hidden="true">↗</span></button><button class="button secondary" type="button" disabled>Powiadomienia wkrótce</button></div>
+          <p id="details" hidden>To wzornik interfejsu. Sprawa i jej status są fikcyjne; podgląd nie łączy się z systemem miejskim.</p>
+        </article>
+
+        <article class="panel">
+          <p class="eyebrow">Formularz / focus / walidacja</p><h3>Opisz miejską sprawę</h3><p class="muted">Podgląd formularza. Dane pozostają na tej stronie.</p>
+          <form id="demo-form">
+            <label for="category">Kategoria</label><select id="category" name="category"><option>Infrastruktura</option><option>Zieleń miejska</option><option>Transport</option></select>
+            <label for="description">Co wymaga uwagi?</label><textarea id="description" name="description" rows="3" required minlength="10" aria-describedby="description-hint" placeholder="Np. niedziałająca latarnia przy wejściu do parku"></textarea>
+            <p id="description-hint" class="hint">Wpisz co najmniej 10 znaków. Użyj przykładowych danych.</p>
+            <button class="button primary" type="submit">Sprawdź formularz <span aria-hidden="true">→</span></button>
+            <p id="form-result" class="hint" role="status"></p>
+          </form>
+        </article>
+      </div>
+      <div class="status-row" aria-label="Przykładowe statusy"><span class="badge info">Informacja</span><span class="badge success">Zakończono</span><span class="badge warning">Wymaga uwagi</span><span class="badge destructive">Nie udało się zapisać</span><span class="muted">Status to kolor i zrozumiała etykieta.</span></div>
+    </section>
+    <footer><span>Smart City · Hackathon foundation</span><span>Wzornik HTML/CSS · docelowe komponenty shadcn/ui</span></footer>
+  </main>
+  <script>
+    const palette = document.getElementById('swatches');
+    const roles = [['background', 'Tło'], ['card', 'Powierzchnia'], ['foreground', 'Tekst'], ['primary', 'Główna akcja'], ['brand-accent', 'Akcent'], ['info', 'Informacja']];
+    function renderPalette() {
+      const styles = getComputedStyle(document.documentElement);
+      palette.replaceChildren(...roles.map(([token, label]) => {
+        const item = document.createElement('div');
+        item.className = 'swatch';
+        const color = styles.getPropertyValue('--' + token).trim();
+        const sample = document.createElement('div');
+        sample.className = 'swatch-color';
+        sample.style.backgroundColor = color;
+        const name = document.createElement('strong');
+        name.textContent = label;
+        const value = document.createElement('code');
+        value.textContent = color;
+        item.append(sample, name, value);
+        return item;
+      }));
+    }
+    document.querySelectorAll('input[name="theme"]').forEach(input => {
+      input.addEventListener('change', () => {
+        document.documentElement.dataset.theme = input.value;
+        document.getElementById('theme-note').textContent = input.value === 'signal'
+          ? 'Signal — ciemny, geometryczny, futurystyczny.'
+          : 'Civic — jasny, spokojny, urzędowy.';
+        renderPalette();
+      });
+    });
+    document.getElementById('details-button').addEventListener('click', event => {
+      const details = document.getElementById('details');
+      details.hidden = !details.hidden;
+      event.currentTarget.setAttribute('aria-expanded', String(!details.hidden));
+    });
+    document.getElementById('demo-form').addEventListener('submit', event => {
+      event.preventDefault();
+      const field = document.getElementById('description');
+      if (field.value.trim().length < 10) {
+        field.setCustomValidity('Wpisz co najmniej 10 znaków treści.');
+        field.reportValidity();
+        return;
+      }
+      document.getElementById('form-result').textContent = 'Formularz poprawny. To demonstracja — niczego nie wysłano.';
+    });
+    document.getElementById('description').addEventListener('input', event => {
+      event.target.setCustomValidity('');
+      document.getElementById('form-result').textContent = '';
+    });
+    renderPalette();
+  </script>
+</body>
+</html>

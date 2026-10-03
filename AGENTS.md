@@ -1,0 +1,33 @@
+# Zasady pracy agentów
+
+## Cel
+
+Budujemy Smart City na hackathon. Dostarczaj działające, małe fragmenty produktu szybko, z kodem łatwym do zrozumienia, utrzymania i późniejszego rozwijania.
+
+## Kod i architektura
+
+- Organizuj kod według funkcji biznesowych. Oddziel UI, reguły domenowe i dostęp do danych; twórz warstwy dopiero, kiedy są potrzebne.
+- Utrzymuj wąskie odpowiedzialności modułów i jawne zależności. Logika biznesowa powinna działać bez Reacta, DOM i sieci.
+- Wybieraj najprostsze rozwiązanie spełniające bieżące wymagania. Nowa abstrakcja musi rozwiązywać istniejący problem; mała duplikacja jest lepsza od przedwczesnego frameworka.
+- Preferuj czytelne nazwy, jawne typy na granicach i kompozycję. Waliduj dane z zewnętrznych źródeł i obsługuj błędy tam, gdzie można na nie zareagować.
+- Używaj shadcn/ui jako bazy komponentów. Kolory i kształty pochodzą z tokenów motywu; nie duplikuj komponentów dla Signal i Civic.
+- Ogranicz zależności i zakres zmiany. Mikroserwisy, własne frameworki i optymalizacje bez konkretnego problemu odkładamy.
+- Sekrety trzymaj poza repozytorium. Dane demonstracyjne oznaczaj jednoznacznie; nie przedstawiaj mocków jako integracji produkcyjnych.
+
+## Testy i weryfikacja
+
+- Pisz **wyłącznie testy jednostkowe najważniejszej logiki**: reguł biznesowych, obliczeń, walidacji i istotnych transformacji danych. Uwzględniaj przypadki brzegowe i błędy.
+- **Nie pisz testów położenia przycisku, zmiany koloru, klas CSS, pikseli, snapshotów UI ani innych szczegółów prezentacji. Nie dodawaj testów integracyjnych ani E2E.**
+- Nie twórz testów trywialnych getterów, kodu bibliotek ani testów powtarzających implementację. Nie ustawiaj sztucznego progu pokrycia.
+- Wygląd, responsywność, klawiaturę i stany błędów sprawdzaj krótkim ręcznym przeglądem. Uruchamiaj dostępny lint, kontrolę typów, build oraz jednostki związane ze zmianą.
+- Raportuj, co rzeczywiście sprawdzono, a czego nie udało się zweryfikować.
+
+## Baza wiedzy i realizacja
+
+1. Przy rozpoczęciu pracy przeczytaj [indeks wiedzy](docs/knowledge-base/README.md) i [kontekst projektu](docs/knowledge-base/project.md).
+2. Przed zmianą granic modułów, przepływu danych lub integracji przeczytaj [architekturę](docs/architecture.md). Przed pracą nad UI przeczytaj [design system](docs/design-system.md) i użyj [tokenów](design-system/themes.css).
+3. Zrealizuj najmniejszy kompletny zakres. Pytaj tylko o brakujące informacje wpływające istotnie na produkt; odwracalne decyzje podejmuj samodzielnie i oznaczaj założenia.
+4. Po istotnej decyzji lub odkryciu aktualizuj właściwy dokument, a decyzję z uzasadnieniem dopisz do [rejestru decyzji](docs/knowledge-base/decisions.md). Zachowuj jedno źródło prawdy.
+5. Zakończ krótkim opisem wyniku, weryfikacji i rzeczywistych ograniczeń. Nie deklaruj wdrożenia, integracji ani testów, których nie wykonano.
+
+Dokumentację i komunikację prowadź po polsku; identyfikatory w kodzie po angielsku. Nazwa `AGENTS.md` jest celowa — to plik instrukcji dla narzędzi agentowych.
