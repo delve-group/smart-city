@@ -25,6 +25,7 @@ import { useIncidentSearch } from "../../hooks/use-incident-search";
 import { searchIncidents, topIncidents } from "../../utils/search-incidents";
 import { SearchPlaceOption } from "../search-place-option/search-place-option";
 import { SearchIncidentOption } from "../search-incident-option/search-incident-option";
+import { incidentSummary } from "../../utils/incident-summary";
 
 export type SearchOption =
   | { kind: "incident"; id: string; label: string; incident: PublicIncident }
@@ -40,11 +41,11 @@ type MapSearchProps = {
   onPick: (option: SearchOption) => void;
 };
 
-const toIncidentOption = (incident: PublicIncident): SearchOption => ({ kind: "incident", id: incident.id, label: incident.public_summary, incident });
 const toPlaceOption = (place: Place): SearchOption => ({ kind: "place", id: place.id, label: place.name, place });
 
 export function MapSearch({ incidents, categoryIds, categoriesById, onPick }: MapSearchProps) {
   const { t } = useI18n();
+  const toIncidentOption = (incident: PublicIncident): SearchOption => ({ kind: "incident", id: incident.id, label: incidentSummary(t, incident), incident });
   const [query, setQuery] = useState("");
   const places = usePlaceSearch(query);
   const search = useIncidentSearch(query, "hybrid", categoryIds);
@@ -59,7 +60,7 @@ export function MapSearch({ incidents, categoryIds, categoriesById, onPick }: Ma
   const outdated = search.page?.status === "index_stale" || missingCurrentDetails;
   const fallback = search.status === "error" || outdated || query.trim().length < 3;
   const matchedIds = new Set(matches.map((incident) => incident.id));
-  const localMatches = fallback ? searchIncidents(incidents, categoriesById, query).filter((incident) => !matchedIds.has(incident.id)) : [];
+  const localMatches = fallback ? searchIncidents(incidents, categoriesById, query, (incident) => incidentSummary(t, incident)).filter((incident) => !matchedIds.has(incident.id)) : [];
 
   const groups: OptionGroup[] = typed
     ? [
