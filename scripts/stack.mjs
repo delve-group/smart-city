@@ -91,7 +91,11 @@ if (searchCommand) {
 if (compose(["build", "setup", "app", "worker", "search-setup"]) !== 0) process.exit(1);
 let searchReady = false;
 if (compose(["up", "-d", "--no-recreate", "qdrant"]) === 0) {
-  const status = compose(["run", "--rm", "--no-deps", "search-setup"]);
+  let status = compose(["run", "--rm", "--no-deps", "search-setup"]);
+  if (status === 1) {
+    console.warn("Search setup was temporarily unavailable. Retrying once.");
+    status = compose(["run", "--rm", "--no-deps", "search-setup"]);
+  }
   if (status === 2) {
     console.error("Search configuration or index compatibility failed. Core startup was not changed; fix the named configuration before retrying.");
     process.exit(2);
