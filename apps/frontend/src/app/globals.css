@@ -28,6 +28,6 @@ html .maplibregl-ctrl-attrib a {
 /* Phones: the plain lockup owns the bottom-left corner; keep the compact credit beside it. */
 @media (width < 48rem) {
   html .resident-map .maplibregl-ctrl-bottom-left {
-    left: 7.5rem;
+    left: 8.25rem;
   }
 }
