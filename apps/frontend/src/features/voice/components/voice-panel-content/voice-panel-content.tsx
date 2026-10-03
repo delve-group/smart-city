@@ -24,7 +24,7 @@ export function VoicePanelContent({ intake, categories, onLocate, onFallback }: 
   const { t } = useI18n();
   const voice = useBrowserVoice(intake, categories, onLocate);
   const [hovered, setHovered] = useState(false);
-  /** Continue appears once the resident has unmuted, so the first screen is just the mic. */
+  /** Continue appears to the right once the resident has unmuted, so the first screen is just the mic. */
   const [spoke, setSpoke] = useState(false);
   const saved = intake.report ?? intake.draft?.submission;
   const connected = voice.phase === "connected";
@@ -68,7 +68,7 @@ export function VoicePanelContent({ intake, categories, onLocate, onFallback }: 
           size="sm"
           disabled={voice.phase === "stopping"}
           onClick={() => void continueInForm()}
-          className="absolute top-1/2 right-full mr-4 -translate-y-1/2 border-border-strong/50 bg-background shadow-xs transition-opacity duration-200 starting:opacity-0 motion-reduce:transition-none"
+          className="absolute top-1/2 left-full ml-4 -translate-y-1/2 border-border-strong/50 bg-background shadow-xs transition-opacity duration-200 starting:opacity-0 motion-reduce:transition-none"
         >
           {t("voice.continue")}
         </Button>
@@ -77,14 +77,14 @@ export function VoicePanelContent({ intake, categories, onLocate, onFallback }: 
         <TooltipTrigger
           render={
             <Button
-              variant={listening ? "destructive" : "outline"}
+              variant={listening ? "destructive" : "primary"}
               aria-label={listening ? t("voice.mute") : t("voice.unmute")}
               aria-pressed={listening}
               disabled={waiting || (Boolean(saved) && !connected)}
               onClick={toggleMic}
               onPointerEnter={() => setHovered(true)}
               onPointerLeave={() => setHovered(false)}
-              className={`size-20 rounded-full p-0 shadow-md ${listening ? "" : "border-border-strong/50 bg-background"}`}
+              className="size-20 rounded-full p-0 shadow-md"
             />
           }
         >
