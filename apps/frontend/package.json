@@ -14,7 +14,10 @@
     "check:env": "tsx scripts/check-env.ts",
     "db:migrate": "tsx scripts/db-migrate.ts",
     "db:seed": "tsx scripts/db-seed.ts",
-    "db:setup": "npm run db:migrate && npm run db:seed"
+    "db:setup": "npm run db:migrate && npm run db:seed",
+    "worker": "node --conditions=react-server --import tsx scripts/worker.ts",
+    "worker:health": "tsx scripts/worker-health.ts",
+    "worker:status": "tsx scripts/worker-health.ts --details"
   },
   "dependencies": {
     "@appica/icons-react": "^1.1.0",
