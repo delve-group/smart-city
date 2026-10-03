@@ -39,26 +39,26 @@ export function QueueItem({ item, category, selected, now, onSelect }: QueueItem
         selected ? "bg-background-muted" : "hover:bg-background-subtle"
       }`}
     >
-      <span className="flex items-center justify-between gap-2 text-xs">
-        {item.urgent ? (
-          <span className="inline-flex items-center gap-1.5 font-semibold text-error">
-            <AlertTriangle size={14} strokeWidth={2} aria-hidden />
-            Urgent
+      <span className="line-clamp-2 text-sm font-medium text-foreground-intense">{title}</span>
+      <span className="flex items-center justify-between gap-3 text-xs">
+        <span className={`flex min-w-0 items-center gap-1.5 ${item.review ? "font-medium text-foreground" : "text-foreground-muted"}`}>
+          {/* Colour stays on the icon only: red for urgent, the category hue otherwise. */}
+          {item.urgent ? (
+            <AlertTriangle size={14} strokeWidth={2} className="shrink-0 text-error" role="img" aria-label="Urgent" />
+          ) : (
+            <Icon size={14} strokeWidth={2} className={`shrink-0 ${textClass}`} role="img" aria-label={category?.label ?? categoryId} />
+          )}
+          <span aria-hidden className="text-foreground-muted">
+            ·
           </span>
-        ) : (
-          <span className={`inline-flex min-w-0 items-center gap-1.5 font-semibold ${textClass}`}>
-            <Icon size={14} strokeWidth={2} aria-hidden />
-            <span className="truncate">{category?.label ?? categoryId}</span>
-          </span>
-        )}
+          <span className="truncate">{statusLine(item)}</span>
+        </span>
         <span className="shrink-0 text-foreground-muted tabular-nums">
           <Fact icon={Clock} label={item.review ? "Waiting" : "Updated"}>
             {age}
           </Fact>
         </span>
       </span>
-      <span className="line-clamp-2 text-sm font-medium text-foreground-intense">{title}</span>
-      <span className={`text-xs ${item.review ? "font-medium text-foreground" : "text-foreground-muted"}`}>{statusLine(item)}</span>
     </button>
   );
 }
