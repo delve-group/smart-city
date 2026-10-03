@@ -1,10 +1,11 @@
 import { chmod, readFile, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
 import { ConfigurationError } from "../src/server/config";
 import { getVoiceConfig } from "../src/server/voice/config";
 import { dispatcherAgentSchema, verifyPreparedDispatcher } from "../src/server/voice/dispatcher-agent";
-import { dispatcherConfiguration } from "../src/server/voice/dispatcher-config";
+import { dispatcherConfiguration, DISPATCHER_FIRST_MESSAGE, DISPATCHER_LANGUAGE, DISPATCHER_PROMPT, DISPATCHER_PROMPT_VERSION } from "../src/server/voice/dispatcher-config";
 import { DISPATCHER_TOOLS, providerToolSchema, verifyDispatcherTool, verifyDispatcherTools } from "../src/server/voice/dispatcher-tools";
 import { requestProvider, VoiceProviderError } from "../src/server/voice/provider";
 
@@ -17,7 +18,21 @@ async function main() {
   console.info("Reviewing the configured private dispatcher.");
   const agent = await requestProvider(path, config.apiKey, dispatcherAgentSchema);
   const currentIds = agent.conversation_config.agent.prompt.tool_ids;
-  verifyPreparedDispatcher(agent, currentIds);
+  let languageUpgrade = false;
+  try { verifyPreparedDispatcher(agent, currentIds); }
+  catch (failure) {
+    // Explicitly upgrade only the exact reviewed English v1, never an unrelated agent.
+    const previous = agent.conversation_config.agent;
+    if (!process.argv.includes("--update-language") || agent.version_id !== config.versionId
+      || agent.name !== "mradar-dispatcher-v1" || previous.language !== "en"
+      || previous.first_message !== "Hello, I’m mRadar’s demo reporting assistant. What happened, and where in Kraków?"
+      || createHash("sha256").update(previous.prompt.prompt).digest("hex") !== "e9c2764c1aee617b3edc174c9afcfd849ecccee38ca1d6c9fa45a4ff49e2a451") throw failure;
+    verifyPreparedDispatcher({ ...agent, name: DISPATCHER_PROMPT_VERSION,
+      conversation_config: { ...agent.conversation_config, agent: { ...previous,
+        language: DISPATCHER_LANGUAGE, first_message: DISPATCHER_FIRST_MESSAGE,
+        prompt: { ...previous.prompt, prompt: DISPATCHER_PROMPT } } } }, currentIds);
+    languageUpgrade = true;
+  }
   if (currentIds.length) await verifyDispatcherTools(config.apiKey, currentIds);
   // If a prior update lost its response, exact definitions/readback can recover the resulting version.
   if (agent.version_id !== config.versionId && !currentIds.length) throw new ConfigurationError("The prepared agent changed since the local version pin. Review it before integrating tools.");
@@ -33,7 +48,7 @@ async function main() {
     ids.push(tool.id);
   }
   if (currentIds.length && JSON.stringify([...currentIds].sort()) !== JSON.stringify([...ids].sort())) throw new ConfigurationError("Existing dispatcher tool IDs differ. No agent update performed.");
-  if (!currentIds.length) await requestProvider(path, config.apiKey, dispatcherAgentSchema, { method: "PATCH", body: dispatcherConfiguration(ids) });
+  if (!currentIds.length || languageUpgrade) await requestProvider(path, config.apiKey, dispatcherAgentSchema, { method: "PATCH", body: dispatcherConfiguration(ids) });
   const integrated = await requestProvider(path, config.apiKey, dispatcherAgentSchema);
   verifyPreparedDispatcher(integrated, ids);
   await verifyDispatcherTools(config.apiKey, ids);

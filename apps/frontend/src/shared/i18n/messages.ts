@@ -4,7 +4,7 @@ export type Locale = "en" | "pl";
 const en = {
   "voice.title": "Report by voice",
   "voice.resume": "Continue unfinished report",
-  "voice.introduction": "The demo assistant speaks English and accepts Polish. Starting enables your microphone and sends the conversation to ElevenLabs. Audio recording is off; provider transcript retention is set to one day. For emergencies call 112.",
+  "voice.introduction": "The demo assistant understands and speaks Polish. Starting enables your microphone and sends the conversation to ElevenLabs. Audio recording is off; provider transcript retention is set to one day. For emergencies call 112.",
   "voice.ready": "Ready when you are",
   "voice.connecting": "Connecting…",
   "voice.stopping": "Ending the conversation and checking the report…",
@@ -543,7 +543,7 @@ const en = {
 const pl: { [K in keyof typeof en]: string } = {
   "voice.title": "Zgłoś głosowo",
   "voice.resume": "Dokończ rozpoczęte zgłoszenie",
-  "voice.introduction": "Asystent demo mówi po angielsku i rozumie polski. Rozpoczęcie włącza mikrofon i przesyła rozmowę do ElevenLabs. Nagrywanie dźwięku jest wyłączone; retencja transkrypcji u dostawcy jest ustawiona na jeden dzień. W nagłych sytuacjach dzwoń pod 112.",
+  "voice.introduction": "Asystent demo rozumie polski i odpowiada po polsku. Rozpoczęcie włącza mikrofon i przesyła rozmowę do ElevenLabs. Nagrywanie dźwięku jest wyłączone; retencja transkrypcji u dostawcy jest ustawiona na jeden dzień. W nagłych sytuacjach dzwoń pod 112.",
   "voice.ready": "Możesz rozpocząć",
   "voice.connecting": "Łączenie…",
   "voice.stopping": "Kończenie rozmowy i sprawdzanie zgłoszenia…",

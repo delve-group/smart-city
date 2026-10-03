@@ -1,6 +1,6 @@
 # ElevenLabs dispatcher setup
 
-Workstream 1 / Rafal, [#29](https://github.com/delve-group/smart-city/issues/29), now taken over on the user's machine. Provider setup and the local [owned session/tool API](voice-sessions.md) are verified separately. The browser voice flow and live acceptance remain incomplete.
+Workstream 1 / Rafal, [#29](https://github.com/delve-group/smart-city/issues/29), now taken over on the user's machine. Provider setup, the local [owned session/tool API and browser panel](voice-sessions.md) are implemented. A real WebRTC greeting exchange, mute/end and provider completion without retained audio are verified locally. Complete scripted spoken-report acceptance remains unfinished.
 
 ## Local credential and access
 
@@ -24,7 +24,16 @@ node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-
 
 This command reuses exact matching tool definitions, refuses ambiguous/mismatched workspace tools, verifies their actual definitions without response mocks, updates only the configured private dispatcher and saves the resulting version pin in ignored `.env`. Repeating it reads/reuses the same five tools. After integration, use this command rather than the tool-free preparation command. Recreate the local web container to load the changed version pin. Session creation checks the exact pinned agent's private settings and five distinct tools before issuing a credential. It does not silently provision or change the provider.
 
-On 2026-10-03, actual tool provisioning and repeated setup/readback succeeded. The first create returned `response_mocks: null`; the adapter now accepts that actual empty shape and recovered the created tool through lookup without duplication. The integrated pin minted a real application-bound credential after web recreation; the reservation was explicitly ended, without connecting WebRTC.
+On 2026-10-03, actual tool provisioning and repeated setup/readback succeeded. The first create returned `response_mocks: null`; the adapter now accepts that actual empty shape and recovered the created tool through lookup without duplication. The integrated pin minted a real application-bound credential after web recreation. The initial transport check ended without connecting WebRTC; a subsequent browser check completed a real greeting exchange and explicit end. The separate evidence is recorded in [voice sessions](voice-sessions.md#browser-panel-and-local-review).
+
+To explicitly upgrade the configured reviewed English v1 to Polish v2:
+
+```sh
+node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-tools-setup.ts --update-language
+node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-check.ts
+```
+
+The upgrade requires the configured previous version pin, exact v1 prompt fingerprint and greeting, unchanged private settings and the five reviewed tools. Unrelated or edited agents are rejected. Repeating setup on exact v2 reuses its tools and pin. On 2026-10-03 the explicit upgrade, repeated setup and resulting provider readback succeeded; the local web app was recreated to load the new immutable pin. A subsequent real WebRTC call recognized Polish speech and replied in Polish; see the [browser evidence](voice-sessions.md#browser-panel-and-local-review). Earlier English greeting evidence is historical. Neither exchange establishes complete Polish spoken-report acceptance.
 
 The checker reports access/settings without credentials, tokens or raw provider errors. It reads the configured immutable version and creates no agent, token or conversation. On 2026-10-03, the initial key returned `401 missing_permissions`; the replacement key succeeded. One private dispatcher was provisioned, setup reuse succeeded without duplication, and its pinned settings passed read-back. Actual IDs remain in ignored local configuration, not checked-in documentation.
 
@@ -34,8 +43,9 @@ The checker reports access/settings without credentials, tokens or raw provider 
 
 | Setting | Configured value | Verification |
 | --- | --- | --- |
-| Prompt/name | `mradar-dispatcher-v1` | Exact prompt and name read back from pinned version |
-| LLM | `gpt-4.1-mini` | Agent configuration read back; conversation access/latency unverified |
+| Prompt/name | `mradar-dispatcher-v2` | Exact prompt and name read back from pinned version |
+| Language/greeting | `pl`, Polish first message | Actual language and exact greeting are checked with the pinned prompt |
+| LLM | `gpt-4.1-mini` | Agent configuration read back; greeting/reply observed, complete report latency unverified |
 | Voice | `cjVigY5qzO86Huf0OWal` | Agent configuration read back; voice quality unverified |
 | TTS | `eleven_v4_turbo` | Agent configuration read back; Polish recognition/voice unverified |
 | Authentication | `enable_auth: true`, empty allowlist | Actual private setting read back |
@@ -43,17 +53,17 @@ The checker reports access/settings without credentials, tokens or raw provider 
 | Capacity | 15 concurrent agent conversations, 100/day, bursting disabled | Actual agent settings read back; workspace quota/capacity unverified |
 | Retention | Audio recording off; `retention_days: 1`, audio/transcript deletion flags enabled, zero retention disabled | Actual configuration read back; elapsed deletion behavior unverified |
 
-The prompt accepts Polish observations/place names, asks about ambiguity and apartment/building/street scope, retains unknown time, requires fresh revision confirmation after correction and announces only a persisted reference. Emergency help is separate from demo reporting. Five dispatcher operations are allowed: `resolve_location`, `find_incidents`, `prepare_report`, `confirm_report_draft`, `submit_report`. No staff approval, execution, institution or MCP tool belongs to this agent.
+The English-authored prompt requires understanding Polish speech and replying in Polish, including clarification, readback, errors and saved references. Stored operator summaries remain English and tool readback is faithfully explained in Polish. It preserves Polish place names, asks about ambiguity and apartment/building/street scope, retains unknown time, requires fresh revision confirmation after correction and announces only a persisted reference. Emergency help is separate from demo reporting. Five dispatcher operations are allowed: `resolve_location`, `find_incidents`, `prepare_report`, `confirm_report_draft`, `submit_report`. No staff approval, execution, institution or MCP tool belongs to this agent.
 
-Create and review those client tools before supplying their IDs to the configuration builder. Use `tool_ids`; inline `tools` is deprecated in the current official API schema. Every result-dependent client tool must set `expects_response: true` and `execution_mode: immediate`, with a bounded timeout, so the conversation waits for the authenticated API result. The [local tool HTTP adapter](voice-sessions.md) rejects model-supplied draft/identity authority and invented coordinates; provider tool definitions and browser SDK callbacks remain unwired. [Client tool documentation](https://elevenlabs.io/docs/eleven-agents/customization/tools/client-tools), [agent creation](https://elevenlabs.io/docs/eleven-agents/api-reference/agents/create).
+The five reviewed client tools are attached using `tool_ids`; inline `tools` is deprecated in the current official API schema. Each result-dependent client tool uses `expects_response: true` and `execution_mode: immediate`, with a bounded timeout, so the conversation waits for the authenticated API result. The [local tool HTTP adapter](voice-sessions.md) rejects model-supplied draft/identity authority and invented coordinates. Browser SDK callbacks invoke those session-bound tools and reconcile the same owned draft. Actual calls during complete spoken reporting remain to be verified. [Client tool documentation](https://elevenlabs.io/docs/eleven-agents/customization/tools/client-tools), [agent creation](https://elevenlabs.io/docs/eleven-agents/api-reference/agents/create).
 
-Setup records the actual agent ID and immutable version in ignored configuration as `ELEVENLABS_AGENT_ID` and `ELEVENLABS_AGENT_VERSION_ID`. The checker verifies the exact prompt/resources, private authentication, capacity, five-minute duration and retention settings against that pin. The owned local session route has now minted real [WebRTC credentials](https://elevenlabs.io/docs/eleven-agents/api-reference/conversations/get-webrtc-token) for that fixed agent/version after enforcing resident limits; no WebRTC connection was started. No API key reaches the browser. Attach reviewed authenticated client tools during final integration and explicitly repin the resulting version before offering the browser reporting flow.
+Setup records the actual agent ID and immutable version in ignored configuration as `ELEVENLABS_AGENT_ID` and `ELEVENLABS_AGENT_VERSION_ID`. The checker verifies the exact prompt, language, greeting and resources, private authentication, capacity, five-minute duration and retention settings against that pin. The owned local session route issues [WebRTC credentials](https://elevenlabs.io/docs/eleven-agents/api-reference/conversations/get-webrtc-token) for that fixed agent/version after enforcing resident limits. Chrome has connected using this route. No API key reaches the browser. Tool or prompt changes require explicit repinning and loading that pin in the web application.
 
-## Remaining integration
+## Browser integration and remaining acceptance
 
-The current [React SDK guidance](https://elevenlabs.io/docs/eleven-agents/libraries/react) requires `ConversationProvider` around conversation hooks, a WebRTC conversation token and controlled mute. `@elevenlabs/react` 1.16.0 is pinned but not yet wired to UI. Inspection of this installed version shows its hook `startSession` and `endSession` return `void`: awaiting the hook alone does not await teardown. The browser adapter must retain the underlying conversation from the public lifecycle callback and await its actual `endSession(): Promise<void>`, with pending-connection/disconnect handling.
+The browser uses `ConversationProvider`, a WebRTC conversation token and controlled mute, following the [React SDK guidance](https://elevenlabs.io/docs/eleven-agents/libraries/react). `@elevenlabs/react` 1.16.0 is pinned and wired to the Appica reporting panel. This version's hook `startSession` and `endSession` return `void`: awaiting the hook alone does not await teardown. The implemented adapter retains the underlying conversation from the public lifecycle callback and awaits its actual `endSession(): Promise<void>`, with pending-connection/disconnect handling.
 
-#26 is merged. Migration 008 and the session-bound API reuse its owned draft/revision/submission identity and canonical services; one active reservation, five starts per ten minutes and five-minute application access passed local HTTP checks. Tokens have been minted for transport checks, without a WebRTC connection. Verify provider-side duration/cleanup after an abruptly closed browser; a local lease expiry alone does not prove the provider stopped. Attach reviewed tools and repin before the browser flow is usable.
+#26 is merged. Migration 008 and the session-bound API reuse its owned draft/revision/submission identity and canonical services; one active reservation, five starts per ten minutes and five-minute application access passed local HTTP checks. Real WebRTC connection and explicit end passed; provider readback reported the specific conversation done with no retained audio. Provider-side maximum-duration cleanup and abrupt-navigation behavior still need verification; a local lease expiry alone does not prove the provider stopped.
 
 Stop SDK capture and all acquired microphone tracks on end, navigation, disconnect and form fallback. Keep transient transcript in memory only; persist structured draft observations through the existing intake service, never raw audio/full transcripts. Reconcile in-flight saves through the same draft before retrying. Missing configuration and microphone/provider failures retain the form.
 

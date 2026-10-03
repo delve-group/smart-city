@@ -1,0 +1,5 @@
+# Polish dispatcher correction
+
+The user requires the demo voice agent to understand and respond in Polish. Set the existing ElevenLabs private dispatcher to `pl`, provide a Polish greeting and English-authored instructions requiring Polish clarification, readback and persisted-reference responses. Translate returned English summaries faithfully; keep the stored English operator summary and private original observation contract unchanged.
+
+Reuse the current voice/model, five owned client tools, limits and recovery. Verify the provider language/greeting alongside its exact prompt. An explicit `--update-language` setup action may upgrade only the configured, pinned, reviewed English v1; normal setup must still reject mismatches. Read back and save the new immutable pin in ignored configuration before reloading the local web app. Review lint/typecheck/build and actual provider readback; keep complete spoken-report acceptance open until observed. No new dependency, migration or automated test.
