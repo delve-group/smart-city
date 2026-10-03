@@ -39,7 +39,7 @@ export function StaffSignIn({ product, title, role, notice, onSignedIn }: StaffS
     setBusy(true);
     setError(null);
     try {
-      const actor = await login(username, password);
+      const actor = await login(username, password, role);
       if (actor.role !== role) {
         setError(t("auth.wrongRole", { role: role === "official" ? t("auth.roleOfficial") : t("auth.roleInstitution") }));
         return;
@@ -67,7 +67,7 @@ export function StaffSignIn({ product, title, role, notice, onSignedIn }: StaffS
         <h2 className="text-xl font-semibold tracking-tight text-foreground-intense">{title}</h2>
         {notice && (
           <Alert variant="warning">
-            <AlertDescription>{notice === "wrong_role" ? t("auth.wrongAccount") : t("auth.sessionEnded")}</AlertDescription>
+            <AlertDescription>{t("auth.sessionEnded")}</AlertDescription>
           </Alert>
         )}
         <Field>

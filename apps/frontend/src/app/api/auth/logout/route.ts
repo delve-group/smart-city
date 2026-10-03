@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { clearSessionCookie, readSessionToken } from "@/server/auth/cookies";
+import { clearSessionCookie, readSessionToken, staffRoleOf } from "@/server/auth/cookies";
 import { revokeSession } from "@/server/auth/sessions";
 import { handleApi, success } from "@/server/http/api";
 import { requireAppOrigin } from "@/server/http/request";
@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     requireAppOrigin(request);
     await revokeSession(readSessionToken(request));
     const response = success({ signed_out: true }, correlationId);
-    clearSessionCookie(response);
+    clearSessionCookie(response, staffRoleOf(request));
     return response;
   });
 }

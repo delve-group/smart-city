@@ -69,7 +69,11 @@ export async function loginStaff(
 
     await client.query("DELETE FROM auth_login_attempts WHERE key_hash = $1", [key]);
     if (previousToken) {
-      await client.query("DELETE FROM sessions WHERE token_hash = $1", [hashSessionToken(previousToken)]);
+      // Replace only this role's earlier session; the other staff role stays signed in.
+      await client.query(
+        "DELETE FROM sessions WHERE token_hash = $1 AND actor_id IN (SELECT id FROM actors WHERE role = $2)",
+        [hashSessionToken(previousToken), actor.role],
+      );
     }
     const issued = await insertSession(client, actor);
     await client.query("COMMIT");

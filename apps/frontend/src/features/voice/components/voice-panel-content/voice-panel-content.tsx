@@ -21,6 +21,8 @@ export function VoicePanelContent({ intake, categories, onLocate, onClose, onFal
   const listening = connected && !voice.isMuted;
   const lastAgent = voice.messages.findLast((message) => message.role === "agent")?.text;
   const lastUser = voice.messages.findLast((message) => message.role === "user")?.text;
+  /** Before the first conversation, the second line says where the audio goes. */
+  const showNotice = !lastUser && !connected && !waiting && !voice.errorCode && !saved && voice.messages.length === 0;
   const errorText = voice.errorCode === "microphone_denied" ? t("voice.microphoneDenied")
     : voice.errorCode === "voice_session_active" ? t("voice.sessionActive")
     : voice.errorCode === "voice_start_limit" ? t("voice.startLimit")
@@ -64,8 +66,9 @@ export function VoicePanelContent({ intake, categories, onLocate, onClose, onFal
       </Button>
 
       <div role="status" aria-live="polite" className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <p title={appLine} className={`${lastUser ? "truncate" : "line-clamp-2"} text-sm font-medium ${voice.errorCode ? "text-warning-emphasis" : "text-foreground-intense"}`}>{appLine}</p>
-        {lastUser && <p title={lastUser} className="truncate text-sm text-foreground-muted">{lastUser}</p>}
+        <p title={appLine} className={`${lastUser || showNotice ? "truncate" : "line-clamp-2"} text-sm font-medium ${voice.errorCode ? "text-warning-emphasis" : "text-foreground-intense"}`}>{appLine}</p>
+        {lastUser ? <p title={lastUser} className="truncate text-sm text-foreground-muted">{lastUser}</p>
+          : showNotice && <p className="line-clamp-2 text-xs text-foreground-muted">{t("voice.notice")}</p>}
       </div>
       <p id="voice-privacy" className="sr-only">{t("voice.introduction")}</p>
 

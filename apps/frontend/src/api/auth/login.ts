@@ -1,8 +1,8 @@
-import { mapActor, readProblem, sessionEnvelopeSchema, type SessionActor } from "./types";
+import { mapActor, readProblem, sessionEnvelopeSchema, type SessionActor, type StaffRole } from "./types";
 
 /** POST /api/auth/login — sign in with a provisioned staff account. The server decides the role. */
-export async function login(username: string, password: string): Promise<SessionActor> {
-  const response = await fetch("/api/auth/login", {
+export async function login(username: string, password: string, role: StaffRole): Promise<SessionActor> {
+  const response = await fetch(`/api/auth/login?role=${role}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password }),

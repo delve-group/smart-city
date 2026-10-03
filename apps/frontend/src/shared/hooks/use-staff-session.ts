@@ -3,7 +3,7 @@ import { getSession } from "@/api/auth/get-session";
 import { logout } from "@/api/auth/logout";
 import type { SessionActor, StaffRole } from "@/api/auth/types";
 
-export type SessionNotice = "wrong_role" | "session_ended";
+export type SessionNotice = "session_ended";
 
 export type StaffSessionState =
   | { status: "loading" }
@@ -22,11 +22,10 @@ export function useStaffSession(role: StaffRole) {
 
   useEffect(() => {
     const controller = new AbortController();
-    getSession(controller.signal)
+    getSession(role, controller.signal)
       .then((actor) => {
-        if (actor?.role === role) setState({ status: "ready", actor });
-        // Staff screens read only the staff cookie, so a mismatch here is always the other staff role.
-        else setState({ status: "signed_out", notice: actor ? "wrong_role" : null });
+        // Each staff role has its own session, so another signed-in role never blocks this screen.
+        setState(actor?.role === role ? { status: "ready", actor } : { status: "signed_out", notice: null });
       })
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
@@ -45,7 +44,7 @@ export function useStaffSession(role: StaffRole) {
     /** The server rejected a request mid-session (expired, revoked or replaced). */
     sessionLost: () => setState({ status: "signed_out", notice: "session_ended" }),
     signOut: async () => {
-      await logout().catch(() => undefined);
+      await logout(role).catch(() => undefined);
       setState({ status: "signed_out", notice: null });
     },
   };
