@@ -8,7 +8,6 @@ import { ApiError } from "@/server/http/api";
 import { addIncidentEvent, bumpIncidentVersion, findIncidentRow, isUuid } from "@/server/incidents/incidents";
 import { publicSummary, type TimelineKind } from "@/server/incidents/public-templates";
 import { enqueueIncidentIndex } from "@/server/incidents/work";
-import { enqueueWork } from "@/server/jobs";
 
 /*
  * An institution's own tickets. The institution always comes from the signed-in account
@@ -226,12 +225,6 @@ export async function updateServiceTicket(ctx: ActorContext, ticketId: string, u
       related: { incident_id: incident.id, institution_id: institutionId, status: update.status, ticket_version: ticket.version + 1 },
       outcome: update.status,
       reason: note,
-    });
-    await enqueueWork(client, {
-      kind: "index",
-      source: { type: "service_ticket", id: ticket.id, version: ticket.version + 1 },
-      idempotency_key: `index:service_ticket:${ticket.id}:v${ticket.version + 1}`,
-      correlation_id: ctx.correlation_id,
     });
     await enqueueIncidentIndex(client, { id: incident.id, version: incidentVersion! }, ctx.correlation_id);
     return (await project(client, [await loadScoped(client, institutionId, ticket.id)]))[0];

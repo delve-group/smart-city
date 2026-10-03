@@ -2,7 +2,7 @@
 
 Status: proof of concept, 2026-10-03. The PostgreSQL/authentication foundation, the durable worker and the incident-response server slices with their staff screens are implemented; the resident map and form still use the mock report backend until their cutover.
 
-The [voice and incident specification](../specs/001-voice-incident-response/spec.md) and [ElevenLabs technical plan](../specs/001-voice-incident-response/plan.md) define the next domain and data-flow changes. The baseline now includes durable identities/sessions and fictional institutions. Voice, persistent reports/incidents, actor workflows and approvals are not implemented yet.
+The [voice and incident specification](../specs/001-voice-incident-response/spec.md) and [ElevenLabs technical plan](../specs/001-voice-incident-response/plan.md) define the remaining domain and data-flow changes. Source-aware search and an independent decision-provider adapter are available. The official workspace, proposal approval and queued demo ticket execution are implemented; voice and decision workflow integration remain unfinished. The institution inbox reads and updates its assigned tickets.
 
 ## Direction
 
@@ -43,6 +43,8 @@ Each app in `apps/` is a standalone project with its own dependencies. The root 
 | ESLint + `eslint-config-next` | 9 / 16.3 | Linting with Next.js and React rules. | Run with `npm run lint`. |
 | PostgreSQL / `pg` | 17 / pinned in app lockfile | Durable identities, sessions, fictional institutions and login throttling. | One relational store with explicit SQL and transactions; later workflow tables use new migrations. |
 | `tsx`, `@next/env`, Node crypto | pinned in app lockfile / Node runtime | Run TypeScript setup scripts, load host development settings and hash staff passwords. | Reuse the app's types/configuration; avoid a separate backend framework or authentication service. |
+| Qdrant / `@qdrant/js-client-rest` | 1.19.1 / 1.19.0 | Derived dense/BM25 index and scoped provider operations in `server/search`. | One engine for scoped keyword, semantic, hybrid and related retrieval; PostgreSQL hydration controls exposure. |
+| `@huggingface/transformers` | 4.3.0 | Local CPU ONNX inference using pinned multilingual E5-small q8 weights. | Real Polish-capable embeddings without another cloud account or Python service; see [model and runtime limits](knowledge-base/qdrant-search.md). |
 
 Swapping the map for Google Maps later means replacing only `features/city-map/components/city-map-canvas/city-map-canvas.tsx` with an implementation based on `@vis.gl/react-google-maps` and a deck.gl `HeatmapLayer` (see D013 in the [decision log](knowledge-base/decisions.md)).
 
@@ -78,13 +80,13 @@ Form state stays local. Search and filter parameters go into the URL when a view
 
 The API layer maps external data to a small app model, validates the boundary and returns a clear result or error. Server modules validate writes, enforce permissions and hold secrets. The frontend is not a security boundary. The new authentication is not yet applied to the old public report fixtures; persistent report/incident work must use server sessions and migrate its callers as a complete slice.
 
-Planned report/incident/service-ticket retrieval for agents, MCP tools and shared user search follows the [Qdrant search decision and implementation guide](knowledge-base/qdrant-search.md) (D029, D037). Read it before implementing those paths. PostgreSQL is the authoritative store; Qdrant remains an unimplemented derived search index.
+Report/incident/service-ticket retrieval follows the [Qdrant search guide](knowledge-base/qdrant-search.md) (D029, D037, D050). `server/search` implements scoped provider operations with local dense inference and Qdrant BM25/RRF, then hydrates current authorized domain records for `GET /api/search/records`. PostgreSQL remains authoritative. The existing single worker owns source indexing; reconciliation enqueues fresh work instead of writing concurrently. Normal Compose startup includes private Qdrant and a shared model-cache volume, while provider outages leave intake available. MCP transport and the resident UI cutover remain separate slices; combined runtime acceptance is recorded in the search guide.
 
 The [frontend–backend contract](api-contract.md) separates today's resident-report routes, the specified ElevenLabs voice-to-incident PoC, and later interfaces from the platform SPEC. The feature specification and plan govern the next implementation slice; public incident projections, private reports, official commands and institution tickets must not be collapsed into one record or route.
 
 ## Local backend foundation
 
-Docker Compose runs one Next.js web/API process, one worker from the same codebase, and PostgreSQL on a persistent volume. A one-shot setup container waits for database health, applies SQL migrations and seeds fictional staff/institutions before the app and worker start. Root npm shortcuts validate required environment values; the production image checks the same runtime settings and requires an HTTPS application origin. Executable setup, restart and configuration instructions live in the [README](../README.md#running). The [Scaleway runtime](../deploy/README.md) adds Caddy HTTPS on one VM, revision-tagged images and backup-before-migration deployment commands. Actual cloud provisioning, domain verification and provider integration remain separate acceptance work.
+Docker Compose runs one Next.js web/API process, one worker from the same codebase, and PostgreSQL on a persistent volume. A one-shot setup container waits for database health, applies SQL migrations and seeds fictional staff/institutions before the app and worker start. Root npm shortcuts validate required environment values; the production image checks the same runtime settings and requires an HTTPS application origin. Executable setup, restart and configuration instructions live in the [README](../README.md#running). The [Scaleway runtime](../deploy/README.md) adds Caddy HTTPS on one VM, revision-tagged images and backup-before-migration deployment commands. The Scaleway VM and runtime are provisioned; application rollout, public DNS/TLS and provider integration remain separate acceptance work, tracked in the [deployment record](../deploy/scaleway-release.md).
 
 Authentication routes call `server/auth/`; password hashing is independent of Next.js and reused by the seed script. PostgreSQL holds identities, hashed session tokens and login throttling. Thin HTTP handlers own cookies, origin checks and common response envelopes. Permission guards read role and institution from the database. The new liveness/readiness endpoints distinguish a running process from usable database migrations. See the [implemented API contract](api-contract.md#backend-foundation-implemented) for exact shapes.
 
@@ -103,3 +105,7 @@ First: pagination and filtering at the data source, indexes for real queries and
 ## Verification
 
 Follow the [policy in AGENTS.md](../AGENTS.md): no tests during the PoC phase; lint, type check, build and a manual review on phone and desktop, including the keyboard, in both themes.
+
+## Durable decision assessment
+
+`DECISION_PROVIDER=disabled` retains the labelled rule-based demo proposer. Explicit `scaleway` mode queues an `assess` work item in the incident mutation transaction. The same worker retrieves current source-owned context and optional scoped related records, makes one bounded model request per attempt, stores the response, and asks the domain to create a pending proposal or visible review. A stable incident/version key prevents repeat delivery from replacing an approval. No network call holds a database transaction. Migrations `006_action_assessment_identity.sql` and `007_incident_assessments.sql` add replay identity and private assessment history without rewriting existing migrations. Credentials are supplied only to the worker; the web process receives the selected mode so its mutations enqueue the appropriate work.

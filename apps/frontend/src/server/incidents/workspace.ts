@@ -47,6 +47,7 @@ const OPERATION_LABEL: Record<string, string> = {
   "proposal.reconcile": "Reconciled the ticket outcome",
   "ticket.update": "Institution updated the ticket",
   "demo.fixtures": "Seeded as demo data",
+  "assessment.review": "Decision assessment requested review",
 };
 
 function requireOfficial(ctx: ActorContext) {

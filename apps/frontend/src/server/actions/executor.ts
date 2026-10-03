@@ -8,7 +8,6 @@ import { ApiError } from "@/server/http/api";
 import { addIncidentEvent, bumpIncidentVersion, findIncidentRow } from "@/server/incidents/incidents";
 import { enqueueIncidentIndex } from "@/server/incidents/work";
 import { lookupConnectorRequest, sendToConnector, type ConnectorResult } from "@/server/institutions/demo-connector";
-import { enqueueWork } from "@/server/jobs";
 import { findProposalRow, hasActiveTicket, type ProposalRow } from "./proposals";
 
 export type ExecutionOutcome =
@@ -119,12 +118,6 @@ export async function recordExecutionResult(ctx: ActorContext, proposalId: strin
       entity_id: proposal.id,
       related: { ...related, ticket_id: ticket.rows[0].id, ticket_reference: ticket.rows[0].reference },
       outcome: "executed",
-    });
-    await enqueueWork(client, {
-      kind: "index",
-      source: { type: "service_ticket", id: ticket.rows[0].id, version: 1 },
-      idempotency_key: `index:service_ticket:${ticket.rows[0].id}:v1`,
-      correlation_id: ctx.correlation_id,
     });
     await enqueueIncidentIndex(client, { id: incident.id, version: version! }, ctx.correlation_id);
     return { status: "executed", ticket_id: ticket.rows[0].id, ticket_reference: ticket.rows[0].reference, replayed: false };

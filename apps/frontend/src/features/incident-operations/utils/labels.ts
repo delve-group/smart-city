@@ -48,4 +48,6 @@ export const REVIEW: Record<ReviewReason, string> = {
   needs_link: "Uncertain link",
   private_scope: "Apartment-only report",
   pending_triage: "Triage failed · review by hand",
+  assessment_pending: "Decision assessment queued",
+  assessment_review: "Decision assessment needs review",
 };

@@ -1,21 +1,34 @@
 "use client";
 
+import { ArrowLeft, Map as MapIcon } from "@appica/icons-react";
 import { Alert, AlertDescription, AlertTitle } from "@appica/ui-react/alert";
 import { Button } from "@appica/ui-react/button";
+import { useMediaQuery } from "@appica/ui-react/hooks/use-media-query";
 import { ScrollArea } from "@appica/ui-react/scroll-area";
 import { Spinner } from "@appica/ui-react/spinner";
 import { useToastManager } from "@appica/ui-react/toast";
-import { useState } from "react";
+import dynamic from "next/dynamic";
+import { useEffect, useRef, useState } from "react";
 import { InstitutionApiError, type InstitutionTicket, type TicketUpdate } from "@/api/institution/types";
 import { updateTicket } from "@/api/institution/update-ticket";
+import type { MapFocus, MapPoint } from "@/features/city-map/components/city-map-canvas/map-types";
+import { MapSettings } from "@/features/city-map/components/map-settings/map-settings";
 import { AppBrand } from "@/shared/components/app-brand/app-brand";
 import { FreshnessStatus } from "@/shared/components/freshness-status/freshness-status";
 import { useNow } from "@/shared/hooks/use-now";
 import { useInstitutionData } from "../../hooks/use-institution-data";
-import { sortTickets } from "../../utils/labels";
+import { isOpen, sortTickets } from "../../utils/labels";
 import { TicketDetail } from "../ticket-detail/ticket-detail";
 import { TicketRow } from "../ticket-row/ticket-row";
 
+// MapLibre needs the browser (WebGL, window), so the map is client-only.
+const CityMapCanvas = dynamic(() => import("@/features/city-map/components/city-map-canvas/city-map-canvas"), { ssr: false });
+
+/** Same opening view as the operations workspace. */
+const INITIAL_VIEW = { longitude: 19.9425, latitude: 50.0555, zoom: 14.8 };
+const DEMO_NOTICE = "Tickets: demo data";
+/** Desktop panel width (25rem) plus its 0.75rem margin. */
+const PANEL_INSET = 412;
 const STALE_CODES = new Set(["version_conflict", "invalid_state"]);
 const SAVED: Record<TicketUpdate["status"], string> = {
   acknowledged: "Ticket acknowledged",
@@ -26,18 +39,63 @@ const SAVED: Record<TicketUpdate["status"], string> = {
 
 type InstitutionInboxProps = { onSessionLost: () => void; onSignOut?: () => void };
 
-/** The institution's assigned tickets and their progress. Which institution is decided by the account alone. */
+/** The institution's assigned tickets beside the map; details open in the same floating panel as /operations. The account decides the institution. */
 export function InstitutionInbox({ onSessionLost, onSignOut }: InstitutionInboxProps) {
   const { state, retry, refresh, apply, updatedAt, refreshFailed } = useInstitutionData(onSessionLost);
   const toast = useToastManager();
   const now = useNow();
+  const isDesktop = useMediaQuery("(min-width: 768px)", { defaultValue: true });
+  const mapAreaRef = useRef<HTMLDivElement>(null);
+  const [mapHeight, setMapHeight] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  /** Phones show one thing at a time: the list, or the map with the detail sheet. */
+  const [mobileView, setMobileView] = useState<"list" | "map">("list");
+  const [focus, setFocus] = useState<MapFocus | null>(null);
+  const [hoverId, setHoverId] = useState<string | null>(null);
+  const [tilted, setTilted] = useState(false);
   /** Unsaved notes per ticket: polling and failed saves leave them alone. */
   const [notes, setNotes] = useState<Record<string, string>>({});
 
   const tickets = state.status === "ready" ? state.tickets : [];
   const { open, finished } = sortTickets(tickets);
   const selected = tickets.find((ticket) => ticket.id === selectedId) ?? null;
+  const categories = state.status === "ready" ? state.categories : [];
+  const categoriesById = new Map(categories.map((category) => [category.id, category]));
+  // Open tickets stand out; finished ones stay on the map, smaller.
+  const points: MapPoint[] = tickets.map((ticket) => ({
+    id: ticket.id,
+    categoryId: ticket.incident.categoryId,
+    location: ticket.incident.location,
+    weight: isOpen(ticket) ? 0.8 : 0.4,
+  }));
+
+  useEffect(() => {
+    const element = mapAreaRef.current;
+    if (!element) return;
+    const observer = new ResizeObserver(([entry]) => setMapHeight(entry.contentRect.height));
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  // Escape closes the detail panel.
+  useEffect(() => {
+    if (!selectedId) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSelectedId(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedId]);
+
+  function flyTo(location: { lat: number; lng: number }, zoom = 16) {
+    setFocus((previous) => ({ key: (previous?.key ?? 0) + 1, lng: location.lng, lat: location.lat, zoom }));
+  }
+
+  function select(ticket: InstitutionTicket) {
+    setSelectedId(ticket.id);
+    setMobileView("map");
+    flyTo(ticket.incident.location);
+  }
 
   async function handleUpdate(ticket: InstitutionTicket, update: TicketUpdate): Promise<boolean> {
     try {
@@ -67,7 +125,7 @@ export function InstitutionInbox({ onSessionLost, onSignOut }: InstitutionInboxP
         <ul className="flex flex-col">
           {items.map((ticket) => (
             <li key={ticket.id}>
-              <TicketRow ticket={ticket} selected={ticket.id === selectedId} now={now} onSelect={() => setSelectedId(ticket.id)} />
+              <TicketRow ticket={ticket} selected={ticket.id === selectedId} now={now} onSelect={() => select(ticket)} />
             </li>
           ))}
         </ul>
@@ -78,12 +136,21 @@ export function InstitutionInbox({ onSessionLost, onSignOut }: InstitutionInboxP
   );
 
   return (
-    <div className="flex h-dvh w-full overflow-hidden bg-background">
-      <aside aria-label="Assigned tickets" className={`${selected ? "hidden" : "flex"} w-full shrink-0 flex-col border-e border-border md:flex md:w-96`}>
+    <div className="flex h-dvh w-full overflow-hidden">
+      <aside
+        aria-label="Assigned tickets"
+        className={`${mobileView === "list" ? "flex" : "hidden"} w-full shrink-0 flex-col border-e border-border bg-background md:flex md:w-96`}
+      >
         <header className="flex flex-col gap-3 border-b border-border-muted px-4 pt-4 pb-3">
           <div className="flex items-center justify-between gap-2">
             <AppBrand variant="plain" product="Institution" />
-            {onSignOut && <Button variant="ghost" size="sm" onClick={onSignOut}>Sign out</Button>}
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" className="md:hidden" onClick={() => setMobileView("map")}>
+                <MapIcon data-icon="start" />
+                Map
+              </Button>
+              {onSignOut && <Button variant="ghost" size="sm" onClick={onSignOut}>Sign out</Button>}
+            </div>
           </div>
           {state.status === "ready" && (
             <p className="text-sm text-foreground">{state.profile.name}</p>
@@ -122,20 +189,47 @@ export function InstitutionInbox({ onSessionLost, onSignOut }: InstitutionInboxP
         )}
       </aside>
 
-      <div className={`${selected ? "block" : "hidden"} min-w-0 flex-1 overflow-y-auto bg-background-subtle md:block`}>
-        {selected ? (
+      <div ref={mapAreaRef} className={`${mobileView === "map" ? "block" : "hidden"} relative min-w-0 flex-1 overflow-hidden md:block`}>
+        <CityMapCanvas
+          points={points}
+          categoryIds={categories.map((category) => category.id)}
+          selectedIds={selected ? [selected.id] : []}
+          hoveredId={hoverId}
+          focus={focus}
+          insets={{ right: selected && isDesktop ? PANEL_INSET : 0, bottom: selected && !isDesktop ? mapHeight * 0.72 : 0 }}
+          interactive
+          onHover={(hover) => setHoverId(hover?.id ?? null)}
+          onSelect={setSelectedId}
+          attribution={state.status === "ready" ? DEMO_NOTICE : undefined}
+          tilted={tilted}
+          areas={[]}
+          heatmap={false}
+          initialView={INITIAL_VIEW}
+        />
+
+        <div className="absolute top-3 left-3 z-20 md:hidden">
+          <Button variant="outline" className="border-border-strong/50 bg-background shadow-xs" onClick={() => setMobileView("list")}>
+            <ArrowLeft data-icon="start" />
+            Tickets
+          </Button>
+        </div>
+
+        {/* Stays reachable: moves beside the panel on desktop, above the sheet on phones. */}
+        <div className={`absolute right-3 bottom-3 z-20 transition-[right,bottom] duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${selected ? "bottom-[calc(72dvh+0.75rem)] md:right-[26.25rem] md:bottom-3" : ""}`}>
+          <MapSettings tilted={tilted} onTiltedChange={setTilted} />
+        </div>
+
+        {selected && (
           <TicketDetail
             ticket={selected}
             now={now}
+            category={categoriesById.get(selected.incident.categoryId)}
             note={notes[selected.id] ?? ""}
             onNoteChange={(note) => setNotes((current) => ({ ...current, [selected.id]: note }))}
             onUpdate={(update) => handleUpdate(selected, update)}
-            onBack={() => setSelectedId(null)}
+            onLocate={() => flyTo(selected.incident.location, 17)}
+            onClose={() => setSelectedId(null)}
           />
-        ) : (
-          <p className="hidden h-full items-center justify-center px-6 text-sm text-foreground-muted md:flex">
-            Choose a ticket to see the request and update its progress.
-          </p>
         )}
       </div>
     </div>

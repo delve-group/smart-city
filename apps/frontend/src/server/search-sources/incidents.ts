@@ -6,14 +6,15 @@ import { findIncidentRow } from "@/server/incidents/incidents";
 import { publicSummary } from "@/server/incidents/public-templates";
 import { categoryLabel, findIssueType } from "@/server/reports/issue-types";
 import type { SearchHit, SearchSource } from "./types";
+import { searchText, searchTitle } from "./bounds";
 
 async function officialText(incidentId: string): Promise<string> {
   const reports = await getPool().query<{ reference: string; summary: string }>(
-    "SELECT reference, summary FROM reports WHERE incident_id = $1 ORDER BY submitted_at",
+    "SELECT reference, summary FROM reports WHERE incident_id = $1 ORDER BY submitted_at DESC, id DESC LIMIT 32",
     [incidentId],
   );
   const evidence = await getPool().query<{ label: string }>(
-    "SELECT label FROM incident_evidence WHERE incident_id = $1 AND removed_at IS NULL AND kind = 'observation'",
+    "SELECT label FROM incident_evidence WHERE incident_id = $1 AND removed_at IS NULL AND kind = 'observation' ORDER BY retrieved_at DESC, id DESC LIMIT 32",
     [incidentId],
   );
   return [
@@ -37,11 +38,11 @@ export async function getIncidentSearchSource(incidentId: string): Promise<Searc
     issue_type: row.issue_type,
     location: { lat: row.anchor_lat, lng: row.anchor_lng },
     projections: [
-      { audience: { kind: "public" }, title: `${row.reference} · ${row.title}`, text: `${summary}\n${classification}` },
+      { audience: { kind: "public" }, title: searchTitle(`${row.reference} · ${row.title}`), text: `${summary}\n${classification}` },
       {
         audience: { kind: "official" },
-        title: `${row.reference} · ${row.title}`,
-        text: [summary, classification, row.district, await officialText(row.id)].filter(Boolean).join("\n"),
+        title: searchTitle(`${row.reference} · ${row.title}`),
+        text: searchText([summary, classification, row.district, await officialText(row.id)].filter(Boolean).join("\n")),
       },
     ],
   };
@@ -65,7 +66,7 @@ export async function hydrateIncidentHit(ctx: ActorContext, incidentId: string):
   return {
     ref: { record_type: "incident", record_id: row.id },
     version: row.version,
-    title: `${row.reference} · ${row.title}`,
+    title: searchTitle(`${row.reference} · ${row.title}`),
     excerpt: publicSummary(row.issue_type, row.public_label, row.scope),
     category_id: row.category_id,
   };

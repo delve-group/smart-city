@@ -1,6 +1,6 @@
 import type { PoolClient } from "pg";
 
-export type WorkKind = "triage" | "index" | "execute";
+export type WorkKind = "triage" | "index" | "execute" | "assess";
 export type WorkSource = {
   type: "report" | "incident" | "service_ticket" | "action_proposal";
   id: string;

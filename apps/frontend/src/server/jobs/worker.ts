@@ -5,8 +5,9 @@ import { z } from "zod";
 import { claimWork, finishWork, renewWorkLease } from "./store";
 import type { ClaimedWork, WorkHandler, WorkKind, WorkResult } from "./types";
 
-// Separate from the migration advisory lock (736142000).
-const WORKER_LOCK = 736142001;
+// Separate from migration (736142000) and demo-seed (736142001) locks.
+// Stop the previous worker during the first upgrade from the old shared seed key.
+const WORKER_LOCK = 736142002;
 const resultSchema = z.discriminatedUnion("status", [
   z.object({ status: z.literal("done"), detail: z.string().max(300).optional() }).strict(),
   ...(["retry", "failed", "parked"] as const).map((status) =>
@@ -77,7 +78,7 @@ export async function runWorker(pool: Pool, options: WorkerOptions): Promise<voi
         ));
       }).finally(() => { heartbeatTask = undefined; });
     }, options.heartbeatMs);
-    console.info("Worker ready", { registered_kinds: kinds, missing_handlers: ["triage", "index", "execute"].filter((kind) => !kinds.includes(kind as WorkKind)) });
+    console.info("Worker ready", { registered_kinds: kinds, missing_handlers: ["triage", "index", "execute", "assess"].filter((kind) => !kinds.includes(kind as WorkKind)) });
 
     while (!options.signal.aborted) {
       const claimed = await Promise.race([claimWork(client, workerId, kinds, options.leaseMs), failure]);

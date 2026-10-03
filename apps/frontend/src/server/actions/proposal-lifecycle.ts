@@ -2,6 +2,8 @@ import "server-only";
 
 import { randomUUID } from "node:crypto";
 import type { PoolClient } from "pg";
+import { getDecisionProvider } from "@/server/agents/config";
+import { enqueueWork } from "@/server/jobs";
 
 /*
  * Rules that tie proposals to their incident. Kept free of other domain imports so the
@@ -59,6 +61,11 @@ function buildPayload(incident: IncidentFacts, evidenceCount: number): PayloadLi
   ];
 }
 
+export async function getProposalPayload(client: PoolClient, incidentId: string): Promise<PayloadLine[]> {
+  const incident = await loadFacts(client, incidentId);
+  return buildPayload(incident, (await currentEvidence(client, incidentId)).length);
+}
+
 /** An incident or payload change makes an undecided or unexecuted proposal stale. */
 export async function supersedeOpenProposals(client: PoolClient, incidentId: string): Promise<number> {
   const result = await client.query(
@@ -74,6 +81,7 @@ export interface NewProposal {
   explanation: string;
   payload?: PayloadLine[];
   evidence_ids?: string[];
+  assessment_key?: string;
 }
 
 /** Inserts an immutable pending proposal bound to the incident's current version. Creates no ticket. */
@@ -84,15 +92,15 @@ export async function insertProposal(client: PoolClient, incidentId: string, inp
   const inserted = await client.query<{ version: number }>(
     `INSERT INTO action_proposals
        (id, incident_id, version, incident_version, institution_id, action, payload, evidence_ids, explanation,
-        created_by, execution_key)
+        created_by, execution_key, assessment_key)
      VALUES ($1, $2, (SELECT coalesce(max(version), 0) + 1 FROM action_proposals WHERE incident_id = $2), $3, $4,
-             'create_service_ticket', $5, $6::uuid[], $7, $8, $9)
+             'create_service_ticket', $5, $6::uuid[], $7, $8, $9, $10)
      RETURNING version`,
     [
       id, incidentId, incident.version, input.institution_id,
       JSON.stringify(input.payload ?? buildPayload(incident, evidence.length)),
       input.evidence_ids ?? evidence.map((item) => item.id), input.explanation, input.created_by,
-      `execute:proposal:${id}`,
+      `execute:proposal:${id}`, input.assessment_key ?? null,
     ],
   );
   await client.query(
@@ -112,6 +120,21 @@ export async function afterIncidentChange(client: PoolClient, incidentId: string
   if (!options.propose) return;
 
   const incident = await loadFacts(client, incidentId);
+  if (getDecisionProvider() === "scaleway" && ["new", "triaged"].includes(incident.response_status)) {
+    const key = `assess:incident:${incident.id}:v${incident.version}`;
+    await enqueueWork(client, {
+      kind: "assess", source: { type: "incident", id: incident.id, version: incident.version },
+      idempotency_key: key, correlation_id: key,
+    });
+    await client.query(
+      `UPDATE incidents SET review_reason = CASE WHEN review_reason IN ('urgent', 'ticket_rejected')
+         THEN review_reason ELSE 'assessment_pending' END,
+         review_note = CASE WHEN review_reason IN ('urgent', 'ticket_rejected') THEN review_note
+           ELSE 'Decision assessment is queued. An official can review this incident at any time.' END,
+         review_since = coalesce(review_since, now()) WHERE id = $1`, [incident.id],
+    );
+    return;
+  }
   if (!incident.responsible_institution_id || !["new", "triaged"].includes(incident.response_status)) return;
   if (incident.review_reason === "ticket_rejected") return;
   const busy = await client.query(
