@@ -72,7 +72,7 @@ export function ReportReviewPanel({ report, workspace, category, now, onClose, o
   return (
     <FloatingPanel
       labelledBy="report-review-title"
-      header={<PanelHeader category={category} reference={report.reference} onCenter={() => onLocate(report.location)} onClose={onClose} />}
+      header={<PanelHeader category={category} onCenter={() => onLocate(report.location)} onClose={onClose} />}
     >
       <form onSubmit={handleSubmit} noValidate className="flex min-h-0 flex-1 flex-col">
         <ScrollArea className="min-h-0 flex-1">
@@ -96,10 +96,16 @@ export function ReportReviewPanel({ report, workspace, category, now, onClose, o
                     </span>
                   )}
                 </p>
-                <p className="flex items-center gap-1.5 text-xs text-foreground-muted">
-                  <ChannelIcon size={14} aria-hidden />
-                  {report.channel === "voice" ? "Voice" : "Form"} report · {formatAgo(report.submittedAt, now)}
-                  <Badge variant="outline" size="xs" className="ms-1">
+                <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-foreground-muted">
+                  <span className="font-mono">{report.reference}</span>
+                  <span aria-hidden>·</span>
+                  <span className="inline-flex items-center gap-1">
+                    <ChannelIcon size={14} aria-hidden />
+                    {report.channel === "voice" ? "Voice" : "Form"} report
+                  </span>
+                  <span aria-hidden>·</span>
+                  <span>{formatAgo(report.submittedAt, now)}</span>
+                  <Badge variant="outline" size="xs">
                     Private until reviewed
                   </Badge>
                 </p>
