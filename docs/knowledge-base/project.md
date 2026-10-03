@@ -27,4 +27,4 @@ Updated: 2026-10-03.
 
 ## Delivery status
 
-Done: agent rules, knowledge base, architecture, design system, HTML preview and a Next.js PoC — a full-screen heatmap of events in Kraków (MapLibre + OpenFreeMap) fed by a mock `/api/events` endpoint. Missing: backend, real events API and integration with city services.
+Done: agent rules, knowledge base, architecture, design system, HTML preview and a Next.js PoC — a full-screen map of events in Kraków (MapLibre + OpenFreeMap) with a heatmap, event points, search (events + places via Photon), hover tooltips and a detail panel, fed by a mock `/api/events` endpoint. Missing: backend, real events API and integration with city services.

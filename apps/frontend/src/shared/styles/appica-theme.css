@@ -90,6 +90,13 @@
   --focus-ring-warning: rgb(136 84 0 / 35%);
   --focus-ring-info: rgb(23 94 168 / 35%);
 
+  /* Event categories: map points, legends and labels. Always paired with a text label. */
+  --category-culture: #7445A0;
+  --category-sport: #176B45;
+  --category-community: #175EA8;
+  --category-traffic: #885400;
+  --category-safety: #B42335;
+
   --brand-accent: #C62842;
 
   --font-sans: Arial, Helvetica, sans-serif;
@@ -184,6 +191,12 @@
   --focus-ring-warning: rgb(255 209 118 / 50%);
   --focus-ring-info: rgb(120 219 240 / 50%);
 
+  --category-culture: #B79AFF;
+  --category-sport: #64DDB1;
+  --category-community: #78DBF0;
+  --category-traffic: #FFD176;
+  --category-safety: #FF8995;
+
   --brand-accent: #8652FF;
 
   --radius: 0.125rem;
@@ -193,4 +206,9 @@
 
 @theme inline {
   --color-brand-accent: var(--brand-accent);
+  --color-category-culture: var(--category-culture);
+  --color-category-sport: var(--category-sport);
+  --color-category-community: var(--category-community);
+  --color-category-traffic: var(--category-traffic);
+  --color-category-safety: var(--category-safety);
 }

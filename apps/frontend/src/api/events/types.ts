@@ -10,10 +10,21 @@ export const eventDtoSchema = z.object({
   title: z.string().min(1),
   category: z.enum(EVENT_CATEGORIES),
   starts_at: z.iso.datetime({ offset: true }),
+  ends_at: z.iso.datetime({ offset: true }),
+  venue: z.string().min(1),
+  address: z.string().min(1),
   lat: z.number().min(-90).max(90),
   lng: z.number().min(-180).max(180),
-  /** Expected number of participants. */
+  description: z.string(),
+  organizer: z.string(),
+  /** Expected number of participants; absent for reports and road works. */
   attendance: z.number().int().nonnegative().optional(),
+  /** Ticket price in PLN; 0 means free, absent means not applicable. */
+  price_pln: z.number().nonnegative().optional(),
+  tags: z.array(z.string()),
+  wheelchair_accessible: z.boolean().optional(),
+  /** Effect on traffic or public space, in plain language. */
+  impact: z.string().optional(),
 });
 
 export type EventDto = z.infer<typeof eventDtoSchema>;
@@ -32,8 +43,17 @@ export type CityEvent = {
   category: EventCategory;
   /** ISO 8601 with offset. */
   startsAt: string;
+  endsAt: string;
+  venue: string;
+  address: string;
   location: { lat: number; lng: number };
+  description: string;
+  organizer: string;
   attendance?: number;
+  pricePln?: number;
+  tags: string[];
+  wheelchairAccessible?: boolean;
+  impact?: string;
 };
 
 export type EventsResult = {

@@ -24,6 +24,6 @@ The app runs at http://localhost:3000. Checks in `apps/frontend`: `npm run lint`
 
 ## Status
 
-Proof of concept: a full-screen map of Kraków (MapLibre + OpenFreeMap) with a heatmap of events. Events come from the `/api/events` endpoint, which currently returns clearly labelled demo data. No backend and no integration with city services yet.
+Proof of concept: a full-screen map of Kraków (MapLibre + OpenFreeMap) with a heatmap of events. Search events and places (top left), zoom in to see individual events, hover for a preview and click for a detail panel with crowd, impact, details and nearby events. Events come from the `/api/events` endpoint, which currently returns clearly labelled demo data. No backend and no integration with city services yet.
 
 Themes: **Civic** — light, official (default); **Signal** — dark. The theme switcher was removed from the view; the theme mechanism remains in the code.

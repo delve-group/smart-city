@@ -50,9 +50,12 @@ Component index (fetch a component's `.md` page before using it for the first ti
 
 ## Map
 
-- Map: MapLibre GL (`react-map-gl/maplibre`) with free OpenFreeMap tiles, no API key. Only `features/event-heatmap/components/heatmap-map/heatmap-map.tsx` imports the map library; switching to Google Maps means a new implementation of that component with the same props.
+- Map: MapLibre GL (`react-map-gl/maplibre`) with free OpenFreeMap tiles, no API key. Only `features/event-map/components/event-map-canvas/event-map-canvas.tsx` imports the map library; switching to Google Maps means a new implementation of that component with the same props.
 - MapLibre 6 loads its worker as a separate module. `scripts/copy-maplibre-worker.mjs` copies it to `public/maplibre/` before `dev` and `build`; do not commit those files.
 - Mount heatmap layers conditionally instead of hiding them with `visibility: "none"` — a heatmap layer added while hidden does not draw once shown.
+- Use `offset`, not `padding`, in `flyTo`: MapLibre keeps padding for all later camera moves and tile loading, which leaves an empty strip after the panel closes.
+- Map layers need literal colours: read them from theme tokens at runtime (`utils/read-map-colors.ts`), never hard-code hex values.
+- Place search uses the public Photon instance (fair use, no key). Replace it with a self-hosted or commercial geocoder before real traffic.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

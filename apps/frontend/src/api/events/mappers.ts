@@ -6,8 +6,17 @@ export function mapEventDto(dto: EventDto): CityEvent {
     title: dto.title,
     category: dto.category,
     startsAt: dto.starts_at,
+    endsAt: dto.ends_at,
+    venue: dto.venue,
+    address: dto.address,
     location: { lat: dto.lat, lng: dto.lng },
+    description: dto.description,
+    organizer: dto.organizer,
     attendance: dto.attendance,
+    pricePln: dto.price_pln,
+    tags: dto.tags,
+    wheelchairAccessible: dto.wheelchair_accessible,
+    impact: dto.impact,
   };
 }
 
