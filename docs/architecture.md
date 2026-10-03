@@ -1,8 +1,8 @@
 # System architecture
 
-Status: proof of concept, 2026-10-03. The local PostgreSQL/authentication foundation is implemented; the map still uses its mock report backend.
+Status: proof of concept, 2026-10-03. PostgreSQL-backed authentication, report intake, deterministic triage, public incident APIs and the durable worker are implemented; the map still uses its mock report backend.
 
-The [voice and incident specification](../specs/001-voice-incident-response/spec.md) and [ElevenLabs technical plan](../specs/001-voice-incident-response/plan.md) define the next domain and data-flow changes. The baseline now includes durable identities/sessions and fictional institutions. Voice, persistent reports/incidents, actor workflows and approvals are not implemented yet.
+The [voice and incident specification](../specs/001-voice-incident-response/spec.md) and [ElevenLabs technical plan](../specs/001-voice-incident-response/plan.md) define the remaining domain and data-flow changes. Independent search and decision-provider adapters are available; voice, their workflow integration, official approvals and institution tickets remain unfinished.
 
 ## Direction
 
@@ -79,7 +79,7 @@ Form state stays local. Search and filter parameters go into the URL when a view
 
 The API layer maps external data to a small app model, validates the boundary and returns a clear result or error. Server modules validate writes, enforce permissions and hold secrets. The frontend is not a security boundary. The new authentication is not yet applied to the old public report fixtures; persistent report/incident work must use server sessions and migrate its callers as a complete slice.
 
-Report/incident/service-ticket retrieval follows the [Qdrant search guide](knowledge-base/qdrant-search.md) (D029, D037, D045). `server/search` implements scoped provider operations with local dense inference and Qdrant BM25/RRF. It returns IDs/version metadata, never hydrated user results. PostgreSQL remains authoritative; source synchronization, current permission/version hydration, HTTP/MCP routes and app/worker integration are pending. The independent `compose.search.yaml` initializes the provider and model cache without switching existing application routes.
+Report/incident/service-ticket retrieval follows the [Qdrant search guide](knowledge-base/qdrant-search.md) (D029, D037, D047). `server/search` implements scoped provider operations with local dense inference and Qdrant BM25/RRF. It returns IDs/version metadata, never hydrated user results. PostgreSQL remains authoritative; source synchronization, current permission/version hydration, HTTP/MCP routes and app/worker integration are pending. The independent `compose.search.yaml` initializes the provider and model cache without switching existing application routes.
 
 The [frontend–backend contract](api-contract.md) separates today's resident-report routes, the specified ElevenLabs voice-to-incident PoC, and later interfaces from the platform SPEC. The feature specification and plan govern the next implementation slice; public incident projections, private reports, official commands and institution tickets must not be collapsed into one record or route.
 
@@ -90,6 +90,8 @@ Docker Compose runs one Next.js web/API process, one worker from the same codeba
 Authentication routes call `server/auth/`; password hashing is independent of Next.js and reused by the seed script. PostgreSQL holds identities, hashed session tokens and login throttling. Thin HTTP handlers own cookies, origin checks and common response envelopes. Permission guards read role and institution from the database. The new liveness/readiness endpoints distinguish a running process from usable database migrations. See the [implemented API contract](api-contract.md#backend-foundation-implemented) for exact shapes.
 
 The [durable work module](../apps/frontend/src/server/jobs/README.md) implements the caller-transaction enqueue and typed triage/index/execute dispatch in workflow contract section 8. PostgreSQL stores work, leased attempts and a worker heartbeat. A session advisory lock limits the worker to one process; a per-source running constraint and fresh tokens protect claims and completion. Missing handlers park work without consuming attempts; transient handler failures get at most two retries. Delivery is at least once, so each domain handler owns business validation, version reconciliation and idempotent effects. Domain transactions can enqueue while the worker is unavailable, and provider calls stay outside source-write transactions. Report/incident schemas and handlers remain owned by their workflow slices.
+
+Resident intake lives in `server/reports/`: pure draft rules (`draft-rules.ts`, `contracts.ts`) apart from data access (`drafts.ts`, `submission.ts`, `reports.ts`). Submission locks the draft row and commits the report, the draft's submitted state, an audit event (`server/audit/`) and pending triage/index work (`server/jobs`, owned by the search/worker workstream) in one transaction. `server/search-sources/` exposes the per-audience text the search index may hold. Route handlers build an `ActorContext` from the session and pass strict, schema-validated bodies; unknown properties are rejected. Incidents live in `server/incidents/`: the grouping policy (`triage-policy.ts`), location keys (`geo.ts`) and public wording (`public-templates.ts`) are pure; `triage.ts` re-reads candidates and commits a decision under a per-issue advisory lock; `public.ts` builds the allowlisted public projection and contribution membership; `responsibility.ts` reads configured demo rules and `observations.ts` is a labelled fixture feed. Proposal and ticket tables arrive with their slice.
 
 ## Errors and states
 
