@@ -15,6 +15,7 @@ import { LocationPicker } from "@/features/report-issue/components/location-pick
 import { ReportFab } from "@/features/report-issue/components/report-fab/report-fab";
 import { ReportForm } from "@/features/report-issue/components/report-form/report-form";
 import { useIntakeDraft } from "@/features/report-issue/hooks/use-intake-draft";
+import { VoicePanel } from "@/features/voice/components/voice-panel/voice-panel";
 import { insideKrakow } from "@/shared/utils/krakow";
 import { AppBrand } from "@/shared/components/app-brand/app-brand";
 import { useI18n } from "@/shared/i18n/locale";
@@ -41,7 +42,7 @@ const PANEL_INSET = 412;
 type LatLng = { lat: number; lng: number };
 
 /** Browsing the map, placing the pin for a new report, or filling in the report. */
-type Mode = { kind: "browse" } | { kind: "picking" } | { kind: "form" };
+type Mode = { kind: "browse" } | { kind: "picking" } | { kind: "form" } | { kind: "voice" };
 
 export function CityMapView() {
   const { t } = useI18n();
@@ -171,6 +172,21 @@ export function CityMapView() {
     setMode({ kind: "browse" });
   }
 
+  async function startVoiceReport() {
+    const draft = await intake.start(true, "voice");
+    if (!draft) return;
+    startFreshReport.current = false;
+    setSelectedId(null); setHover(null);
+    setMode({ kind: "voice" });
+  }
+
+  async function resumeReport() {
+    const draft = await intake.start(false, "voice");
+    if (!draft) return;
+    setSelectedId(null); setHover(null);
+    setMode({ kind: draft.submission ? "form" : "voice" });
+  }
+
   async function handleContribution() {
     if (!selected) return;
     try {
@@ -186,7 +202,7 @@ export function CityMapView() {
   const selectedCategory = selected ? categoriesById.get(selected.category_id) : undefined;
   const hoveredCategory = hovered ? categoriesById.get(hovered.category_id) : undefined;
 
-  const sheetCoversMap = (mode.kind === "browse" && Boolean(selected)) || mode.kind === "form";
+  const sheetCoversMap = (mode.kind === "browse" && Boolean(selected)) || mode.kind === "form" || mode.kind === "voice";
 
   return (
     <div ref={containerRef} className="resident-map relative size-full overflow-hidden">
@@ -234,7 +250,8 @@ export function CityMapView() {
           />
         )}
         {ready && !selected && (
-          <ReportFab active={mode.kind !== "browse"} busy={intake.busy} onClick={() => mode.kind === "browse" && void startReport(true)} />
+          <ReportFab active={mode.kind !== "browse"} busy={intake.busy} onClick={() => mode.kind === "browse" && void startReport(true)} onVoice={() => void startVoiceReport()}
+            onResume={intake.draft && !intake.draft.submission && !intake.report ? () => void resumeReport() : undefined} />
         )}
       </div>
 
@@ -288,6 +305,9 @@ export function CityMapView() {
           onNew={() => void startReport(true)}
         />
       )}
+
+      {mode.kind === "voice" && <VoicePanel intake={intake} categories={categories} onClose={cancelReport}
+        onFallback={(draft) => setMode({ kind: draft && !draft.submission && !draft.fields.location ? "picking" : "form" })} />}
 
       {mode.kind === "browse" && ready && (
         // Stays reachable: moves beside the panel on desktop, above the sheet on phones.

@@ -1,6 +1,6 @@
 # Voice session and tool API
 
-Local implementation for #29; browser SDK wiring and spoken-conversation acceptance remain unfinished. Root Compose forwards the three optional server-only `ELEVENLABS_*` settings to the web application. After dependency or environment changes, rebuild/recreate the development app and apply migrations using the root startup commands. Migration `008_voice_sessions.sql` holds resident/draft reservations, provider conversation identity and the last actual location candidates. It stores no credential, audio or transcript.
+Local implementation for #29 includes the browser SDK panel and all five client-tool adapters. Full spoken-conversation acceptance remains unfinished. Root Compose forwards the three optional server-only `ELEVENLABS_*` settings to the web application. After dependency or environment changes, rebuild/recreate the development app and apply migrations using the root startup commands. Migration `008_voice_sessions.sql` holds resident/draft reservations, provider conversation identity and the last actual location candidates. It stores no credential, audio or transcript.
 
 All routes require the existing resident session and exact `APP_ORIGIN`; all responses use the common no-store envelope. Obtain/recover a guest and an owned draft through the existing intake API first. Staff sessions cannot obtain resident voice authority.
 
@@ -24,7 +24,7 @@ Errors preserve common authentication, origin, ownership, validation and revisio
 
 ## Local evidence — 2026-10-03
 
-Verified against Docker development app, PostgreSQL and real ElevenLabs private preparation agent; no WebRTC connection or microphone capture started.
+Verified against the Docker development app, PostgreSQL and the real ElevenLabs private agent. Backend checks below preceded the first live WebRTC connection; they are separate from spoken-conversation acceptance.
 
 - Applied migration 008. Two simultaneous starts by one guest yielded one `201` credential and one `429`; lease was 300 seconds, response was no-store and exposed only the documented fields. Five starts/end cycles succeeded; sixth was rejected with `voice_start_limit`.
 - No session: `401`; wrong Origin: `403`; another resident's draft/session/end: `404`. Agent injection, staff operation, arbitrary coordinates, invented candidate and unit without location: `400`. Malformed session UUID: `404`.
@@ -35,4 +35,12 @@ Verified against Docker development app, PostgreSQL and real ElevenLabs private 
 - Lint, typecheck and production build passed. Runtime-dependency audit reported zero vulnerabilities. No automated tests were added.
 - Explicit provider tool setup created/read back five reviewed client tools, repeat setup reused them and the checker verified the integrated private version. After loading that pin, the owned HTTP route minted and ended a credential. Agent settings/tool count are checked before issuance; this is still not a live WebRTC conversation.
 
-Still required: SDK/Appica UI, three real scripted voice conversations, microphone denial/stop/navigation/disconnect behavior, provider-side timeout/cleanup and elapsed retention, capacity/latency and final browser/deployed rehearsal. Provider tool definitions and the integrated immutable pin have been verified. API transport evidence must not be reported as voice acceptance or used to close #29/#35.
+## Browser panel and local review
+
+The reporting chooser opens either the existing form or a new empty voice draft. Continue unfinished report recovers the owned draft after refresh. The Appica panel offers start, mute, end, transient transcript, current server readback and form fallback. It displays a saved reference only after the backend committed it. Voice tools validate model arguments and reconcile unknown writes through the same owned draft; they never resubmit blindly. The installed React SDK control methods return void, so teardown awaits the actual conversation instance instead.
+
+- Reviewed the panel at 390 × 844 and 1440 × 900 in light and dark mode, including keyboard form fallback. Mock mode reports voice unavailable before touching the microphone.
+- With the local web key temporarily unset, the browser received the safe unavailable message, recovered the same draft after refresh and saved exactly one fictional form report, `R-26-001018`. PostgreSQL confirmed the same draft identity and unknown time/scope. Normal configuration was restored.
+- With the user's microphone approval, Chrome connected over real WebRTC, displayed the assistant greeting, recognized a spoken greeting and displayed its reply. Mute changed the panel status; ending restored the start button and Chrome removed its microphone-recording indicator. This proves live connection, speech recognition, playback and observed mute/end controls; no scripted report was committed through that conversation.
+
+Still required: three real scripted voice conversations, microphone denial/navigation/disconnect behavior, provider-side timeout/cleanup and elapsed retention, capacity/latency and final browser/deployed rehearsal. Provider tool definitions and the integrated immutable pin have been verified. API transport evidence must not be reported as voice acceptance or used to close #29/#35.
