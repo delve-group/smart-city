@@ -12,6 +12,7 @@ Updated: 2026-10-03.
 - Kraków has publicly published official map services (MSIP and GUGiK). The identified sources and pre-integration checks are described in the [geospatial data note](geospatial-data.md).
 - Product direction (2026-10-03): **residents report problems in the city** — power outages, broken street lights, burst pipes, potholes, broken lifts, illegal dumping, smoke from illegal burning — at a precise location. The map shows open reports by category, a heatmap of where problems cluster, and nearby related reports, so residents see what is already known and city services see patterns. This answers the task's "responding to failures and disruptions", "communication between residents and public institutions" and "using urban data to support decisions".
 - Every report belongs to exactly one category. Categories are defined by the API, not the frontend.
+- Voice/incident direction (2026-10-03): a report is one resident observation; an incident aggregates related reports and tracks the response. The proposed roles are dispatcher, decision-maker and institution, with official approval before external contact or ticket execution. Browser voice is the confirmed first channel; a phone number comes later. Government identity is a demo mock. Research, proposed tools and unresolved implementation choices are in the [discovery draft](../plans/2026-10-03-voice-incident-design.md).
 
 ## Working assumptions
 
@@ -22,10 +23,11 @@ Updated: 2026-10-03.
 ## To be decided
 
 - The single most important demo scenario for the jury (proposal: a street-light and power outage cluster in one district, reported by several residents and confirmed on the map).
-- The real events API: owner, format, authentication and limits.
-- Whether the demo needs persistence, a backend or live updates.
+- Voice provider and available account access; the draft recommends a short GPT-Live/ElevenLabs evaluation.
+- Institution responsibility data, service observations and ticket connector contracts; real access is not established.
+- Hosting and persistence selection, incident matching rules, public visibility and refresh behavior.
 - Deployment conditions and the team's concrete time constraints.
 
 ## Delivery status
 
-Done: agent rules, knowledge base, architecture, design system, HTML preview and a Next.js PoC — a full-screen map of events in Kraków (MapLibre + OpenFreeMap) with a heatmap of resident reports, category filter, search (reports + places via Photon), hover tooltips, a detail panel and a report flow (pin placement + form), "I'm affected too" confirmations, fed by a mock backend (`/api/categories`, `/api/reports`, in-memory store). Missing: backend, real events API and integration with city services.
+Done: agent rules, knowledge base, architecture, design system, HTML preview and a Next.js PoC — a full-screen map of resident reports in Kraków (MapLibre + OpenFreeMap) with a heatmap of resident reports, category filter, search (reports + places via Photon), hover tooltips, a detail panel and a report flow (pin placement + form), "I'm affected too" confirmations, fed by a mock backend (`/api/categories`, `/api/reports`, in-memory store). Voice and incident discovery is documented, not implemented. Missing: separate incidents, persistent storage, voice, actor tools, operator approvals, institution tickets, cross-screen updates and real city-service integrations.
