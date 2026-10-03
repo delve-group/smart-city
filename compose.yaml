@@ -9,7 +9,18 @@ x-application-environment: &application-environment
   PGPASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
   NEXT_TELEMETRY_DISABLED: "1"
 
+x-search-environment: &search-environment
+  QDRANT_URL: http://qdrant:6333
+  QDRANT_COLLECTION: ${QDRANT_COLLECTION:-mradar_records_v1}
+  SEARCH_MODEL_CACHE_DIR: /home/node/.cache/mradar-models
+
 services:
+  qdrant:
+    image: qdrant/qdrant:v1.19.1
+    volumes:
+      - search-index:/qdrant/storage
+    restart: unless-stopped
+
   db:
     image: postgres:17-bookworm
     environment:
@@ -46,11 +57,13 @@ services:
       context: ./apps/frontend
       target: production
     environment:
-      <<: *application-environment
+      <<: [*application-environment, *search-environment]
       NODE_ENV: production
       WORKER_POLL_MS: ${WORKER_POLL_MS:-1000}
       WORKER_LEASE_MS: ${WORKER_LEASE_MS:-30000}
       WORKER_HEARTBEAT_MS: ${WORKER_HEARTBEAT_MS:-5000}
+    volumes:
+      - search-models:/home/node/.cache/mradar-models
     # Run Node directly so the init process forwards SIGTERM to the worker.
     command: ["node", "--conditions=react-server", "--import", "tsx", "scripts/worker.ts"]
     depends_on:
@@ -71,8 +84,10 @@ services:
       context: ./apps/frontend
       target: production
     environment:
-      <<: *application-environment
+      <<: [*application-environment, *search-environment]
       NODE_ENV: production
+    volumes:
+      - search-models:/home/node/.cache/mradar-models
     ports:
       - "127.0.0.1:${APP_PORT:-3000}:3000"
     depends_on:
@@ -87,5 +102,23 @@ services:
     init: true
     restart: unless-stopped
 
+  search-setup:
+    profiles: [search-tools]
+    build:
+      context: ./apps/frontend
+      target: development
+    environment:
+      <<: [*application-environment, *search-environment]
+      NODE_ENV: production
+    volumes:
+      - search-models:/home/node/.cache/mradar-models
+    command: ["npm", "run", "search:setup"]
+    depends_on:
+      qdrant:
+        condition: service_started
+    restart: "no"
+
 volumes:
   postgres-data:
+  search-index:
+  search-models:

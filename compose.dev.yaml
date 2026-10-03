@@ -1,4 +1,10 @@
 services:
+  search-setup:
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./apps/frontend/src:/app/src
+      - ./apps/frontend/scripts:/app/scripts
   setup:
     environment:
       NODE_ENV: development

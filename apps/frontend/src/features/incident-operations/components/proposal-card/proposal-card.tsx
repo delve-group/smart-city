@@ -52,22 +52,17 @@ export function ProposalCard({ incident, institution, now, onDecide }: ProposalC
         </p>
       </header>
 
-      <div>
-        <p id="payload-label" className="mb-1.5 text-xs font-medium text-foreground-muted">
-          Sent exactly as shown
-        </p>
-        <dl
-          aria-labelledby="payload-label"
-          className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 rounded-md border border-border bg-background px-3 py-2.5 font-mono text-xs"
-        >
-          {proposal.payload.map((field) => (
-            <div key={field.key} className="contents">
-              <dt className="text-foreground-muted">{field.key}</dt>
-              <dd className="text-foreground-intense">{field.value}</dd>
-            </div>
-          ))}
-        </dl>
-      </div>
+      <dl
+        aria-label="Ticket contents, sent exactly as shown"
+        className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 rounded-md border border-border bg-background px-3 py-2.5 font-mono text-xs"
+      >
+        {proposal.payload.map((field) => (
+          <div key={field.key} className="contents">
+            <dt className="text-foreground-muted">{field.key}</dt>
+            <dd className="text-foreground-intense">{field.value}</dd>
+          </div>
+        ))}
+      </dl>
 
       <p className="text-sm text-pretty text-foreground-muted">{proposal.explanation}</p>
 
