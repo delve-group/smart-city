@@ -45,7 +45,7 @@
     },
     "design": {
       "seconds": 25,
-      "text": "Interfejs jest projektowany najpierw pod telefon: zdarzenie wysuwa się od dołu, a mapa zostaje widoczna. Kolor niesie znaczenie: osiem kategorii ma własne ikony i barwy, reszta jest neutralna. Na komputerze najechanie na punkt pokazuje kartę podglądu, a w panelu operatora mapa 3D podświetla budynki, których dotyczą zgłoszenia.\n\nAutomatyczny test axe-core (WCAG 2.2 AA) nie znalazł naruszeń w 32 stanach trzech ekranów, na telefonie i komputerze. Test automatyczny nie zastępuje sprawdzenia czytnikiem ekranu, którego nie raportujemy."
+      "text": "Kolor niesie znaczenie: osiem kategorii ma własne ikony i barwy, reszta jest neutralna. Wyszukiwarka zanim zaczniesz pisać pokazuje najczęściej zgłaszane problemy. Karta podglądu przy punkcie pokazuje status, miejsce i czas bez otwierania szczegółów, a w panelu operatora mapa 3D podświetla budynki, których dotyczą zgłoszenia.\n\nAutomatyczny test axe-core (WCAG 2.2 AA) nie znalazł naruszeń w 32 stanach trzech ekranów, na telefonie i komputerze. Test automatyczny nie zastępuje sprawdzenia czytnikiem ekranu, którego nie raportujemy."
     },
     "backend": {
       "seconds": 35,
