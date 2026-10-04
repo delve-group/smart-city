@@ -1075,7 +1075,7 @@ const pl: { [K in keyof typeof en]: string } = {
   "reviewLine.ticket_rejected": "Odrzucone przez instytucję",
   "reviewLine.needs_link": "Niepewne powiązanie",
   "reviewLine.private_scope": "Zgłoszenie tylko z mieszkania",
-  "reviewLine.pending_triage": "Triage się nie udał · oceń ręcznie",
+  "reviewLine.pending_triage": "Selekcja nie powiodła się · oceń ręcznie",
   "reviewLine.assessment_pending": "Ocena decyzji w kolejce",
   "reviewLine.assessment_review": "Ocena decyzji wymaga przeglądu",
 
@@ -1084,7 +1084,7 @@ const pl: { [K in keyof typeof en]: string } = {
   "reviewTitle.needs_responsibility": "Brak odpowiedzialnej instytucji",
   "reviewTitle.needs_link": "Do którego zdarzenia to należy?",
   "reviewTitle.private_scope": "Zgłoszenie tylko z mieszkania",
-  "reviewTitle.pending_triage": "Automatyczny triage się nie zakończył",
+  "reviewTitle.pending_triage": "Automatyczna selekcja się nie zakończyła",
   "reviewTitle.assessment_pending": "Ocena decyzji czeka w kolejce",
   "reviewTitle.assessment_review": "Ocena decyzji wymaga Twojego przeglądu",
 
