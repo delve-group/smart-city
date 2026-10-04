@@ -43,6 +43,10 @@ export function VoicePanelContent({ intake, categories, onLocate, onClose, onFal
     : listening ? t("voice.speakNow")
     : t("voice.unmuteToSpeak");
   const showNotice = !spoke && !connected && !waiting && !voice.errorCode && !saved;
+  // Two lines while talking: the assistant's latest reply, and below it what the resident last said.
+  const lastAgent = voice.messages.findLast((message) => message.role === "agent")?.text;
+  const lastUser = voice.messages.findLast((message) => message.role === "user")?.text;
+  const showTranscript = connected && !voice.errorCode && Boolean(lastAgent || lastUser);
 
   function toggleMic() {
     // Starting or unmuting both turn the mic on.
@@ -104,8 +108,15 @@ export function VoicePanelContent({ intake, categories, onLocate, onClose, onFal
         >
           {waiting ? <Spinner className="size-8" /> : listening ? <DeviceMicrophone className="size-8" /> : <DeviceMicrophoneOff className="size-8" />}
         </TooltipTrigger>
-        <TooltipContent side="top" sideOffset={12} className="max-w-72 text-center">
-          <span role="status" aria-live="polite" className="block">{hint}</span>
+        <TooltipContent side="top" sideOffset={12} className={showTranscript ? "w-[min(28rem,calc(100vw-2rem))] text-start" : "max-w-72 text-center"}>
+          {showTranscript ? (
+            <span role="log" aria-live="polite" className="flex flex-col gap-1.5">
+              {lastAgent && <span className="line-clamp-3">{lastAgent}</span>}
+              {lastUser && <span className="line-clamp-2 opacity-70">{t("voice.you")}: {lastUser}</span>}
+            </span>
+          ) : (
+            <span role="status" aria-live="polite" className="block">{hint}</span>
+          )}
           {showNotice && <span className="mt-1 block text-xs opacity-80">{t("voice.notice")}</span>}
         </TooltipContent>
       </Tooltip>
