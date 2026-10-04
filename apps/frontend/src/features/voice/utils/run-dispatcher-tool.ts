@@ -53,7 +53,7 @@ export async function runDispatcherTool(
         await receive(saved);
         return JSON.stringify({ error, current_draft: readback(saved),
           message: saved.submission ? "The report is already committed. Announce its actual reference; do not submit another report."
-            : "Operation failed. Read back the recovered current draft and obtain fresh agreement before submission. Do not blindly retry." });
+            : "Operation failed. Check this recovered current draft internally against the resident's facts and reporting intent. Follow the system prompt for agreement; do not read the full ticket aloud. Use the actual recovered revision/confirmation and reconcile submission identity before retrying. Do not blindly retry." });
       } catch { return JSON.stringify({ error: "outcome_unknown", message: "The outcome is unknown. Stop and use the form to recover this same draft before retrying. Do not announce success." }); }
     }
     if (operation === "resolve_location") previewLocation?.(null);
