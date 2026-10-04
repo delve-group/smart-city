@@ -11,7 +11,7 @@ import { PanelHeader } from "@/shared/components/panel-header/panel-header";
 import { translateAssessment, translatePayloadKey, useI18n } from "@/shared/i18n/locale";
 import type { MessageKey } from "@/shared/i18n/messages";
 import { formatAgo, formatDateTime } from "@/shared/utils/format-time";
-import { STATUS } from "../../utils/labels";
+import { STATUS, ticketSummary } from "../../utils/labels";
 import { TicketStatusForm } from "../ticket-status-form/ticket-status-form";
 
 type TicketDetailProps = {
@@ -40,7 +40,7 @@ export function TicketDetail({ ticket, now, note, category, onNoteChange, onUpda
         <div key={ticket.id} className="flex flex-col gap-5 px-5 pt-4 pb-6 transition-opacity duration-200 ease-out starting:opacity-0 motion-reduce:transition-none">
           <div className="flex flex-col gap-2">
             <h2 id="ticket-detail-title" ref={headingRef} tabIndex={-1} className="outline-none text-2xl leading-tight font-semibold tracking-tight text-balance text-foreground-intense">
-              {ticket.incident.summary}
+              {ticketSummary(t, ticket)}
             </h2>
             <p className="text-sm text-foreground-muted">
               {ticket.incident.locationLabel} · {t("inbox.cityIncident")} <span className="font-mono">{ticket.incident.reference}</span>

@@ -6,8 +6,8 @@ import type { WorkItem, WorkResult } from "@/server/jobs";
 import { triageReport } from "./triage";
 
 /**
- * `triage` work handler (workflow contracts §8). Deterministic and local: it needs neither the
- * search index nor a model, so their outage never blocks grouping or review.
+ * `triage` work handler (workflow contracts §8). AI classification is optional and bounded;
+ * provider failure leaves the persisted report visible for review. No search dependency.
  */
 export async function handleTriageWork(work: WorkItem): Promise<WorkResult> {
   if (work.source.type !== "report") return { status: "failed", reason: "Triage work must reference a report." };

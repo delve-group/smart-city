@@ -5,7 +5,7 @@ import { log, mockWorkspace, mutate, nowIso } from "./operations-store";
 import { INSTITUTIONS } from "./operations-seed";
 
 /**
- * MOCK inbox for `npm run dev:ui`, signed in as the Electricity Operator demo account. Tickets
+ * MOCK inbox for `npm run dev:ui`, signed in as the electricity service account. Tickets
  * are the ones in the mock operations store, so approving a proposal on /operations shows up here.
  */
 const INSTITUTION_ID = "demo-electricity";
@@ -79,10 +79,10 @@ export function updateMockTicket(ticketId: string, update: TicketUpdate): Instit
     if (update.status === "resolved") incident.response_status = "resolved";
     if (update.status === "rejected") {
       incident.response_status = "triaged";
-      incident.review = { reason: "ticket_rejected", note: `${name}: “${update.note ?? "Rejected without a note."}”`, since: nowIso() };
+      incident.review = { reason: "ticket_rejected", note: `${name}: “${update.note ?? "Odrzucono bez komentarza."}”`, since: nowIso() };
     }
     incident.version += 1;
-    const action = { acknowledged: "Acknowledged ticket", in_progress: "Started work", resolved: "Resolved ticket", rejected: "Rejected ticket" }[update.status];
+    const action = { acknowledged: "Przyjęto zlecenie", in_progress: "Rozpoczęto prace", resolved: "Rozwiązano zlecenie", rejected: "Odrzucono zlecenie" }[update.status];
     log(state, incident, name, action, update.note ?? null);
     result = toDto(incident, ticket);
   });

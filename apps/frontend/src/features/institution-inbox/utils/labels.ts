@@ -1,5 +1,7 @@
 import type { InstitutionTicket, TicketStatus } from "@/api/institution/types";
 import { matchesQuery } from "@/shared/utils/normalize-text";
+import type { Translator } from "@/shared/i18n/locale";
+import { localizedSummary } from "@/shared/utils/incident-summary";
 
 type BadgeVariant = "secondary" | "outline" | "success" | "warning" | "error" | "soft";
 
@@ -35,6 +37,8 @@ export function filterTickets(
   query: string,
   categoryIds: ReadonlySet<string> | null,
   categoryLabel: (categoryId: string) => string | undefined,
+  /** The summary as shown, so a search in the chosen language finds it. */
+  summaryOf: (ticket: InstitutionTicket) => string = (ticket) => ticket.incident.summary,
 ): InstitutionTicket[] {
   return tickets.filter(
     (ticket) =>
@@ -43,6 +47,7 @@ export function filterTickets(
         [
           ticket.reference,
           ticket.incident.reference,
+          summaryOf(ticket),
           ticket.incident.summary,
           ticket.incident.locationLabel,
           categoryLabel(ticket.incident.categoryId),
@@ -51,4 +56,10 @@ export function filterTickets(
         query,
       ),
   );
+}
+
+/** The ticket's incident summary in the chosen language. */
+export function ticketSummary(t: Translator, ticket: InstitutionTicket): string {
+  const { issueType, locationLabel, precision, summary } = ticket.incident;
+  return localizedSummary(t, { issueType, place: locationLabel, precision, fallback: summary });
 }

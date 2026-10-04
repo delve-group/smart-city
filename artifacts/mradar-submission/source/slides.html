@@ -3,86 +3,138 @@
   <div class="fade"></div>
   <div class="bleed" data-allow-overflow><div class="glow" style="--c:rgba(244,63,94,.28); width:700px; height:700px; left:-200px; top:420px"></div></div>
   <div class="copy">
-    <img class="mark" src="assets/mradar-mark.svg" alt="mRadar logo">
+    <img class="mark" src="assets/mradar-mark.svg" alt="Logo mRadar">
     <h1 data-key="cover-title">mRadar</h1>
-    <p class="tagline" data-key="cover-tagline">The city, listening.</p>
-    <p class="lead" data-key="cover-lead">Residents report what's broken. Officials see the whole picture. Institutions fix it. All on one live map of Kraków.</p>
+    <p class="tagline" data-key="cover-tagline">Miasto, które słucha.</p>
+    <p class="lead" data-key="cover-lead">Mieszkańcy zgłaszają, co nie działa — formularzem albo głosem. Urzędnicy widzą pełny obraz. Instytucje naprawiają. Wszystko na jednej żywej mapie Krakowa.</p>
   </div>
-  <p class="foot" data-key="cover-foot">HackYeah 2026 · Open Task: Smart City</p>
+  <p class="foot" data-key="cover-foot">HackYeah 2026 · Zadanie otwarte: Smart City</p>
 </section>
 
 <section class="slide" id="problem">
   <div class="bleed" data-allow-overflow><div class="glow" style="--c:rgba(244,63,94,.16); width:900px; height:500px; left:520px; top:560px"></div></div>
   <div class="copy">
-    <h2 class="display" data-key="problem-title">One broken street light.<br>Forty phone calls.</h2>
-    <h2 class="display hl" data-key="problem-turn">Or none at all.</h2>
+    <h2 class="display" data-key="problem-title">Jedna zepsuta latarnia.<br>Czterdzieści telefonów.</h2>
+    <h2 class="display hl" data-key="problem-turn">Albo żaden.</h2>
     <div class="three">
-      <p class="lead" data-key="problem-residents"><strong>Residents</strong> can't see what's already been reported, so they report it again — or give up.</p>
-      <p class="lead" data-key="problem-officials"><strong>City officials</strong> sort duplicates by hand and guess who's responsible.</p>
-      <p class="lead" data-key="problem-institutions"><strong>Institutions</strong> hear about it last, and nobody hears back from them.</p>
+      <p class="lead" data-key="problem-residents"><strong>Mieszkańcy</strong> nie widzą, co już zgłoszono, więc zgłaszają to samo jeszcze raz — albo rezygnują.</p>
+      <p class="lead" data-key="problem-officials"><strong>Urzędnicy</strong> ręcznie łączą duplikaty i zgadują, kto odpowiada za naprawę.</p>
+      <p class="lead" data-key="problem-institutions"><strong>Instytucje</strong> dowiadują się ostatnie, a mieszkańcy nie słyszą, co dalej.</p>
     </div>
   </div>
 </section>
 
 <section class="slide" id="loop">
-  <h2 class="title loop-title" data-key="loop-title">One loop. Three screens.</h2>
-  <p class="loop-lead" data-key="loop-lead">Each screen hands its work to the next, and every step comes back to the map.</p>
+  <h2 class="title loop-title" data-key="loop-title">Jedna pętla. Trzy ekrany.</h2>
+  <p class="loop-lead" data-key="loop-lead">Każdy ekran przekazuje pracę następnemu, a każdy krok wraca na mapę mieszkańca.</p>
   <svg class="loop-path" viewBox="0 0 1920 1080" aria-hidden="true">
     <defs><marker id="arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#fb7185"/></marker></defs>
     <circle cx="622" cy="560" r="6" fill="#fb7185"/><path d="M630 560H708" marker-end="url(#arrow)"/>
     <circle cx="1222" cy="560" r="6" fill="#fb7185"/><path d="M1230 560H1308" marker-end="url(#arrow)"/>
-    <path d="M1560 972V1004Q1560 1020 1544 1020H376Q360 1020 360 1004V980" marker-end="url(#arrow)"/>
+    <path d="M1560 975V1004Q1560 1020 1544 1020H376Q360 1020 360 1004V980" marker-end="url(#arrow)"/>
   </svg>
-  <p class="loop-return" data-key="loop-return">Every update shows on the resident's map</p>
-  <figure class="frag" style="left:120px; top:360px"><img src="assets/frag-resident.jpg" alt="Create a report form: location, category and what is wrong"></figure>
-  <figure class="frag" style="left:720px; top:298px"><img src="assets/frag-official.jpg" alt="Drafted service ticket for the Electricity Operator, with Approve and send"></figure>
-  <figure class="frag" style="left:1320px; top:259px"><img src="assets/frag-institution.jpg" alt="Institution inbox: request from the city and Acknowledge"></figure>
-  <div class="step-label" style="left:120px"><h3 data-key="loop-1-title">Residents report it</h3><p data-key="loop-1-body">Pin, category, severity. No account needed.</p></div>
-  <div class="step-label" style="left:720px"><h3 data-key="loop-2-title">The city approves it</h3><p data-key="loop-2-body">Related reports become one incident with a drafted ticket. A person sends it.</p></div>
-  <div class="step-label" style="left:1320px"><h3 data-key="loop-3-title">The utility fixes it</h3><p data-key="loop-3-body">Acknowledge, start work, resolve.</p></div>
+  <p class="loop-return" data-key="loop-return">Każda zmiana statusu pojawia się na mapie mieszkańca</p>
+  <figure class="frag" style="left:120px"><img src="assets/pl-phone-form.jpg" alt="Formularz nowego zgłoszenia: miejsce, kategoria i opis problemu" style="margin-top:-292px"></figure>
+  <figure class="frag" style="left:720px"><img src="assets/pl-frag-official.jpg" alt="Przygotowane zlecenie dla pogotowia energetycznego z przyciskiem Zatwierdź i wyślij"></figure>
+  <figure class="frag" style="left:1320px"><img src="assets/pl-frag-institution.jpg" alt="Skrzynka instytucji: wniosek miasta i następny krok"></figure>
+  <div class="step-label" style="left:120px"><h3 data-key="loop-1-title">Mieszkaniec zgłasza</h3><p data-key="loop-1-body">Pinezka, kategoria, pilność — albo rozmowa głosowa. Bez zakładania konta.</p></div>
+  <div class="step-label" style="left:720px"><h3 data-key="loop-2-title">Miasto zatwierdza</h3><p data-key="loop-2-body">Powiązane zgłoszenia tworzą jedno zdarzenie z gotowym zleceniem. Wysyła je człowiek.</p></div>
+  <div class="step-label" style="left:1320px"><h3 data-key="loop-3-title">Służba naprawia</h3><p data-key="loop-3-body">Przyjmuje zlecenie, rozpoczyna prace, oznacza jako rozwiązane.</p></div>
 </section>
 
 <section class="slide" id="residents">
   <div class="bleed" data-allow-overflow><div class="glow" style="--c:rgba(244,63,94,.18); width:1200px; height:600px; left:360px; top:520px"></div></div>
   <div class="split-head">
-    <h2 class="title" data-key="residents-title">See what the city already knows.</h2>
+    <h2 class="title" data-key="residents-title">Zobacz, co miasto już wie.</h2>
+    <p class="url mono" data-key="residents-url">mradar.delvengine.com</p>
   </div>
-  <p class="lead split-lead" data-key="residents-lead">A live heatmap shows where problems cluster. Zoom in and every report snaps to the building or road it's about. <strong>Already reported? Tap “I'm affected too.”</strong></p>
-  <div class="bleed" data-allow-overflow><div class="monitor" style="left:67px; top:414px; width:1785px"><div class="screen"><img src="assets/home-report-light.jpg" alt="Resident map with a report open: impact, I'm affected too, and progress"></div><img class="frame" src="assets/imac-silver.webp" alt=""></div></div>
+  <p class="lead split-lead sm" data-key="residents-lead">Mapa ciepła pokazuje, gdzie skupiają się problemy, a każde zdarzenie ma swój postęp: zgłoszone, potwierdzone, w trakcie, rozwiązane. Wyszukiwarka rozumie znaczenie, nie tylko słowa. <strong>Już zgłoszone? „Też mam ten problem” liczy się raz na osobę — zamiast duplikatu.</strong></p>
+  <div class="bleed" data-allow-overflow><div class="monitor" style="left:67px; top:414px; width:1785px"><div class="screen"><img src="assets/pl-home-incident.jpg" alt="Mapa mieszkańca z otwartym zdarzeniem: liczba mieszkańców, pilność, przycisk Też mam ten problem i postęp"></div><img class="frame" src="assets/imac-silver.webp" alt=""></div></div>
+</section>
+
+<section class="slide" id="voice">
+  <div class="bleed" data-allow-overflow><div class="glow" style="--c:rgba(244,63,94,.24); width:900px; height:900px; left:1060px; top:120px"></div></div>
+  <div class="copy">
+    <h2 class="title" data-key="voice-title">Albo po prostu powiedz.</h2>
+    <p class="lead" data-key="voice-lead">Jeden przycisk mikrofonu na dole mapy. Asystent rozumie polski, pyta o brakujące szczegóły i sam wypełnia zgłoszenie.</p>
+    <div class="points">
+      <p class="lead sm" data-key="voice-1"><strong>Gdzie dokładnie?</strong> Adres, który podasz, od razu pojawia się na mapie. Rozpoznaje też nazwy miejsc, np. „przy Tauron Arenie”.</p>
+      <p class="lead sm" data-key="voice-2"><strong>Czy ktoś już to zgłosił?</strong> Asystent sprawdza istniejące zdarzenia, zanim utworzy nowe.</p>
+      <p class="lead sm" data-key="voice-3"><strong>Nic bez Twojej zgody.</strong> Odczytuje zgłoszenie i zapisuje je dopiero po wyraźnym „tak”.</p>
+      <p class="lead sm" data-key="voice-4"><strong>Wolisz pisać?</strong> „Kontynuuj” przenosi ten sam szkic do formularza.</p>
+    </div>
+  </div>
+  <div class="bleed" data-allow-overflow><div class="iphone" style="left:1390px; top:110px; width:420px"><div class="screen"><img src="assets/pl-voice-phone.jpg" alt="Zgłaszanie głosowe na telefonie: duży przycisk mikrofonu i podpowiedź Włącz mikrofon, aby mówić"></div><img class="frame" src="assets/iphone-silver.webp" alt=""></div></div>
+</section>
+
+<section class="slide" id="voiceflow">
+  <h2 class="title vf-title" data-key="vf-title">Jak działa rozmowa z ElevenLabs</h2>
+  <p class="lead sm vf-lead" data-key="vf-lead">Głos płynie bezpośrednio między przeglądarką a agentem ElevenLabs. Agent nie ma dostępu do bazy — może tylko poprosić przeglądarkę o jedno z pięciu narzędzi mRadar, przypisanych do szkicu tego mieszkańca.</p>
+  <div class="node" style="left:120px"><h3 data-key="vf-node-1">Serwer mRadar</h3><p data-key="vf-node-1-sub">API, sesje, szkice zgłoszeń, PostgreSQL</p></div>
+  <div class="node hot" style="left:740px"><h3 data-key="vf-node-2">Przeglądarka</h3><p data-key="vf-node-2-sub">Mikrofon, mapa, SDK ElevenLabs</p></div>
+  <div class="node" style="left:1360px"><h3 data-key="vf-node-3">Agent ElevenLabs</h3><p data-key="vf-node-3-sub">Polski głos, model GPT-6.1 Sol</p></div>
+  <svg class="vf-arrows" viewBox="0 0 1920 1080" aria-hidden="true">
+    <defs><marker id="vfa" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#fb7185"/></marker></defs>
+    <path d="M572 376H728" marker-end="url(#vfa)"/><path d="M728 456H572" marker-end="url(#vfa)"/>
+    <path d="M1192 376H1348" marker-end="url(#vfa)"/><path d="M1348 456H1192" marker-end="url(#vfa)"/>
+  </svg>
+  <span class="badge" style="left:632px; top:340px">1</span><span class="badge" style="left:632px; top:420px">4</span>
+  <span class="badge" style="left:1252px; top:340px">2</span><span class="badge" style="left:1252px; top:420px">3</span>
+  <ol class="vf-steps">
+    <li data-key="vf-step-1"><span>1</span>Serwer wydaje jednorazowy token połączenia dla przypiętej wersji agenta. Klucz API nie opuszcza serwera.</li>
+    <li data-key="vf-step-2"><span>2</span>Przeglądarka łączy się z agentem przez WebRTC i rozmawia głosem w obie strony.</li>
+    <li data-key="vf-step-3"><span>3</span>Agent prosi przeglądarkę o wywołanie narzędzia, np. „znajdź adres”.</li>
+    <li data-key="vf-step-4"><span>4</span>Przeglądarka wywołuje narzędzie w API mRadar, które sprawdza sesję, właściciela szkicu i jego wersję.</li>
+  </ol>
+  <div class="tools">
+    <span class="tools-label" data-key="vf-tools">Pięć narzędzi agenta</span>
+    <span class="tool"><b class="mono">resolve_location</b> znajdź adres</span>
+    <span class="tool"><b class="mono">find_incidents</b> sprawdź zdarzenia</span>
+    <span class="tool"><b class="mono">prepare_report</b> uzupełnij szkic</span>
+    <span class="tool"><b class="mono">confirm_report_draft</b> potwierdź</span>
+    <span class="tool"><b class="mono">submit_report</b> wyślij</span>
+  </div>
+  <div class="guarantees">
+    <p data-key="vf-g-1"><strong>Prywatność.</strong> Bez nagrywania dźwięku, transkrypcja u dostawcy przez 1 dzień.</p>
+    <p data-key="vf-g-2"><strong>Limity.</strong> Rozmowa do 5 minut, jedna naraz, 5 startów na 10 minut.</p>
+    <p data-key="vf-g-3"><strong>Odporność.</strong> Gdy głos zawiedzie, ten sam szkic czeka w formularzu.</p>
+  </div>
 </section>
 
 <section class="slide" id="reporting">
   <div class="bleed" data-allow-overflow><div class="glow" style="--c:rgba(244,63,94,.22); width:800px; height:800px; left:1100px; top:200px"></div></div>
   <div class="copy">
-    <h2 class="title" data-key="reporting-title">Three steps.<br>No account.</h2>
+    <h2 class="title" data-key="reporting-title">Albo formularz.<br>Trzy kroki, bez konta.</h2>
     <div class="steps">
-      <div class="step"><span class="n">1</span><p class="lead" data-key="reporting-1"><strong>Drop the pin.</strong> Move the map until it sits on the exact spot, or use your location.</p></div>
-      <div class="step"><span class="n">2</span><p class="lead" data-key="reporting-2"><strong>Say what's wrong.</strong> Pick one of eight categories and how serious it is.</p></div>
-      <div class="step"><span class="n">3</span><p class="lead" data-key="reporting-3"><strong>Send.</strong> Your report joins the map and you can follow every step of the fix.</p></div>
+      <div class="step"><span class="n">1</span><p class="lead" data-key="reporting-1"><strong>Wskaż miejsce.</strong> Przesuń mapę, aż pinezka trafi w dokładny punkt, albo użyj swojej lokalizacji.</p></div>
+      <div class="step"><span class="n">2</span><p class="lead" data-key="reporting-2"><strong>Opisz problem.</strong> Wybierz jedną z ośmiu kategorii i określ, jak bardzo jest pilny.</p></div>
+      <div class="step"><span class="n">3</span><p class="lead" data-key="reporting-3"><strong>Wyślij.</strong> Zgłoszenie trafia do miasta, a jego postęp widzisz na mapie.</p></div>
     </div>
   </div>
-  <div class="bleed" data-allow-overflow><img class="shot" src="assets/crop-form-dark.jpg" alt="Create a report form: location, category, description and severity" style="left:1000px; top:130px; width:560px; height:1365px"></div>
-  <div class="bleed" data-allow-overflow><div class="iphone" style="left:1400px; top:230px; width:440px"><div class="screen"><img src="assets/phone-report-dark.jpg" alt="A report on a phone, in dark mode"></div><img class="frame" src="assets/iphone-silver.webp" alt=""></div></div>
+  <div class="bleed" data-allow-overflow><div class="iphone" style="left:1010px; top:150px; width:380px"><div class="screen"><img src="assets/pl-phone-pin.jpg" alt="Wybór miejsca pinezką na telefonie"></div><img class="frame" src="assets/iphone-silver.webp" alt=""></div></div>
+  <div class="bleed" data-allow-overflow><div class="iphone" style="left:1430px; top:110px; width:380px"><div class="screen"><img src="assets/pl-phone-form.jpg" alt="Formularz nowego zgłoszenia na telefonie"></div><img class="frame" src="assets/iphone-silver.webp" alt=""></div></div>
 </section>
 
 <section class="slide" id="operations">
-  <div class="bleed" data-allow-overflow><div class="monitor" style="left:67px; top:414px; width:1785px"><div class="screen"><img src="assets/ops-incident-dark.jpg" alt="Operator workspace: review queue, incident area on the map and a drafted service ticket"></div><img class="frame" src="assets/imac-silver.webp" alt=""></div></div>
+  <div class="bleed" data-allow-overflow><div class="monitor" style="left:67px; top:414px; width:1785px"><div class="screen"><img src="assets/pl-ops-incident.jpg" alt="Panel operatora: kolejka do przeglądu, obszar zdarzenia na mapie i przygotowane zlecenie"></div><img class="frame" src="assets/imac-silver.webp" alt=""></div></div>
   <div class="bleed" data-allow-overflow><div class="glow" style="--c:rgba(245,184,61,.14); width:900px; height:400px; left:500px; top:300px"></div></div>
   <div class="split-head">
-    <h2 class="title" data-key="operations-title">Many reports.<br>One incident.</h2>
+    <h2 class="title" data-key="operations-title">Wiele zgłoszeń.<br>Jedno zdarzenie.</h2>
+    <p class="url mono" data-key="operations-url">/operations</p>
   </div>
-  <p class="lead split-lead" data-key="operations-lead">Reports close in place and time are grouped. An agent drafts the ticket with its evidence. <strong>A person approves before anything is sent.</strong></p>
+  <p class="lead split-lead sm" data-key="operations-lead">Zgłoszenia bliskie w miejscu i czasie łączą się w jedno zdarzenie. Model AI (Qwen na Scaleway) przygotowuje zlecenie dla właściwej służby i cytuje tylko zapisane dowody. <strong>Nic nie wychodzi z urzędu, dopóki człowiek nie zatwierdzi dokładnie tego, co widzi.</strong></p>
 </section>
 
 <section class="slide" id="review">
   <div class="bleed" data-allow-overflow><div class="glow" style="--c:rgba(122,174,232,.2); width:700px; height:700px; left:160px; top:300px"></div></div>
-  <img class="shot" src="assets/ops-review-light.jpg" alt="Report review: candidate incidents with distance, time and report count" style="left:120px; top:120px; width:860px; height:840px; object-position:100% 0">
+  <img class="shot" src="assets/pl-ops-review.jpg" alt="Przegląd zgłoszenia: zgłoszenie z jednego mieszkania i kandydat do powiązania z odległością i czasem" style="left:120px; top:120px; width:860px; height:840px; object-position:100% 0">
   <div class="copy">
-    <h2 class="title" data-key="review-title">Hard calls stay human.</h2>
+    <h2 class="title" data-key="review-title">Trudne decyzje zostają po stronie człowieka.</h2>
     <div class="points">
-      <p class="lead" data-key="review-1"><strong>Not sure it's the same problem?</strong> Compare the candidates side by side: how far, how long ago, how many reports.</p>
-      <p class="lead" data-key="review-2"><strong>Only inside one flat?</strong> Keep it private. It never reaches the public map.</p>
-      <p class="lead" data-key="review-3"><strong>Two people at once?</strong> Every decision carries the version it was made on. A stale view refreshes; it never overwrites.</p>
+      <p class="lead sm" data-key="review-1"><strong>Nie wiadomo, czy to ten sam problem?</strong> Panel pokazuje kandydatów obok siebie: jak daleko, jak dawno, ile zgłoszeń.</p>
+      <p class="lead sm" data-key="review-2"><strong>Problem tylko w jednym mieszkaniu?</strong> Zostaje prywatny i nigdy nie trafia na publiczną mapę.</p>
+      <p class="lead sm" data-key="review-3"><strong>Dwie osoby naraz?</strong> Każda decyzja niesie wersję, na której ją podjęto. Nieaktualny widok się odświeża — nigdy nie nadpisuje.</p>
+      <p class="lead sm" data-key="review-4"><strong>Pilne?</strong> Iskrzący kabel czy złamany konar trafiają na górę kolejki z przypomnieniem o numerze 112.</p>
     </div>
   </div>
 </section>
@@ -90,44 +142,54 @@
 <section class="slide" id="handoff">
   <div class="bleed" data-allow-overflow><div class="glow" style="--c:rgba(245,184,61,.14); width:1300px; height:500px; left:300px; top:600px"></div></div>
   <div class="copy">
-    <h2 class="title" data-key="handoff-title">Approved here. <span class="dim">Received there.</span></h2>
+    <h2 class="title" data-key="handoff-title">Zatwierdzone tutaj. <span class="dim">Odebrane tam.</span></h2>
+    <p class="lead sm handoff-lead" data-key="handoff-lead">Każda służba widzi tylko swoje zlecenia. Kolejne kroki — przyjęcie, rozpoczęcie prac, rozwiązanie — od razu aktualizują panel urzędnika i publiczną oś czasu.</p>
   </div>
-  <div class="crop" data-allow-overflow style="left:120px; top:400px; width:820px; height:540px"><img src="assets/ops-sent-light.jpg" alt="Operator view: ticket sent to the Electricity Operator"></div>
-  <div class="crop" data-allow-overflow style="left:980px; top:400px; width:820px; height:540px"><img src="assets/inst-ticket-dark.jpg" alt="Institution inbox: the same ticket, ready to acknowledge"></div>
-  <p class="caption" style="left:120px" data-key="handoff-left"><strong>Operator</strong> · ticket <span class="mono">ELE-26-0420</span> sent to the Electricity Operator</p>
-  <p class="caption" style="left:980px" data-key="handoff-right"><strong>Institution</strong> · same ticket, ready to acknowledge</p>
+  <div class="crop" data-allow-overflow style="left:120px; top:420px; width:820px; height:530px"><img src="assets/pl-ops-sent.jpg" alt="Panel operatora: zlecenie wysłane do pogotowia energetycznego, prace rozpoczęte"></div>
+  <div class="crop" data-allow-overflow style="left:980px; top:420px; width:820px; height:530px"><img src="assets/pl-inst-ticket.jpg" alt="Skrzynka instytucji: to samo zlecenie i następny krok"></div>
+  <p class="caption" style="left:120px" data-key="handoff-left"><strong>Urzędnik</strong> · <span class="mono">/operations</span> · zlecenie wysłane, prace rozpoczęte</p>
+  <p class="caption" style="left:980px" data-key="handoff-right"><strong>Instytucja</strong> · <span class="mono">/institution</span> · to samo zlecenie, następny krok</p>
 </section>
 
-<section class="slide" id="design">
-  <div class="copy">
-    <h2 class="title" data-key="design-title">Calm by default.<br><span class="dim">Colour only where it means something.</span></h2>
+<section class="slide" id="stack">
+  <h2 class="title stack-title" data-key="stack-title">Pod spodem</h2>
+  <p class="lead sm stack-lead" data-key="stack-lead">Jedna aplikacja i jeden worker na maszynie Scaleway. PostgreSQL jest źródłem prawdy; wszystko inne da się odbudować.</p>
+  <div class="cols">
+    <div class="col"><h3 data-key="stack-c1">W przeglądarce</h3>
+      <p data-key="stack-c1-1"><b class="mono">/</b> mapa mieszkańców</p>
+      <p data-key="stack-c1-2"><b class="mono">/operations</b> panel urzędnika</p>
+      <p data-key="stack-c1-3"><b class="mono">/institution</b> skrzynka instytucji</p>
+      <p class="dim" data-key="stack-c1-4">Next.js 16, React 19, Appica UI, MapLibre</p></div>
+    <div class="col hot"><h3 data-key="stack-c2">Na serwerze Scaleway</h3>
+      <p data-key="stack-c2-1"><b>Next.js</b> strony i API z sesjami per rola</p>
+      <p data-key="stack-c2-2"><b>Worker</b> grupowanie, indeksowanie, ocena AI, wysyłka zleceń</p>
+      <p data-key="stack-c2-3"><b>PostgreSQL</b> zgłoszenia, zdarzenia, zlecenia, historia</p>
+      <p data-key="stack-c2-4"><b>Qdrant</b> wyszukiwanie po znaczeniu, model E5 na CPU</p></div>
+    <div class="col"><h3 data-key="stack-c3">Usługi zewnętrzne</h3>
+      <p data-key="stack-c3-1"><b>ElevenLabs Agents</b> rozmowa głosowa</p>
+      <p data-key="stack-c3-2"><b>Scaleway Generative APIs</b> Qwen 3.6 ocenia zdarzenia</p>
+      <p data-key="stack-c3-3"><b>Photon</b> adresy z OpenStreetMap</p>
+      <p data-key="stack-c3-4"><b>OpenFreeMap</b> kafelki mapy</p></div>
   </div>
-  <div class="compare">
-    <img src="assets/home-light.jpg" alt="Resident heatmap in light mode">
-    <img class="dark" src="assets/home-dark.jpg" alt="Resident heatmap in dark mode">
-    <span class="tag light">Light</span>
-    <span class="tag night">Dark</span>
-  </div>
-  <div class="iphone" style="left:1430px; top:150px; width:400px"><div class="screen"><img src="assets/phone-review-dark.jpg" alt="Report review on a phone"></div><img class="frame" src="assets/iphone-silver.webp" alt=""></div>
-  <div class="legend">
-    <span style="--c:#F5B83D">Power</span><span style="--c:#7AAEE8">Water</span><span style="--c:#F48A5A">Roads</span><span style="--c:#4FC4B6">Transit</span>
-    <span style="--c:#B8C46A">Waste</span><span style="--c:#B49AE6">Accessibility</span><span style="--c:#6FCF86">Greenery</span><span style="--c:#C9A497">Air &amp; noise</span>
+  <div class="principles">
+    <p data-key="stack-p1"><strong>Bez duplikatów.</strong> Jedno zatwierdzenie to jedno zlecenie, nawet gdy wysyłka się powtórzy.</p>
+    <p data-key="stack-p2"><strong>Bez nadpisań.</strong> Każda zmiana niesie wersję; konflikt odświeża widok.</p>
+    <p data-key="stack-p3"><strong>Bez przecieków.</strong> Publiczna mapa dostaje tylko dozwolone pola, nigdy treść zgłoszeń.</p>
   </div>
 </section>
 
 <section class="slide" id="close">
   <div class="bleed" data-allow-overflow><div class="glow" style="--c:rgba(244,63,94,.2); width:1100px; height:700px; left:400px; top:-200px"></div></div>
   <div class="head">
-    <h2 class="title" data-key="close-title">Built at HackYeah. <span class="dim">Ready to try.</span></h2>
+    <h2 class="title" data-key="close-title">Zbudowane na HackYeah. <span class="dim">Sprawdź sam.</span></h2>
   </div>
-  <div class="pills">
-    <span class="pill" data-key="pill-next">Next.js 16 · React 19</span><span class="pill" data-key="pill-appica">Appica UI · Tailwind v4</span><span class="pill" data-key="pill-maplibre">MapLibre GL</span>
-    <span class="pill" data-key="pill-osm">OpenFreeMap · OpenStreetMap</span><span class="pill" data-key="pill-photon">Photon geocoding</span><span class="pill" data-key="pill-pg">PostgreSQL</span><span class="pill" data-key="pill-zod">Zod</span><span class="pill" data-key="pill-geist">Geist</span>
+  <div class="links">
+    <p data-key="close-link-1"><span class="mono">mradar.delvengine.com</span><span>mapa mieszkańców i zgłaszanie głosem</span></p>
+    <p data-key="close-link-2"><span class="mono">mradar.delvengine.com/operations</span><span>panel urzędnika</span></p>
+    <p data-key="close-link-3"><span class="mono">mradar.delvengine.com/institution</span><span>skrzynka instytucji</span></p>
   </div>
-  <div class="try">
-    <p class="cmd" data-key="close-cmd">cd apps/frontend &amp;&amp; npm run dev:ui</p>
-    <p class="repo" data-key="close-repo">github.com/delve-group/smart-city · all three screens on demo data</p>
-  </div>
+  <p class="note" data-key="close-note">Loginy i hasła do <span class="mono">/operations</span> i <span class="mono">/institution</span> są w załączonej notatce.</p>
+  <p class="repo mono" data-key="close-repo">github.com/delve-group/smart-city</p>
   <div class="sign"><img src="assets/mradar-mark.svg" alt=""><span data-key="close-sign">mRadar</span></div>
-  <p class="disclose" data-key="close-disclose">Built with the help of AI coding assistants. Institutions, reports and tickets shown are fictional demo data.</p>
+  <p class="disclose" data-key="close-disclose">Zbudowane z pomocą asystentów AI do programowania. Instytucje, zgłoszenia i zlecenia na mapie są fikcyjne.</p>
 </section>

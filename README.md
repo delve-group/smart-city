@@ -124,3 +124,12 @@ One neutral theme in light and dark mode; it follows the OS setting until toggle
 ### Optional decision assessment
 
 Local startup defaults to the labelled rule-based demo proposer. To process new incident changes with the real Scaleway model, set `DECISION_PROVIDER=scaleway` and the three `SCW_*` values documented in `.env.example`, then run `npm run dev` (or the deployment command on the server). Startup validates the variable names without printing values. The worker stores bounded attempts and proposals; the official must still approve the exact ticket payload. Existing seeded proposals are fixtures until their incident changes. Disabling the provider stops new automatic assessment requests; previously stored results remain available for replay and audit.
+
+The same provider setting enables classification of new saved form and voice reports.
+AI selects a specific category/issue from our catalog; configured responsibility rules
+then select a fictional institution, including the water service for sewer problems.
+Unclear observations or provider failures go to manual review. Specific non-power
+issues can start new incidents, but combining nearby reports still requires an official.
+Run database setup to apply the demo issue responsibility migration on existing installations.
+The migration requeues only unlinked reports stopped by the old power-only gate;
+other review items and human decisions remain for the official to handle.

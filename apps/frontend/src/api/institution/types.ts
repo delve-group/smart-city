@@ -46,7 +46,7 @@ export type InstitutionTicket = {
   status: TicketStatus;
   version: number;
   payload: { key: string; value: string }[];
-  incident: { id: string; reference: string; categoryId: string; summary: string; locationLabel: string; location: { lat: number; lng: number } };
+  incident: { id: string; reference: string; categoryId: string; summary: string; issueType: string; precision: "street" | "building"; locationLabel: string; location: { lat: number; lng: number } };
   expectedResolutionAt: string | null;
   resultNote: string | null;
   events: { status: TicketStatus; at: string; note: string | null }[];

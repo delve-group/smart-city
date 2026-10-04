@@ -19,9 +19,14 @@ async function seed(): Promise<void> {
       await client.query("SELECT pg_advisory_xact_lock(736142001)");
       await client.query(`
         INSERT INTO institutions (id, name, is_demo)
-        VALUES ('demo-electricity', 'Demo Electricity Service', true),
-               ('demo-water', 'Demo Water Service', true)
-        ON CONFLICT (id) DO NOTHING
+        VALUES ('demo-electricity', 'Pogotowie energetyczne', true),
+               ('demo-water', 'Służba wodociągowa', true),
+               ('demo-roads', 'Zarząd dróg', true),
+               ('demo-transit', 'Przewoźnik komunikacji miejskiej', true),
+               ('demo-waste', 'Służba oczyszczania miasta', true),
+               ('demo-greenery', 'Służba zieleni miejskiej', true),
+               ('demo-air', 'Służba ochrony środowiska', true)
+        ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name
       `);
       let created = 0;
       for (const account of accounts) {
@@ -49,7 +54,12 @@ async function seed(): Promise<void> {
         INSERT INTO responsibility_rules (id, category_id, issue_type, institution_id)
         VALUES ('demo-rule-power', 'power', NULL, 'demo-electricity'),
                ('demo-rule-water-outage', 'water', 'water_outage', 'demo-water'),
-               ('demo-rule-water-pipe', 'water', 'burst_pipe', 'demo-water')
+               ('demo-rule-water-pipe', 'water', 'burst_pipe', 'demo-water'),
+               ('demo-rule-roads', 'roads', NULL, 'demo-roads'),
+               ('demo-rule-accessibility', 'accessibility', NULL, 'demo-roads'),
+               ('demo-rule-transit', 'transit', NULL, 'demo-transit'),
+               ('demo-rule-waste', 'waste', NULL, 'demo-waste'),
+               ('demo-rule-greenery', 'greenery', NULL, 'demo-greenery')
         ON CONFLICT (id) DO NOTHING
       `);
       const fixtures = await seedDemoFixtures(client);
@@ -70,11 +80,11 @@ async function seed(): Promise<void> {
                  jsonb_build_array(
                    jsonb_build_object('key', 'Issue', 'value', r.title),
                    jsonb_build_object('key', 'Area', 'value', concat_ws(', ', r.public_label, r.district)),
-                   jsonb_build_object('key', 'Residents reporting', 'value', r.support_count || ' (demo identities, unverified)'),
+                   jsonb_build_object('key', 'Residents reporting', 'value', r.support_count::text),
                    jsonb_build_object('key', 'City assessment', 'value', r.assessment)),
                  ARRAY(SELECT e.id FROM incident_evidence e WHERE e.incident_id = r.id AND e.removed_at IS NULL AND e.state <> 'missing'),
-                 'Prepared from the configured demo responsibility rule, without a language model.',
-                 'Rule-based proposer (demo)', 'execute:proposal:' || r.proposal_id
+                 '',
+                 'Rule-based proposer', 'execute:proposal:' || r.proposal_id
           FROM ready r
           RETURNING incident_id
         )

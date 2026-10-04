@@ -1,47 +1,55 @@
 {
   "id": "mradar-hackyeah-2026-d941b1d5",
   "title": "mRadar — HackYeah 2026",
-  "lang": "en",
+  "lang": "pl",
   "notes": {
     "cover": {
       "seconds": 15,
-      "text": "Hi, we're the mRadar team. mRadar is one live map of Kraków where residents report what's broken, officials see the whole picture, and the responsible institution fixes it.\n\nEverything you'll see is running code, on fictional demo data."
+      "text": "mRadar to jedna żywa mapa Krakowa: mieszkańcy zgłaszają, co nie działa, urzędnicy widzą pełny obraz, a właściwa instytucja naprawia.\n\nWszystko, co widać, to działający kod na fikcyjnych danych."
     },
     "problem": {
-      "seconds": 30,
-      "text": "Today a single failure produces either a flood of duplicate calls or silence. Residents can't see what's already known, officials merge duplicates by hand and guess who's responsible, and institutions hear about it last — and nobody hears back.\n\nForty calls is an illustration, not a measured figure."
+      "seconds": 25,
+      "text": "Dziś jedna awaria kończy się albo lawiną zduplikowanych telefonów, albo ciszą. Mieszkańcy nie widzą, co już wiadomo, urzędnicy ręcznie łączą duplikaty i zgadują, kto odpowiada, a instytucje dowiadują się ostatnie.\n\n„Czterdzieści telefonów” to ilustracja, nie zmierzona liczba."
     },
     "loop": {
       "seconds": 25,
-      "text": "mRadar closes that loop with three screens that share one data model. Residents report, officials decide, institutions fix — and the status flows back to the resident's map."
+      "text": "mRadar zamyka tę pętlę trzema ekranami na jednym modelu danych. Mieszkaniec zgłasza, miasto decyduje, służba naprawia — a status wraca na mapę mieszkańca."
     },
     "residents": {
       "seconds": 30,
-      "text": "Residents first. The heatmap shows where problems cluster; at street level each report snaps to the building or road it's about. Before reporting, people see what's already known and can just say \"I'm affected too\", which strengthens the existing report instead of creating a duplicate. The progress tracker shows who is responsible."
+      "text": "Mapa mieszkańca pokazuje publiczne zdarzenia, nie surowe zgłoszenia: kilka zgłoszeń tej samej awarii to jedno zdarzenie z liczbą mieszkańców, pilnością i postępem. Zamiast zgłaszać ponownie, wystarczy „Też mam ten problem” — serwer liczy każdą osobę raz.\n\nWyszukiwarka łączy wyszukiwanie słów i znaczenia (Qdrant i wielojęzyczny model E5 uruchomiony na naszym serwerze), więc znajduje zdarzenia także przy innym sformułowaniu. Interfejs działa po polsku i angielsku."
+    },
+    "voice": {
+      "seconds": 30,
+      "text": "Zamiast formularza można po prostu powiedzieć, co się stało. Mikrofon jest na dole mapy; asystent mówi po polsku, dopytuje o miejsce i zakres, a adres od razu pokazuje na mapie.\n\nZgłoszenie jest zapisywane dopiero po odczytaniu i wyraźnej zgodzie. „Kontynuuj” przenosi ten sam szkic do formularza. Głos działa w wersji wdrożonej na Scaleway."
+    },
+    "voiceflow": {
+      "seconds": 35,
+      "text": "Najważniejsza decyzja: agent ElevenLabs nie ma dostępu do bazy ani klucza API. Serwer wydaje przeglądarce jednorazowy token dla przypiętej, sprawdzonej wersji agenta. Głos płynie przez WebRTC między przeglądarką a ElevenLabs. Gdy agent potrzebuje danych, prosi przeglądarkę o jedno z pięciu narzędzi, a API mRadar sprawdza sesję, właściciela szkicu i jego wersję.\n\nAgent nie może zmienić tożsamości, wymyślić współrzędnych ani wysłać zgłoszenia bez potwierdzonej wersji szkicu. Dźwięk nie jest nagrywany; transkrypcja jest kasowana po jednym dniu. W lokalnych testach trzy rozmowy głosowe zapisały prawdziwe zgłoszenia; pełnych scenariuszy akceptacyjnych i rozmowy przez mikrofon na produkcji nie raportujemy jako sprawdzonych."
     },
     "reporting": {
-      "seconds": 25,
-      "text": "Reporting takes three steps and no account: drop the pin, pick a category and severity, send. It works the same on a phone; light or dark follows the system."
+      "seconds": 20,
+      "text": "Formularz to trzy kroki bez konta: pinezka, kategoria i pilność, wysyłka. Szkic jest zapisywany na serwerze, więc odświeżenie strony go nie gubi, a ponowna wysyłka nie tworzy duplikatu."
     },
     "operations": {
-      "seconds": 30,
-      "text": "For the city official, related reports — close in place and time — arrive as one incident with its matching area on the map. A decision-maker agent drafts the service ticket with the evidence attached. Nothing reaches an institution until a person approves exactly what's shown."
+      "seconds": 35,
+      "text": "Dla urzędnika powiązane zgłoszenia — bliskie w miejscu i czasie — przychodzą jako jedno zdarzenie z obszarem na mapie. Grupowanie jest deterministyczne. Model Qwen 3.6 na Scaleway Generative APIs ocenia zdarzenie i przygotowuje zlecenie dla służby wskazanej regułą odpowiedzialności, cytując tylko zapisane dowody. Gdy model jest niedostępny, propozycję przygotowuje reguła.\n\nNic nie trafia do instytucji, dopóki człowiek nie zatwierdzi dokładnie pokazanej treści. Kolejkę można przeszukiwać i filtrować po kategoriach."
     },
     "review": {
       "seconds": 25,
-      "text": "When the system isn't sure, it asks. An uncertain report shows the candidate incidents with distance, time gap and report count. Issues inside one home stay private. Every command carries the version the official saw, so two people can't silently overwrite each other."
+      "text": "Gdy system nie jest pewien, pyta. Niepewne zgłoszenie pokazuje kandydatów z odległością i odstępem czasu. Problemy z jednego mieszkania zostają prywatne. Każde polecenie niesie wersję, którą widział urzędnik, więc dwie osoby nie nadpiszą się po cichu."
     },
     "handoff": {
       "seconds": 25,
-      "text": "Approve, and the ticket appears in the institution's inbox — here the Electricity Operator. They acknowledge, start work and resolve, and each step updates the official's view and the public timeline."
+      "text": "Po zatwierdzeniu worker wysyła zlecenie dokładnie raz, a pojawia się ono w skrzynce właściwej służby — tu pogotowia energetycznego. Służba przyjmuje, rozpoczyna prace i rozwiązuje; każdy krok aktualizuje panel urzędnika i publiczną oś czasu mieszkańca."
     },
-    "design": {
-      "seconds": 20,
-      "text": "Design: one calm, neutral theme in light and dark, built on Appica UI and Geist. Colour is reserved for meaning — eight category colours, red for urgency and the heatmap. Every screen works on a phone."
+    "stack": {
+      "seconds": 30,
+      "text": "Architektura jest celowo prosta: jedna aplikacja Next.js i jeden worker z tego samego kodu, PostgreSQL jako źródło prawdy, Qdrant jako indeks do odbudowania, wszystko na jednej maszynie Scaleway za Caddy z HTTPS. Worker obsługuje grupowanie, indeksowanie, ocenę przez AI i wysyłkę zleceń z ograniczonymi ponowieniami; każdy handler jest idempotentny.\n\nUrzędnik, instytucja i mieszkaniec mają osobne sesje. Publiczna mapa dostaje tylko listę dozwolonych pól."
     },
     "close": {
       "seconds": 15,
-      "text": "It's built on open tools: Next.js, MapLibre with OpenStreetMap data, PostgreSQL. You can run every screen with one command on demo data. We used AI coding assistants and say so. Thank you — we're happy to take questions."
+      "text": "Wszystkie trzy ekrany działają pod adresami na slajdzie; dane logowania do paneli są w załączonej notatce. Kod jest w repozytorium. Korzystaliśmy z asystentów AI do programowania. Dziękujemy."
     }
   }
 }

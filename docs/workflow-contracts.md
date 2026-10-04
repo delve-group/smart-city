@@ -78,6 +78,8 @@ type DraftLocation = LocationResult & { unit: string | null };   // unit: privat
 
 `street`/`building_number` are facts from the geocoder or the resident, never invented; `null` means unknown and sends an otherwise eligible report to review (spec §5). Responsibility is never derived from these fields.
 
+Location resolution may additionally return nullable `matched_place: { candidate_id, name, bounds }` alongside the candidate list. A unique exact geocoder name match distinguishes a venue from nearby similarly named stops; its bounds are a validated `{ west, south, east, north }` extent or null. This is preview metadata only: the stored `LocationResult`/`DraftLocation` shape above stays unchanged. Venue names remain in `label`. The browser dispatcher result also supplies a provisional `map_preview` label/candidate ID so clarification and the visible map refer to the same first candidate; that preview grants no selection, confirmation or submission authority.
+
 ### Draft, report and catalogue
 
 ```ts
@@ -306,7 +308,7 @@ Delivered by [#27](https://github.com/delve-group/smart-city/issues/27). The exe
 
 The `execute` handler answers `retry` for a known no-effect failure (the same key is sent again after revalidation, within the worker's bounded retries) and `failed` with reason `execution_unknown` for an unknown outcome, which is never resent automatically. Reconciliation looks the key up at the connector: a found request becomes the ticket; otherwise the proposal is `failed` and the official prepares a fresh proposal. While a proposal is `executing` or `unknown`, new proposals and approvals for that incident are refused with `execution_unknown`.
 
-With `DECISION_PROVIDER=disabled` (default), a labelled **rule-based proposer (demo)** supplies the existing fixture behavior. With `scaleway`, a material active-incident change supersedes outdated proposals and transactionally queues one `assess` job instead. The official's explicit institution-selection command continues to create its own manual proposal. AI cannot replace that pending manual proposal or a human decision at the same incident version.
+With `DECISION_PROVIDER=disabled` (default), a labelled **rule-based proposer** supplies the existing fixture behavior. With `scaleway`, a material active-incident change supersedes outdated proposals and transactionally queues one `assess` job instead. The official's explicit institution-selection command continues to create its own manual proposal. AI cannot replace that pending manual proposal or a human decision at the same incident version.
 
 `getAssessmentAction(ctx, incidentId)` supplies the current version and one server-prepared action or a review reason. The destination and exact payload come from the existing configured/official-selected responsibility and payload builder. Urgent/disputed incidents, missing/stale/contradictory service evidence, rejected tickets, active work and protected proposals cannot receive an automated action. `proposeAction` requires the stable `assessment_key: assess:incident:{id}:v{version}`, current `expected_incident_version`, a matching `institution_id`, bounded `explanation`, and 1–8 distinct stored `evidence_ids`. An optional payload must exactly match the server-built payload; no model constructs it. A repeated key returns its original proposal even after approval, execution or supersession. A new key never replaces an existing human decision.
 
@@ -335,6 +337,17 @@ PATCH /api/institution/tickets/tkt_22c   { "status": "resolved", "expected_versi
 The ticket change, incident status/version, public timeline event, audit event and index work commit together.
 
 ## 8. Transactional work interface
+
+The existing `triage` report job also performs optional AI category/issue classification
+when `DECISION_PROVIDER=scaleway`. It runs outside the database transaction, then the
+handler rechecks the source version before applying it. Any recorded official report
+classification takes precedence. The worker payload and resident draft/submission wire
+shapes are unchanged. Classification metadata is private in `reports.triage_policy`;
+provider failure completes triage into visible manual review. Specific non-power reports
+can create incidents without a nearby candidate; existing-incident linking remains
+power-only. Responsibility is still resolved from configured rules. Migration 010
+requeues only reports blocked by the retired gate, with new versions and audit/work.
+
 
 Workstream 3 owns the work schema (`002_jobs.sql`, no foreign keys to domain tables), the worker and `server/jobs`; workstream 2 calls `enqueueWork` inside its own transactions and supplies domain handlers. Delivered by [#22](https://github.com/delve-group/smart-city/issues/22); final names may differ only if this section is updated in that PR.
 

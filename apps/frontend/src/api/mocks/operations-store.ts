@@ -10,7 +10,7 @@ import type {
   WorkspaceDto,
 } from "../operations/types";
 import { OperationsApiError } from "../operations/types";
-import { AGENT, createSeedWorkspace, INSTITUTIONS, OFFICIAL } from "./operations-seed";
+import { AGENT, createSeedWorkspace, EXECUTOR, INSTITUTIONS, OFFICIAL, TICKET_PREFIX } from "./operations-seed";
 
 /**
  * MOCK STORE for `npm run dev:ui`: incidents, reports and tickets kept in the browser. It follows
@@ -20,7 +20,7 @@ import { AGENT, createSeedWorkspace, INSTITUTIONS, OFFICIAL } from "./operations
 
 type State = Omit<WorkspaceDto, "source" | "generated_at"> & { counters: { incident: number; ticket: number; history: number } };
 
-const STORAGE_KEY = "mradar-mock-operations-v1";
+const STORAGE_KEY = "mradar-mock-operations-v2";
 let memory: State | null = null;
 
 function load(): State {
@@ -31,7 +31,7 @@ function load(): State {
   } catch {
     // Storage blocked or corrupt: start from the seed.
   }
-  memory = { ...createSeedWorkspace(), counters: { incident: 146, ticket: 420, history: 1000 } };
+  memory = { ...createSeedWorkspace(), counters: { incident: 151, ticket: 420, history: 1000 } };
   save();
   return memory;
 }
@@ -110,7 +110,7 @@ function proposalFor(state: State, incident: IncidentDto, institutionId: string,
     payload: [
       { key: "Issue", value: incident.title },
       { key: "Area", value: [incident.address, incident.district].filter(Boolean).join(", ") },
-      { key: "Residents reporting", value: `${reports.length} (unverified)` },
+      { key: "Residents reporting", value: String(reports.length) },
       { key: "Evidence", value: evidenceIds.join(", ") },
     ],
     evidence_ids: evidenceIds,
@@ -129,8 +129,8 @@ function supersedeProposal(state: State, incident: IncidentDto) {
   const proposal = incident.proposal;
   if (!proposal || (proposal.state !== "pending" && proposal.state !== "approved")) return;
   proposal.state = "superseded";
-  incident.proposal = proposalFor(state, incident, proposal.institution_id, AGENT, `Updated after the evidence changed. Replaces proposal v${proposal.version}.`);
-  log(state, incident, AGENT, `Proposed ticket v${incident.proposal.version}`, `Replaces v${proposal.version}`);
+  incident.proposal = proposalFor(state, incident, proposal.institution_id, AGENT, `Zaktualizowano po zmianie dowodów. Zastępuje propozycję v${proposal.version}.`);
+  log(state, incident, AGENT, `Zaproponowano zlecenie v${incident.proposal.version}`, `Zastępuje v${proposal.version}`);
 }
 
 export function decideProposal(proposalId: string, decision: ProposalDecision): WorkspaceDto {
@@ -151,9 +151,9 @@ export function decideProposal(proposalId: string, decision: ProposalDecision): 
     if (decision.decision === "rejected") {
       proposal.state = "rejected";
       proposal.reason = decision.reason;
-      incident.review = { reason: "needs_responsibility", note: `Proposal rejected: ${decision.reason}`, since: nowIso() };
+      incident.review = { reason: "needs_responsibility", note: `Propozycja odrzucona: ${decision.reason}`, since: nowIso() };
       incident.version += 1;
-      log(state, incident, OFFICIAL, `Rejected proposal v${proposal.version}`, decision.reason);
+      log(state, incident, OFFICIAL, `Odrzucono propozycję v${proposal.version}`, decision.reason);
       return;
     }
 
@@ -161,7 +161,7 @@ export function decideProposal(proposalId: string, decision: ProposalDecision): 
     proposal.state = "executed";
     const ticket: TicketDto = {
       id: `tkt-${crypto.randomUUID().slice(0, 8)}`,
-      reference: `${proposal.institution_id === "demo-water" ? "WAT" : "ELE"}-26-0${state.counters.ticket++}`,
+      reference: `${TICKET_PREFIX[proposal.institution_id] ?? "ZLE"}-26-0${state.counters.ticket++}`,
       institution_id: proposal.institution_id,
       status: "created",
       version: 1,
@@ -172,8 +172,8 @@ export function decideProposal(proposalId: string, decision: ProposalDecision): 
     incident.response_status = "assigned";
     incident.review = null;
     incident.version += 1;
-    log(state, incident, OFFICIAL, `Approved proposal v${proposal.version}`, institutionName(proposal.institution_id));
-    log(state, incident, "Executor", `Created ticket ${ticket.reference}`);
+    log(state, incident, OFFICIAL, `Zatwierdzono propozycję v${proposal.version}`, institutionName(proposal.institution_id));
+    log(state, incident, EXECUTOR, `Utworzono zlecenie ${ticket.reference}`);
   });
 }
 
@@ -188,7 +188,7 @@ export function reconcileProposal(proposalId: string, input: Reconciliation): Wo
     }
     proposal.state = "executed";
     proposal.execution_error = null;
-    log(state, incident, OFFICIAL, "Looked up the sending outcome", input.reason);
+    log(state, incident, OFFICIAL, "Sprawdzono wynik wysyłki", input.reason);
   });
 }
 
@@ -208,23 +208,23 @@ export function runIncidentCommand(incidentId: string, command: IncidentCommand)
         if (incident.proposal?.state === "pending") incident.proposal.state = "superseded";
         incident.version += 1;
         incident.response_status = "triaged";
-        incident.proposal = proposalFor(state, incident, institution.id, OFFICIAL, `${institution.name} chosen by the official.`);
-        incident.review = { reason: "proposal_ready", note: `Ticket for ${institution.name} is ready for approval.`, since: nowIso() };
-        log(state, incident, OFFICIAL, "Chose responsible institution", institution.name);
-        log(state, incident, OFFICIAL, `Prepared proposal v${incident.proposal.version}`);
+        incident.proposal = proposalFor(state, incident, institution.id, OFFICIAL, `Urzędnik wybrał: ${institution.name}.`);
+        incident.review = { reason: "proposal_ready", note: `Zlecenie dla: ${institution.name} czeka na zatwierdzenie.`, since: nowIso() };
+        log(state, incident, OFFICIAL, "Wybrano odpowiedzialną instytucję", institution.name);
+        log(state, incident, OFFICIAL, `Przygotowano propozycję v${incident.proposal.version}`);
         break;
       }
       case "verify":
       case "dispute":
         incident.assessment = command.type === "verify" ? "verified" : "disputed";
         incident.version += 1;
-        log(state, incident, OFFICIAL, command.type === "verify" ? "Verified" : "Disputed", command.reason);
+        log(state, incident, OFFICIAL, command.type === "verify" ? "Zweryfikowano" : "Zakwestionowano", command.reason);
         break;
       case "close":
         if (incident.response_status !== "resolved") throw new OperationsApiError(409, "invalid_state", "Only a resolved incident can be closed.");
         incident.response_status = "closed";
         incident.version += 1;
-        log(state, incident, OFFICIAL, "Closed");
+        log(state, incident, OFFICIAL, "Zamknięto");
         break;
       case "reopen":
         if (incident.response_status !== "resolved" && incident.response_status !== "closed") {
@@ -232,8 +232,8 @@ export function runIncidentCommand(incidentId: string, command: IncidentCommand)
         }
         incident.response_status = "triaged";
         incident.version += 1;
-        incident.review = { reason: "needs_responsibility", note: `Reopened: ${command.reason}`, since: nowIso() };
-        log(state, incident, OFFICIAL, "Reopened", command.reason);
+        incident.review = { reason: "needs_responsibility", note: `Wznowiono: ${command.reason}`, since: nowIso() };
+        log(state, incident, OFFICIAL, "Wznowiono", command.reason);
         break;
     }
   });
@@ -258,7 +258,7 @@ export function triageReport(reportId: string, triage: ReportTriage): WorkspaceD
           id: report.reference,
           kind: "report",
           label: report.reference,
-          source: "Resident report",
+          source: "Zgłoszenie mieszkańca",
           observed_at: report.observed_at,
           retrieved_at: nowIso(),
           provenance: "demo",
@@ -266,7 +266,7 @@ export function triageReport(reportId: string, triage: ReportTriage): WorkspaceD
           note: null,
         });
         incident.version += 1;
-        log(state, incident, OFFICIAL, `Linked ${report.reference}`, triage.reason ?? "Manual link");
+        log(state, incident, OFFICIAL, `Powiązano ${report.reference}`, triage.reason ?? "Powiązanie ręczne");
         supersedeProposal(state, incident);
         report.incident_id = incident.id;
         report.triage_state = "linked";
@@ -290,7 +290,7 @@ export function triageReport(reportId: string, triage: ReportTriage): WorkspaceD
           version: 1,
           support_count: 1,
           urgent: false,
-          review: { reason: "needs_responsibility", note: "New incident from a manual review. Choose who should respond.", since: nowIso() },
+          review: { reason: "needs_responsibility", note: "Nowe zdarzenie z ręcznego przeglądu. Wybierz, kto ma odpowiedzieć.", since: nowIso() },
           report_ids: [report.id],
           evidence: [],
           proposal: null,
@@ -298,7 +298,7 @@ export function triageReport(reportId: string, triage: ReportTriage): WorkspaceD
           history: [],
           updated_at: nowIso(),
         };
-        log(state, incident, OFFICIAL, "Created incident", `From ${report.reference}`);
+        log(state, incident, OFFICIAL, "Utworzono zdarzenie", `Z ${report.reference}`);
         state.incidents.unshift(incident);
         report.incident_id = incident.id;
         report.triage_state = "linked";

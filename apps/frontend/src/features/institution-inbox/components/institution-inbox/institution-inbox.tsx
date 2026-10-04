@@ -21,7 +21,7 @@ import { useNow } from "@/shared/hooks/use-now";
 import { categoryText, useI18n } from "@/shared/i18n/locale";
 import type { MessageKey } from "@/shared/i18n/messages";
 import { useInstitutionData } from "../../hooks/use-institution-data";
-import { filterTickets, isOpen, sortTickets } from "../../utils/labels";
+import { filterTickets, isOpen, sortTickets, ticketSummary } from "../../utils/labels";
 import { TicketDetail } from "../ticket-detail/ticket-detail";
 import { TicketRow } from "../ticket-row/ticket-row";
 
@@ -71,7 +71,7 @@ export function InstitutionInbox({ onSessionLost, onSignOut }: InstitutionInboxP
   const shown = filterTickets(tickets, query, shownCategoryIds ? new Set(shownCategoryIds) : null, (id) => {
     const category = categoriesById.get(id);
     return category ? categoryText(t, category).label : undefined;
-  });
+  }, (ticket) => ticketSummary(t, ticket));
   const { open, finished } = sortTickets(shown);
   const selected = tickets.find((ticket) => ticket.id === selectedId) ?? null;
   const trimmedQuery = query.trim();

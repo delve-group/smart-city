@@ -39,9 +39,9 @@ async function main() {
       && agent.name === "mradar-dispatcher-v3" && hash === "cb691a6aabdb480a31d89fa799dc3a31c2854a8842b206b537f26f25f57e3513"
       && previous.language === DISPATCHER_LANGUAGE && previous.first_message === DISPATCHER_FIRST_MESSAGE
       && previous.prompt.llm === DISPATCHER_MODEL;
-    const reviewedIntake = process.argv.includes("--update-intake")
-      && agent.name === "mradar-dispatcher-v4"
-      && hash === "6ba1d08b85e982a3331c6c8ae5c393adf11a9ac33802c91330d62fd77eaae1bd"
+    const reviewedIntake = (process.argv.includes("--update-intake") || process.argv.includes("--update-prompt"))
+      && (agent.name === "mradar-dispatcher-v4" && hash === "6ba1d08b85e982a3331c6c8ae5c393adf11a9ac33802c91330d62fd77eaae1bd"
+        || agent.name === "mradar-dispatcher-v5" && hash === "b3da20efcd40e0ae926e4f468fde23bf6000a340926557f5f12cf61b898b5dfa")
       && previous.language === DISPATCHER_LANGUAGE && previous.first_message === DISPATCHER_FIRST_MESSAGE
       && previous.prompt.llm === DISPATCHER_MODEL;
     const legacyEvents = DISPATCHER_CLIENT_EVENTS.filter((event) => event !== "agent_tool_response");

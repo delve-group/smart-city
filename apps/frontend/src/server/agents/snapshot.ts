@@ -12,7 +12,7 @@ export function buildAssessmentSnapshot(
   const summary = [
     incident.title,
     `Location: ${incident.public_label}. Scope: ${incident.scope}. Assessment: ${incident.assessment}.`,
-    `Resident support: ${incident.support_count} demo identities, unverified.`,
+    `Resident support: ${incident.support_count} unverified identities.`,
     // Current service observations lack stored IDs. Include their complete state as
     // context without manufacturing an evidence reference the model could cite.
     ...context.observations.map((item) => `Current service context (not citable evidence): ${JSON.stringify(item)}`),

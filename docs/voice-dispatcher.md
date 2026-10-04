@@ -73,13 +73,26 @@ The guard rejects an altered predecessor prompt, model, language, greeting, enab
 
 Runtime verification requires the reviewed `end_call` definition, rejects any other enabled system tool and checks `agent_tool_response` delivery alongside the existing client events. The installed SDK handles the system event by tearing down WebRTC and stopping microphone tracks. The application recognizes `context.type: end_call` as a normal ending, releases the owned session, and reconciles pending saves before allowing another start. Unexpected transport loss still shows the recovery message.
 
+## Named venues and location preview — 2026-10-04
+
+V5 extends the reviewed v4 ending configuration with landmark-aware location instructions. Resolve the resident's place before asking address clarification; accept a unique `matched_place` by name, use the actual returned candidate ID, and ask useful observation details rather than unrelated street numbers. The browser's `map_preview` label anchors ambiguous-address questions; a correction triggers another lookup before discussing that address. Explicit confirmation of the final report revision remains required.
+
+Upgrade only the configured, pinned, exact reviewed v4:
+
+```sh
+node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-tools-setup.ts --update-prompt
+node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-check.ts
+```
+
+The guard checks the predecessor's prompt fingerprint, language, model, greeting, actual system `end_call`, client events, private settings and five reviewed client tools. It preserves the earlier ending behavior. The v4-to-v5 upgrade and fixed-version provider readback passed in the isolated local worktree; its review app loaded that pin and issued/ended actual owned voice reservations. Original development and production pins were not replaced by this review. Geography, draft authority and manual canvas evidence are in [voice sessions](voice-sessions.md#voice-location-map-preview--2026-10-04). The subsequent authorized `7be11ec` rollout deployed the v5 pin with provider readback and HTTPS credential issuance/end verified; see the [release record](../deploy/scaleway-release.md#report-classification-rollout--2026-10-04). No v5 microphone conversation was started.
+
 ## Prepared configuration
 
-`src/server/voice/dispatcher-config.ts` supplies the English prompt and a provider configuration builder. Actual settings were read back on 2026-10-03; the model change and v4 ending configuration were read back on 2026-10-04:
+`src/server/voice/dispatcher-config.ts` supplies the English prompt and a provider configuration builder. Actual settings were read back on 2026-10-03; the model change, v4 ending configuration and v5 named-place instructions were read back on 2026-10-04:
 
 | Setting | Configured value | Verification |
 | --- | --- | --- |
-| Prompt/name | `mradar-dispatcher-v4` | Exact prompt and name read back from pinned version |
+| Prompt/name | `mradar-dispatcher-v5` | Exact prompt and name read back from pinned version |
 | Ending | System `end_call`, plus `agent_tool_response` client event | Reviewed definition and event set checked before issuing credentials |
 | Language/greeting | `pl`, Polish first message | Actual language and exact greeting are checked with the pinned prompt |
 | LLM | `gpt-6.1-sol` | New pinned configuration read back; spoken quality and latency unverified on this model |
@@ -106,17 +119,17 @@ Stop SDK capture and all acquired microphone tracks on end, navigation, disconne
 
 Live acceptance still requires three actual outage conversations (ambiguous location, corrected building number, interruption), one committed reference each; denial/limits/disconnect before and after save; fresh confirmation after correction; ownership/origin and unavailable-config checks; real retention/configuration/conversation references, latency and cleanup evidence; Appica/keyboard/390/1440 px/both-theme review and application checks. Record evidence on #29 and #35, not inferred from this prepared adapter.
 
-## V5 conversational intake (2026-10-04)
+## V6 conversational intake (2026-10-04)
 
-V5 removes routine emergency screening and the spoken 112 referral instruction. There is no transfer capability. Scope is inferred from the actual affected extent already described; an address alone does not imply street-wide impact. Unknown scope/time can remain unknown. The dispatcher extracts all facts in a single utterance and asks only necessary missing/ambiguous questions.
+V6 removes routine emergency screening and the spoken 112 referral instruction. There is no transfer capability. Scope is inferred from the actual affected extent already described; an address alone does not imply street-wide impact. Unknown scope/time can remain unknown. The dispatcher extracts all facts in a single utterance and asks only necessary missing/ambiguous questions.
 
 The returned draft summary is checked internally rather than read aloud. An explicit request to report/save the observation authorizes the faithfully captured draft, including clarification and the resident's own corrections unless withdrawn. Without explicit save intent, ask one short Polish save question. The same exact-revision confirmation/submission tools remain; new v2 tool descriptions remove the contradictory full-readback requirement. This supersedes the conversational readback/fresh-agreement wording above and in the original voice specification; domain revision invalidation and ownership remain unchanged.
 
-Upgrade the exact pinned reviewed v4 with:
+Upgrade the exact pinned reviewed v4 or v5 with:
 
 ```sh
 cd apps/frontend
 node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-tools-setup.ts --update-intake
 ```
 
-Setup verifies the predecessor prompt, model, private settings, system tool/events and all five old tool definitions before creating separate v2 client tools and attaching them to v5. Earlier pinned agents keep their original tools. Repeat setup reuses the current exact configuration. Recreate the local application to load the resulting immutable pin. The change is not active in an existing provider session or deployment until provisioned and its pin loaded. Full spoken acceptance remains required.
+Setup verifies the predecessor prompt, model, private settings, system tool/events and all five old tool definitions before creating separate v2 client tools and attaching them to v6. Earlier pinned agents keep their original tools. Repeat setup reuses the current exact configuration. Recreate the local application to load the resulting immutable pin. The change is not active in an existing provider session or deployment until provisioned and its pin loaded. Full spoken acceptance remains required.

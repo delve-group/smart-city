@@ -32,7 +32,7 @@ export function ReportForm({ categories, intake, onChangeLocation, onCancel, onN
       <form noValidate onSubmit={(event) => { event.preventDefault(); void intake.send(); }} className="flex min-h-0 flex-1 flex-col">
         <ScrollArea className="min-h-0 flex-1">
           <div className="flex flex-col gap-5 px-5 py-5">
-            {saved ? <ReportOutcome report={saved} busy={busy} onRefresh={() => void intake.recover(false)} onNew={onNew} /> : (
+            {saved ? <ReportOutcome key={saved.reference} report={saved} busy={busy} onRefresh={async () => Boolean(await intake.recover(false, AbortSignal.timeout(15_000)))} onNew={onNew} /> : (
               <>
                 <div className="flex items-start gap-3 rounded-md bg-background-muted p-3">
                   <MapPin size={18} aria-hidden className="mt-0.5 shrink-0 text-foreground-muted" />
@@ -61,7 +61,7 @@ export function ReportForm({ categories, intake, onChangeLocation, onCancel, onN
               </>
             )}
             {intake.error && <Alert variant="error"><AlertDescription>{intake.error}</AlertDescription></Alert>}
-            {intake.needsRecovery && draft && <Button variant="outline" disabled={blocked} onClick={() => void intake.recover()}>{t("report.checkDraft")}</Button>}
+            {intake.needsRecovery && draft && !saved && <Button variant="outline" disabled={blocked} onClick={() => void intake.recover()}>{t("report.checkDraft")}</Button>}
           </div>
         </ScrollArea>
         {!saved && <footer className="flex gap-2 border-t border-border-muted px-5 py-4">

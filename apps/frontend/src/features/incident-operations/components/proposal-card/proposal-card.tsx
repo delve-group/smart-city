@@ -2,7 +2,7 @@ import { AiAgent, Clock, User } from "@appica/icons-react";
 import { Button } from "@appica/ui-react/button";
 import { useState } from "react";
 import type { Incident, Institution, ProposalDecision } from "@/api/operations/types";
-import { translateAssessment, translatePayloadKey, useI18n } from "@/shared/i18n/locale";
+import { translateAssessment, translatePayloadKey, translateServerText, useI18n } from "@/shared/i18n/locale";
 import type { MessageKey } from "@/shared/i18n/messages";
 import { formatAgo } from "@/shared/utils/format-time";
 import { Fact, FACTS } from "@/shared/components/fact/fact";
@@ -46,7 +46,7 @@ export function ProposalCard({ incident, institution, now, onDecide }: ProposalC
         </h3>
         <p className={FACTS}>
           <Fact icon={byAgent ? AiAgent : User} label={t("proposal.byLabel")}>
-            {proposal.createdBy}
+            {translateServerText(t, proposal.createdBy)}
           </Fact>
           <Fact icon={Clock} label={t("proposal.when")}>
             {formatAgo(proposal.createdAt, now, locale)}
@@ -66,7 +66,7 @@ export function ProposalCard({ incident, institution, now, onDecide }: ProposalC
         ))}
       </dl>
 
-      <p className="text-sm text-pretty text-foreground-muted">{proposal.explanation}</p>
+      {proposal.explanation && <p className="text-sm text-pretty text-foreground-muted">{translateServerText(t, proposal.explanation)}</p>}
 
       {pending && !rejecting && (
         <div className="flex gap-2">
