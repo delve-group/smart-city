@@ -34,6 +34,8 @@ Updated: 2026-10-04.
   [release record](../../deploy/scaleway-release.md#report-classification-rollout--2026-10-04).
   Service routing does not establish real ownership.
 
+Observation-based incident content (2026-10-04, D084): deployed at `ca3595d` through PR #79. Private title/description retain the first report; stored PL/EN public text and institution requests preserve the specific observation independently of classification and routing. All 30 legacy incident narratives were recovered. The requested Tauron Arena ticket was corrected with its preceding request archived and no resend. Actual checks and limits are in the [release record](../../deploy/scaleway-release.md#observation-based-incident-content-rollout--2026-10-04).
+
 ## Working assumptions
 
 - Web app, usable on phones and desktops.
