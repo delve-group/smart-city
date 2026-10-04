@@ -1,6 +1,6 @@
 import { AlertTriangle, Clock } from "@appica/icons-react";
 import type { Category } from "@/api/categories/types";
-import { categoryText, useI18n } from "@/shared/i18n/locale";
+import { categoryText, useI18n, translateServerText } from "@/shared/i18n/locale";
 import type { MessageKey } from "@/shared/i18n/messages";
 import { categoryAppearance } from "@/shared/utils/category-appearance";
 import { formatAgo, formatSpan, isJustNow } from "@/shared/utils/format-time";
@@ -55,7 +55,7 @@ export function QueueItem({ item, category, selected, now, onSelect }: QueueItem
           <span aria-hidden className="text-foreground-muted">
             ·
           </span>
-          <span className="max-w-[45%] shrink-0 truncate">{item.kind === "incident" ? item.incident.address : item.report.address}</span>
+          <span className="max-w-[45%] shrink-0 truncate">{translateServerText(t, item.kind === "incident" ? item.incident.address : item.report.address)}</span>
           <span aria-hidden className="text-foreground-muted">
             ·
           </span>

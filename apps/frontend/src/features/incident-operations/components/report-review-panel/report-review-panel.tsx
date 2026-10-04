@@ -11,7 +11,7 @@ import type { Category } from "@/api/categories/types";
 import type { OperationsReport, ReportTriage, Workspace } from "@/api/operations/types";
 import { FloatingPanel } from "@/shared/components/floating-panel/floating-panel";
 import { InfoHint } from "@/shared/components/info-hint/info-hint";
-import { tCount, useI18n } from "@/shared/i18n/locale";
+import { tCount, useI18n, translateServerText } from "@/shared/i18n/locale";
 import type { MessageKey } from "@/shared/i18n/messages";
 import { formatAgo } from "@/shared/utils/format-time";
 import { reportsOf } from "../../utils/queue";
@@ -96,7 +96,7 @@ export function ReportReviewPanel({ report, workspace, category, now, onClose, o
                 >
                   {report.summary}
                 </h2>
-                <p className="text-sm text-foreground-muted">{report.address}</p>
+                <p className="text-sm text-foreground-muted">{translateServerText(t, report.address)}</p>
                 <p className={FACTS}>
                   <Fact icon={Id} label={t("common.reference")}>
                     <span className="font-mono">{report.reference}</span>

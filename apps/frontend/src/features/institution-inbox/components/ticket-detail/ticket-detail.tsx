@@ -8,7 +8,7 @@ import type { InstitutionTicket, TicketUpdate } from "@/api/institution/types";
 import { Fact, FACTS } from "@/shared/components/fact/fact";
 import { FloatingPanel } from "@/shared/components/floating-panel/floating-panel";
 import { PanelHeader } from "@/shared/components/panel-header/panel-header";
-import { translateAssessment, translatePayloadKey, useI18n } from "@/shared/i18n/locale";
+import { translateAssessment, translatePayloadKey, useI18n, translateServerText } from "@/shared/i18n/locale";
 import type { MessageKey } from "@/shared/i18n/messages";
 import { formatAgo, formatDateTime } from "@/shared/utils/format-time";
 import { STATUS, ticketSummary } from "../../utils/labels";
@@ -43,7 +43,7 @@ export function TicketDetail({ ticket, now, note, category, onNoteChange, onUpda
               {ticketSummary(t, ticket)}
             </h2>
             <p className="text-sm text-foreground-muted">
-              {ticket.incident.locationLabel} · {t("inbox.cityIncident")} <span className="font-mono">{ticket.incident.reference}</span>
+              {translateServerText(t, ticket.incident.locationLabel)} · {t("inbox.cityIncident")} <span className="font-mono">{ticket.incident.reference}</span>
             </p>
             <p className={FACTS}>
               <Fact icon={Id} label={t("common.ticket")}>

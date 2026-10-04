@@ -9,7 +9,7 @@ import type { PublicIncident } from "@/api/incidents/types";
 import { FloatingPanel } from "@/shared/components/floating-panel/floating-panel";
 import { PanelAccordionItem } from "@/shared/components/panel-accordion-item/panel-accordion-item";
 import { PanelHeader } from "@/shared/components/panel-header/panel-header";
-import { tCount, translateKnown, useI18n } from "@/shared/i18n/locale";
+import { tCount, translateKnown, useI18n, translateServerText } from "@/shared/i18n/locale";
 import type { MessageKey } from "@/shared/i18n/messages";
 import { formatDateTime } from "@/shared/utils/format-time";
 import { residentStatus, STATUS_STEPS } from "../../utils/incident-status";
@@ -86,7 +86,7 @@ export function IncidentPanel({ incident, incidents, category, now, onClose, onC
           >
             {incidentSummary(t, incident)}
           </h2>
-          <p className="text-sm text-foreground-muted">{incident.public_location.label}</p>
+          <p className="text-sm text-foreground-muted">{translateServerText(t, incident.public_location.label)}</p>
           {incident.public_content && <p className="pt-3 text-sm whitespace-pre-wrap text-foreground">{incident.public_content[locale].description}</p>}
 
           <section className="flex flex-col gap-3 pt-3 pb-5">
@@ -149,7 +149,7 @@ export function IncidentPanel({ incident, incidents, category, now, onClose, onC
             <PanelAccordionItem value="details" title={t("common.details")}>
               <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
                 {[
-                  { label: t("report.location"), value: incident.public_location.label },
+                  { label: t("report.location"), value: translateServerText(t, incident.public_location.label) },
                   { label: t("common.reported"), value: formatDateTime(incident.created_at, now, locale) },
                   { label: t("report.lastUpdate"), value: formatDateTime(incident.updated_at, now, locale) },
                   { label: t("common.reference"), value: incident.reference },
