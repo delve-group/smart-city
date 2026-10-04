@@ -9,7 +9,7 @@
     },
     "problem": {
       "seconds": 25,
-      "text": "Dziś ta sama awaria trafia do urzędu wiele razy albo wcale. Mieszkańcy nie widzą, co już zgłoszono, urzędnicy ręcznie łączą duplikaty i ustalają, kto odpowiada, a instytucje dowiadują się ostatnie."
+      "text": "Problem dotyczy całego obiegu zgłoszenia. Mieszkańcy nie widzą, co już zgłoszono ani na jakim etapie jest sprawa, więc ta sama usterka trafia do urzędu wielokrotnie albo wcale. Operatorzy przyjmują zgłoszenia telefonicznie, mailowo i przez formularze, a potem ręcznie łączą duplikaty i ustalają, która służba odpowiada. Przekazanie zlecenia do instytucji i informacja zwrotna o postępie prac trwają długo, więc urząd i mieszkańcy często nie wiedzą, czy usterka została usunięta.\n\nmRadar obejmuje cały ten obieg: zgłoszenie, ocenę w urzędzie, zlecenie dla służby i status widoczny na mapie."
     },
     "loop": {
       "seconds": 25,
