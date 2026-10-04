@@ -36,6 +36,8 @@ type OptionGroup = { value: string; items: SearchOption[] };
 type MapSearchProps = {
   /** Only the incidents visible under the current filter are searchable. */
   incidents: readonly PublicIncident[];
+  /** Every loaded incident, so a hit hidden by the filter is not mistaken for a stale index. */
+  knownIncidents: readonly PublicIncident[];
   categoryIds: readonly string[];
   categoriesById: ReadonlyMap<string, Category>;
   onPick: (option: SearchOption) => void;
@@ -43,7 +45,7 @@ type MapSearchProps = {
 
 const toPlaceOption = (place: Place): SearchOption => ({ kind: "place", id: place.id, label: place.name, place });
 
-export function MapSearch({ incidents, categoryIds, categoriesById, onPick }: MapSearchProps) {
+export function MapSearch({ incidents, knownIncidents, categoryIds, categoriesById, onPick }: MapSearchProps) {
   const { t } = useI18n();
   const toIncidentOption = (incident: PublicIncident): SearchOption => ({ kind: "incident", id: incident.id, label: incidentSummary(t, incident), incident });
   const [query, setQuery] = useState("");
@@ -51,12 +53,13 @@ export function MapSearch({ incidents, categoryIds, categoriesById, onPick }: Ma
   const search = useIncidentSearch(query, "hybrid", categoryIds);
   const typed = query.trim().length > 0;
   const incidentsById = new Map(incidents.map((incident) => [incident.id, incident]));
+  const knownIds = new Set(knownIncidents.map((incident) => incident.id));
   // Preserve server ordering; details always come from the map's strict public DTO.
   const matches = (search.page?.items ?? []).flatMap((hit) => {
     const incident = incidentsById.get(hit.record_id);
     return incident ? [incident] : [];
   });
-  const missingCurrentDetails = search.page?.items.some((hit) => !incidentsById.has(hit.record_id));
+  const missingCurrentDetails = search.page?.items.some((hit) => !knownIds.has(hit.record_id));
   const outdated = search.page?.status === "index_stale" || missingCurrentDetails;
   const fallback = search.status === "error" || outdated || query.trim().length < 3;
   const matchedIds = new Set(matches.map((incident) => incident.id));
