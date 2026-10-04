@@ -57,7 +57,7 @@
     },
     "next": {
       "seconds": 30,
-      "text": "Te funkcje są zaplanowane i jeszcze nie istnieją. Pierwsza to weryfikacja przez mObywatel. Dziś tożsamość zgłaszających nie jest weryfikowana, a potwierdzona tożsamość bez zakładania konta pozwoli ważyć zgłoszenia i blokować podwójne głosy.\n\nKolejne: nowe miasta z własnym katalogiem służb, powiadomienia o zmianie statusu, obserwowane miejsca i kategorie, połączenia z systemami służb w miejsce konektora demonstracyjnego, zdjęcia z automatycznym rozmyciem twarzy i tablic oraz dane o czasach reakcji dla miasta."
+      "text": "Te funkcje są zaplanowane i jeszcze nie istnieją. Pierwsza to weryfikacja przez mObywatel. Dziś tożsamość zgłaszających nie jest weryfikowana, a potwierdzona tożsamość bez zakładania konta pozwoli ważyć zgłoszenia i blokować podwójne głosy.\n\nKolejne: nowe miasta z własnym katalogiem służb, powiadomienia o zmianie statusu, obserwowane miejsca i kategorie, integracje z systemami, których służby już używają do obsługi zleceń, tak aby zlecenia trafiały do nich bez dodatkowej skrzynki, a statusy wracały automatycznie, zdjęcia z automatycznym rozmyciem twarzy i tablic oraz dane o czasach reakcji dla miasta."
     },
     "close": {
       "seconds": 15,
