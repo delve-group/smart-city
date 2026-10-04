@@ -55,6 +55,10 @@
       "seconds": 30,
       "text": "Architektura jest celowo prosta: jedna aplikacja Next.js i jeden worker z tego samego kodu, PostgreSQL jako źródło prawdy, Qdrant jako indeks do odbudowania, wszystko na jednej maszynie Scaleway za Caddy z HTTPS. Worker obsługuje grupowanie, indeksowanie, ocenę przez AI i wysyłkę zleceń z ograniczonymi ponowieniami; każdy handler jest idempotentny.\n\nUrzędnik, instytucja i mieszkaniec mają osobne sesje. Publiczna mapa dostaje tylko listę dozwolonych pól."
     },
+    "next": {
+      "seconds": 30,
+      "text": "To są plany, nie gotowe funkcje. Najważniejszy krok to weryfikacja przez mObywatel: dziś zgłoszenia mają niezweryfikowaną tożsamość, a potwierdzona osoba bez zakładania konta pozwala ważyć zgłoszenia i blokować podwójne głosy.\n\nDalej: kolejne miasta z własnym katalogiem służb, powiadomienia o zmianie statusu, obserwowane miejsca i kategorie, prawdziwe połączenia z systemami służb zamiast konektora demonstracyjnego, zdjęcia z automatycznym rozmyciem twarzy i tablic oraz dane o czasach reakcji dla miasta."
+    },
     "close": {
       "seconds": 15,
       "text": "Wszystkie trzy ekrany działają pod adresami na slajdzie; dane logowania do paneli są w załączonej notatce. Kod jest w repozytorium. Korzystaliśmy z asystentów AI do programowania. Dziękujemy."

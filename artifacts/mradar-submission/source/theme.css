@@ -155,6 +155,9 @@ h1,h2,h3,p{margin:0}
 .design-grid .t-3d{grid-column:3 / span 2;grid-row:2;justify-content:center}
 .design-grid .t-3d .t-copy{max-width:250px}
 .design-grid .t-3d .fill{position:absolute;right:0;top:0;width:560px;height:100%;object-fit:cover;object-position:70% 50%;-webkit-mask-image:linear-gradient(90deg,transparent,#000 22%);mask-image:linear-gradient(90deg,transparent,#000 22%)}
+.next-grid{grid-template-rows:1fr 1fr}
+.next-grid .wide{grid-column:span 2}
+.next-grid .tile{justify-content:flex-end}
 .backend-grid{grid-template-rows:1fr 1fr}
 .backend-grid .wide{grid-column:span 2}
 .backend-grid .tile{justify-content:flex-end}
