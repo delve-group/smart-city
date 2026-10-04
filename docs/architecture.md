@@ -55,6 +55,7 @@ observation through the bounded provider transport in `server/agents/completion.
 `server/agents/report-classification.ts` validates one catalog category/issue pair;
 the triage transaction rechecks the report version and serializes using that pair.
 Original classification and provider metadata are stored in private `triage_policy`.
+Incident titles and private descriptions preserve the first linked observation. The same classification request produces a separate bounded PL/EN public narrative; routing metadata never generates the subject or description (D084). Public maps, search and approved institution requests use the stored safe projection.
 Configured responsibility rules select the institution. Specific non-power issues may
 start incidents when there is no nearby active same-type candidate; nearby candidates
 remain a manual linking decision. Provider errors and unclear observations stay in

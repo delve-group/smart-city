@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { incidentContentSchema, type IncidentContent } from "@/shared/incidents/content";
 
 /* Institution inbox contract (docs/workflow-contracts.md §7). Fictional demo institutions and data. */
 
@@ -19,7 +20,7 @@ export const institutionTicketDtoSchema = z.object({
     reference: z.string().min(1),
     category_id: z.string().min(1),
     issue_type: z.string(),
-    public_summary: z.string(),
+    public_summary: z.string(), public_content: incidentContentSchema.nullable().optional(),
     public_location: z.object({ lat: z.number(), lng: z.number(), label: z.string(), precision: z.enum(["street", "building"]) }),
   }),
   expected_resolution_at: isoDate.nullable(),
@@ -46,7 +47,7 @@ export type InstitutionTicket = {
   status: TicketStatus;
   version: number;
   payload: { key: string; value: string }[];
-  incident: { id: string; reference: string; categoryId: string; summary: string; issueType: string; precision: "street" | "building"; locationLabel: string; location: { lat: number; lng: number } };
+  incident: { id: string; reference: string; categoryId: string; summary: string; publicContent?: IncidentContent | null; issueType: string; precision: "street" | "building"; locationLabel: string; location: { lat: number; lng: number } };
   expectedResolutionAt: string | null;
   resultNote: string | null;
   events: { status: TicketStatus; at: string; note: string | null }[];

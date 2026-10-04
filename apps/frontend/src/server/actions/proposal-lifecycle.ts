@@ -21,6 +21,7 @@ interface IncidentFacts {
   id: string;
   version: number;
   title: string;
+  public_content: import("@/shared/incidents/content").IncidentContent | null;
   public_label: string;
   district: string | null;
   assessment: string;
@@ -33,7 +34,7 @@ interface IncidentFacts {
 
 async function loadFacts(client: PoolClient, incidentId: string): Promise<IncidentFacts> {
   const result = await client.query<IncidentFacts>(
-    `SELECT id, version, title, public_label, district, assessment, response_status, support_count,
+    `SELECT id, version, title, public_content, public_label, district, assessment, response_status, support_count,
             responsible_institution_id, responsibility_rule_id, review_reason
      FROM incidents WHERE id = $1`,
     [incidentId],
@@ -53,7 +54,8 @@ async function currentEvidence(client: PoolClient, incidentId: string): Promise<
 /** Exactly what the institution will receive: incident-level facts only, no reporter or unit detail. */
 function buildPayload(incident: IncidentFacts, evidenceCount: number): PayloadLine[] {
   return [
-    { key: "Issue", value: incident.title },
+    { key: "Issue", value: incident.public_content?.en.title ?? "Reported problem" },
+    { key: "Description", value: incident.public_content?.en.description ?? "Details await review." },
     { key: "Area", value: [incident.public_label, incident.district].filter(Boolean).join(", ") },
     { key: "Residents reporting", value: String(incident.support_count) },
     { key: "City assessment", value: incident.assessment },

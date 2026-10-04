@@ -65,6 +65,8 @@ function mapIncident(dto: IncidentDto): Incident {
     categoryId: dto.category_id,
     issueType: dto.issue_type,
     title: dto.title,
+    description: dto.description,
+    publicContent: dto.public_content,
     location: { lat: dto.lat, lng: dto.lng },
     address: dto.address,
     district: dto.district,

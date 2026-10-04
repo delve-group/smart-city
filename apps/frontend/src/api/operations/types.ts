@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { incidentContentSchema, type IncidentContent } from "@/shared/incidents/content";
 
 /*
  * Staff workspace contract (official side), served from PostgreSQL behind an official session.
@@ -132,6 +133,8 @@ const incidentDtoSchema = z.object({
   category_id: z.string().min(1),
   issue_type: z.string(),
   title: z.string(),
+  description: z.string().optional(),
+  public_content: incidentContentSchema.nullable().optional(),
   lat: z.number(),
   lng: z.number(),
   address: z.string(),
@@ -293,6 +296,8 @@ export type Incident = {
   categoryId: string;
   issueType: string;
   title: string;
+  description?: string;
+  publicContent?: IncidentContent | null;
   location: { lat: number; lng: number };
   address: string;
   district: string | null;

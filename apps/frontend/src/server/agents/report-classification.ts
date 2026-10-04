@@ -1,6 +1,7 @@
 import "server-only";
 
 import { z } from "zod";
+import { incidentContentSchema } from "@/shared/incidents/content";
 import { CATEGORIES } from "@/app/api/categories/categories";
 import { ConfigurationError } from "@/server/config";
 import { ISSUE_TYPES, issueTypeFitsCategory } from "@/server/reports/issue-types";
@@ -9,13 +10,14 @@ import { requestStructuredCompletion } from "./completion";
 import { getDecisionProvider } from "./config";
 import { AssessmentError } from "./errors";
 
-export const REPORT_CLASSIFICATION_VERSION = "report-classification-v1";
+export const REPORT_CLASSIFICATION_VERSION = "report-classification-v2";
 
 const outputSchema = z.strictObject({
   outcome: z.enum(["classified", "review"]),
   category_id: z.enum(CATEGORIES.map((category) => category.id)).nullable(),
   issue_type: z.enum(ISSUE_TYPES.map((issue) => issue.id)).nullable(),
   explanation: z.string().trim().min(1).max(600),
+  public_content: incidentContentSchema.nullable(),
 });
 
 const SYSTEM_PROMPT = `Classify one resident's city problem using only the supplied category and issue IDs.
@@ -26,7 +28,15 @@ The submitted classification is a hint, not proof; correct it when the observati
 Choose classified only for one clear problem matching a specific supplied issue and its category.
 Choose review with both IDs null for insufficient, conflicting or multiple unrelated problems,
 or when none of the specific issue types fits. Do not use other for automatic classification.
-Blocked sewers, sewage backing up and overflowing sewer manholes belong to water/blocked_drain.
+Blocked sewers, sewage backing up, blocked toilets and overflowing sewer manholes belong to water/blocked_drain.
+Independently of classification, write public_content with faithful English and Polish titles and descriptions
+based ONLY on the actual observation. Preserve the specific affected object (for example blocked toilets,
+not a street drain), venue name and stated uncertainty. A routing label is NEVER the title or description.
+Keep the street address in the location field, not the title. Do not add symptoms, causes or affected extent.
+Remove names of people, contacts, identifiers, apartment/unit numbers and other personal details.
+Begin the description with "A resident reports" / "Mieszkaniec zgłasza". Never say visible, verified or confirmed.
+Explicitly retain uncertainty about extent: "chyba w całej" means "possibly throughout the venue" / "prawdopodobnie w całym obiekcie", not a confirmed whole-building impact. Retain demo labels.
+Use null public_content only when there is no safe meaningful observation to summarize.
 Do not infer who owns the infrastructure. Do not invent scope, observation time, urgency,
 coordinates, cause, institution or an emergency response. You cannot merge reports or send tickets.`;
 

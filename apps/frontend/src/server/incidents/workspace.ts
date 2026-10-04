@@ -180,6 +180,8 @@ function incidentDto(row: IncidentRow, parts: Awaited<ReturnType<typeof loadInci
     category_id: row.category_id,
     issue_type: row.issue_type,
     title: row.title,
+    description: row.description,
+    public_content: row.public_content,
     lat: row.anchor_lat,
     lng: row.anchor_lng,
     address: row.public_label,

@@ -83,6 +83,7 @@ export function IncidentPanel({ incident, workspace, category, now, onClose, onL
               >
                 {localizedTitle(t, incident)}
               </h2>
+            {incident.description && <p className="text-sm whitespace-pre-wrap text-foreground">{incident.description}</p>}
               <p className="text-sm text-foreground-muted">{[incident.address, incident.district].filter(Boolean).join(" · ")}</p>
               <p className={FACTS}>
                 <Fact icon={Id} label={t("common.reference")}>

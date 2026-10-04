@@ -27,7 +27,7 @@ async function officialText(incidentId: string): Promise<string> {
 export async function getIncidentSearchSource(incidentId: string): Promise<SearchSource | null> {
   const row = await findIncidentRow(getPool(), incidentId);
   if (!row) return null;
-  const summary = `${publicSummary(row.issue_type)}\n${row.public_label}`;
+  const summary = `${publicSummary(row.public_content)}\n${row.public_label}`;
   const classification = [categoryLabel(row.category_id), findIssueType(row.issue_type)?.label].filter(Boolean).join(", ");
   return {
     record_type: "incident",
@@ -38,7 +38,7 @@ export async function getIncidentSearchSource(incidentId: string): Promise<Searc
     issue_type: row.issue_type,
     location: { lat: row.anchor_lat, lng: row.anchor_lng },
     projections: [
-      { audience: { kind: "public" }, title: searchTitle(`${row.reference} · ${row.title}`), text: `${summary}\n${classification}` },
+      { audience: { kind: "public" }, title: searchTitle(`${row.reference} · ${publicSummary(row.public_content)}`), text: `${summary}\n${row.public_content?.en.description ?? ""}\n${row.public_content?.pl.title ?? ""}\n${row.public_content?.pl.description ?? ""}\n${classification}` },
       {
         audience: { kind: "official" },
         title: searchTitle(`${row.reference} · ${row.title}`),
@@ -66,8 +66,8 @@ export async function hydrateIncidentHit(ctx: ActorContext, incidentId: string):
   return {
     ref: { record_type: "incident", record_id: row.id },
     version: row.version,
-    title: searchTitle(`${row.reference} · ${row.title}`),
-    excerpt: publicSummary(row.issue_type),
+    title: searchTitle(`${row.reference} · ${ctx.kind === "session" && ctx.actor.role === "official" ? row.title : publicSummary(row.public_content)}`),
+    excerpt: publicSummary(row.public_content),
     category_id: row.category_id,
   };
 }

@@ -1,4 +1,5 @@
 import "server-only";
+import type { IncidentContent } from "@/shared/incidents/content";
 
 import type { PoolClient } from "pg";
 import type { ActorContext } from "@/server/actor-context";
@@ -27,7 +28,7 @@ export interface InstitutionTicket {
   version: number;
   payload: { key: string; value: string }[];
   incident: {
-    id: string; reference: string; category_id: string; issue_type: string; public_summary: string;
+    id: string; reference: string; category_id: string; issue_type: string; public_summary: string; public_content: IncidentContent | null;
     public_location: { lat: number; lng: number; label: string; precision: "street" | "building" };
   };
   expected_resolution_at: string | null;
@@ -42,6 +43,7 @@ interface TicketRow {
   id: string; reference: string; institution_id: string; incident_id: string; status: TicketStatus; version: number;
   payload: { key: string; value: string }[]; expected_resolution_at: Date | null; result_note: string | null;
   created_at: Date; updated_at: Date;
+  public_content: IncidentContent | null;
   incident_reference: string; category_id: string; issue_type: string; public_label: string;
   public_precision: "street" | "building"; scope: "building" | "street"; anchor_lat: number; anchor_lng: number;
 }
@@ -49,7 +51,7 @@ interface TicketRow {
 const TICKET_SELECT = `
   SELECT t.id, t.reference, t.institution_id, t.incident_id, t.status, t.version, t.payload, t.expected_resolution_at,
          t.result_note, t.created_at, t.updated_at, i.reference AS incident_reference, i.category_id, i.issue_type,
-         i.public_label, i.public_precision, i.scope, i.anchor_lat, i.anchor_lng
+         i.public_content, i.public_label, i.public_precision, i.scope, i.anchor_lat, i.anchor_lng
   FROM service_tickets t JOIN incidents i ON i.id = t.incident_id`;
 
 /** What an institution may do next. Nothing goes backwards; rejection is only possible before work starts. */
@@ -88,7 +90,8 @@ async function project(client: Pick<PoolClient, "query">, rows: TicketRow[]): Pr
       reference: row.incident_reference,
       category_id: row.category_id,
       issue_type: row.issue_type,
-      public_summary: publicSummary(row.issue_type),
+      public_summary: publicSummary(row.public_content),
+      public_content: row.public_content,
       public_location: { lat: row.anchor_lat, lng: row.anchor_lng, label: row.public_label, precision: row.public_precision },
     },
     expected_resolution_at: row.expected_resolution_at ? row.expected_resolution_at.toISOString() : null,

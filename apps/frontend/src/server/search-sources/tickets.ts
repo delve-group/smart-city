@@ -15,7 +15,7 @@ async function load(ticketId: string): Promise<TicketSourceRow | null> {
   if (!isUuid(ticketId)) return null;
   const result = await getPool().query<TicketSourceRow>(
     `SELECT t.id, t.reference, t.institution_id, t.status, (t.version + i.version) AS version, t.payload, t.result_note, greatest(t.updated_at, i.updated_at) AS updated_at,
-            i.category_id, i.issue_type, i.anchor_lat, i.anchor_lng, i.title
+            i.category_id, i.issue_type, i.anchor_lat, i.anchor_lng, coalesce(i.public_content->'en'->>'title', 'Reported problem') AS title
      FROM service_tickets t JOIN incidents i ON i.id = t.incident_id WHERE t.id = $1`,
     [ticketId],
   );

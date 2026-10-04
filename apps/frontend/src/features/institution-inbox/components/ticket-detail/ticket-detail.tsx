@@ -68,7 +68,10 @@ export function TicketDetail({ ticket, now, note, category, onNoteChange, onUpda
               {ticket.payload.map((line) => (
                 <div key={line.key} className="col-span-2 grid grid-cols-subgrid">
                   <dt className="text-foreground-muted">{translatePayloadKey(t, line.key)}</dt>
-                  <dd className="text-pretty text-foreground">{line.key === "City assessment" ? translateAssessment(t, line.value) : line.value}</dd>
+                  <dd className="text-pretty text-foreground">{line.key === "City assessment" ? translateAssessment(t, line.value)
+                    : line.key === "Issue" && line.value === ticket.incident.publicContent?.en.title ? ticket.incident.publicContent[locale].title
+                    : line.key === "Description" && line.value === ticket.incident.publicContent?.en.description ? ticket.incident.publicContent[locale].description
+                    : line.value}</dd>
                 </div>
               ))}
             </dl>
