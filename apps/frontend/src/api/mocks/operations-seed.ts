@@ -178,7 +178,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
   const incidents: IncidentDto[] = [
     {
       id: "inc-0142", reference: "INC-0142", category_id: "power", issue_type: "power_outage",
-      title: "Awaria prądu na ul. Józefa Dietla", lat: 50.0579, lng: 19.9457, address: "ul. Józefa Dietla 40–58", district: "Stare Miasto",
+      title: "Awaria prądu w kamienicach i sklepach", lat: 50.0579, lng: 19.9457, address: "ul. Józefa Dietla 40–58", district: "Stare Miasto",
       matching_radius_m: 300, assessment: "corroborated", response_status: "triaged", version: 2, support_count: 3, urgent: false,
       review: { reason: "proposal_ready", note: "Agent proponuje zlecenie dla pogotowia energetycznego.", since: ago(6) },
       report_ids: ["r-311", "r-312", "r-318"],
@@ -211,7 +211,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
     },
     {
       id: "inc-0145", reference: "INC-0145", category_id: "power", issue_type: "exposed_cable",
-      title: "Iskrząca szafka kablowa na ul. Starowiślnej", lat: 50.05523, lng: 19.94689, address: "ul. Starowiślna 60", district: "Kazimierz",
+      title: "Iskrząca szafka kablowa", lat: 50.05523, lng: 19.94689, address: "ul. Starowiślna 60", district: "Kazimierz",
       matching_radius_m: 300, assessment: "suspected", response_status: "new", version: 1, support_count: 1, urgent: true,
       review: { reason: "urgent", note: "Jeśli komuś grozi niebezpieczeństwo, dzwoń pod 112. Zlecenie miejskie nie wysyła służb ratunkowych.", since: ago(9) },
       report_ids: ["r-320"],
@@ -227,7 +227,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
     },
     {
       id: "inc-0131", reference: "INC-0131", category_id: "power", issue_type: "street_light_fault",
-      title: "Niedziałające latarnie na ul. Miodowej", lat: 50.05196, lng: 19.94848, address: "ul. Miodowa 20–32", district: "Kazimierz",
+      title: "Niedziałające latarnie", lat: 50.05196, lng: 19.94848, address: "ul. Miodowa 20–32", district: "Kazimierz",
       matching_radius_m: 300, assessment: "corroborated", response_status: "triaged", version: 4, support_count: 2, urgent: false,
       review: { reason: "ticket_rejected", note: "Pogotowie energetyczne: „Oświetleniem ulicznym na Miodowej zarządza zarząd dróg, nie nasza sieć”.", since: ago(40) },
       report_ids: ["r-290", "r-292"],
@@ -263,7 +263,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
     },
     {
       id: "inc-0139", reference: "INC-0139", category_id: "water", issue_type: "burst_pipe",
-      title: "Pęknięta magistrala wodna na ul. Bernardyńskiej", lat: 50.05295, lng: 19.93836, address: "ul. Bernardyńska 2–4", district: "Stare Miasto",
+      title: "Pęknięta magistrala wodna", lat: 50.05295, lng: 19.93836, address: "ul. Bernardyńska 2–4", district: "Stare Miasto",
       matching_radius_m: 300, assessment: "verified", response_status: "assigned", version: 5, support_count: 2, urgent: false, review: null,
       report_ids: ["r-301", "r-303"],
       evidence: evidenceFor(["r-301", "r-303"], 50),
@@ -292,7 +292,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
     },
     {
       id: "inc-0140", reference: "INC-0140", category_id: "water", issue_type: "water_outage",
-      title: "Niskie ciśnienie wody na ul. Stradomskiej", lat: 50.05421, lng: 19.94058, address: "ul. Stradomska 11–19", district: "Stare Miasto",
+      title: "Niskie ciśnienie wody", lat: 50.05421, lng: 19.94058, address: "ul. Stradomska 11–19", district: "Stare Miasto",
       matching_radius_m: 300, assessment: "suspected", response_status: "in_progress", version: 4, support_count: 1, urgent: false, review: null,
       report_ids: ["r-305"],
       evidence: evidenceFor(["r-305"], 80),
@@ -321,7 +321,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
     },
     {
       id: "inc-0128", reference: "INC-0128", category_id: "power", issue_type: "power_outage",
-      title: "Awaria prądu na Rynku Podgórskim", lat: 50.04431, lng: 19.94953, address: "Rynek Podgórski 10–14", district: "Podgórze",
+      title: "Brak prądu w części kamienic", lat: 50.04431, lng: 19.94953, address: "Rynek Podgórski 10–14", district: "Podgórze",
       matching_radius_m: 300, assessment: "verified", response_status: "resolved", version: 6, support_count: 1, urgent: false, review: null,
       report_ids: ["r-271"],
       evidence: evidenceFor(["r-271"], 400),
@@ -350,7 +350,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
     },
     {
       id: "inc-0147", reference: "INC-0147", category_id: "roads", issue_type: "pothole",
-      title: "Dziura w jezdni na ul. Krakowskiej", lat: 50.04762, lng: 19.93354, address: "ul. Krakowska 41–45", district: "Kazimierz",
+      title: "Dziura w jezdni przed przejściem", lat: 50.04762, lng: 19.93354, address: "ul. Krakowska 41–45", district: "Kazimierz",
       matching_radius_m: 300, assessment: "corroborated", response_status: "triaged", version: 2, support_count: 2, urgent: false,
       review: { reason: "proposal_ready", note: "Agent proponuje zlecenie dla zarządu dróg.", since: ago(20) },
       report_ids: ["r-333", "r-336"],
@@ -377,7 +377,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
     },
     {
       id: "inc-0148", reference: "INC-0148", category_id: "transit", issue_type: "transit_disruption",
-      title: "Awaria tablicy odjazdów na przystanku Rondo Mogilskie", lat: 50.06573, lng: 19.95962, address: "Rondo Mogilskie", district: "Grzegórzki",
+      title: "Awaria tablicy odjazdów", lat: 50.06573, lng: 19.95962, address: "Rondo Mogilskie", district: "Grzegórzki",
       matching_radius_m: 300, assessment: "suspected", response_status: "triaged", version: 2, support_count: 1, urgent: false,
       review: { reason: "proposal_ready", note: "Agent proponuje zlecenie dla przewoźnika.", since: ago(38) },
       report_ids: ["r-338"],
@@ -403,7 +403,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
     },
     {
       id: "inc-0144", reference: "INC-0144", category_id: "waste", issue_type: "overflowing_bin",
-      title: "Przepełnione kosze na placu Nowym", lat: 50.05148, lng: 19.94465, address: "plac Nowy 4–7", district: "Kazimierz",
+      title: "Przepełnione kosze na śmieci", lat: 50.05148, lng: 19.94465, address: "plac Nowy 4–7", district: "Kazimierz",
       matching_radius_m: 300, assessment: "corroborated", response_status: "in_progress", version: 5, support_count: 2, urgent: false, review: null,
       report_ids: ["r-315", "r-316"],
       evidence: evidenceFor(["r-315", "r-316"], 270),
@@ -434,7 +434,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
     },
     {
       id: "inc-0149", reference: "INC-0149", category_id: "greenery", issue_type: "fallen_tree",
-      title: "Złamany konar na Plantach przy ul. Basztowej", lat: 50.06468, lng: 19.93934, address: "ul. Basztowa 15", district: "Stare Miasto",
+      title: "Złamany konar nad alejką", lat: 50.06468, lng: 19.93934, address: "ul. Basztowa 15", district: "Stare Miasto",
       matching_radius_m: 300, assessment: "suspected", response_status: "new", version: 1, support_count: 1, urgent: true,
       review: { reason: "urgent", note: "Wiszący konar nad ławkami może spaść. Jeśli komuś grozi niebezpieczeństwo, dzwoń pod 112.", since: ago(14) },
       report_ids: ["r-340"],
@@ -446,7 +446,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
     },
     {
       id: "inc-0137", reference: "INC-0137", category_id: "accessibility", issue_type: "broken_lift",
-      title: "Niedziałająca winda na perony przy ul. Pawiej", lat: 50.06686, lng: 19.94716, address: "ul. Pawia 5", district: "Stare Miasto",
+      title: "Niedziałająca winda na perony", lat: 50.06686, lng: 19.94716, address: "ul. Pawia 5", district: "Stare Miasto",
       matching_radius_m: 300, assessment: "verified", response_status: "assigned", version: 5, support_count: 1, urgent: false, review: null,
       report_ids: ["r-297"],
       evidence: evidenceFor(["r-297"], 240),
@@ -474,7 +474,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
     },
     {
       id: "inc-0150", reference: "INC-0150", category_id: "air", issue_type: "noise",
-      title: "Nocny hałas z budowy na ul. Szewskiej", lat: 50.06041, lng: 19.93571, address: "ul. Szewska 20", district: "Stare Miasto",
+      title: "Nocny hałas z budowy", lat: 50.06041, lng: 19.93571, address: "ul. Szewska 20", district: "Stare Miasto",
       matching_radius_m: 300, assessment: "suspected", response_status: "triaged", version: 1, support_count: 1, urgent: false,
       review: { reason: "needs_responsibility", note: "Hałas z prywatnej budowy może nie podlegać żadnej służbie. Wybierz, kto ma odpowiedzieć.", since: ago(22) },
       report_ids: ["r-342"],
@@ -486,7 +486,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
     },
     {
       id: "inc-0126", reference: "INC-0126", category_id: "accessibility", issue_type: "blocked_access",
-      title: "Zastawiony podjazd na ul. Floriańskiej", lat: 50.06125, lng: 19.94012, address: "ul. Floriańska 30", district: "Stare Miasto",
+      title: "Zastawiony podjazd dla wózków", lat: 50.06125, lng: 19.94012, address: "ul. Floriańska 30", district: "Stare Miasto",
       matching_radius_m: 300, assessment: "verified", response_status: "closed", version: 7, support_count: 1, urgent: false, review: null,
       report_ids: ["r-266"],
       evidence: evidenceFor(["r-266"], 1480),

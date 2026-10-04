@@ -20,7 +20,7 @@ import { AGENT, createSeedWorkspace, EXECUTOR, INSTITUTIONS, OFFICIAL, TICKET_PR
 
 type State = Omit<WorkspaceDto, "source" | "generated_at"> & { counters: { incident: number; ticket: number; history: number } };
 
-const STORAGE_KEY = "mradar-mock-operations-v2";
+const STORAGE_KEY = "mradar-mock-operations-v3";
 let memory: State | null = null;
 
 function load(): State {
