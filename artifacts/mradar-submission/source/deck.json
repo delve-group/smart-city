@@ -1,67 +1,67 @@
 {
   "id": "mradar-hackyeah-2026-d941b1d5",
-  "title": "mRadar — HackYeah 2026",
+  "title": "mRadar, HackYeah 2026",
   "lang": "pl",
   "notes": {
     "cover": {
       "seconds": 15,
-      "text": "mRadar to jedna żywa mapa Krakowa: mieszkańcy zgłaszają, co nie działa, urzędnicy widzą pełny obraz, a właściwa instytucja naprawia.\n\nWszystko, co widać, to działający kod na fikcyjnych danych."
+      "text": "mRadar to mapa usterek w Krakowie. Mieszkańcy zgłaszają, co nie działa, urząd łączy zgłoszenia w zdarzenia, a właściwa służba usuwa usterkę.\n\nWszystko na slajdach to działający kod na fikcyjnych danych."
     },
     "problem": {
       "seconds": 25,
-      "text": "Dziś jedna awaria kończy się albo lawiną zduplikowanych telefonów, albo ciszą. Mieszkańcy nie widzą, co już wiadomo, urzędnicy ręcznie łączą duplikaty i zgadują, kto odpowiada, a instytucje dowiadują się ostatnie.\n\n„Czterdzieści telefonów” to ilustracja, nie zmierzona liczba."
+      "text": "Dziś ta sama awaria trafia do urzędu wiele razy albo wcale. Mieszkańcy nie widzą, co już zgłoszono, urzędnicy ręcznie łączą duplikaty i ustalają, kto odpowiada, a instytucje dowiadują się ostatnie."
     },
     "loop": {
       "seconds": 25,
-      "text": "mRadar zamyka tę pętlę trzema ekranami na jednym modelu danych. Mieszkaniec zgłasza, miasto decyduje, służba naprawia — a status wraca na mapę mieszkańca."
+      "text": "Trzy ekrany działają na jednym modelu danych. Mieszkaniec zgłasza, urzędnik zatwierdza zlecenie, służba je realizuje, a status wraca na mapę mieszkańca."
     },
     "residents": {
       "seconds": 30,
-      "text": "Mapa mieszkańca pokazuje publiczne zdarzenia, nie surowe zgłoszenia: kilka zgłoszeń tej samej awarii to jedno zdarzenie z liczbą mieszkańców, pilnością i postępem. Zamiast zgłaszać ponownie, wystarczy „Też mam ten problem” — serwer liczy każdą osobę raz.\n\nWyszukiwarka łączy wyszukiwanie słów i znaczenia (Qdrant i wielojęzyczny model E5 uruchomiony na naszym serwerze), więc znajduje zdarzenia także przy innym sformułowaniu. Interfejs działa po polsku i angielsku."
+      "text": "Mapa mieszkańca pokazuje publiczne zdarzenia, a nie pojedyncze zgłoszenia. Kilka zgłoszeń tej samej awarii to jedno zdarzenie z liczbą mieszkańców, pilnością i postępem. Przycisk „Też mam ten problem” dolicza mieszkańca do zdarzenia, a serwer liczy każdą osobę raz.\n\nWyszukiwarka łączy wyszukiwanie słów i znaczenia (Qdrant i wielojęzyczny model E5 uruchomiony na naszym serwerze), więc znajduje zdarzenia także przy innym sformułowaniu. Interfejs działa po polsku i angielsku."
     },
     "voice": {
       "seconds": 30,
-      "text": "Zamiast formularza można po prostu powiedzieć, co się stało. Mikrofon jest na dole mapy; asystent mówi po polsku, dopytuje o miejsce i zakres, a adres od razu pokazuje na mapie.\n\nAsystent nie dopytuje o to, co już padło, i nie odczytuje całego zgłoszenia; gdy nie było jasne, że mieszkaniec chce je wysłać, zadaje jedno krótkie pytanie. Zrzut pokazuje rozmowę w toku z przykładowym dialogiem. „Kontynuuj” przenosi ten sam szkic do formularza. Głos działa w wersji wdrożonej na Scaleway."
+      "text": "Zgłoszenie można też podyktować. Mikrofon jest na dole mapy. Asystent mówi po polsku, dopytuje o miejsce i zakres, a podany adres od razu pokazuje na mapie.\n\nAsystent nie pyta o to, co już padło, i nie odczytuje całego zgłoszenia. Jeśli nie wiadomo, czy mieszkaniec chce je wysłać, zadaje jedno krótkie pytanie. Zrzut pokazuje rozmowę w toku z przykładowym dialogiem. Przycisk „Kontynuuj” przenosi ten sam szkic do formularza. Głos działa w wersji wdrożonej na Scaleway."
     },
     "voiceflow": {
       "seconds": 35,
-      "text": "Najważniejsza decyzja: agent ElevenLabs nie ma dostępu do bazy ani klucza API. Serwer wydaje przeglądarce jednorazowy token dla przypiętej, sprawdzonej wersji agenta. Głos płynie przez WebRTC między przeglądarką a ElevenLabs. Gdy agent potrzebuje danych, prosi przeglądarkę o jedno z pięciu narzędzi, a API mRadar sprawdza sesję, właściciela szkicu i jego wersję.\n\nAgent nie może zmienić tożsamości, wymyślić współrzędnych ani wysłać zgłoszenia bez potwierdzonej wersji szkicu. Dźwięk nie jest nagrywany; transkrypcja jest kasowana po jednym dniu. W lokalnych testach trzy rozmowy głosowe zapisały prawdziwe zgłoszenia; pełnych scenariuszy akceptacyjnych i rozmowy przez mikrofon na produkcji nie raportujemy jako sprawdzonych."
+      "text": "Agent ElevenLabs nie ma dostępu do bazy ani klucza API. Serwer wydaje przeglądarce jednorazowy token dla przypiętej, sprawdzonej wersji agenta. Głos płynie przez WebRTC między przeglądarką a ElevenLabs. Gdy agent potrzebuje danych, prosi przeglądarkę o jedno z pięciu narzędzi, a API mRadar sprawdza sesję, właściciela szkicu i jego wersję.\n\nAgent nie może zmienić tożsamości, wymyślić współrzędnych ani wysłać zgłoszenia bez potwierdzonej wersji szkicu. Dźwięk nie jest nagrywany, a transkrypcja jest kasowana po jednym dniu. W lokalnych testach trzy rozmowy głosowe zapisały prawdziwe zgłoszenia. Pełnych scenariuszy akceptacyjnych i rozmowy przez mikrofon na produkcji nie raportujemy jako sprawdzonych."
     },
     "reporting": {
       "seconds": 20,
-      "text": "Formularz to trzy kroki bez konta: pinezka, kategoria i pilność, wysyłka. Szkic jest zapisywany na serwerze, więc odświeżenie strony go nie gubi, a ponowna wysyłka nie tworzy duplikatu."
+      "text": "Formularz ma trzy kroki i nie wymaga konta: pinezka, kategoria i pilność, wysyłka. Szkic jest zapisywany na serwerze, więc odświeżenie strony go nie gubi, a ponowna wysyłka nie tworzy duplikatu."
     },
     "operations": {
       "seconds": 35,
-      "text": "Dla urzędnika powiązane zgłoszenia — bliskie w miejscu i czasie — przychodzą jako jedno zdarzenie z obszarem na mapie. Grupowanie jest deterministyczne. Model Qwen 3.6 na Scaleway Generative APIs ocenia zdarzenie i przygotowuje zlecenie dla służby wskazanej regułą odpowiedzialności, cytując tylko zapisane dowody. Gdy model jest niedostępny, propozycję przygotowuje reguła.\n\nNic nie trafia do instytucji, dopóki człowiek nie zatwierdzi dokładnie pokazanej treści. Kolejkę można przeszukiwać i filtrować po kategoriach."
+      "text": "Urzędnik widzi powiązane zgłoszenia, bliskie w miejscu i czasie, jako jedno zdarzenie z obszarem na mapie. Grupowanie jest deterministyczne. Model Qwen 3.6 na Scaleway Generative APIs ocenia zdarzenie i przygotowuje zlecenie dla służby wskazanej regułą odpowiedzialności, powołując się tylko na zapisane dowody. Gdy model jest niedostępny, propozycję przygotowuje reguła.\n\nZlecenie trafia do instytucji dopiero po zatwierdzeniu przez urzędnika, dokładnie w pokazanej treści. Kolejkę można przeszukiwać i filtrować po kategoriach."
     },
     "review": {
       "seconds": 25,
-      "text": "Gdy system nie jest pewien, pyta. Niepewne zgłoszenie pokazuje kandydatów z odległością i odstępem czasu. Problemy z jednego mieszkania zostają prywatne. Każde polecenie niesie wersję, którą widział urzędnik, więc dwie osoby nie nadpiszą się po cichu."
+      "text": "Niepewne zgłoszenie pokazuje kandydatów z odległością i odstępem czasu, a decyzję podejmuje urzędnik. Problemy z jednego mieszkania zostają prywatne. Każde polecenie zawiera wersję, którą widział urzędnik, więc dwie osoby nie nadpiszą sobie zmian."
     },
     "handoff": {
       "seconds": 25,
-      "text": "Po zatwierdzeniu worker wysyła zlecenie dokładnie raz, a pojawia się ono w skrzynce właściwej służby — tu pogotowia energetycznego. Służba przyjmuje, rozpoczyna prace i rozwiązuje; każdy krok aktualizuje panel urzędnika i publiczną oś czasu mieszkańca."
+      "text": "Po zatwierdzeniu worker wysyła zlecenie dokładnie raz i trafia ono do skrzynki właściwej służby, tutaj pogotowia energetycznego. Służba przyjmuje zlecenie, rozpoczyna prace i oznacza je jako rozwiązane. Każdy krok aktualizuje panel urzędnika i publiczną oś czasu mieszkańca."
     },
     "design": {
       "seconds": 25,
-      "text": "Panel zdarzenia pokazuje na pierwszy rzut oka tylko to, co najważniejsze: co się stało, gdzie, ilu mieszkańców to zgłosiło i jak pilne jest. Postęp, szczegóły, zdarzenia w pobliżu i historia czekają w rozwijanych sekcjach dla dociekliwych. Kolor jest spójny w całej aplikacji: każda z ośmiu kategorii ma jedną barwę i ikonę — w pinezkach na mapie, w filtrze, na listach i w panelach. Karta podglądu przy punkcie pokazuje status, miejsce i czas bez otwierania szczegółów, a mapa 3D podświetla budynki, których dotyczą zgłoszenia.\n\nAutomatyczny test axe-core (WCAG 2.2 AA) nie znalazł naruszeń w 32 stanach trzech ekranów, na telefonie i komputerze. Test automatyczny nie zastępuje sprawdzenia czytnikiem ekranu, którego nie raportujemy."
+      "text": "Panel zdarzenia pokazuje najpierw najważniejsze informacje: co się stało, gdzie, ilu mieszkańców to zgłosiło i jak pilne jest. Postęp, szczegóły, zdarzenia w pobliżu i historię można rozwinąć. Każda z ośmiu kategorii ma jedną barwę i ikonę, takie same w pinezkach na mapie, w filtrze, na listach i w panelach. Karta podglądu przy punkcie pokazuje status, miejsce i czas bez otwierania szczegółów, a mapa 3D podświetla budynki, których dotyczą zgłoszenia.\n\nAutomatyczny test axe-core (WCAG 2.2 AA) nie znalazł naruszeń w 32 stanach trzech ekranów, na telefonie i komputerze. Test automatyczny nie zastępuje sprawdzenia czytnikiem ekranu, którego nie przeprowadziliśmy."
     },
     "backend": {
       "seconds": 35,
-      "text": "Serwer robi pracę, której mieszkaniec nie widzi. Zgłoszenia tego samego problemu w promieniu 300 metrów i w ciągu 60 minut łączą się w jedno zdarzenie. Qwen na Scaleway klasyfikuje zapisane zgłoszenia, a odpowiedź spoza katalogu kończy się ręcznym przeglądem. Reguły odpowiedzialności wskazują służbę albo oddają wybór urzędnikowi.\n\nPo zatwierdzeniu worker wysyła zlecenie dokładnie raz: nieznany wynik jest uzgadniany, nigdy wysyłany ponownie. Wyszukiwanie łączy BM25 i model E5 uruchomiony na naszym serwerze, z osobnym zakresem dla każdej roli. Endpoint MCP udostępnia te same operacje agentom AI, a rolę wyznacza token."
+      "text": "Zgłoszenia tego samego problemu w promieniu 300 metrów i w ciągu 60 minut łączą się w jedno zdarzenie. Qwen na Scaleway klasyfikuje zapisane zgłoszenia, a odpowiedź spoza katalogu kieruje zgłoszenie do ręcznego przeglądu. Reguły odpowiedzialności wskazują służbę albo zostawiają wybór urzędnikowi.\n\nPo zatwierdzeniu worker wysyła zlecenie dokładnie raz. Nieznany wynik jest uzgadniany i nie jest wysyłany ponownie. Wyszukiwanie łączy BM25 i model E5 uruchomiony na naszym serwerze, z osobnym zakresem dla każdej roli. Endpoint MCP udostępnia te same operacje agentom AI, a rolę określa token."
     },
     "stack": {
       "seconds": 30,
-      "text": "Architektura jest celowo prosta: jedna aplikacja Next.js i jeden worker z tego samego kodu, PostgreSQL jako źródło prawdy, Qdrant jako indeks do odbudowania, wszystko na jednej maszynie Scaleway za Caddy z HTTPS. Worker obsługuje grupowanie, indeksowanie, ocenę przez AI i wysyłkę zleceń z ograniczonymi ponowieniami; każdy handler jest idempotentny.\n\nUrzędnik, instytucja i mieszkaniec mają osobne sesje. Publiczna mapa dostaje tylko listę dozwolonych pól."
+      "text": "Jedna aplikacja Next.js i jeden worker z tego samego kodu, PostgreSQL na dane źródłowe i Qdrant jako indeks, który można odbudować. Wszystko działa na jednej maszynie Scaleway za Caddy z HTTPS. Worker obsługuje grupowanie, indeksowanie, ocenę przez AI i wysyłkę zleceń z ograniczoną liczbą ponowień, a każdy handler jest idempotentny.\n\nUrzędnik, instytucja i mieszkaniec mają osobne sesje. Publiczna mapa dostaje tylko listę dozwolonych pól."
     },
     "next": {
       "seconds": 30,
-      "text": "To są plany, nie gotowe funkcje. Najważniejszy krok to weryfikacja przez mObywatel: dziś zgłoszenia mają niezweryfikowaną tożsamość, a potwierdzona osoba bez zakładania konta pozwala ważyć zgłoszenia i blokować podwójne głosy.\n\nDalej: kolejne miasta z własnym katalogiem służb, powiadomienia o zmianie statusu, obserwowane miejsca i kategorie, prawdziwe połączenia z systemami służb zamiast konektora demonstracyjnego, zdjęcia z automatycznym rozmyciem twarzy i tablic oraz dane o czasach reakcji dla miasta."
+      "text": "Te funkcje są zaplanowane i jeszcze nie istnieją. Pierwsza to weryfikacja przez mObywatel. Dziś tożsamość zgłaszających nie jest weryfikowana, a potwierdzona tożsamość bez zakładania konta pozwoli ważyć zgłoszenia i blokować podwójne głosy.\n\nKolejne: nowe miasta z własnym katalogiem służb, powiadomienia o zmianie statusu, obserwowane miejsca i kategorie, połączenia z systemami służb w miejsce konektora demonstracyjnego, zdjęcia z automatycznym rozmyciem twarzy i tablic oraz dane o czasach reakcji dla miasta."
     },
     "close": {
       "seconds": 15,
-      "text": "Wszystkie trzy ekrany działają pod adresami na slajdzie; dane logowania do paneli są w załączonej notatce. Kod jest w repozytorium. Korzystaliśmy z asystentów AI do programowania. Dziękujemy."
+      "text": "Wszystkie trzy ekrany działają pod adresami na slajdzie. Dane logowania do paneli są w załączonej notatce, a kod w repozytorium. Korzystaliśmy z asystentów AI do programowania. Dziękujemy."
     }
   }
 }
