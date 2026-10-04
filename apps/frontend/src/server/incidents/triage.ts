@@ -13,7 +13,7 @@ import {
   addIncidentEvent, bumpIncidentVersion, findIncidentRow, INCIDENT_COLUMNS, isUuid, refreshSupport, type IncidentRow,
 } from "./incidents";
 import { getServiceObservations } from "./observations";
-import { incidentTitle } from "./public-templates";
+import { incidentContentSchema, type IncidentContent } from "@/shared/incidents/content";
 import { resolveResponsibility } from "./responsibility";
 import { decideTriage, TRIAGE_POLICY, type TriageDecision } from "./triage-policy";
 import { enqueueIncidentIndex } from "./work";
@@ -52,7 +52,14 @@ export async function linkReportToIncident(
 }
 
 /** Opens a suspected incident anchored at the report. The anchor never moves afterwards. */
-export async function createIncidentFromReport(client: PoolClient, ctx: ActorContext, report: ReportRow): Promise<IncidentRow> {
+export async function createIncidentFromReport(client: PoolClient, ctx: ActorContext, report: ReportRow, content?: IncidentContent | null): Promise<IncidentRow> {
+  if (content === undefined) {
+    const saved = await client.query<{ content: unknown }>(
+      "SELECT triage_policy->'classification'->'public_content' AS content FROM reports WHERE id = $1", [report.id],
+    );
+    const parsed = incidentContentSchema.safeParse(saved.rows[0]?.content);
+    content = parsed.success ? parsed.data : null;
+  }
   const scope = report.scope === "building" ? "building" : "street";
   // Geocoders return "Józefa Dietla" as often as "ul. Józefa Dietla" or "aleja Pokoju".
   const street = !report.street
@@ -77,16 +84,16 @@ export async function createIncidentFromReport(client: PoolClient, ctx: ActorCon
     `INSERT INTO incidents
        (reference, category_id, issue_type, title, anchor_lat, anchor_lng, anchor_observed_at, service_area_id, street_key,
         building_key, scope, public_label, public_precision, district, urgent, response_status,
-        responsible_institution_id, responsibility_rule_id, review_reason, review_note, review_since)
+        responsible_institution_id, responsibility_rule_id, review_reason, review_note, review_since, description, public_content)
      VALUES ('INC-26-' || lpad(nextval('incident_reference_seq')::text, 6, '0'), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
-             $11, $12, $13, $14, $15, $16, $17, $18, $19, CASE WHEN $18::text IS NULL THEN NULL ELSE now() END)
+             $11, $12, $13, $14, $15, $16, $17, $18, $19, CASE WHEN $18::text IS NULL THEN NULL ELSE now() END, $20, $21::jsonb)
      RETURNING ${INCIDENT_COLUMNS}`,
     [
-      report.category_id, report.issue_type, incidentTitle(report.issue_type), report.lat, report.lng,
+      report.category_id, report.issue_type, report.summary, report.lat, report.lng,
       report.observed_at, responsibility.service_area_id, streetKey(report.street),
       buildingKey(report.street, report.building_number), scope, publicLabel, scope, report.district, report.urgent,
       single ? "triaged" : "new", single?.institution.id ?? null, single?.rule_id ?? null,
-      review ? "needs_responsibility" : null, review,
+      review ? "needs_responsibility" : null, review, report.original_observation, content ? JSON.stringify(content) : null,
     ],
   );
   const incident = inserted.rows[0];
@@ -245,7 +252,7 @@ export async function triageReport(
 
     const created = decision.outcome === "new_incident";
     const incident = created
-      ? await createIncidentFromReport(client, ctx, report)
+      ? await createIncidentFromReport(client, ctx, report, "public_content" in classification ? classification.public_content : null)
       : await findIncidentRow(client, decision.incident_id, true);
     if (!incident) throw new Error("A triage candidate disappeared inside its transaction.");
 

@@ -15,7 +15,7 @@ import {
 
 const STORAGE_KEY = "mradar-locale";
 
-export type Translator = (key: MessageKey, vars?: Record<string, string | number>) => string;
+export type Translator = ((key: MessageKey, vars?: Record<string, string | number>) => string) & { locale?: Locale };
 
 type LocaleContextValue = {
   locale: Locale;
@@ -68,7 +68,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   }, [locale]);
 
   const value = useMemo<LocaleContextValue>(() => {
-    const t: Translator = (key, vars) => fill(messages[locale][key], vars);
+    const t: Translator = Object.assign((key: MessageKey, vars?: Record<string, string | number>) => fill(messages[locale][key], vars), { locale });
     return {
       locale,
       setLocale: (next) => {

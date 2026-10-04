@@ -20,6 +20,7 @@ export interface PublicIncident {
   category_id: string;
   issue_type: string;
   public_summary: string;
+  public_content: IncidentRow["public_content"];
   scope: "building" | "street";
   assessment: IncidentRow["assessment"];
   response_status: IncidentRow["response_status"];
@@ -77,7 +78,8 @@ async function project(client: Queryable, rows: IncidentRow[], ctx: ActorContext
     reference: row.reference,
     category_id: row.category_id,
     issue_type: row.issue_type,
-    public_summary: publicSummary(row.issue_type),
+    public_summary: publicSummary(row.public_content),
+    public_content: row.public_content,
     scope: row.scope,
     assessment: row.assessment,
     response_status: row.response_status,

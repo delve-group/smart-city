@@ -60,6 +60,6 @@ export function filterTickets(
 
 /** The ticket's incident title in the chosen language, without the place (shown separately). */
 export function ticketSummary(t: Translator, ticket: InstitutionTicket): string {
-  const { issueType, summary } = ticket.incident;
-  return localizedSummary(t, { issueType, fallback: summary });
+  const { issueType, summary, publicContent } = ticket.incident;
+  return localizedSummary(t, { issueType, fallback: summary, publicContent });
 }

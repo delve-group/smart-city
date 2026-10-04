@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { incidentContentSchema } from "@/shared/incidents/content";
 import { REPORT_SEVERITIES } from "@/shared/utils/severity";
 
 export const ASSESSMENTS = ["suspected", "corroborated", "verified", "disputed"] as const;
@@ -8,7 +9,7 @@ const timestamp = z.iso.datetime({ offset: true });
 /** Public allowlist from workflow-contracts §2. No report narrative or identity fields. */
 export const publicIncidentSchema = z.strictObject({
   id: z.string().min(1), reference: z.string().min(1), category_id: z.string(), issue_type: z.string(),
-  public_summary: z.string(), scope: z.enum(["building", "street"]),
+  public_summary: z.string(), public_content: incidentContentSchema.nullable().optional(), scope: z.enum(["building", "street"]),
   assessment: z.enum(ASSESSMENTS), response_status: z.enum(RESPONSE_STATUSES),
   support_count: z.number().int().nonnegative(), severity: z.enum(REPORT_SEVERITIES).nullable(), accepts_contributions: z.boolean(),
   viewer_support: z.enum(["reporter", "contributor"]).nullable(),

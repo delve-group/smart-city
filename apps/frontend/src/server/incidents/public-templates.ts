@@ -1,4 +1,4 @@
-import { findIssueType } from "@/server/reports/issue-types";
+import type { IncidentContent } from "@/shared/incidents/content";
 
 /* Controlled public wording. Resident text, staff reasons and institution notes never pass through here. */
 
@@ -26,12 +26,7 @@ export function timelineText(kind: TimelineKind): string {
   return TIMELINE_TEXT[kind];
 }
 
-/** The issue label only: the place lives in its own field and is never repeated in a title (D083). */
-export function incidentTitle(issueType: string): string {
-  const issue = findIssueType(issueType);
-  return issue && issue.id !== "other" ? issue.label : "Reported problem";
-}
-
-export function publicSummary(issueType: string): string {
-  return `${incidentTitle(issueType)}, reported by residents.`;
+/** Safe stored narrative only. Missing content never guesses from routing metadata. */
+export function publicSummary(content: IncidentContent | null): string {
+  return content?.en.title ?? "Reported problem";
 }

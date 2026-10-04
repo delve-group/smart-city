@@ -562,6 +562,7 @@ const en = {
   "toast.out_of_scope": "{reference} marked out of scope",
 
   "payload.issue": "Issue",
+  "payload.description": "Description",
   "payload.area": "Area",
   "payload.since": "Since",
   "payload.residents": "Residents reporting",
@@ -919,7 +920,7 @@ const pl: { [K in keyof typeof en]: string } = {
   "issueType.exposed_cable": "Odsłonięty kabel",
   "issueType.water_outage": "Brak wody",
   "issueType.burst_pipe": "Pęknięta rura lub wyciek",
-  "issueType.blocked_drain": "Zatkana studzienka",
+  "issueType.blocked_drain": "Zatkany odpływ lub kanalizacja",
   "issueType.pothole": "Dziura lub uszkodzona jezdnia",
   "issueType.traffic_signal_fault": "Awaria sygnalizacji",
   "issueType.transit_disruption": "Utrudnienie na przystanku lub linii",
@@ -1179,6 +1180,7 @@ const pl: { [K in keyof typeof en]: string } = {
   "toast.out_of_scope": "{reference} oznaczono jako poza zakresem",
 
   "payload.issue": "Problem",
+  "payload.description": "Opis",
   "payload.area": "Obszar",
   "payload.since": "Od",
   "payload.residents": "Zgłaszający mieszkańcy",
@@ -1281,6 +1283,7 @@ export function serverTextKey(text: string): MessageKey | null {
 
 const PAYLOAD_KEYS: Record<string, MessageKey> = {
   Issue: "payload.issue",
+  Description: "payload.description",
   Area: "payload.area",
   Since: "payload.since",
   "Residents reporting": "payload.residents",

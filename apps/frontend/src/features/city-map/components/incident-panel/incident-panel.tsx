@@ -87,6 +87,7 @@ export function IncidentPanel({ incident, incidents, category, now, onClose, onC
             {incidentSummary(t, incident)}
           </h2>
           <p className="text-sm text-foreground-muted">{incident.public_location.label}</p>
+          {incident.public_content && <p className="pt-3 text-sm whitespace-pre-wrap text-foreground">{incident.public_content[locale].description}</p>}
 
           <section className="flex flex-col gap-3 pt-3 pb-5">
             <div className="grid grid-cols-2 gap-3">

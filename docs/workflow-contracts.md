@@ -483,3 +483,7 @@ Boundary-level only; end-to-end verification belongs to the implementing Issues 
 | SC-005 | Cross-institution `404`; residents and `system` principals barred from official commands (§1, §5, §7). |
 | SC-007 | Atomic domain write + `enqueueWork`; draft recovery; `execution_unknown` and reconciliation (§3, §6, §8). |
 | SC-008 | Public shapes exclude identities, narrative, unit and notes; projections per audience (§2, §9). |
+
+## Incident narrative extension (D084)
+
+Public incident and institution incident projections include optional nullable `public_content: { en: { title, description }, pl: { title, description } }`. The text summarizes the observation independently of classification and routing, without personal/unit details. `public_summary` remains the English stored title (neutral when missing). Official workspace incidents additionally include private `description` and the safe `public_content`. Approved requests include `Issue` and `Description`; narrative changes invalidate unexecuted approvals. Explicit corrections to open demo tickets preserve preceding payload/version history and increment the ticket version without executing another request.

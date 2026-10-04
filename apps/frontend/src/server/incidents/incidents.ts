@@ -2,6 +2,7 @@ import "server-only";
 
 import type { PoolClient } from "pg";
 import { afterIncidentChange } from "@/server/actions/proposal-lifecycle";
+import type { IncidentContent } from "@/shared/incidents/content";
 import type { TimelineKind } from "./public-templates";
 
 type Queryable = Pick<PoolClient, "query">;
@@ -12,6 +13,8 @@ export interface IncidentRow {
   category_id: string;
   issue_type: string;
   title: string;
+  description: string;
+  public_content: IncidentContent | null;
   anchor_lat: number;
   anchor_lng: number;
   anchor_observed_at: Date | null;
@@ -36,7 +39,7 @@ export interface IncidentRow {
   updated_at: Date;
 }
 
-export const INCIDENT_COLUMNS = `id, reference, category_id, issue_type, title, anchor_lat, anchor_lng, anchor_observed_at,
+export const INCIDENT_COLUMNS = `id, reference, category_id, issue_type, title, description, public_content, anchor_lat, anchor_lng, anchor_observed_at,
   service_area_id, street_key, building_key, scope, public_label, public_precision, district, assessment,
   response_status, support_count, urgent, responsible_institution_id, responsibility_rule_id, review_reason,
   review_note, review_since, version, created_at, updated_at`;
