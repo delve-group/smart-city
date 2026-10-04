@@ -24,6 +24,7 @@ import { useInstitutionData } from "../../hooks/use-institution-data";
 import { filterTickets, isOpen, sortTickets, ticketSummary } from "../../utils/labels";
 import { TicketDetail } from "../ticket-detail/ticket-detail";
 import { TicketRow } from "../ticket-row/ticket-row";
+import { ClearSearchButton } from "@/shared/components/clear-search-button/clear-search-button";
 
 // MapLibre needs the browser (WebGL, window), so the map is client-only.
 const CityMapCanvas = dynamic(() => import("@/features/city-map/components/city-map-canvas/city-map-canvas"), { ssr: false });
@@ -185,21 +186,18 @@ export function InstitutionInbox({ onSessionLost, onSignOut }: InstitutionInboxP
                   inputSize="lg"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  clearable
-                  onClear={() => setQuery("")}
+                  endSlot={query ? <ClearSearchButton onClear={() => setQuery("")} /> : null}
                   placeholder={t("inbox.searchPlaceholder")}
                   aria-label={t("inbox.searchLabel")}
                   className="min-w-0 flex-1 border-border-strong/50 [&_input::-webkit-search-cancel-button]:appearance-none bg-background shadow-xs"
                   startSlot={<Search size={18} aria-hidden className="text-foreground-muted" />}
                 />
-                {categories.length > 0 && (
-                  <CategoryFilter
-                    categories={categories}
-                    counts={counts}
-                    selected={shownCategoryIds ?? categoryIds}
-                    onChange={(ids) => setShownCategoryIds(ids.length === categoryIds.length ? null : ids)}
-                  />
-                )}
+                <CategoryFilter
+                  categories={categories}
+                  counts={counts}
+                  selected={shownCategoryIds ?? categoryIds}
+                  onChange={(ids) => setShownCategoryIds(ids.length === categoryIds.length ? null : ids)}
+                />
               </div>
             </>
           )}

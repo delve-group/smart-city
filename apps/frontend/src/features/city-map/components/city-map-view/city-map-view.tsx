@@ -209,6 +209,24 @@ export function CityMapView() {
 
   return (
     <div ref={containerRef} className="resident-map relative size-full overflow-hidden">
+      {/* Before the map in the DOM: the search row is the first stop for keyboard users. */}
+      <div className="absolute top-3 right-3 left-3 z-20 flex items-start gap-2 md:right-auto md:w-140">
+        <div className="min-w-0 flex-1">
+          <MapSearch incidents={incidents} knownIncidents={allIncidents} categoryIds={shownIds} categoriesById={categoriesById} onPick={handlePick} />
+        </div>
+        <CategoryFilter
+          categories={categories}
+          counts={counts}
+          selected={shownIds}
+          onChange={(ids) => setShownCategoryIds(ids.length === categoryIds.length ? null : ids)}
+          hideFinished={hideFinished}
+          onHideFinishedChange={setHideFinished}
+        />
+        {!selected && (
+          <ReportFab active={mode.kind !== "browse"} busy={!ready || intake.busy} onClick={() => { if (mode.kind === "browse") void startReport(); else if (mode.kind === "voice") cancelReport(); }} onVoice={() => void startVoiceReport()} />
+        )}
+      </div>
+
       <CityMapCanvas
         points={points}
         categoryIds={categoryIds}
@@ -240,26 +258,6 @@ export function CityMapView() {
         className={`pointer-events-none absolute left-3 z-20 h-12 items-center transition-[bottom] duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none md:hidden ${mode.kind === "voice" ? "hidden" : "flex"} ${sheetCoversMap ? "bottom-[calc(72dvh+0.75rem)]" : "bottom-3"}`}
         style={mode.kind === "picking" && pickerHeight > 0 ? { bottom: `calc(${pickerHeight}px + 1.5rem)` } : undefined}
       ><AppBrand variant="plain" /></div>
-
-      <div className="absolute top-3 right-3 left-3 z-20 flex items-start gap-2 md:right-auto md:w-140">
-        <div className="min-w-0 flex-1">
-          <MapSearch incidents={incidents} knownIncidents={allIncidents} categoryIds={shownIds} categoriesById={categoriesById} onPick={handlePick} />
-        </div>
-        {categories.length > 0 && (
-          <CategoryFilter
-            categories={categories}
-            counts={counts}
-            selected={shownIds}
-            onChange={(ids) => setShownCategoryIds(ids.length === categoryIds.length ? null : ids)}
-            hideFinished={hideFinished}
-            onHideFinishedChange={setHideFinished}
-          />
-        )}
-        {ready && !selected && (
-          <ReportFab active={mode.kind !== "browse"} busy={intake.busy} onClick={() => { if (mode.kind === "browse") void startReport(); else if (mode.kind === "voice") cancelReport(); }} onVoice={() => void startVoiceReport()} />
-        )}
-      </div>
-
 
       {ready && refreshFailed && (
         <div className={`absolute left-3 z-20 mb-14 max-w-[calc(100%-1.5rem)] rounded-md border border-border bg-background px-3 py-2 shadow-sm md:bottom-3 md:mb-0 md:max-w-sm ${selected || mode.kind === "form" ? "bottom-[calc(72dvh+0.75rem)]" : mode.kind === "picking" ? "bottom-[calc(50dvh+0.75rem)]" : "bottom-3"}`}>

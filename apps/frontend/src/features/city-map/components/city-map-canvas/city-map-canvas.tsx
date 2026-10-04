@@ -186,6 +186,16 @@ export default function CityMapCanvas({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focus, loaded]);
 
+  // MapLibre reads its UI strings once, at construction; relabel when the language changes.
+  useEffect(() => {
+    const container = mapRef.current?.getContainer();
+    if (!loaded || !container) return;
+    container.querySelector(".maplibregl-canvas")?.setAttribute("aria-label", t("map.label"));
+    const toggle = container.querySelector(".maplibregl-ctrl-attrib-button");
+    toggle?.setAttribute("aria-label", t("map.attributionToggle"));
+    toggle?.setAttribute("title", t("map.attributionToggle"));
+  }, [loaded, t]);
+
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;

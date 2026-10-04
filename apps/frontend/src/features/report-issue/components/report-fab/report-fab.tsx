@@ -17,7 +17,7 @@ export function ReportFab({ active, busy = false, onClick, onVoice }: { active: 
       aria-pressed={active}
       onClick={onVoice && !active ? undefined : onClick}
       disabled={busy}
-      className={`shrink-0 shadow-xs ${active ? "" : "border-border-strong/50 bg-background"}`}
+      className={`shrink-0 shadow-xs data-disabled:opacity-100! data-disabled:text-foreground-subtle ${active ? "" : "border-border-strong/50 bg-background"}`}
     >
       <MessageReport data-icon="start" />
       {t("report.fab")}

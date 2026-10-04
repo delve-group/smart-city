@@ -11,6 +11,7 @@ import type { MessageKey } from "@/shared/i18n/messages";
 import { QUEUE_TABS, type QueueItem as QueueItemData, type QueueTab } from "../../utils/queue";
 import { FreshnessStatus } from "@/shared/components/freshness-status/freshness-status";
 import { QueueItem } from "../queue-item/queue-item";
+import { ClearSearchButton } from "@/shared/components/clear-search-button/clear-search-button";
 
 const EMPTY: Record<QueueTab, MessageKey> = {
   review: "queue.emptyReview",
@@ -88,21 +89,18 @@ export function OperationsSidebar({
             inputSize="lg"
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
-            clearable
-            onClear={() => onQueryChange("")}
+            endSlot={query ? <ClearSearchButton onClear={() => onQueryChange("")} /> : null}
             placeholder={t("queue.searchPlaceholder")}
             aria-label={t("queue.searchLabel")}
             className="min-w-0 flex-1 border-border-strong/50 [&_input::-webkit-search-cancel-button]:appearance-none bg-background shadow-xs"
             startSlot={<Search size={18} aria-hidden className="text-foreground-muted" />}
           />
-          {categories.length > 0 && (
-            <CategoryFilter
-              categories={categories}
-              counts={categoryCounts}
-              selected={shownCategoryIds}
-              onChange={onShownCategoriesChange}
-            />
-          )}
+          <CategoryFilter
+            categories={categories}
+            counts={categoryCounts}
+            selected={shownCategoryIds}
+            onChange={onShownCategoriesChange}
+          />
         </div>
         <Tabs value={tab} onValueChange={(next) => onTabChange(next as QueueTab)} variant="line" size="sm">
           <TabsList className="grid w-full grid-cols-3 gap-0">

@@ -26,6 +26,7 @@ import { searchIncidents, topIncidents } from "../../utils/search-incidents";
 import { SearchPlaceOption } from "../search-place-option/search-place-option";
 import { SearchIncidentOption } from "../search-incident-option/search-incident-option";
 import { incidentSummary } from "../../utils/incident-summary";
+import { ClearSearchButton } from "@/shared/components/clear-search-button/clear-search-button";
 
 export type SearchOption =
   | { kind: "incident"; id: string; label: string; incident: PublicIncident }
@@ -89,7 +90,6 @@ export function MapSearch({ incidents, knownIncidents, categoryIds, categoriesBy
       itemToStringLabel={(option) => (option as SearchOption).label}
       isItemEqualToValue={(a, b) => (a as SearchOption).kind === (b as SearchOption).kind && (a as SearchOption).id === (b as SearchOption).id}
       icon={false}
-      clearable
       autoHighlight
       size="lg"
     >
@@ -99,7 +99,7 @@ export function MapSearch({ incidents, knownIncidents, categoryIds, categoriesBy
         placeholder={t("search.placeholder")}
         className="border-border-strong/50 bg-background shadow-xs"
         startSlot={<Search size={18} aria-hidden className="text-foreground-muted" />}
-        endSlot={searching ? <Spinner className="size-4 text-foreground-muted" aria-label={t("search.searching")} /> : null}
+        endSlot={searching ? <Spinner className="size-4 text-foreground-muted" aria-label={t("search.searching")} /> : query ? <ClearSearchButton onClear={() => setQuery("")} /> : null}
       />
       <ComboboxContent className="w-[min(32rem,calc(100vw-1.5rem))] min-w-0">
         {typed && (searching || search.status === "error" || outdated || places.status === "error" || USE_MOCKS) && <div role="status" className="flex flex-col gap-2 border-b border-border-muted px-3 py-2 text-xs text-foreground-muted">

@@ -24,7 +24,7 @@ type CategoryFilterProps = {
   onHideFinishedChange?: (hide: boolean) => void;
 };
 
-/** Square button next to the search field; opens a category checklist. */
+/** Square button next to the search field; opens a category checklist. Disabled until categories load, so it never pops in. */
 export function CategoryFilter({ categories, counts, selected, onChange, hideFinished, onHideFinishedChange }: CategoryFilterProps) {
   const { t } = useI18n();
   const allIds = categories.map((category) => category.id);
@@ -42,7 +42,8 @@ export function CategoryFilter({ categories, counts, selected, onChange, hideFin
             variant={active ? "primary" : "outline"}
             size="icon-lg"
             aria-label={label}
-            className={`relative shrink-0 shadow-xs ${active ? "" : "border-border-strong/50"}`}
+            disabled={allIds.length === 0}
+            className={`relative shrink-0 shadow-xs data-disabled:opacity-100! data-disabled:text-foreground-subtle ${active ? "" : "border-border-strong/50"}`}
           />
         }
       >

@@ -159,6 +159,9 @@ const en = {
   "search.reports": "Incidents",
   "search.places": "Places",
   "search.top": "Most affected",
+  "search.clear": "Clear search",
+  "map.label": "City map",
+  "map.attributionToggle": "Show map credits",
 
   "report.fab": "Report",
   "report.loading": "Loading public incidents…",
@@ -775,6 +778,9 @@ const pl: { [K in keyof typeof en]: string } = {
   "search.reports": "Zdarzenia",
   "search.places": "Miejsca",
   "search.top": "Najwięcej zgłoszeń",
+  "search.clear": "Wyczyść wyszukiwanie",
+  "map.label": "Mapa miasta",
+  "map.attributionToggle": "Pokaż źródła mapy",
 
   "report.fab": "Zgłoś",
   "report.loading": "Wczytywanie publicznych zdarzeń…",
