@@ -116,6 +116,7 @@ const SERVER_PATTERNS: [RegExp, (match: RegExpMatchArray) => [MessageKey, Record
   [/^(.+) · Voice report$/, (m) => ["server.patternVoiceReport", { reference: m[1] }]],
   [/^(.+) · Form report$/, (m) => ["server.patternFormReport", { reference: m[1] }]],
   [/^Proposal rejected: ([\s\S]+)$/, (m) => ["server.patternRejected", { reason: m[1] }]],
+  [/^(.+) chosen by the official\.$/, (m) => ["server.patternChosen", { name: m[1] }]],
 ];
 
 /** Server-generated labels and notes in the chosen language; anything else (names, people's notes) is shown as written. */

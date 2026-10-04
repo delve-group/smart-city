@@ -208,7 +208,7 @@ export function runIncidentCommand(incidentId: string, command: IncidentCommand)
         if (incident.proposal?.state === "pending") incident.proposal.state = "superseded";
         incident.version += 1;
         incident.response_status = "triaged";
-        incident.proposal = proposalFor(state, incident, institution.id, OFFICIAL, `Urzędnik wybrał: ${institution.name}.`);
+        incident.proposal = proposalFor(state, incident, institution.id, OFFICIAL, `Operator wybrał: ${institution.name}.`);
         incident.review = { reason: "proposal_ready", note: `Zlecenie dla: ${institution.name} czeka na zatwierdzenie.`, since: nowIso() };
         log(state, incident, OFFICIAL, "Wybrano odpowiedzialną instytucję", institution.name);
         log(state, incident, OFFICIAL, `Przygotowano propozycję v${incident.proposal.version}`);

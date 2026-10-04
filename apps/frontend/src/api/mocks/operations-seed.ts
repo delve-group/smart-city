@@ -8,7 +8,7 @@ import type { HistoryDto, IncidentDto, InstitutionDto, OperationsReportDto, Work
 
 const MINUTE = 60_000;
 
-export const OFFICIAL = "Urzędnik miejski";
+export const OFFICIAL = "Operator miejski";
 export const AGENT = "Agent decyzyjny";
 export const TRIAGE = "Automatyczna selekcja";
 export const EXECUTOR = "Wysyłka zleceń";
@@ -476,7 +476,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
       id: "inc-0150", reference: "INC-0150", category_id: "air", issue_type: "noise",
       title: "Nocny hałas z budowy", lat: 50.06041, lng: 19.93571, address: "ul. Szewska 20", district: "Stare Miasto",
       matching_radius_m: 300, assessment: "suspected", response_status: "triaged", version: 1, support_count: 1, urgent: false,
-      review: { reason: "needs_responsibility", note: "Hałas z prywatnej budowy może nie podlegać żadnej służbie. Wybierz, kto ma odpowiedzieć.", since: ago(22) },
+      review: { reason: "needs_responsibility", note: "Hałas z prywatnej budowy może nie podlegać żadnej jednostce miejskiej. Wybierz, kto ma odpowiedzieć.", since: ago(22) },
       report_ids: ["r-342"],
       evidence: evidenceFor(["r-342"], 22),
       proposal: null,

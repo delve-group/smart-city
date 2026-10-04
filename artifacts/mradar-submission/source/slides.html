@@ -6,7 +6,7 @@
     <img class="mark" src="assets/mradar-mark.svg" alt="Logo mRadar">
     <h1 data-key="cover-title">mRadar</h1>
     <p class="tagline" data-key="cover-tagline">Mapa usterek Krakowa.</p>
-    <p class="lead" data-key="cover-lead">Mieszkańcy zgłaszają usterki formularzem albo głosem. Urząd łączy zgłoszenia i przekazuje je właściwej służbie, a postęp widać na mapie.</p>
+    <p class="lead" data-key="cover-lead">Mieszkańcy zgłaszają usterki formularzem albo głosem. Operator łączy zgłoszenia i przekazuje je właściwej jednostce miejskiej, a postęp widać na mapie.</p>
   </div>
   <p class="foot" data-key="cover-foot">HackYeah 2026 · Zadanie otwarte: Smart City</p>
 </section>
@@ -16,16 +16,16 @@
   <div class="copy">
     <h2 class="display" data-key="problem-title">Obieg zgłoszeń jest<br>wolny i rozproszony.</h2>
     <div class="three">
-      <p class="lead" data-key="problem-residents"><strong>Mieszkańcy</strong> nie widzą wcześniejszych zgłoszeń ani ich statusu. Ta sama usterka trafia do urzędu wielokrotnie albo wcale.</p>
-      <p class="lead" data-key="problem-officials"><strong>Operatorzy</strong> przyjmują zgłoszenia z wielu kanałów. Każde trzeba ręcznie powiązać z innymi i przypisać do właściwej służby.</p>
-      <p class="lead" data-key="problem-institutions"><strong>Instytucje</strong> dostają zlecenia z opóźnieniem, a informacja o postępie prac rzadko wraca do urzędu i mieszkańców.</p>
+      <p class="lead" data-key="problem-residents"><strong>Mieszkańcy</strong> nie widzą wcześniejszych zgłoszeń ani ich statusu. Ta sama usterka trafia do miasta wielokrotnie albo wcale.</p>
+      <p class="lead" data-key="problem-officials"><strong>Operatorzy</strong> przyjmują zgłoszenia z wielu kanałów. Każde trzeba ręcznie powiązać z innymi i przypisać do właściwej jednostki miejskiej.</p>
+      <p class="lead" data-key="problem-institutions"><strong>Jednostki miejskie</strong> dostają zlecenia z opóźnieniem, a informacja o postępie prac rzadko wraca do operatorów i mieszkańców.</p>
     </div>
   </div>
 </section>
 
 <section class="slide" id="loop">
   <h2 class="title loop-title" data-key="loop-title">Trzy ekrany, jeden obieg</h2>
-  <p class="loop-lead" data-key="loop-lead">Zgłoszenie przechodzi od mieszkańca przez urząd do służby, a każda zmiana statusu wraca na mapę.</p>
+  <p class="loop-lead" data-key="loop-lead">Zgłoszenie przechodzi od mieszkańca przez operatora do jednostki miejskiej, a każda zmiana statusu wraca na mapę.</p>
   <svg class="loop-path" viewBox="0 0 1920 1080" aria-hidden="true">
     <defs><marker id="arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#fb7185"/></marker></defs>
     <circle cx="622" cy="560" r="6" fill="#fb7185"/><path d="M630 560H708" marker-end="url(#arrow)"/>
@@ -35,10 +35,10 @@
   <p class="loop-return" data-key="loop-return">Każda zmiana statusu pojawia się na mapie mieszkańca</p>
   <figure class="frag" style="left:120px"><img src="assets/pl-phone-form.jpg" alt="Formularz nowego zgłoszenia: miejsce, kategoria i opis problemu" style="margin-top:-292px"></figure>
   <figure class="frag" style="left:720px"><img src="assets/pl-frag-official.jpg" alt="Przygotowane zlecenie dla pogotowia energetycznego z przyciskiem Zatwierdź i wyślij"></figure>
-  <figure class="frag" style="left:1320px"><img src="assets/pl-frag-institution.jpg" alt="Skrzynka instytucji: wniosek miasta i następny krok"></figure>
+  <figure class="frag" style="left:1320px"><img src="assets/pl-frag-institution.jpg" alt="Skrzynka jednostki miejskiej: wniosek miasta i następny krok"></figure>
   <div class="step-label" style="left:120px"><h3 data-key="loop-1-title">Mieszkaniec zgłasza</h3><p data-key="loop-1-body">Pinezka, kategoria i pilność albo rozmowa głosowa. Bez zakładania konta.</p></div>
-  <div class="step-label" style="left:720px"><h3 data-key="loop-2-title">Miasto zatwierdza</h3><p data-key="loop-2-body">Powiązane zgłoszenia tworzą jedno zdarzenie z przygotowanym zleceniem. Wysyła je urzędnik.</p></div>
-  <div class="step-label" style="left:1320px"><h3 data-key="loop-3-title">Służba naprawia</h3><p data-key="loop-3-body">Przyjmuje zlecenie, rozpoczyna prace, oznacza jako rozwiązane.</p></div>
+  <div class="step-label" style="left:720px"><h3 data-key="loop-2-title">Miasto zatwierdza</h3><p data-key="loop-2-body">Powiązane zgłoszenia tworzą jedno zdarzenie z przygotowanym zleceniem. Wysyła je operator.</p></div>
+  <div class="step-label" style="left:1320px"><h3 data-key="loop-3-title">Jednostka miejska naprawia</h3><p data-key="loop-3-body">Przyjmuje zlecenie, rozpoczyna prace, oznacza jako rozwiązane.</p></div>
 </section>
 
 <section class="slide" id="residents">
@@ -47,7 +47,7 @@
     <h2 class="title" data-key="residents-title">Mapa tego, co już zgłoszono</h2>
     <p class="url mono" data-key="residents-url">mradar.delvengine.com</p>
   </div>
-  <p class="lead split-lead sm" data-key="residents-lead">Mapa ciepła pokazuje, gdzie skupiają się problemy, a każde zdarzenie ma status: zgłoszone, potwierdzone, w trakcie, rozwiązane. <strong>Jeśli problem jest już zgłoszony, „Też mam ten problem” dolicza mieszkańca bez tworzenia duplikatu.</strong></p>
+  <p class="lead split-lead sm" data-key="residents-lead">Każde zdarzenie ma status: zgłoszone, potwierdzone, w trakcie, rozwiązane. <strong>Jeśli problem jest już zgłoszony, „Też mam ten problem” dolicza mieszkańca bez tworzenia duplikatu.</strong></p>
   <div class="bleed" data-allow-overflow><div class="monitor" style="left:67px; top:414px; width:1785px"><div class="screen"><img src="assets/pl-home-incident.jpg" alt="Mapa mieszkańca z otwartym zdarzeniem: liczba mieszkańców, pilność, przycisk Też mam ten problem i postęp"></div><img class="frame" src="assets/imac-silver.webp" alt=""></div></div>
 </section>
 
@@ -59,7 +59,7 @@
     <div class="points">
       <p class="lead sm" data-key="voice-1"><strong>Miejsce.</strong> Podany adres od razu pojawia się na mapie. Asystent rozpoznaje też nazwy miejsc, np. „przy Tauron Arenie”.</p>
       <p class="lead sm" data-key="voice-2"><strong>Duplikaty.</strong> Przed utworzeniem nowego zgłoszenia asystent sprawdza istniejące zdarzenia.</p>
-      <p class="lead sm" data-key="voice-3"><strong>Krótka rozmowa.</strong> Asystent nie pyta o to, co już padło, i nie odczytuje całego zgłoszenia. Jeśli nie wiadomo, czy chcesz je wysłać, zada jedno krótkie pytanie.</p>
+      <p class="lead sm" data-key="voice-3"><strong>Krótka rozmowa.</strong> Asystent nie pyta o to, co już padło, a na koniec pokazuje tylko podsumowanie zgłoszenia. Jeśli nie wiadomo, czy chcesz je wysłać, zada jedno krótkie pytanie.</p>
       <p class="lead sm" data-key="voice-4"><strong>Formularz.</strong> Przycisk „Kontynuuj” przenosi ten sam szkic do formularza.</p>
     </div>
   </div>
@@ -115,20 +115,20 @@
 </section>
 
 <section class="slide" id="operations">
-  <div class="bleed" data-allow-overflow><div class="monitor" style="left:67px; top:414px; width:1785px"><div class="screen"><img src="assets/pl-ops-incident.jpg" alt="Panel operatora: kolejka do przeglądu, obszar zdarzenia na mapie i przygotowane zlecenie"></div><img class="frame" src="assets/imac-silver.webp" alt=""></div></div>
+  <div class="bleed" data-allow-overflow><div class="monitor" style="left:67px; top:414px; width:1785px"><div class="screen"><img src="assets/pl-ops-incident.jpg" alt="Panel operatora w widoku 3D: kolejka do przeglądu, obszar zdarzenia na mapie i przygotowane zlecenie"></div><img class="frame" src="assets/imac-silver.webp" alt=""></div></div>
   <div class="bleed" data-allow-overflow><div class="glow" style="--c:rgba(245,184,61,.14); width:900px; height:400px; left:500px; top:300px"></div></div>
   <div class="split-head">
     <h2 class="title" data-key="operations-title">Wiele zgłoszeń,<br>jedno zdarzenie</h2>
     <p class="url mono" data-key="operations-url">/operations</p>
   </div>
-  <p class="lead split-lead sm" data-key="operations-lead">Zgłoszenia bliskie w miejscu i czasie łączą się w jedno zdarzenie. Qwen na Scaleway przygotowuje zlecenie dla właściwej służby na podstawie zapisanych dowodów. <strong>Zlecenie trafia do służby dopiero po zatwierdzeniu przez urzędnika.</strong></p>
+  <p class="lead split-lead sm" data-key="operations-lead">Zgłoszenia bliskie w miejscu i czasie łączą się w jedno zdarzenie. Qwen na Scaleway przygotowuje zlecenie dla właściwej jednostki miejskiej na podstawie zapisanych dowodów. <strong>Zlecenie trafia do jednostki miejskiej dopiero po zatwierdzeniu operatora.</strong></p>
 </section>
 
 <section class="slide" id="review">
   <div class="bleed" data-allow-overflow><div class="glow" style="--c:rgba(122,174,232,.2); width:700px; height:700px; left:160px; top:300px"></div></div>
   <img class="shot" src="assets/pl-ops-review.jpg" alt="Przegląd zgłoszenia: zgłoszenie z jednego mieszkania i kandydat do powiązania z odległością i czasem" style="left:120px; top:120px; width:860px; height:840px; object-position:100% 0">
   <div class="copy">
-    <h2 class="title" data-key="review-title">Niejasne przypadki rozstrzyga urzędnik</h2>
+    <h2 class="title" data-key="review-title">Niejasne przypadki rozstrzyga operator</h2>
     <div class="points">
       <p class="lead sm" data-key="review-1"><strong>Podobne zdarzenia.</strong> Panel pokazuje kandydatów obok siebie: odległość, odstęp czasu i liczbę zgłoszeń.</p>
       <p class="lead sm" data-key="review-2"><strong>Sprawy prywatne.</strong> Problem w jednym mieszkaniu zostaje prywatny i nie trafia na publiczną mapę.</p>
@@ -141,13 +141,13 @@
 <section class="slide" id="handoff">
   <div class="bleed" data-allow-overflow><div class="glow" style="--c:rgba(245,184,61,.14); width:1300px; height:500px; left:300px; top:600px"></div></div>
   <div class="copy">
-    <h2 class="title" data-key="handoff-title">Od urzędu do służby</h2>
-    <p class="lead sm handoff-lead" data-key="handoff-lead">Każda służba widzi tylko swoje zlecenia. Przyjęcie, rozpoczęcie prac i rozwiązanie od razu aktualizują panel urzędnika i publiczną oś czasu.</p>
+    <h2 class="title" data-key="handoff-title">Od operatora do jednostki miejskiej</h2>
+    <p class="lead sm handoff-lead" data-key="handoff-lead">Każda jednostka miejska widzi tylko swoje zlecenia. Przyjęcie, rozpoczęcie prac i rozwiązanie od razu aktualizują panel operatora i publiczną oś czasu.</p>
   </div>
   <div class="crop" data-allow-overflow style="left:120px; top:420px; width:820px; height:530px"><img src="assets/pl-ops-sent.jpg" alt="Panel operatora: zlecenie wysłane do pogotowia energetycznego, prace rozpoczęte"></div>
-  <div class="crop" data-allow-overflow style="left:980px; top:420px; width:820px; height:530px"><img src="assets/pl-inst-ticket.jpg" alt="Skrzynka instytucji: to samo zlecenie i następny krok"></div>
-  <p class="caption" style="left:120px" data-key="handoff-left"><strong>Urzędnik</strong> · <span class="mono">/operations</span> · zlecenie wysłane, prace rozpoczęte</p>
-  <p class="caption" style="left:980px" data-key="handoff-right"><strong>Instytucja</strong> · <span class="mono">/institution</span> · to samo zlecenie, następny krok</p>
+  <div class="crop" data-allow-overflow style="left:980px; top:420px; width:820px; height:530px"><img src="assets/pl-inst-ticket.jpg" alt="Skrzynka jednostki miejskiej: to samo zlecenie i następny krok"></div>
+  <p class="caption" style="left:120px" data-key="handoff-left"><strong>Operator</strong> · <span class="mono">/operations</span> · zlecenie wysłane, prace rozpoczęte</p>
+  <p class="caption" style="left:980px" data-key="handoff-right"><strong>Jednostka miejska</strong> · <span class="mono">/institution</span> · to samo zlecenie, następny krok</p>
 </section>
 
 <section class="slide" id="design">
@@ -191,7 +191,7 @@
     <div class="tile wide hot">
       <p class="big" data-key="backend-group-big">300 m · 60 min</p>
       <h3 data-key="backend-group">Grupowanie zgłoszeń</h3>
-      <p data-key="backend-group-body">Zgłoszenia tego samego problemu w tym promieniu i czasie łączą się w jedno zdarzenie. Reguła jest deterministyczna, a niejasne przypadki rozstrzyga urzędnik.</p>
+      <p data-key="backend-group-body">Zgłoszenia tego samego problemu w tym promieniu i czasie łączą się w jedno zdarzenie. Reguła jest deterministyczna, a niejasne przypadki rozstrzyga operator.</p>
     </div>
     <div class="tile">
       <h3 data-key="backend-ai">Klasyfikacja AI</h3>
@@ -199,7 +199,7 @@
     </div>
     <div class="tile">
       <h3 data-key="backend-route">Kto odpowiada</h3>
-      <p data-key="backend-route-body">Reguły wskazują służbę po kategorii, typie i obszarze. Gdy pasuje kilka albo żadna, wybiera urzędnik.</p>
+      <p data-key="backend-route-body">Reguły wskazują jednostkę miejską po kategorii, typie i obszarze. Gdy pasuje kilka albo żadna, wybiera operator.</p>
     </div>
     <div class="tile wide">
       <p class="big" data-key="backend-once-big">1×</p>
@@ -223,8 +223,8 @@
   <div class="cols">
     <div class="col"><h3 data-key="stack-c1">W przeglądarce</h3>
       <p data-key="stack-c1-1"><b class="mono">/</b> mapa mieszkańców</p>
-      <p data-key="stack-c1-2"><b class="mono">/operations</b> panel urzędnika</p>
-      <p data-key="stack-c1-3"><b class="mono">/institution</b> skrzynka instytucji</p>
+      <p data-key="stack-c1-2"><b class="mono">/operations</b> panel operatora</p>
+      <p data-key="stack-c1-3"><b class="mono">/institution</b> skrzynka jednostki miejskiej</p>
       <p class="dim" data-key="stack-c1-4">Next.js 16, React 19, Appica UI, MapLibre</p></div>
     <div class="col hot"><h3 data-key="stack-c2">Na serwerze Scaleway</h3>
       <p data-key="stack-c2-1"><b>Next.js</b> strony i API z sesjami per rola</p>
@@ -248,32 +248,44 @@
   <h2 class="title bento-title" data-key="next-title">Co dalej</h2>
   <div class="bento next-grid">
     <div class="tile wide hot">
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 7a2 2 0 0 1 2 2m-2-6a6 6 0 0 1 6 6M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></span>
+      <h3 data-key="next-phone">Infolinia dla seniorów</h3>
+      <p data-key="next-phone-body">Dedykowany numer telefonu. Ten sam asystent głosowy przyjmuje zgłoszenie i odpowiada na pytania o jego status, bez aplikacji i bez smartfona.</p>
+    </div>
+    <div class="tile">
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 6H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1h-6m0 10h2m-2-4h4M7 12h3v4H7zm3-8a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1z"/></svg></span>
       <h3 data-key="next-id">Weryfikacja przez mObywatel</h3>
-      <p data-key="next-id-body">Potwierdzona tożsamość bez zakładania konta. Zgłoszenia zweryfikowanych mieszkańców mogą mieć większą wagę, a podwójne głosy da się zablokować.</p>
+      <p data-key="next-id-body">Potwierdzona tożsamość bez zakładania konta. Zgłoszenia mogą mieć większą wagę, a podwójne głosy da się zablokować.</p>
     </div>
     <div class="tile">
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21v-7L8 9l-5 5v7h5m5 0H8m5 0h8V4a1 1 0 0 0-1-1H10a1 1 0 0 0-1 1v6M8 21v-4m5-10v.01M17 7v.01M17 11v.01M17 15v.01"/></svg></span>
       <h3 data-key="next-cities">Kolejne miasta</h3>
-      <p data-key="next-cities-body">Własny katalog służb i reguł dla każdego miasta. Dziś mapa i adresy są ustawione na Kraków.</p>
+      <p data-key="next-cities-body">Własny katalog jednostek miejskich i reguł dla każdego miasta. Dziś mapa i adresy są ustawione na Kraków.</p>
     </div>
     <div class="tile">
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 21 2.5-2.5m13-13L21 3m-11 8-2 2m5 1-2 2m-4-4 5 5-1.5 1.5a3.535 3.535 0 1 1-5-5zm10 0-5-5 1.5-1.5a3.536 3.536 0 1 1 5 5z"/></svg></span>
+      <h3 data-key="next-integrations">Integracje z jednostkami miejskimi</h3>
+      <p data-key="next-integrations-body">Zlecenia trafiają prosto do systemów, których jednostki miejskie już używają, a statusy wracają automatycznie.</p>
+    </div>
+    <div class="tile">
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 17v1a3 3 0 0 0 6 0v-1M10 5a2 2 0 1 1 4 0 7 7 0 0 1 4 6v3a4 4 0 0 0 2 3H4a4 4 0 0 0 2-3v-3a7 7 0 0 1 4-6"/></svg></span>
       <h3 data-key="next-notify">Powiadomienia</h3>
       <p data-key="next-notify-body">Push, e-mail lub SMS, gdy Twoje zgłoszenie zmienia status.</p>
     </div>
     <div class="tile">
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6a2 2 0 1 0 4 0m-4 0a2 2 0 1 1 4 0m-4 0H4m12 0h4M6 12a2 2 0 0 0 4 0m-4 0a2 2 0 0 1 4 0m-4 0H4m6 0h10m-5 6a2 2 0 0 0 4 0m-4 0a2 2 0 0 1 4 0m-4 0H4m15 0h1"/></svg></span>
       <h3 data-key="next-prefs">Więcej preferencji</h3>
       <p data-key="next-prefs-body">Obserwowane miejsca i kategorie, alerty o awariach w okolicy.</p>
     </div>
     <div class="tile">
-      <h3 data-key="next-integrations">Integracje ze służbami</h3>
-      <p data-key="next-integrations-body">Zlecenia trafiają prosto do systemów, których wodociągi, energetyka i zarząd dróg już używają, a statusy wracają automatycznie.</p>
-    </div>
-    <div class="tile">
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h1a2 2 0 0 0 2-2 1 1 0 0 1 1-1h6a1 1 0 0 1 1 1 2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2m4 6a3 3 0 1 0 6 0 3 3 0 0 0-6 0"/></svg></span>
       <h3 data-key="next-photos">Zdjęcia</h3>
       <p data-key="next-photos-body">Zdjęcie w zgłoszeniu, z twarzami i tablicami rejestracyjnymi rozmytymi przed zapisem.</p>
     </div>
     <div class="tile">
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19v-6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1m5-1a1 1 0 0 1-1 1H4m5-1a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1m-6 0V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v14M4 20h14m-3-1a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1z"/></svg></span>
       <h3 data-key="next-data">Dane dla miasta</h3>
-      <p data-key="next-data-body">Czasy reakcji służb, powracające awarie i otwarte dane o stanie infrastruktury.</p>
+      <p data-key="next-data-body">Czasy reakcji jednostek miejskich, powracające awarie i otwarte dane o stanie infrastruktury.</p>
     </div>
   </div>
 </section>
@@ -285,11 +297,11 @@
   </div>
   <div class="links">
     <p data-key="close-link-1"><span class="mono">mradar.delvengine.com</span><span>mapa mieszkańców i zgłaszanie głosem</span></p>
-    <p data-key="close-link-2"><span class="mono">mradar.delvengine.com/operations</span><span>panel urzędnika</span></p>
-    <p data-key="close-link-3"><span class="mono">mradar.delvengine.com/institution</span><span>skrzynka instytucji</span></p>
+    <p data-key="close-link-2"><span class="mono">mradar.delvengine.com/operations</span><span>panel operatora</span></p>
+    <p data-key="close-link-3"><span class="mono">mradar.delvengine.com/institution</span><span>skrzynka jednostki miejskiej</span></p>
   </div>
   <p class="note" data-key="close-note">Loginy i hasła do <span class="mono">/operations</span> i <span class="mono">/institution</span> są w załączonej notatce.</p>
   <p class="repo mono" data-key="close-repo">github.com/delve-group/smart-city</p>
   <div class="sign"><img src="assets/mradar-mark.svg" alt=""><span data-key="close-sign">mRadar</span></div>
-  <p class="disclose" data-key="close-disclose">Zbudowane z pomocą asystentów AI do programowania. Instytucje, zgłoszenia i zlecenia na mapie są fikcyjne.</p>
+  <p class="disclose" data-key="close-disclose">Zbudowane z pomocą asystentów AI do programowania. Jednostki miejskie, zgłoszenia i zlecenia na mapie są fikcyjne.</p>
 </section>

@@ -16,7 +16,7 @@ export function mapLocationCandidates(features: readonly unknown[]): LocationCan
     const building = street ? p.housenumber ?? null : null;
     const address = [street, building].filter(Boolean).join(" ");
     const name = p.osm_key !== "highway" || p.osm_value === "bus_stop" ? p.name : null;
-    const label = ([name, address].filter(Boolean).join(" — ") || p.name || "").slice(0, 200);
+    const label = ([name, address].filter(Boolean).join(", ") || p.name || "").slice(0, 200);
     if (!label) continue;
     const id = `photon:${p.osm_type}:${p.osm_id}`;
     if (seen.has(id)) continue;

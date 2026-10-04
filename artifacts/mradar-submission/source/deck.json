@@ -5,15 +5,15 @@
   "notes": {
     "cover": {
       "seconds": 15,
-      "text": "mRadar to mapa usterek w Krakowie. Mieszkańcy zgłaszają, co nie działa, urząd łączy zgłoszenia w zdarzenia, a właściwa służba usuwa usterkę.\n\nWszystko na slajdach to działający kod na fikcyjnych danych."
+      "text": "mRadar to mapa usterek w Krakowie. Mieszkańcy zgłaszają, co nie działa, operator łączy zgłoszenia w zdarzenia, a właściwa jednostka miejska usuwa usterkę.\n\nWszystko na slajdach to działający kod na fikcyjnych danych."
     },
     "problem": {
       "seconds": 25,
-      "text": "Problem dotyczy całego obiegu zgłoszenia. Mieszkańcy nie widzą, co już zgłoszono ani na jakim etapie jest sprawa, więc ta sama usterka trafia do urzędu wielokrotnie albo wcale. Operatorzy przyjmują zgłoszenia telefonicznie, mailowo i przez formularze, a potem ręcznie łączą duplikaty i ustalają, która służba odpowiada. Przekazanie zlecenia do instytucji i informacja zwrotna o postępie prac trwają długo, więc urząd i mieszkańcy często nie wiedzą, czy usterka została usunięta.\n\nmRadar obejmuje cały ten obieg: zgłoszenie, ocenę w urzędzie, zlecenie dla służby i status widoczny na mapie."
+      "text": "Problem dotyczy całego obiegu zgłoszenia. Mieszkańcy nie widzą, co już zgłoszono ani na jakim etapie jest sprawa, więc ta sama usterka trafia do miasta wielokrotnie albo wcale. Operatorzy przyjmują zgłoszenia telefonicznie, mailowo i przez formularze, a potem ręcznie łączą duplikaty i ustalają, która jednostka miejska odpowiada. Przekazanie zlecenia do jednostki miejskiej i informacja zwrotna o postępie prac trwają długo, więc operatorzy i mieszkańcy często nie wiedzą, czy usterka została usunięta.\n\nmRadar obejmuje cały ten obieg: zgłoszenie, ocenę przez operatora, zlecenie dla jednostki miejskiej i status widoczny na mapie."
     },
     "loop": {
       "seconds": 25,
-      "text": "Trzy ekrany działają na jednym modelu danych. Mieszkaniec zgłasza, urzędnik zatwierdza zlecenie, służba je realizuje, a status wraca na mapę mieszkańca."
+      "text": "Trzy ekrany działają na jednym modelu danych. Mieszkaniec zgłasza, operator zatwierdza zlecenie, jednostka miejska je realizuje, a status wraca na mapę mieszkańca."
     },
     "residents": {
       "seconds": 30,
@@ -21,7 +21,7 @@
     },
     "voice": {
       "seconds": 30,
-      "text": "Zgłoszenie można też podyktować. Mikrofon jest na dole mapy. Asystent mówi po polsku, dopytuje o miejsce i zakres, a podany adres od razu pokazuje na mapie.\n\nAsystent nie pyta o to, co już padło, i nie odczytuje całego zgłoszenia. Jeśli nie wiadomo, czy mieszkaniec chce je wysłać, zadaje jedno krótkie pytanie. Zrzut pokazuje rozmowę w toku z przykładowym dialogiem. Przycisk „Kontynuuj” przenosi ten sam szkic do formularza. Głos działa w wersji wdrożonej na Scaleway."
+      "text": "Zgłoszenie można też podyktować. Mikrofon jest na dole mapy. Asystent mówi po polsku, dopytuje o miejsce i zakres, a podany adres od razu pokazuje na mapie.\n\nAsystent nie pyta o to, co już padło, a na koniec pokazuje tylko podsumowanie zgłoszenia. Jeśli nie wiadomo, czy mieszkaniec chce je wysłać, zadaje jedno krótkie pytanie. Zrzut pokazuje rozmowę w toku z przykładowym dialogiem. Przycisk „Kontynuuj” przenosi ten sam szkic do formularza. Głos działa w wersji wdrożonej na Scaleway."
     },
     "voiceflow": {
       "seconds": 35,
@@ -33,15 +33,15 @@
     },
     "operations": {
       "seconds": 35,
-      "text": "Urzędnik widzi powiązane zgłoszenia, bliskie w miejscu i czasie, jako jedno zdarzenie z obszarem na mapie. Grupowanie jest deterministyczne. Model Qwen 3.6 na Scaleway Generative APIs ocenia zdarzenie i przygotowuje zlecenie dla służby wskazanej regułą odpowiedzialności, powołując się tylko na zapisane dowody. Gdy model jest niedostępny, propozycję przygotowuje reguła.\n\nZlecenie trafia do instytucji dopiero po zatwierdzeniu przez urzędnika, dokładnie w pokazanej treści. Kolejkę można przeszukiwać i filtrować po kategoriach."
+      "text": "Operator widzi powiązane zgłoszenia, bliskie w miejscu i czasie, jako jedno zdarzenie z obszarem na mapie. Grupowanie jest deterministyczne. Model Qwen 3.6 na Scaleway Generative APIs ocenia zdarzenie i przygotowuje zlecenie dla jednostki miejskiej wskazanej regułą odpowiedzialności, powołując się tylko na zapisane dowody. Gdy model jest niedostępny, propozycję przygotowuje reguła.\n\nZlecenie trafia do jednostki miejskiej dopiero po zatwierdzeniu operatora, dokładnie w pokazanej treści. Kolejkę można przeszukiwać i filtrować po kategoriach."
     },
     "review": {
       "seconds": 25,
-      "text": "Niepewne zgłoszenie pokazuje kandydatów z odległością i odstępem czasu, a decyzję podejmuje urzędnik. Problemy z jednego mieszkania zostają prywatne. Każde polecenie zawiera wersję, którą widział urzędnik, więc dwie osoby nie nadpiszą sobie zmian."
+      "text": "Niepewne zgłoszenie pokazuje kandydatów z odległością i odstępem czasu, a decyzję podejmuje operator. Problemy z jednego mieszkania zostają prywatne. Każde polecenie zawiera wersję, którą widział operator, więc dwie osoby nie nadpiszą sobie zmian."
     },
     "handoff": {
       "seconds": 25,
-      "text": "Po zatwierdzeniu worker wysyła zlecenie dokładnie raz i trafia ono do skrzynki właściwej służby, tutaj pogotowia energetycznego. Służba przyjmuje zlecenie, rozpoczyna prace i oznacza je jako rozwiązane. Każdy krok aktualizuje panel urzędnika i publiczną oś czasu mieszkańca."
+      "text": "Po zatwierdzeniu worker wysyła zlecenie dokładnie raz i trafia ono do skrzynki właściwej jednostki miejskiej, tutaj pogotowia energetycznego. Jednostka miejska przyjmuje zlecenie, rozpoczyna prace i oznacza je jako rozwiązane. Każdy krok aktualizuje panel operatora i publiczną oś czasu mieszkańca."
     },
     "design": {
       "seconds": 25,
@@ -49,15 +49,15 @@
     },
     "backend": {
       "seconds": 35,
-      "text": "Zgłoszenia tego samego problemu w promieniu 300 metrów i w ciągu 60 minut łączą się w jedno zdarzenie. Qwen na Scaleway klasyfikuje zapisane zgłoszenia, a odpowiedź spoza katalogu kieruje zgłoszenie do ręcznego przeglądu. Reguły odpowiedzialności wskazują służbę albo zostawiają wybór urzędnikowi.\n\nPo zatwierdzeniu worker wysyła zlecenie dokładnie raz. Nieznany wynik jest uzgadniany i nie jest wysyłany ponownie. Wyszukiwanie łączy BM25 i model E5 uruchomiony na naszym serwerze, z osobnym zakresem dla każdej roli. Endpoint MCP udostępnia te same operacje agentom AI, a rolę określa token."
+      "text": "Zgłoszenia tego samego problemu w promieniu 300 metrów i w ciągu 60 minut łączą się w jedno zdarzenie. Qwen na Scaleway klasyfikuje zapisane zgłoszenia, a odpowiedź spoza katalogu kieruje zgłoszenie do ręcznego przeglądu. Reguły odpowiedzialności wskazują jednostkę miejską albo zostawiają wybór operatorowi.\n\nPo zatwierdzeniu worker wysyła zlecenie dokładnie raz. Nieznany wynik jest uzgadniany i nie jest wysyłany ponownie. Wyszukiwanie łączy BM25 i model E5 uruchomiony na naszym serwerze, z osobnym zakresem dla każdej roli. Endpoint MCP udostępnia te same operacje agentom AI, a rolę określa token."
     },
     "stack": {
       "seconds": 30,
-      "text": "Jedna aplikacja Next.js i jeden worker z tego samego kodu, PostgreSQL na dane źródłowe i Qdrant jako indeks, który można odbudować. Wszystko działa na jednej maszynie Scaleway za Caddy z HTTPS. Worker obsługuje grupowanie, indeksowanie, ocenę przez AI i wysyłkę zleceń z ograniczoną liczbą ponowień, a każdy handler jest idempotentny.\n\nUrzędnik, instytucja i mieszkaniec mają osobne sesje. Publiczna mapa dostaje tylko listę dozwolonych pól."
+      "text": "Jedna aplikacja Next.js i jeden worker z tego samego kodu, PostgreSQL na dane źródłowe i Qdrant jako indeks, który można odbudować. Wszystko działa na jednej maszynie Scaleway za Caddy z HTTPS. Worker obsługuje grupowanie, indeksowanie, ocenę przez AI i wysyłkę zleceń z ograniczoną liczbą ponowień, a każdy handler jest idempotentny.\n\nOperator, jednostka miejska i mieszkaniec mają osobne sesje. Publiczna mapa dostaje tylko listę dozwolonych pól."
     },
     "next": {
       "seconds": 30,
-      "text": "Te funkcje są zaplanowane i jeszcze nie istnieją. Pierwsza to weryfikacja przez mObywatel. Dziś tożsamość zgłaszających nie jest weryfikowana, a potwierdzona tożsamość bez zakładania konta pozwoli ważyć zgłoszenia i blokować podwójne głosy.\n\nKolejne: nowe miasta z własnym katalogiem służb, powiadomienia o zmianie statusu, obserwowane miejsca i kategorie, integracje z systemami, których służby już używają do obsługi zleceń, tak aby zlecenia trafiały do nich bez dodatkowej skrzynki, a statusy wracały automatycznie, zdjęcia z automatycznym rozmyciem twarzy i tablic oraz dane o czasach reakcji dla miasta."
+      "text": "Te funkcje są zaplanowane i jeszcze nie istnieją. Najważniejsza jest infolinia dla seniorów: dedykowany numer telefonu, pod którym ten sam asystent głosowy, który działa w aplikacji, przyjmuje zgłoszenie i odpowiada na pytania o jego status. Osoby starsze i bez smartfona mogą zgłosić usterkę zwykłym telefonem.\n\nKolejne: weryfikacja przez mObywatel, która pozwoli ważyć zgłoszenia i blokować podwójne głosy, nowe miasta z własnym katalogiem jednostek miejskich, integracje z systemami, których jednostki miejskie już używają do obsługi zleceń, powiadomienia o zmianie statusu, obserwowane miejsca i kategorie, zdjęcia z automatycznym rozmyciem twarzy i tablic oraz dane o czasach reakcji dla miasta."
     },
     "close": {
       "seconds": 15,
