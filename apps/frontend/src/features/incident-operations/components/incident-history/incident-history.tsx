@@ -2,7 +2,7 @@
 
 import type { HistoryEvent } from "@/api/operations/types";
 import { PanelAccordionItem } from "@/shared/components/panel-accordion-item/panel-accordion-item";
-import { useI18n } from "@/shared/i18n/locale";
+import { translateServerText, useI18n } from "@/shared/i18n/locale";
 import { formatDateTime } from "@/shared/utils/format-time";
 
 /** Audit trail, newest first: who did what, when and why. */
@@ -18,10 +18,10 @@ export function IncidentHistory({ history, now }: { history: readonly HistoryEve
               {formatDateTime(event.at, now, locale)}
             </time>
             <div className="flex flex-col gap-0.5">
-              <span className="text-foreground-intense">{event.action}</span>
+              <span className="text-foreground-intense">{translateServerText(t, event.action)}</span>
               <span className="text-xs text-foreground-muted">
-                {event.actor}
-                {event.detail && ` · ${event.detail}`}
+                {translateServerText(t, event.actor)}
+                {event.detail && ` · ${translateServerText(t, event.detail)}`}
               </span>
             </div>
           </li>

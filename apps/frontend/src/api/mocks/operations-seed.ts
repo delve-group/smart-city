@@ -193,7 +193,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
           { key: "Issue", value: "Awaria prądu" },
           { key: "Area", value: "ul. Józefa Dietla 40–58, Stare Miasto" },
           { key: "Since", value: "około 14:00 (najwcześniejsze zgłoszenie)" },
-          { key: "Residents reporting", value: "3 (niezweryfikowani)" },
+          { key: "Residents reporting", value: "3" },
           { key: "Evidence", value: "R-311, R-312, R-318, OBS-7" },
         ],
         evidence_ids: ["R-311", "R-312", "R-318", "OBS-7"],
@@ -237,7 +237,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
         payload: [
           { key: "Issue", value: "Niedziałające oświetlenie uliczne" },
           { key: "Area", value: "ul. Miodowa 20–32, Kazimierz" },
-          { key: "Residents reporting", value: "2 (niezweryfikowani)" },
+          { key: "Residents reporting", value: "2" },
           { key: "Evidence", value: "R-290, R-292" },
         ],
         evidence_ids: ["R-290", "R-292"],
@@ -360,7 +360,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
         payload: [
           { key: "Issue", value: "Dziura w jezdni" },
           { key: "Area", value: "ul. Krakowska 41–45, Kazimierz" },
-          { key: "Residents reporting", value: "2 (niezweryfikowani)" },
+          { key: "Residents reporting", value: "2" },
           { key: "Evidence", value: "R-333, R-336" },
         ],
         evidence_ids: ["R-333", "R-336"],
@@ -387,7 +387,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
         payload: [
           { key: "Issue", value: "Niedziałająca tablica odjazdów i zerwany rozkład" },
           { key: "Area", value: "Rondo Mogilskie, Grzegórzki" },
-          { key: "Residents reporting", value: "1 (niezweryfikowany)" },
+          { key: "Residents reporting", value: "1" },
           { key: "Evidence", value: "R-338" },
         ],
         evidence_ids: ["R-338"],
@@ -410,7 +410,7 @@ export function createSeedWorkspace(): Omit<WorkspaceDto, "source" | "generated_
       proposal: sent("0144", "demo-waste", [
         { key: "Issue", value: "Przepełnione kosze i śmieci na chodniku" },
         { key: "Area", value: "plac Nowy 4–7, Kazimierz" },
-        { key: "Residents reporting", value: "2 (niezweryfikowani)" },
+        { key: "Residents reporting", value: "2" },
         { key: "Evidence", value: "R-315, R-316" },
       ], "Dwa zgłoszenia przepełnionych koszy przy okrąglaku.", 265),
       ticket: {

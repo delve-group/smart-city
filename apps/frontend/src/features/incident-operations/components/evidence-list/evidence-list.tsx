@@ -3,7 +3,7 @@ import { Badge } from "@appica/ui-react/badge";
 import type { Evidence, OperationsReport } from "@/api/operations/types";
 import { InfoHint } from "@/shared/components/info-hint/info-hint";
 import { PanelAccordionItem } from "@/shared/components/panel-accordion-item/panel-accordion-item";
-import { tCount, useI18n } from "@/shared/i18n/locale";
+import { tCount, translateServerText, useI18n } from "@/shared/i18n/locale";
 import type { MessageKey } from "@/shared/i18n/messages";
 import { formatAgo } from "@/shared/utils/format-time";
 import { Fact, FACTS } from "@/shared/components/fact/fact";
@@ -68,7 +68,7 @@ export function EvidenceList({ reports, observations, now, onLocate }: EvidenceL
           return (
             <li key={item.id} className="flex flex-col gap-1.5 py-3 last:pb-0">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-sm font-medium text-foreground-intense">{item.label}</span>
+                <span className="text-sm font-medium text-foreground-intense">{translateServerText(t, item.label)}</span>
                 {problem && (
                   <Badge variant={problem.variant} size="xs">
                     {t(problem.label)}
@@ -77,7 +77,7 @@ export function EvidenceList({ reports, observations, now, onLocate }: EvidenceL
               </div>
               <p className={FACTS}>
                 <Fact icon={Server} label={t("common.source")}>
-                  {item.source}
+                  {translateServerText(t, item.source)}
                 </Fact>
                 <Fact icon={Activity} label={t("evidence.observed")}>
                   {item.observedAt ? formatAgo(item.observedAt, now, locale) : t("common.unknown")}
@@ -86,7 +86,7 @@ export function EvidenceList({ reports, observations, now, onLocate }: EvidenceL
                   {formatAgo(item.retrievedAt, now, locale)}
                 </Fact>
               </p>
-              {item.note && <p className="text-xs text-foreground">{item.note}</p>}
+              {item.note && <p className="text-xs text-foreground">{translateServerText(t, item.note)}</p>}
             </li>
           );
         })}

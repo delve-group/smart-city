@@ -47,8 +47,9 @@ interface FixtureIncident {
 }
 
 const DEFAULT_SEVERITY: Record<string, "low" | "medium" | "high"> = { power: "high", water: "high" };
-const OBSERVATION_SOURCE = "Odczyt sieci";
-const REPORT_SOURCE = "Zgłoszenie mieszkańca (niezweryfikowana tożsamość)";
+/** Server wording, as the live triage and feed write it; the interface translates it. */
+const OBSERVATION_SOURCE = "Utility feed";
+const REPORT_SOURCE = "Resident report (unverified identity)";
 const TICKET_PREFIX: Record<string, string> = {
   "demo-electricity": "ELE", "demo-water": "WOD", "demo-roads": "DRO", "demo-transit": "KOM",
   "demo-waste": "OCZ", "demo-greenery": "ZIE", "demo-air": "SRO",
@@ -117,7 +118,7 @@ async function insertWork(client: PoolClient, incidentId: string, fixture: Fixtu
   const payload = [
     { key: "Issue", value: fixture.title },
     { key: "Area", value: area },
-    { key: "Residents reporting", value: `${supporters} (niezweryfikowane tożsamości)` },
+    { key: "Residents reporting", value: String(supporters) },
   ];
   const proposal = await client.query<{ id: string }>(
     `INSERT INTO action_proposals
@@ -125,7 +126,7 @@ async function insertWork(client: PoolClient, incidentId: string, fixture: Fixtu
         created_by, created_at, decided_at, approved_incident_version, execution_key, execution_attempts, executed_at)
      SELECT id, $1, 1, 1, $2, 'create_service_ticket', $3,
             ARRAY(SELECT e.id FROM incident_evidence e WHERE e.incident_id = $1 AND e.state <> 'missing'),
-            'Przygotowano na podstawie skonfigurowanej reguły odpowiedzialności.', 'executed', 'Rule-based proposer',
+            '', 'executed', 'Rule-based proposer',
             now() - ($4 + 5) * interval '1 minute', now() - $4 * interval '1 minute', 1, 'execute:proposal:' || id, 1,
             now() - $4 * interval '1 minute'
      FROM (SELECT gen_random_uuid() AS id) generated
@@ -208,7 +209,7 @@ async function insertIncident(client: PoolClient, owners: string[], fixture: Fix
     );
     await client.query(
       `INSERT INTO incident_evidence (incident_id, report_id, kind, label, source, observed_at)
-       SELECT $1, id, 'report', reference || ' · zgłoszenie ' || CASE channel WHEN 'voice' THEN 'głosowe' ELSE 'z formularza' END, $3, observed_at
+       SELECT $1, id, 'report', reference || ' · ' || initcap(channel) || ' report', $3, observed_at
        FROM reports WHERE id = $2`,
       [incidentId, reportId, REPORT_SOURCE],
     );
@@ -248,7 +249,7 @@ async function seedSetOne(client: PoolClient) {
   const owners = await createOwners(client, 4);
   const outage = await insertIncident(client, owners, {
     title: "Awaria prądu na ul. Józefa Dietla", institutionId: "demo-electricity", ruleId: "demo-rule-power",
-    observation: { label: "Przerwa w zasilaniu na lokalnej linii", state: "current", note: null },
+    observation: { label: "Supply interrupted on the local feeder", state: "current", note: null },
     reports: [
       { ...DIETLA, owner: 0, minutesAgo: 40, channel: "voice", lat: 50.05806, lng: 19.94532, number: "44",
         summary: "Brak prądu na całej ulicy", original: "Nie ma prądu w całym budynku od około drugiej. Latarnie na ulicy też nie świecą." },
@@ -261,7 +262,7 @@ async function seedSetOne(client: PoolClient) {
 
   await insertIncident(client, owners, {
     title: "Wyciek wody na ul. Karmelickiej", institutionId: "demo-water", ruleId: "demo-rule-water-pipe",
-    observation: { label: "Brak odczytu zasilania", state: "missing", note: "Dla tego obszaru i kategorii nie skonfigurowano źródła odczytów." },
+    observation: { label: "No supply reading available", state: "missing", note: "No feed is configured for this area and category." },
     reports: [
       { owner: 1, minutesAgo: 75, channel: "form", category_id: "water", issue_type: "burst_pipe", scope: "street",
         lat: 50.0655, lng: 19.93, street: "Karmelicka", number: "20", district: "Krowodrza",
@@ -273,7 +274,8 @@ async function seedSetOne(client: PoolClient) {
     ...DIETLA, owner: 3, minutesAgo: 20, channel: "voice", lat: 50.0577, lng: 19.9466, number: "50", unit: "m. 4", scope: "unit",
     summary: "Brak prądu tylko w jednym mieszkaniu", original: "Tylko u mnie w mieszkaniu nie ma prądu, na klatce jest światło.",
   }, {
-    state: "needs_review", reason: "private_scope", note: "Dotyczy tylko jednego mieszkania. Zostaje prywatne do czasu przeglądu zakresu.",
+    // Server wording, translated in the interface.
+    state: "needs_review", reason: "private_scope", note: "One flat or unit only. Kept private until the scope is reviewed.",
     candidates: [{ incident_id: outage, distance_m: 97, minutes_apart: 20 }],
   });
   await insertReport(client, owners, {
@@ -403,15 +405,9 @@ async function localizeSetOne(client: PoolClient) {
     ["reports", "summary", "Water running down the street|Woda płynie ulicą"],
     ["reports", "summary", "No power in one flat only|Brak prądu tylko w jednym mieszkaniu"],
     ["reports", "summary", "Blocked drain, water pooling at the crossing|Zatkana studzienka, woda stoi na przejściu"],
-    ["reports", "review_note", "One flat or unit only. Kept private until the scope is reviewed.|Dotyczy tylko jednego mieszkania. Zostaje prywatne do czasu przeglądu zakresu."],
     ["reports", "review_note", "Automatic grouping covers power outages only. Triage this report manually.|Przykład ręcznego przeglądu: sprawdź lokalizację i odpowiedzialność przed utworzeniem zdarzenia."],
     ["incidents", "title", "Power outage on ul. Józefa Dietla|Awaria prądu na ul. Józefa Dietla"],
     ["incidents", "title", "Burst pipe or leak on ul. Karmelicka|Wyciek wody na ul. Karmelickiej"],
-    ["incident_evidence", "source", "Resident report (unverified identity)|" + REPORT_SOURCE],
-    ["incident_evidence", "source", "Utility feed|" + OBSERVATION_SOURCE],
-    ["incident_evidence", "label", "Supply interrupted on the local feeder|Przerwa w zasilaniu na lokalnej linii"],
-    ["incident_evidence", "label", "No supply reading available|Brak odczytu zasilania"],
-    ["incident_evidence", "note", "No feed is configured for this area and category.|Dla tego obszaru i kategorii nie skonfigurowano źródła odczytów."],
     ["incident_report_links", "reason", "Explicit initial data link|Powiązanie z danych początkowych"],
   ];
   for (const [table, column, pair] of pairs) {
@@ -423,10 +419,6 @@ async function localizeSetOne(client: PoolClient) {
     `UPDATE reports SET severity = CASE WHEN category_id IN ('power', 'water') AND issue_type <> 'blocked_drain' THEN 'high' ELSE 'medium' END
      WHERE severity IS NULL AND summary = ANY($1::text[])`,
     [pairs.filter(([table, column]) => table === "reports" && column === "summary").map(([, , pair]) => pair.split("|")[1])],
-  );
-  await client.query(
-    `UPDATE incident_evidence SET label = replace(replace(label, ' · Voice report', ' · zgłoszenie głosowe'), ' · Form report', ' · zgłoszenie z formularza')
-     WHERE label LIKE '% report'`,
   );
   await client.query(
     `UPDATE action_proposals SET payload = replace(replace(payload::text, 'Power outage on ul. Józefa Dietla', 'Awaria prądu na ul. Józefa Dietla'),

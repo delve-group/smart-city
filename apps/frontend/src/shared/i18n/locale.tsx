@@ -8,6 +8,7 @@ import {
   messages,
   payloadKey,
   pluralForm,
+  serverTextKey,
   type Locale,
   type MessageKey,
 } from "./messages";
@@ -109,6 +110,26 @@ export function categoryText(t: Translator, category: { id: string; label: strin
 export function translateKnown(t: Translator, message: string): string {
   const key = knownError(message);
   return key ? t(key) : message;
+}
+
+const SERVER_PATTERNS: [RegExp, (match: RegExpMatchArray) => [MessageKey, Record<string, string>]][] = [
+  [/^(.+) · Voice report$/, (m) => ["server.patternVoiceReport", { reference: m[1] }]],
+  [/^(.+) · Form report$/, (m) => ["server.patternFormReport", { reference: m[1] }]],
+  [/^Proposal rejected: ([\s\S]+)$/, (m) => ["server.patternRejected", { reason: m[1] }]],
+];
+
+/** Server-generated labels and notes in the chosen language; anything else (names, people's notes) is shown as written. */
+export function translateServerText(t: Translator, text: string): string {
+  const key = serverTextKey(text);
+  if (key) return t(key);
+  for (const [pattern, build] of SERVER_PATTERNS) {
+    const match = text.match(pattern);
+    if (match) {
+      const [messageKey, vars] = build(match);
+      return t(messageKey, vars);
+    }
+  }
+  return text;
 }
 
 export function translatePayloadKey(t: Translator, key: string): string {

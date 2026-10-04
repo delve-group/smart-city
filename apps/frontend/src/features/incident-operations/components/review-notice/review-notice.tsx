@@ -2,7 +2,7 @@
 
 import { Alert, AlertDescription, AlertTitle } from "@appica/ui-react/alert";
 import type { Review } from "@/api/operations/types";
-import { useI18n } from "@/shared/i18n/locale";
+import { translateServerText, useI18n } from "@/shared/i18n/locale";
 import type { MessageKey } from "@/shared/i18n/messages";
 
 const TITLE: Partial<Record<Review["reason"], MessageKey>> = {
@@ -25,7 +25,7 @@ export function ReviewNotice({ review }: { review: Review }) {
   return (
     <Alert variant={variant}>
       <AlertTitle as="h3">{t(title)}</AlertTitle>
-      <AlertDescription className="text-pretty">{review.note}</AlertDescription>
+      <AlertDescription className="text-pretty">{translateServerText(t, review.note)}</AlertDescription>
     </Alert>
   );
 }
