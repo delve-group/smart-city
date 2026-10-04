@@ -105,3 +105,18 @@ The browser uses `ConversationProvider`, a WebRTC conversation token and control
 Stop SDK capture and all acquired microphone tracks on end, navigation, disconnect and form fallback. Keep transient transcript in memory only; persist structured draft observations through the existing intake service, never raw audio/full transcripts. Reconcile in-flight saves through the same draft before retrying. Missing configuration and microphone/provider failures retain the form.
 
 Live acceptance still requires three actual outage conversations (ambiguous location, corrected building number, interruption), one committed reference each; denial/limits/disconnect before and after save; fresh confirmation after correction; ownership/origin and unavailable-config checks; real retention/configuration/conversation references, latency and cleanup evidence; Appica/keyboard/390/1440 px/both-theme review and application checks. Record evidence on #29 and #35, not inferred from this prepared adapter.
+
+## V5 conversational intake (2026-10-04)
+
+V5 removes routine emergency screening and the spoken 112 referral instruction. There is no transfer capability. Scope is inferred from the actual affected extent already described; an address alone does not imply street-wide impact. Unknown scope/time can remain unknown. The dispatcher extracts all facts in a single utterance and asks only necessary missing/ambiguous questions.
+
+The returned draft summary is checked internally rather than read aloud. An explicit request to report/save the observation authorizes the faithfully captured draft, including clarification and the resident's own corrections unless withdrawn. Without explicit save intent, ask one short Polish save question. The same exact-revision confirmation/submission tools remain; new v2 tool descriptions remove the contradictory full-readback requirement. This supersedes the conversational readback/fresh-agreement wording above and in the original voice specification; domain revision invalidation and ownership remain unchanged.
+
+Upgrade the exact pinned reviewed v4 with:
+
+```sh
+cd apps/frontend
+node --env-file=../../.env --conditions=react-server --import tsx scripts/voice-tools-setup.ts --update-intake
+```
+
+Setup verifies the predecessor prompt, model, private settings, system tool/events and all five old tool definitions before creating separate v2 client tools and attaching them to v5. Earlier pinned agents keep their original tools. Repeat setup reuses the current exact configuration. Recreate the local application to load the resulting immutable pin. The change is not active in an existing provider session or deployment until provisioned and its pin loaded. Full spoken acceptance remains required.

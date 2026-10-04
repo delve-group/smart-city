@@ -6,7 +6,7 @@ import { ConfigurationError } from "../src/server/config";
 import { getVoiceConfig } from "../src/server/voice/config";
 import { dispatcherAgentSchema, verifyPreparedDispatcher } from "../src/server/voice/dispatcher-agent";
 import { dispatcherConfiguration, DISPATCHER_CLIENT_EVENTS, DISPATCHER_END_CALL, DISPATCHER_FIRST_MESSAGE, DISPATCHER_LANGUAGE, DISPATCHER_MODEL, DISPATCHER_PROMPT, DISPATCHER_PROMPT_VERSION } from "../src/server/voice/dispatcher-config";
-import { DISPATCHER_TOOLS, providerToolSchema, verifyDispatcherTool, verifyDispatcherTools } from "../src/server/voice/dispatcher-tools";
+import { DISPATCHER_TOOLS, PREVIOUS_DISPATCHER_TOOLS, providerToolSchema, verifyDispatcherTool, verifyDispatcherTools } from "../src/server/voice/dispatcher-tools";
 import { requestProvider, VoiceProviderError } from "../src/server/voice/provider";
 
 /** Explicit integration setup; recovery reuses exact tools and never changes unrelated agents. */
@@ -39,11 +39,19 @@ async function main() {
       && agent.name === "mradar-dispatcher-v3" && hash === "cb691a6aabdb480a31d89fa799dc3a31c2854a8842b206b537f26f25f57e3513"
       && previous.language === DISPATCHER_LANGUAGE && previous.first_message === DISPATCHER_FIRST_MESSAGE
       && previous.prompt.llm === DISPATCHER_MODEL;
+    const reviewedIntake = process.argv.includes("--update-intake")
+      && agent.name === "mradar-dispatcher-v4"
+      && hash === "6ba1d08b85e982a3331c6c8ae5c393adf11a9ac33802c91330d62fd77eaae1bd"
+      && previous.language === DISPATCHER_LANGUAGE && previous.first_message === DISPATCHER_FIRST_MESSAGE
+      && previous.prompt.llm === DISPATCHER_MODEL;
     const legacyEvents = DISPATCHER_CLIENT_EVENTS.filter((event) => event !== "agent_tool_response");
-    if (agent.version_id !== config.versionId
-      || !(reviewedEndCall || previous.prompt.llm === "gpt-4.1-mini" && (reviewedEnglish || reviewedPolish || reviewedModel))
-      || Object.values(previous.prompt.built_in_tools).some((tool) => tool != null)
-      || JSON.stringify([...agent.conversation_config.conversation.client_events].sort()) !== JSON.stringify(legacyEvents.sort())) throw failure;
+    const legacyUpgrade = (reviewedEndCall || previous.prompt.llm === "gpt-4.1-mini" && (reviewedEnglish || reviewedPolish || reviewedModel))
+      && !Object.values(previous.prompt.built_in_tools).some((tool) => tool != null)
+      && JSON.stringify([...agent.conversation_config.conversation.client_events].sort()) === JSON.stringify(legacyEvents.sort());
+    if (agent.version_id !== config.versionId || !(reviewedIntake || legacyUpgrade)) throw failure;
+    if (reviewedIntake) verifyPreparedDispatcher({ ...agent, name: DISPATCHER_PROMPT_VERSION,
+      conversation_config: { ...agent.conversation_config, agent: { ...previous,
+        prompt: { ...previous.prompt, prompt: DISPATCHER_PROMPT } } } }, currentIds);
     verifyPreparedDispatcher({ ...agent, name: DISPATCHER_PROMPT_VERSION,
       conversation_config: { ...agent.conversation_config,
         conversation: { ...agent.conversation_config.conversation, client_events: DISPATCHER_CLIENT_EVENTS }, agent: { ...previous,
@@ -51,7 +59,7 @@ async function main() {
         prompt: { ...previous.prompt, prompt: DISPATCHER_PROMPT, llm: DISPATCHER_MODEL, built_in_tools: { end_call: DISPATCHER_END_CALL } } } } }, currentIds);
     configurationUpgrade = true;
   }
-  if (currentIds.length) await verifyDispatcherTools(config.apiKey, currentIds);
+  if (currentIds.length) await verifyDispatcherTools(config.apiKey, currentIds, configurationUpgrade ? PREVIOUS_DISPATCHER_TOOLS : DISPATCHER_TOOLS);
   // If a prior update lost its response, exact definitions/readback can recover the resulting version.
   if (agent.version_id !== config.versionId && !currentIds.length) throw new ConfigurationError("The prepared agent changed since the local version pin. Review it before integrating tools.");
   const ids: string[] = [];
@@ -59,13 +67,14 @@ async function main() {
     console.info("Preparing reviewed client tool:", definition.name);
     const query = new URLSearchParams({ search: definition.name, page_size: "100" });
     const list = await requestProvider(`/v1/convai/tools?${query}`, config.apiKey, z.object({ tools: z.array(providerToolSchema), has_more: z.boolean() }));
-    const matching = list.tools.filter((tool) => tool.tool_config.name === definition.name);
+    const matching = list.tools.filter((tool) => tool.tool_config.name === definition.name
+      && typeof tool.tool_config.description === "string" && tool.tool_config.description.startsWith("mradar-dispatcher-tools-v2:"));
     if (list.has_more || matching.length > 1) throw new ConfigurationError(`Ambiguous dispatcher tool ${definition.name}; review existing tools before retrying.`);
     const tool = matching[0] ?? await requestProvider("/v1/convai/tools", config.apiKey, providerToolSchema, { method: "POST", body: { tool_config: definition } });
     verifyDispatcherTool(tool, definition);
     ids.push(tool.id);
   }
-  if (currentIds.length && JSON.stringify([...currentIds].sort()) !== JSON.stringify([...ids].sort())) throw new ConfigurationError("Existing dispatcher tool IDs differ. No agent update performed.");
+  if (currentIds.length && !configurationUpgrade && JSON.stringify([...currentIds].sort()) !== JSON.stringify([...ids].sort())) throw new ConfigurationError("Existing dispatcher tool IDs differ. No agent update performed.");
   if (!currentIds.length || configurationUpgrade) await requestProvider(path, config.apiKey, dispatcherAgentSchema, {
     method: "PATCH",
     body: dispatcherConfiguration(ids),
