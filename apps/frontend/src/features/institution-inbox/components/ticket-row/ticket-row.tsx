@@ -1,7 +1,7 @@
 import { Clock } from "@appica/icons-react";
 import type { InstitutionTicket } from "@/api/institution/types";
 import { Fact } from "@/shared/components/fact/fact";
-import { useI18n } from "@/shared/i18n/locale";
+import { useI18n, translateServerText } from "@/shared/i18n/locale";
 import type { MessageKey } from "@/shared/i18n/messages";
 import { categoryAppearance } from "@/shared/utils/category-appearance";
 import { formatAgo } from "@/shared/utils/format-time";
@@ -35,7 +35,7 @@ export function TicketRow({ ticket, selected, now, onSelect }: TicketRowProps) {
           <span aria-hidden className="text-foreground-muted">
             ·
           </span>
-          <span className="max-w-[45%] shrink-0 truncate">{ticket.incident.locationLabel}</span>
+          <span className="max-w-[45%] shrink-0 truncate">{translateServerText(t, ticket.incident.locationLabel)}</span>
           <span aria-hidden className="text-foreground-muted">
             ·
           </span>

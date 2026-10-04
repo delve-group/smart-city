@@ -45,7 +45,7 @@
     },
     "design": {
       "seconds": 25,
-      "text": "Kolor niesie znaczenie: osiem kategorii ma własne ikony i barwy, reszta jest neutralna. Wyszukiwarka zanim zaczniesz pisać pokazuje najczęściej zgłaszane problemy. Karta podglądu przy punkcie pokazuje status, miejsce i czas bez otwierania szczegółów, a w panelu operatora mapa 3D podświetla budynki, których dotyczą zgłoszenia.\n\nAutomatyczny test axe-core (WCAG 2.2 AA) nie znalazł naruszeń w 32 stanach trzech ekranów, na telefonie i komputerze. Test automatyczny nie zastępuje sprawdzenia czytnikiem ekranu, którego nie raportujemy."
+      "text": "Kolor niesie znaczenie i jest spójny w całej aplikacji: każda z ośmiu kategorii ma jedną barwę i ikonę — w pinezkach na mapie, w filtrze, na listach i w panelach. Reszta interfejsu jest neutralna. Panel decyzji operatora pokazuje kandydata do połączenia z odległością, odstępem czasu i liczbą zgłoszeń obok trzech innych wyjść. Karta podglądu przy punkcie pokazuje status, miejsce i czas bez otwierania szczegółów, a mapa 3D podświetla budynki, których dotyczą zgłoszenia.\n\nAutomatyczny test axe-core (WCAG 2.2 AA) nie znalazł naruszeń w 32 stanach trzech ekranów, na telefonie i komputerze. Test automatyczny nie zastępuje sprawdzenia czytnikiem ekranu, którego nie raportujemy."
     },
     "backend": {
       "seconds": 35,

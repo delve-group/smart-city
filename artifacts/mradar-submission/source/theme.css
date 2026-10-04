@@ -144,9 +144,10 @@ h1,h2,h3,p{margin:0}
 .tile .pop{position:absolute;display:block;border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,.6)}
 .design-grid{grid-template-rows:1fr 1fr}
 .design-grid .t-filter{grid-column:1;grid-row:1 / span 2}
-.design-grid .t-filter .pop{left:50%;top:200px;width:360px;transform:translateX(-50%)}
-.design-grid .t-search{grid-column:2 / span 2;grid-row:1}
-.design-grid .t-search .pop{right:28px;top:28px;height:324px;width:auto}
+.design-grid .t-filter .pins{position:absolute;left:36px;right:36px;top:236px;width:calc(100% - 72px);border-radius:14px;display:block}
+.design-grid .t-filter .pop{left:50%;top:530px;width:300px;transform:translateX(-50%)}
+.design-grid .t-decide{grid-column:2 / span 2;grid-row:1}
+.design-grid .t-decide .pop{right:28px;top:28px;height:324px;width:auto}
 .design-grid .t-copy{position:relative;z-index:1;max-width:270px;display:flex;flex-direction:column;gap:12px}
 .design-grid .t-stat{grid-column:4;grid-row:1}
 .design-grid .t-stat h3{font-size:30px;white-space:nowrap}

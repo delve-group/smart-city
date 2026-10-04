@@ -7,7 +7,7 @@ import { useEffect, useRef } from "react";
 import type { Category } from "@/api/categories/types";
 import type { Incident, IncidentCommand, OperationsReport, ProposalDecision, Workspace } from "@/api/operations/types";
 import { FloatingPanel } from "@/shared/components/floating-panel/floating-panel";
-import { useI18n } from "@/shared/i18n/locale";
+import { useI18n, translateServerText } from "@/shared/i18n/locale";
 import type { MessageKey } from "@/shared/i18n/messages";
 import { formatAgo } from "@/shared/utils/format-time";
 import { institutionName, reportsOf } from "../../utils/queue";
@@ -84,7 +84,7 @@ export function IncidentPanel({ incident, workspace, category, now, onClose, onL
                 {localizedTitle(t, incident)}
               </h2>
             {incident.description && <p className="text-sm whitespace-pre-wrap text-foreground">{incident.description}</p>}
-              <p className="text-sm text-foreground-muted">{[incident.address, incident.district].filter(Boolean).join(" · ")}</p>
+              <p className="text-sm text-foreground-muted">{[translateServerText(t, incident.address), incident.district].filter(Boolean).join(" · ")}</p>
               <p className={FACTS}>
                 <Fact icon={Id} label={t("common.reference")}>
                   <span className="font-mono">{incident.reference}</span>
