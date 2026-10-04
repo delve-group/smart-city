@@ -21,7 +21,7 @@
     },
     "voice": {
       "seconds": 30,
-      "text": "Zamiast formularza można po prostu powiedzieć, co się stało. Mikrofon jest na dole mapy; asystent mówi po polsku, dopytuje o miejsce i zakres, a adres od razu pokazuje na mapie.\n\nZgłoszenie jest zapisywane dopiero po odczytaniu i wyraźnej zgodzie. „Kontynuuj” przenosi ten sam szkic do formularza. Głos działa w wersji wdrożonej na Scaleway."
+      "text": "Zamiast formularza można po prostu powiedzieć, co się stało. Mikrofon jest na dole mapy; asystent mówi po polsku, dopytuje o miejsce i zakres, a adres od razu pokazuje na mapie.\n\nAsystent nie dopytuje o to, co już padło, i nie odczytuje całego zgłoszenia; gdy nie było jasne, że mieszkaniec chce je wysłać, zadaje jedno krótkie pytanie. Zrzut pokazuje rozmowę w toku z przykładowym dialogiem. „Kontynuuj” przenosi ten sam szkic do formularza. Głos działa w wersji wdrożonej na Scaleway."
     },
     "voiceflow": {
       "seconds": 35,
@@ -42,6 +42,14 @@
     "handoff": {
       "seconds": 25,
       "text": "Po zatwierdzeniu worker wysyła zlecenie dokładnie raz, a pojawia się ono w skrzynce właściwej służby — tu pogotowia energetycznego. Służba przyjmuje, rozpoczyna prace i rozwiązuje; każdy krok aktualizuje panel urzędnika i publiczną oś czasu mieszkańca."
+    },
+    "design": {
+      "seconds": 25,
+      "text": "Interfejs jest projektowany najpierw pod telefon i działa tak samo na komputerze. Kolor niesie znaczenie: osiem kategorii ma własne ikony i barwy, reszta jest neutralna.\n\nAutomatyczny test axe-core (WCAG 2.2 AA) nie znalazł naruszeń w 32 stanach trzech ekranów, w jasnym i ciemnym motywie, na telefonie i komputerze. Test automatyczny nie zastępuje sprawdzenia czytnikiem ekranu, którego nie raportujemy."
+    },
+    "backend": {
+      "seconds": 35,
+      "text": "Serwer robi pracę, której mieszkaniec nie widzi. Zgłoszenia tego samego problemu w promieniu 300 metrów i w ciągu 60 minut łączą się w jedno zdarzenie. Qwen na Scaleway klasyfikuje zapisane zgłoszenia, a odpowiedź spoza katalogu kończy się ręcznym przeglądem. Reguły odpowiedzialności wskazują służbę albo oddają wybór urzędnikowi.\n\nPo zatwierdzeniu worker wysyła zlecenie dokładnie raz: nieznany wynik jest uzgadniany, nigdy wysyłany ponownie. Wyszukiwanie łączy BM25 i model E5 uruchomiony na naszym serwerze, z osobnym zakresem dla każdej roli. Endpoint MCP udostępnia te same operacje agentom AI, a rolę wyznacza token."
     },
     "stack": {
       "seconds": 30,

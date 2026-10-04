@@ -133,8 +133,31 @@ h1,h2,h3,p{margin:0}
 .principles{position:absolute;left:120px;top:772px;width:1680px;display:grid;grid-template-columns:repeat(3,1fr);gap:48px}
 .principles p{font-size:26px;line-height:1.4;color:var(--soft)}
 
+/* Bento: design and backend */
+.bento-title{position:absolute;left:120px;top:96px;font-size:80px}
+.bento{position:absolute;left:120px;top:226px;width:1680px;height:784px;display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.tile{position:relative;overflow:hidden;padding:36px;border-radius:28px;background:#0d0d0f;box-shadow:inset 0 0 0 1.5px var(--line);display:flex;flex-direction:column;gap:12px;box-sizing:border-box}
+.tile.hot{box-shadow:inset 0 0 0 1.5px rgba(244,63,94,.5)}
+.tile h3{font-size:34px;font-weight:700;letter-spacing:-.03em;line-height:1.1}
+.tile p{font-size:24px;line-height:1.4;color:var(--soft)}
+.tile .big{font-size:120px;font-weight:700;letter-spacing:-.05em;line-height:.95;color:var(--rose-2);margin-bottom:8px}
+.tile .pop{position:absolute;display:block;border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+.design-grid{grid-template-rows:1.15fr .85fr}
+.design-grid .t-phone,.design-grid .t-filter{grid-row:span 2}
+.design-grid .t-phone .iphone{left:50%;top:262px;width:300px;transform:translateX(-50%)}
+.design-grid .t-filter .pop{left:50%;top:262px;width:336px;transform:translateX(-50%)}
+.design-grid .t-lang .pop{left:50%;top:200px;width:300px;transform:translateX(-50%)}
+.design-grid .t-stat{grid-column:3;grid-row:1}
+.design-grid .t-stat h3{font-size:30px;white-space:nowrap}
+.design-grid .t-lang{grid-column:4;grid-row:1}
+.backend-grid{grid-template-rows:1fr 1fr}
+.backend-grid .wide{grid-column:span 2}
+.backend-grid .tile{justify-content:flex-end}
+.backend-grid .big{font-size:104px}
+.backend-grid .wide p:last-child{max-width:720px}
+
 /* Copy always sits above screenshots and their shadows. */
-.copy,.split-head,.split-lead,.head,.caption,.tag,.node,.badge,.vf-steps,.tools,.guarantees,.cols,.principles,.links,.note{z-index:2}
+.copy,.split-head,.split-lead,.head,.caption,.tag,.node,.badge,.vf-steps,.tools,.guarantees,.cols,.principles,.links,.note,.bento,.bento-title{z-index:2}
 .compare,.shot,.crop,.bleed{z-index:1}
 #cover .bleed{z-index:0}#cover .fade{z-index:1}
 .foot{z-index:2}

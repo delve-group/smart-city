@@ -60,11 +60,11 @@
     <div class="points">
       <p class="lead sm" data-key="voice-1"><strong>Gdzie dokładnie?</strong> Adres, który podasz, od razu pojawia się na mapie. Rozpoznaje też nazwy miejsc, np. „przy Tauron Arenie”.</p>
       <p class="lead sm" data-key="voice-2"><strong>Czy ktoś już to zgłosił?</strong> Asystent sprawdza istniejące zdarzenia, zanim utworzy nowe.</p>
-      <p class="lead sm" data-key="voice-3"><strong>Nic bez Twojej zgody.</strong> Odczytuje zgłoszenie i zapisuje je dopiero po wyraźnym „tak”.</p>
+      <p class="lead sm" data-key="voice-3"><strong>Bez zbędnych pytań.</strong> Nie dopytuje o to, co już padło, i nie odczytuje całego zgłoszenia. Jeśli nie było jasne, że chcesz je wysłać, zada jedno krótkie pytanie.</p>
       <p class="lead sm" data-key="voice-4"><strong>Wolisz pisać?</strong> „Kontynuuj” przenosi ten sam szkic do formularza.</p>
     </div>
   </div>
-  <div class="bleed" data-allow-overflow><div class="iphone" style="left:1390px; top:110px; width:420px"><div class="screen"><img src="assets/pl-voice-phone.jpg" alt="Zgłaszanie głosowe na telefonie: duży przycisk mikrofonu i podpowiedź Włącz mikrofon, aby mówić"></div><img class="frame" src="assets/iphone-silver.webp" alt=""></div></div>
+  <div class="bleed" data-allow-overflow><div class="iphone" style="left:1390px; top:110px; width:420px"><div class="screen"><img src="assets/pl-voice-phone.jpg" alt="Rozmowa głosowa na telefonie: czerwony mikrofon, ostatnia odpowiedź asystenta i słowa mieszkańca nad przyciskiem"></div><img class="frame" src="assets/iphone-silver.webp" alt=""></div></div>
 </section>
 
 <section class="slide" id="voiceflow">
@@ -151,6 +151,72 @@
   <p class="caption" style="left:980px" data-key="handoff-right"><strong>Instytucja</strong> · <span class="mono">/institution</span> · to samo zlecenie, następny krok</p>
 </section>
 
+<section class="slide" id="design">
+  <h2 class="title bento-title" data-key="design-title">Dopracowane w szczegółach.</h2>
+  <div class="bento design-grid">
+    <div class="tile t-phone">
+      <h3 data-key="design-phone">Najpierw telefon</h3>
+      <p data-key="design-phone-body">Ta sama aplikacja na telefonie i komputerze. Na telefonie zdarzenie wysuwa się od dołu, a mapa zostaje widoczna.</p>
+      <div class="iphone"><div class="screen"><img src="assets/pl-phone-incident.jpg" alt="Zdarzenie na telefonie: tytuł, miejsce, liczba mieszkańców, pilność i postęp"></div><img class="frame" src="assets/iphone-silver.webp" alt=""></div>
+    </div>
+    <div class="tile t-filter">
+      <h3 data-key="design-color">Kolor tylko z powodu</h3>
+      <p data-key="design-color-body">Osiem kategorii, każda z własną ikoną i barwą. Reszta interfejsu jest neutralna, więc problemy widać od razu.</p>
+      <img class="pop" src="assets/pl-pop-filter.jpg" alt="Filtr kategorii: osiem kategorii z ikonami, liczbą zdarzeń i przełącznikiem Ukryj zakończone">
+    </div>
+    <div class="tile t-stat hot">
+      <p class="big" data-key="design-a11y-big">0</p>
+      <h3 data-key="design-a11y">naruszeń WCAG 2.2 AA</h3>
+      <p data-key="design-a11y-body">Test axe-core w 32 stanach trzech ekranów. Pełna obsługa klawiaturą i etykiety w języku interfejsu.</p>
+    </div>
+    <div class="tile t-lang">
+      <h3 data-key="design-lang">Polski i angielski</h3>
+      <p data-key="design-lang-body">Jeden wybór zmienia cały interfejs, także etykiety z serwera.</p>
+      <img class="pop" src="assets/pl-pop-settings.jpg" alt="Ustawienia mapy: budynki 3D, motyw i język">
+    </div>
+    <div class="tile t-text">
+      <h3 data-key="design-states">Każdy stan ma wyjście</h3>
+      <p data-key="design-states-body">Ładowanie, błąd i brak wyników zawsze podpowiadają następny krok.</p>
+    </div>
+    <div class="tile t-text">
+      <h3 data-key="design-system">Jeden system</h3>
+      <p data-key="design-system-body">Komponenty Appica UI i tokeny motywu. Trzy ekrany wyglądają i działają tak samo: lista, mapa, panel.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="backend">
+  <h2 class="title bento-title" data-key="backend-title">Co robi serwer</h2>
+  <div class="bento backend-grid">
+    <div class="tile wide hot">
+      <p class="big" data-key="backend-group-big">300 m · 60 min</p>
+      <h3 data-key="backend-group">Grupowanie zgłoszeń</h3>
+      <p data-key="backend-group-body">Zgłoszenia tego samego problemu w tym promieniu i czasie stają się jednym zdarzeniem. Reguła jest deterministyczna, a niejasne przypadki trafiają do człowieka.</p>
+    </div>
+    <div class="tile">
+      <h3 data-key="backend-ai">Klasyfikacja AI</h3>
+      <p data-key="backend-ai-body">Qwen 3.6 na Scaleway nadaje kategorię i typ problemu. Odpowiedź spoza katalogu kończy się ręcznym przeglądem, nie zgadywaniem.</p>
+    </div>
+    <div class="tile">
+      <h3 data-key="backend-route">Kto odpowiada</h3>
+      <p data-key="backend-route-body">Reguły wskazują służbę po kategorii, typie i obszarze. Gdy pasuje kilka albo żadna, wybiera urzędnik.</p>
+    </div>
+    <div class="tile wide">
+      <p class="big" data-key="backend-once-big">1×</p>
+      <h3 data-key="backend-once">Wysyłka dokładnie raz</h3>
+      <p data-key="backend-once-body">Zatwierdzenie kolejkuje jedno zadanie w PostgreSQL. Worker zapisuje zlecenie, znany błąd albo nieznany wynik do uzgodnienia — nigdy nie wysyła ponownie.</p>
+    </div>
+    <div class="tile">
+      <h3 data-key="backend-search">Wyszukiwanie</h3>
+      <p data-key="backend-search-body">Qdrant łączy słowa (BM25) i znaczenie (E5 na naszym CPU). Każda rola przeszukuje tylko teksty, które może widzieć.</p>
+    </div>
+    <div class="tile">
+      <h3 data-key="backend-mcp"><span class="mono">/api/mcp</span></h3>
+      <p data-key="backend-mcp-body">Narzędzia dla agentów AI: kontekst zdarzenia, odpowiedzialność, propozycja zlecenia. Rolę wyznacza token, nie agent.</p>
+    </div>
+  </div>
+</section>
+
 <section class="slide" id="stack">
   <h2 class="title stack-title" data-key="stack-title">Pod spodem</h2>
   <p class="lead sm stack-lead" data-key="stack-lead">Jedna aplikacja i jeden worker na maszynie Scaleway. PostgreSQL jest źródłem prawdy; wszystko inne da się odbudować.</p>
@@ -172,7 +238,7 @@
       <p data-key="stack-c3-4"><b>OpenFreeMap</b> kafelki mapy</p></div>
   </div>
   <div class="principles">
-    <p data-key="stack-p1"><strong>Bez duplikatów.</strong> Jedno zatwierdzenie to jedno zlecenie, nawet gdy wysyłka się powtórzy.</p>
+    <p data-key="stack-p1"><strong>Bez utraty pracy.</strong> Zadania czekają w PostgreSQL, gdy worker albo dostawca AI nie działa.</p>
     <p data-key="stack-p2"><strong>Bez nadpisań.</strong> Każda zmiana niesie wersję; konflikt odświeża widok.</p>
     <p data-key="stack-p3"><strong>Bez przecieków.</strong> Publiczna mapa dostaje tylko dozwolone pola, nigdy treść zgłoszeń.</p>
   </div>
