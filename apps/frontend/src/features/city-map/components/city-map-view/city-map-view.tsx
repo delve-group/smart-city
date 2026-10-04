@@ -43,6 +43,9 @@ type LatLng = { lat: number; lng: number };
 /** Browsing the map, placing the pin for a new report, or filling in the report. */
 type Mode = { kind: "browse" } | { kind: "picking" } | { kind: "form" } | { kind: "voice" };
 
+/** Response statuses that count as finished for the "hide finished" filter. */
+const FINISHED = new Set(["resolved", "closed"]);
+
 export function CityMapView() {
   const { t } = useI18n();
   const { state, retry, refresh, applyContribution, updatedAt, refreshFailed } = useCityData();
@@ -65,6 +68,7 @@ export function CityMapView() {
   const placeAtUser = useRef(false);
   /** Category ids to show; null means all (also covers categories the API adds later). */
   const [shownCategoryIds, setShownCategoryIds] = useState<string[] | null>(null);
+  const [hideFinished, setHideFinished] = useState(false);
   const [tilted, setTilted] = useState(false);
 
   const ready = state.status === "ready" ? state : undefined;
@@ -73,12 +77,13 @@ export function CityMapView() {
   const categoriesById = new Map(categories.map((category) => [category.id, category]));
   const categoryIds = categories.map((category) => category.id);
   const shownIds = shownCategoryIds ?? categoryIds;
-  // The category filter applies to markers, local search, counts and nearby lists.
-  const incidents = allIncidents.filter((incident) => shownIds.includes(incident.category_id));
+  // The filter applies to markers, local search, counts and nearby lists.
+  const current = hideFinished ? allIncidents.filter((incident) => !FINISHED.has(incident.response_status)) : allIncidents;
+  const incidents = current.filter((incident) => shownIds.includes(incident.category_id));
   const points: MapPoint[] = incidents.map((incident) => ({
     id: incident.id, categoryId: incident.category_id, location: incident.public_location, weight: heatWeight(incident),
   }));
-  const counts = new Map(categoryIds.map((id) => [id, allIncidents.filter((incident) => incident.category_id === id).length]));
+  const counts = new Map(categoryIds.map((id) => [id, current.filter((incident) => incident.category_id === id).length]));
   const selected = incidents.find((incident) => incident.id === selectedId);
   const hovered = hover ? incidents.find((incident) => incident.id === hover.id) : undefined;
   const savedReportId = intake.report?.id;
@@ -238,7 +243,7 @@ export function CityMapView() {
 
       <div className="absolute top-3 right-3 left-3 z-20 flex items-start gap-2 md:right-auto md:w-140">
         <div className="min-w-0 flex-1">
-          <MapSearch incidents={incidents} categoryIds={shownIds} categoriesById={categoriesById} onPick={handlePick} />
+          <MapSearch incidents={incidents} knownIncidents={allIncidents} categoryIds={shownIds} categoriesById={categoriesById} onPick={handlePick} />
         </div>
         {categories.length > 0 && (
           <CategoryFilter
@@ -246,6 +251,8 @@ export function CityMapView() {
             counts={counts}
             selected={shownIds}
             onChange={(ids) => setShownCategoryIds(ids.length === categoryIds.length ? null : ids)}
+            hideFinished={hideFinished}
+            onHideFinishedChange={setHideFinished}
           />
         )}
         {ready && !selected && (

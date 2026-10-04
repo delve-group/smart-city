@@ -137,6 +137,8 @@ const en = {
   "filter.openCount": "Filter categories, {shown} of {total} shown",
   "filter.title": "Show categories",
   "filter.all": "All categories",
+  "filter.hideFinished": "Hide finished",
+  "filter.hideFinishedHint": "Resolved and closed incidents",
   "filter.empty": "Nothing is shown. Pick at least one category.",
   "filter.noMatch": "Nothing here in the categories shown.",
   "filter.noMatchQuery": "Nothing in the categories shown matches “{query}”.",
@@ -748,6 +750,8 @@ const pl: { [K in keyof typeof en]: string } = {
   "category.air.description": "Dym z nielegalnego palenia, zapachy, hałas w nocy",
 
   "filter.open": "Filtruj kategorie",
+  "filter.hideFinished": "Ukryj zakończone",
+  "filter.hideFinishedHint": "Rozwiązane i zamknięte zdarzenia",
   "filter.openCount": "Filtruj kategorie, widać {shown} z {total}",
   "filter.title": "Pokaż kategorie",
   "filter.all": "Wszystkie kategorie",
