@@ -58,8 +58,8 @@ export function filterTickets(
   );
 }
 
-/** The ticket's incident summary in the chosen language. */
+/** The ticket's incident title in the chosen language, without the place (shown separately). */
 export function ticketSummary(t: Translator, ticket: InstitutionTicket): string {
-  const { issueType, locationLabel, precision, summary } = ticket.incident;
-  return localizedSummary(t, { issueType, place: locationLabel, precision, fallback: summary });
+  const { issueType, summary } = ticket.incident;
+  return localizedSummary(t, { issueType, fallback: summary });
 }

@@ -18,6 +18,7 @@ import { reportsOf } from "../../utils/queue";
 import { Fact, FACTS } from "@/shared/components/fact/fact";
 import { PanelHeader } from "@/shared/components/panel-header/panel-header";
 import { ReviewNotice } from "../review-notice/review-notice";
+import { localizedTitle } from "@/shared/utils/incident-summary";
 
 type ReportReviewPanelProps = {
   report: OperationsReport;
@@ -134,7 +135,7 @@ export function ReportReviewPanel({ report, workspace, category, now, onClose, o
                       <span className="flex min-w-0 flex-1 flex-col gap-1.5">
                         <span className="flex items-baseline justify-between gap-3">
                           <span id={`candidate-${incident.id}`} className="text-sm font-medium text-foreground-intense">
-                            {incident.title}
+                            {localizedTitle(t, incident)}
                           </span>
                           <span className="shrink-0 text-xs text-foreground-muted">{t(`response.${incident.responseStatus}` as MessageKey)}</span>
                         </span>

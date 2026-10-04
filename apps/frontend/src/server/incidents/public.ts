@@ -77,7 +77,7 @@ async function project(client: Queryable, rows: IncidentRow[], ctx: ActorContext
     reference: row.reference,
     category_id: row.category_id,
     issue_type: row.issue_type,
-    public_summary: publicSummary(row.issue_type, row.public_label, row.scope),
+    public_summary: publicSummary(row.issue_type),
     scope: row.scope,
     assessment: row.assessment,
     response_status: row.response_status,

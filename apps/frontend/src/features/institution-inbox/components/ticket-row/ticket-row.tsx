@@ -35,7 +35,11 @@ export function TicketRow({ ticket, selected, now, onSelect }: TicketRowProps) {
           <span aria-hidden className="text-foreground-muted">
             ·
           </span>
-          <span className="truncate">{t(`inboxStatus.${ticket.status}` as MessageKey)}</span>
+          <span className="max-w-[45%] shrink-0 truncate">{ticket.incident.locationLabel}</span>
+          <span aria-hidden className="text-foreground-muted">
+            ·
+          </span>
+          <span className="min-w-0 truncate">{t(`inboxStatus.${ticket.status}` as MessageKey)}</span>
         </span>
         <span className="shrink-0 text-foreground-muted tabular-nums">
           <Fact icon={Clock} label={t("inbox.received")}>

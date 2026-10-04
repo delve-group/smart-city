@@ -26,11 +26,12 @@ export function timelineText(kind: TimelineKind): string {
   return TIMELINE_TEXT[kind];
 }
 
-export function incidentTitle(issueType: string, publicLabel: string, scope: "building" | "street"): string {
-  const issue = findIssueType(issueType)?.label ?? "Reported problem";
-  return `${issue} ${scope === "building" ? "at" : "on"} ${publicLabel}`;
+/** The issue label only: the place lives in its own field and is never repeated in a title (D083). */
+export function incidentTitle(issueType: string): string {
+  const issue = findIssueType(issueType);
+  return issue && issue.id !== "other" ? issue.label : "Reported problem";
 }
 
-export function publicSummary(issueType: string, publicLabel: string, scope: "building" | "street"): string {
-  return `${incidentTitle(issueType, publicLabel, scope)}, reported by residents.`;
+export function publicSummary(issueType: string): string {
+  return `${incidentTitle(issueType)}, reported by residents.`;
 }

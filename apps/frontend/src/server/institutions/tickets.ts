@@ -88,7 +88,7 @@ async function project(client: Pick<PoolClient, "query">, rows: TicketRow[]): Pr
       reference: row.incident_reference,
       category_id: row.category_id,
       issue_type: row.issue_type,
-      public_summary: publicSummary(row.issue_type, row.public_label, row.scope),
+      public_summary: publicSummary(row.issue_type),
       public_location: { lat: row.anchor_lat, lng: row.anchor_lng, label: row.public_label, precision: row.public_precision },
     },
     expected_resolution_at: row.expected_resolution_at ? row.expected_resolution_at.toISOString() : null,

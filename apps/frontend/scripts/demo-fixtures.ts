@@ -248,7 +248,7 @@ async function markSet(client: PoolClient, operation: string, incidentId: string
 async function seedSetOne(client: PoolClient) {
   const owners = await createOwners(client, 4);
   const outage = await insertIncident(client, owners, {
-    title: "Awaria prądu na ul. Józefa Dietla", institutionId: "demo-electricity", ruleId: "demo-rule-power",
+    title: "Awaria prądu w kamienicach i sklepach", institutionId: "demo-electricity", ruleId: "demo-rule-power",
     observation: { label: "Supply interrupted on the local feeder", state: "current", note: null },
     reports: [
       { ...DIETLA, owner: 0, minutesAgo: 40, channel: "voice", lat: 50.05806, lng: 19.94532, number: "44",
@@ -261,7 +261,7 @@ async function seedSetOne(client: PoolClient) {
   });
 
   await insertIncident(client, owners, {
-    title: "Wyciek wody na ul. Karmelickiej", institutionId: "demo-water", ruleId: "demo-rule-water-pipe",
+    title: "Woda wypływa spod chodnika", institutionId: "demo-water", ruleId: "demo-rule-water-pipe",
     observation: { label: "No supply reading available", state: "missing", note: "No feed is configured for this area and category." },
     reports: [
       { owner: 1, minutesAgo: 75, channel: "form", category_id: "water", issue_type: "burst_pipe", scope: "street",
@@ -291,7 +291,7 @@ async function seedSetOne(client: PoolClient) {
 async function seedSetTwo(client: PoolClient) {
   const owners = await createOwners(client, 6);
   const first = await insertIncident(client, owners, {
-    title: "Dziura w jezdni na ul. Krakowskiej", institutionId: "demo-roads", ruleId: "demo-rule-roads",
+    title: "Dziura w jezdni przed przejściem", institutionId: "demo-roads", ruleId: "demo-rule-roads",
     reports: [
       { owner: 0, minutesAgo: 95, channel: "form", category_id: "roads", issue_type: "pothole", scope: "street", district: "Kazimierz",
         lat: 50.04772, lng: 19.93347, street: "Krakowska", number: "41",
@@ -302,7 +302,7 @@ async function seedSetTwo(client: PoolClient) {
     ],
   });
   await insertIncident(client, owners, {
-    title: "Awaria tablicy odjazdów na Rondzie Mogilskim", institutionId: "demo-transit", ruleId: "demo-rule-transit",
+    title: "Awaria tablicy odjazdów", institutionId: "demo-transit", ruleId: "demo-rule-transit",
     reports: [
       { owner: 2, minutesAgo: 42, channel: "form", category_id: "transit", issue_type: "transit_disruption", scope: "street", district: "Grzegórzki",
         lat: 50.06573, lng: 19.95962, street: "Rondo Mogilskie", number: "",
@@ -310,7 +310,7 @@ async function seedSetTwo(client: PoolClient) {
     ],
   });
   await insertIncident(client, owners, {
-    title: "Przepełnione kosze na placu Nowym", institutionId: "demo-waste", ruleId: "demo-rule-waste",
+    title: "Przepełnione kosze na śmieci", institutionId: "demo-waste", ruleId: "demo-rule-waste",
     work: { sentMinutesAgo: 265, steps: [
       { status: "acknowledged", minutesAgo: 240 },
       { status: "in_progress", minutesAgo: 60, note: "Dodatkowy odbiór zaplanowany na dziś." },
@@ -325,7 +325,7 @@ async function seedSetTwo(client: PoolClient) {
     ],
   });
   await insertIncident(client, owners, {
-    title: "Złamany konar na Plantach przy ul. Basztowej", institutionId: null, ruleId: null, urgent: true,
+    title: "Złamany konar nad alejką", institutionId: null, ruleId: null, urgent: true,
     review: { reason: "urgent", note: "Wiszący konar nad ławkami może spaść. Jeśli komuś grozi niebezpieczeństwo, dzwoń pod 112." },
     reports: [
       { owner: 5, minutesAgo: 14, channel: "voice", category_id: "greenery", issue_type: "fallen_tree", scope: "street",
@@ -334,7 +334,7 @@ async function seedSetTwo(client: PoolClient) {
     ],
   });
   await insertIncident(client, owners, {
-    title: "Niedziałająca winda na perony przy ul. Pawiej", institutionId: "demo-roads", ruleId: "demo-rule-accessibility",
+    title: "Niedziałająca winda na perony", institutionId: "demo-roads", ruleId: "demo-rule-accessibility",
     work: { sentMinutesAgo: 235, steps: [{ status: "acknowledged", minutesAgo: 180, note: "Serwis windy zamówiony na jutro rano." }] },
     reports: [
       { owner: 0, minutesAgo: 260, channel: "form", category_id: "accessibility", issue_type: "broken_lift", scope: "building",
@@ -343,7 +343,7 @@ async function seedSetTwo(client: PoolClient) {
     ],
   });
   await insertIncident(client, owners, {
-    title: "Nocny hałas z budowy na ul. Szewskiej", institutionId: null, ruleId: null,
+    title: "Nocny hałas z budowy", institutionId: null, ruleId: null,
     review: { reason: "needs_responsibility", note: "Hałas z prywatnej budowy może nie podlegać żadnej służbie. Wybierz, kto ma odpowiedzieć." },
     reports: [
       { owner: 1, minutesAgo: 22, channel: "form", category_id: "air", issue_type: "noise", scope: "building",
@@ -352,7 +352,7 @@ async function seedSetTwo(client: PoolClient) {
     ],
   });
   await insertIncident(client, owners, {
-    title: "Niedziałające latarnie na ul. Grodzkiej", institutionId: "demo-electricity", ruleId: "demo-rule-power",
+    title: "Niedziałające latarnie", institutionId: "demo-electricity", ruleId: "demo-rule-power",
     work: { sentMinutesAgo: 150, steps: [
       { status: "acknowledged", minutesAgo: 120 },
       { status: "in_progress", minutesAgo: 45, note: "Ekipa wymienia sterownik oświetlenia." },
@@ -367,7 +367,7 @@ async function seedSetTwo(client: PoolClient) {
     ],
   });
   await insertIncident(client, owners, {
-    title: "Brak wody na ul. Długiej", institutionId: "demo-water", ruleId: "demo-rule-water-outage",
+    title: "Brak wody w kranach", institutionId: "demo-water", ruleId: "demo-rule-water-outage",
     work: { sentMinutesAgo: 55, steps: [{ status: "acknowledged", minutesAgo: 25, note: "Ekipa jedzie na miejsce." }] },
     reports: [
       { owner: 4, minutesAgo: 80, channel: "voice", category_id: "water", issue_type: "water_outage", scope: "street", district: "Krowodrza",
@@ -376,7 +376,7 @@ async function seedSetTwo(client: PoolClient) {
     ],
   });
   await insertIncident(client, owners, {
-    title: "Awaria prądu na ul. Lea", institutionId: "demo-electricity", ruleId: "demo-rule-power",
+    title: "Awaria prądu w kilku budynkach", institutionId: "demo-electricity", ruleId: "demo-rule-power",
     work: { sentMinutesAgo: 900, steps: [
       { status: "acknowledged", minutesAgo: 880 },
       { status: "in_progress", minutesAgo: 840 },
@@ -406,8 +406,8 @@ async function localizeSetOne(client: PoolClient) {
     ["reports", "summary", "No power in one flat only|Brak prądu tylko w jednym mieszkaniu"],
     ["reports", "summary", "Blocked drain, water pooling at the crossing|Zatkana studzienka, woda stoi na przejściu"],
     ["reports", "review_note", "Automatic grouping covers power outages only. Triage this report manually.|Przykład ręcznego przeglądu: sprawdź lokalizację i odpowiedzialność przed utworzeniem zdarzenia."],
-    ["incidents", "title", "Power outage on ul. Józefa Dietla|Awaria prądu na ul. Józefa Dietla"],
-    ["incidents", "title", "Burst pipe or leak on ul. Karmelicka|Wyciek wody na ul. Karmelickiej"],
+    ["incidents", "title", "Power outage on ul. Józefa Dietla|Awaria prądu w kamienicach i sklepach"],
+    ["incidents", "title", "Burst pipe or leak on ul. Karmelicka|Woda wypływa spod chodnika"],
     ["incident_report_links", "reason", "Explicit initial data link|Powiązanie z danych początkowych"],
   ];
   for (const [table, column, pair] of pairs) {
@@ -421,8 +421,8 @@ async function localizeSetOne(client: PoolClient) {
     [pairs.filter(([table, column]) => table === "reports" && column === "summary").map(([, , pair]) => pair.split("|")[1])],
   );
   await client.query(
-    `UPDATE action_proposals SET payload = replace(replace(payload::text, 'Power outage on ul. Józefa Dietla', 'Awaria prądu na ul. Józefa Dietla'),
-       'Burst pipe or leak on ul. Karmelicka', 'Wyciek wody na ul. Karmelickiej')::jsonb
+    `UPDATE action_proposals SET payload = replace(replace(payload::text, 'Power outage on ul. Józefa Dietla', 'Awaria prądu w kamienicach i sklepach'),
+       'Burst pipe or leak on ul. Karmelicka', 'Woda wypływa spod chodnika')::jsonb
      WHERE payload::text LIKE '%Power outage on%' OR payload::text LIKE '%Burst pipe or leak on%'`,
   );
 }

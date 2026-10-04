@@ -22,6 +22,7 @@ import { ProposalCard } from "../proposal-card/proposal-card";
 import { ResponsibilityPicker } from "../responsibility-picker/responsibility-picker";
 import { ReviewNotice } from "../review-notice/review-notice";
 import { TicketProgress } from "../ticket-progress/ticket-progress";
+import { localizedTitle } from "@/shared/utils/incident-summary";
 
 type IncidentPanelProps = {
   incident: Incident;
@@ -80,7 +81,7 @@ export function IncidentPanel({ incident, workspace, category, now, onClose, onL
                 tabIndex={-1}
                 className="text-2xl leading-tight font-semibold tracking-tight text-balance text-foreground-intense outline-none"
               >
-                {incident.title}
+                {localizedTitle(t, incident)}
               </h2>
               <p className="text-sm text-foreground-muted">{[incident.address, incident.district].filter(Boolean).join(" · ")}</p>
               <p className={FACTS}>

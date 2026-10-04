@@ -6,6 +6,7 @@ import { categoryAppearance } from "@/shared/utils/category-appearance";
 import { formatAgo, formatSpan, isJustNow } from "@/shared/utils/format-time";
 import type { QueueItem as QueueItemData } from "../../utils/queue";
 import { Fact } from "@/shared/components/fact/fact";
+import { localizedTitle } from "@/shared/utils/incident-summary";
 
 type QueueItemProps = {
   item: QueueItemData;
@@ -28,7 +29,7 @@ export function QueueItem({ item, category, selected, now, onSelect }: QueueItem
   const { t, locale } = useI18n();
   const categoryId = item.kind === "incident" ? item.incident.categoryId : item.report.categoryId;
   const { Icon, textClass } = categoryAppearance(categoryId);
-  const title = item.kind === "incident" ? item.incident.title : item.report.summary;
+  const title = item.kind === "incident" ? localizedTitle(t, item.incident) : item.report.summary;
   const ago = formatAgo(item.sortAt, now, locale);
   const age = !item.review ? ago : isJustNow(item.sortAt, now) ? t("queue.new") : t("queue.waiting", { time: formatSpan(item.sortAt, now, locale) });
 
@@ -54,7 +55,11 @@ export function QueueItem({ item, category, selected, now, onSelect }: QueueItem
           <span aria-hidden className="text-foreground-muted">
             ·
           </span>
-          <span className="truncate">{statusLine(item, t)}</span>
+          <span className="max-w-[45%] shrink-0 truncate">{item.kind === "incident" ? item.incident.address : item.report.address}</span>
+          <span aria-hidden className="text-foreground-muted">
+            ·
+          </span>
+          <span className="min-w-0 truncate">{statusLine(item, t)}</span>
         </span>
         <span className="shrink-0 text-foreground-muted tabular-nums">
           <Fact icon={Clock} label={item.review ? t("queue.waitingLabel") : t("queue.updated")}>

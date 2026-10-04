@@ -27,7 +27,7 @@ async function officialText(incidentId: string): Promise<string> {
 export async function getIncidentSearchSource(incidentId: string): Promise<SearchSource | null> {
   const row = await findIncidentRow(getPool(), incidentId);
   if (!row) return null;
-  const summary = publicSummary(row.issue_type, row.public_label, row.scope);
+  const summary = `${publicSummary(row.issue_type)}\n${row.public_label}`;
   const classification = [categoryLabel(row.category_id), findIssueType(row.issue_type)?.label].filter(Boolean).join(", ");
   return {
     record_type: "incident",
@@ -67,7 +67,7 @@ export async function hydrateIncidentHit(ctx: ActorContext, incidentId: string):
     ref: { record_type: "incident", record_id: row.id },
     version: row.version,
     title: searchTitle(`${row.reference} · ${row.title}`),
-    excerpt: publicSummary(row.issue_type, row.public_label, row.scope),
+    excerpt: publicSummary(row.issue_type),
     category_id: row.category_id,
   };
 }

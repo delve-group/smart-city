@@ -82,7 +82,7 @@ export async function createIncidentFromReport(client: PoolClient, ctx: ActorCon
              $11, $12, $13, $14, $15, $16, $17, $18, $19, CASE WHEN $18::text IS NULL THEN NULL ELSE now() END)
      RETURNING ${INCIDENT_COLUMNS}`,
     [
-      report.category_id, report.issue_type, incidentTitle(report.issue_type, publicLabel, scope), report.lat, report.lng,
+      report.category_id, report.issue_type, incidentTitle(report.issue_type), report.lat, report.lng,
       report.observed_at, responsibility.service_area_id, streetKey(report.street),
       buildingKey(report.street, report.building_number), scope, publicLabel, scope, report.district, report.urgent,
       single ? "triaged" : "new", single?.institution.id ?? null, single?.rule_id ?? null,
