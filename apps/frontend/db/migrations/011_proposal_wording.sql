@@ -1,4 +1,4 @@
--- Rule-based proposals no longer carry an explanation sentence, and the residents count is a plain number (D079).
+-- Rule-based proposals no longer carry an explanation sentence, and the residents count is a plain number (D081).
 UPDATE action_proposals
 SET explanation = btrim(regexp_replace(explanation,
       '\s*(Prepared from the configured (demo )?responsibility rule[^.]*, without a language model\.|Przygotowano na podstawie skonfigurowanej reguły odpowiedzialności[^.]*\.)', '', 'g'))

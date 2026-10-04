@@ -1,4 +1,4 @@
--- Server-generated labels are stored in their English source form and translated in the interface (D079).
+-- Server-generated labels are stored in their English source form and translated in the interface (D081).
 -- Undoes Polish copies of that wording written by the fixture seed of 2026-10-04; resident-written text is untouched.
 UPDATE incident_evidence SET source = 'Utility feed' WHERE source = 'Odczyt sieci';
 UPDATE incident_evidence SET source = 'Resident report (unverified identity)' WHERE source = 'Zgłoszenie mieszkańca (niezweryfikowana tożsamość)';
